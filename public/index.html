@@ -235,7 +235,30 @@ body.dark-theme .logout-shop-btn:hover { background: #450a0a; border-color: #ef4
 #saas-login-screen::before, #saas-login-screen::after { content: ''; position: absolute; border-radius: 50%; filter: blur(90px); opacity: 0.6; animation: floatOrb 10s infinite alternate ease-in-out; }
 #saas-login-screen::before { width: 450px; height: 450px; background: #93c5fd; top: -150px; left: -100px; }
 #saas-login-screen::after { width: 350px; height: 350px; background: #e9d5ff; bottom: -100px; right: -50px; animation-delay: -5s; }
-.login-glass-card { background: rgba(255, 255, 255, 0.65); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.9); border-radius: 32px; padding: 45px 35px; width: 90%; max-width: 420px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1); text-align: center; position: relative; z-index: 10; }
+.login-glass-card { 
+  background: rgba(255, 255, 255, 0.65); 
+  backdrop-filter: blur(20px); 
+  border: 1px solid rgba(255, 255, 255, 0.9); 
+  border-radius: 32px; 
+  padding: 40px 30px; 
+  width: 100%; 
+  max-width: 420px; 
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1); 
+  text-align: center; 
+  position: relative; 
+  z-index: 10; 
+  
+  /* ✅ เพิ่ม 3 บรรทัดนี้ เพื่อให้กล่องไม่ล้นจอ และใช้นิ้วเลื่อนดูเนื้อหาในกล่องได้ */
+  max-height: 90vh; 
+  overflow-y: auto; 
+  overflow-x: hidden;
+}
+
+/* ✅ เพิ่มบล็อกนี้ต่อท้าย เพื่อซ่อนแถบ Scrollbar ให้กล่องดูสะอาดตาเหมือนแอปพลิเคชัน */
+.login-glass-card::-webkit-scrollbar { 
+  width: 0px; 
+  background: transparent; 
+}
 .login-icon-wrap { width: 75px; height: 75px; background: linear-gradient(135deg, #3b82f6, #6366f1); border-radius: 22px; display: flex; justify-content: center; align-items: center; margin: 0 auto 25px auto; box-shadow: 0 12px 25px rgba(59, 130, 246, 0.4); transform: rotate(-10deg); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
 .login-glass-card:hover .login-icon-wrap { transform: rotate(0deg) scale(1.05); }
 .login-icon-wrap i { font-size: 32px; color: #fff; transform: rotate(10deg); }
@@ -260,7 +283,8 @@ body.dark-theme .logout-shop-btn:hover { background: #450a0a; border-color: #ef4
   position: fixed; top: 0; left: 0; width: 100%; height: 100%;
   background: #f8fafc; z-index: 100000; display: flex; flex-direction: column; 
   justify-content: center; align-items: center; transition: opacity 0.5s ease; 
-  overflow-y: auto; overflow-x: hidden; padding: 20px;
+  overflow: hidden; /* ✅ เปลี่ยนเป็น hidden เพื่อล็อกพื้นหลังไม่ให้เลื่อน */
+  padding: 15px;
 }
 .saas-page-screen::before, .saas-page-screen::after { 
   content: ''; position: absolute; border-radius: 50%; filter: blur(90px); opacity: 0.6; animation: floatOrb 10s infinite alternate ease-in-out; z-index: -1;
