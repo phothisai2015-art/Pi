@@ -773,17 +773,52 @@ function lockScreenManual(isAuto = false) {
 }
 
 let isSaaSLoggingIn = false; 
+
 function processSaaSLogin() {
   if (isSaaSLoggingIn) return; 
-  const contact = document.getElementById('input-login-contact').value.trim(); const password = document.getElementById('input-shop-password').value.trim();
-  if(!contact || !password) return Swal.fire({ icon: 'warning', title: 'ข้อมูลไม่ครบ', text: 'กรุณากรอกอีเมล/เบอร์โทร และรหัสผ่าน' }); 
+  const contact = document.getElementById('input-login-contact').value.trim(); 
+  const password = document.getElementById('input-shop-password').value.trim();
+  
+  if(!contact || !password) { 
+    Swal.fire({ icon: 'warning', title: 'ข้อมูลไม่ครบ', text: 'กรุณากรอกอีเมล/เบอร์โทร และรหัสผ่าน' }); 
+    return; 
+  }
   isSaaSLoggingIn = true; 
-  Swal.fire({ title: 'กำลังตรวจสอบข้อมูล...', text: 'โปรดรอสักครู่ ระบบกำลังเชื่อมต่อฐานข้อมูล', allowOutsideClick: false, showConfirmButton: false, didOpen: () => { Swal.showLoading(); } });
+  
+  Swal.fire({ 
+    title: 'กำลังตรวจสอบข้อมูล...', 
+    text: 'โปรดรอสักครู่ ระบบกำลังเชื่อมต่อฐานข้อมูล', 
+    allowOutsideClick: false, showConfirmButton: false, 
+    didOpen: () => { Swal.showLoading(); } 
+  });
   
   google.script.run.withSuccessHandler(function(res) {
-    /* (โค้ดเดิมด้านในปล่อยไว้เหมือนเดิม) */
-    // ...
-  }).withFailureHandler(function(err) { isSaaSLoggingIn = false; Swal.close(); Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาดในการเชื่อมต่อ', text: err.message }); }).loginShop(contact, password); 
+    isSaaSLoggingIn = false; Swal.close(); 
+    if(res.status === "error") {
+      Swal.fire({ icon: 'error', title: 'เข้าสู่ระบบล้มเหลว', text: res.message });
+    } else {
+      currentTenantSheetId = res.sheetId; 
+      localStorage.setItem('saas_tenant_id', res.sheetId);
+      localStorage.setItem('saas_shop_name', res.shopName);
+      document.getElementById('main-theme-btn').style.display = 'flex'; 
+      loadShopData(currentTenantSheetId);
+      
+      if (res.daysRemaining <= 7) {
+        Swal.fire({
+          icon: 'warning', title: 'ใกล้หมดอายุการใช้งาน!',
+          text: `ระบบของคุณจะหมดอายุในอีก ${res.daysRemaining} วัน กรุณาต่ออายุเพื่อใช้งานอย่างต่อเนื่อง`,
+          confirmButtonText: 'รับทราบ', confirmButtonColor: '#f59e0b', allowOutsideClick: false
+        }).then(() => { hideLoginScreen(res.shopName); });
+      } else {
+        Swal.fire({ 
+          icon: 'success', title: 'เชื่อมต่อสำเร็จ!', text: 'ยินดีต้อนรับ ' + res.shopName, timer: 1500, showConfirmButton: false 
+        }).then(() => { hideLoginScreen(); });
+      }
+    }
+  }).withFailureHandler(function(err) {
+    isSaaSLoggingIn = false; Swal.close(); 
+    Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาดในการเชื่อมต่อ', text: err.message });
+  }).loginShop(contact, password); 
 }
 
 function hideLoginScreen() {
