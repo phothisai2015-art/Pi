@@ -2693,7 +2693,20 @@ function regSendOTP() {
 
 function regPromptOTP(pass, shop, email, phone) {
   Swal.fire({
-// ... (โค้ดเดิม) ...
+    title: 'ยืนยันรหัส OTP', 
+    text: 'รหัสถูกส่งไปที่ ' + email + ' แล้ว',
+    input: 'text', 
+    inputPlaceholder: 'กรอกเลข 6 หลัก',
+    showCancelButton: true, 
+    confirmButtonText: 'ยืนยันสร้างร้าน',
+    cancelButtonText: 'ยกเลิก',
+    showLoaderOnConfirm: true, 
+    allowOutsideClick: false,
+    customClass: { 
+      confirmButton: 'btn btn-primary px-4 py-2 fw-bold rounded-pill shadow-sm', 
+      cancelButton: 'btn btn-light px-4 py-2 fw-bold rounded-pill text-muted border-0 me-2' 
+    },
+    buttonsStyling: false,
     preConfirm: (otp) => {
       if(!otp) { Swal.showValidationMessage('กรุณากรอกรหัส OTP'); return false; }
       return new Promise((resolve) => {
