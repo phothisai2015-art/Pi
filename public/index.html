@@ -2607,10 +2607,11 @@ function switchSaaSPage(targetId) {
     target.style.opacity = '0';
     
     // หากเข้าหน้าไหน ให้รีเซ็ตค่าของหน้านั้นเพื่อความสะอาด
+// หากเข้าหน้าไหน ให้รีเซ็ตค่าของหน้านั้นเพื่อความสะอาด
     if (targetId === 'page-register') {
       document.getElementById('reg-step-1').style.display = 'block';
       document.getElementById('reg-step-success').style.display = 'none';
-      document.getElementById('reg-user').value = ''; document.getElementById('reg-pass').value = '';
+      document.getElementById('reg-pass').value = '';
       document.getElementById('reg-shop').value = ''; document.getElementById('reg-email').value = '';
       document.getElementById('reg-phone').value = '';
     }
