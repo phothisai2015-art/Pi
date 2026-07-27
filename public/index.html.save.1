@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>POS & E-Receipt System</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+
+<!-- 🌟 MAGICAL ADAPTER: เชื่อมต่อ API กับ Pi Server แทน Google Apps Script 100% 🌟 -->
+<script>
+(function() {
+  function callServerApi(prop, args, successCb, failureCb) {
+    let url = '';
+    let options = { method: 'GET', headers: { 'Content-Type': 'application/json' } };
+
+    switch(prop) {
+      case 'getAppInfo': url = '/api/app-info'; break;
+      case 'getScriptUrl': if (successCb) successCb(window.location.origin); return;
+      case 'loginShop':
+        url = '/api/login-shop'; options.method = 'POST';
+        options.body = JSON.stringify({ user: args[0], password: args[1] });
+        break;
+      case 'getShopSettings': url = '/api/settings/' + args[0]; break;
+      case 'updateShopSettings':
+        url = '/api/settings/update'; options.method = 'POST';
+        options.body = JSON.stringify({ tenantId: args[0], newSettings: args[1] });
+        break;
+      case 'getUsers': url = '/api/users/' + args[0]; break;
+      case 'saveUser':
+        url = '/api/users/save'; options.method = 'POST';
+        options.body = JSON.stringify({ tenantId: args[0], user: args[1] });
+        break;
+      case 'deleteUser':
+        url = '/api/users/delete'; options.method = 'POST';
+        options.body = JSON.stringify({ tenantId: args[0], pin: args[1] });
+        break;
+      case 'getProducts': url = '/api/products/' + args[0]; break;
+      case 'addProduct':
+        url = '/api/products/add'; options.method = 'POST';
+        options.body = JSON.stringify({ tenantId: args[0], product: args[1] });
+        break;
+      case 'updateProduct':
+        url = '/api/products/update'; options.method = 'POST';
+        options.body = JSON.stringify({ tenantId: args[0], product: args[1] });
+        break;
+      case 'deleteProduct':
+        url = '/api/products/delete'; options.method = 'POST';
+        options.body = JSON.stringify({ tenantId: args[0], id: args[1] });
+        break;
+      case 'uploadImageToDrive':
+        url = '/api/upload-image'; options.method = 'POST';
+        options.body = JSON.stringify({ tenantId: args[0], base64Data: args[1], fileName: args[2] });
+        break;
+      case 'saveOrder':
+        url = '/api/save-order'; options.method = 'POST';
+        options.body = JSON.stringify({ tenantId: args[0], payload: args[1] });
+        break;
+      case 'voidOrder':
+        url = '/api/void-order'; options.method = 'POST';
+        options.body = JSON.stringify({ tenantId: args[0], receiptId: args[1] });
+        break;
+      case 'voidPartialItem':
+        url = '/api/void-partial-item'; options.method = 'POST';
+        options.body = JSON.stringify({ tenantId: args[0], receiptId: args[1], itemIndex: args[2], returnQty: args[3] });
+        break;
+      case 'getDashboardData': url = '/api/dashboard/' + args[0]; break;
+      case 'updateBulkStock':
+        url = '/api/update-bulk-stock'; options.method = 'POST';
+        options.body = JSON.stringify({ tenantId: args[0], payload: args[1] });
+        break;
+      case 'deleteTestBills':
+        url = '/api/delete-test-bills'; options.method = 'POST';
+        options.body = JSON.stringify({ tenantId: args[0], receiptIdsArray: args[1] });
+        break;
+      case 'logAction':
+        url = '/api/log-action'; options.method = 'POST';
+        options.body = JSON.stringify({ tenantId: args[0], staffName: args[1], action: args[2], detail: args[3] });
+        break;
+      case 'getActivityLogs': url = '/api/activity-logs/' + args[0]; break;
+      case 'getTenantInfoBySheetId': url = '/api/tenant-info/' + args[0]; break;
+      case 'uploadQuickRenewSlip':
+        url = '/api/upload-slip'; options.method = 'POST';
+        options.body = JSON.stringify({ email: args[0], shopName: args[1], pkgName: args[2], price: args[3], base64Data: args[4] });
+        break;
+      default:
+        if (successCb) successCb({ status: 'success' });
+        return;
+    }
+
+
