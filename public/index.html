@@ -398,22 +398,30 @@ body.dark-theme .saas-page-screen { background: #0f172a; }
       <span class="badge bg-warning text-dark px-3 py-1 mt-1 shadow-sm rounded-pill">ฟรี 30 วัน</span>
     </div>
     
-    <div class="mb-3 input-group shadow-sm">
-      <span class="input-group-text"><i class="fa-solid fa-key"></i></span>
-      <input type="password" id="reg-pass" class="form-control login-input border-start-0" placeholder="ตั้งรหัสผ่าน (ENG/เลข)" oninput="this.value = this.value.replace(/[^a-zA-Z0-9]/g, '')">
-    </div>
+    <!-- 1. ??????????? -->
     <div class="mb-3 input-group shadow-sm">
       <span class="input-group-text"><i class="fa-solid fa-store"></i></span>
-      <input type="text" id="reg-shop" class="form-control login-input border-start-0" placeholder="ชื่อร้านค้า">
+      <input type="text" id="reg-shop" class="form-control login-input border-start-0" placeholder="???????????">
     </div>
+
+    <!-- 2. ????? (Gmail) -->
     <div class="mb-3 input-group shadow-sm">
       <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
-      <input type="email" id="reg-email" class="form-control login-input border-start-0" placeholder="อีเมล (Gmail)">
+      <input type="email" id="reg-email" class="form-control login-input border-start-0" placeholder="????? (Gmail)">
     </div>
+
+    <!-- 3. ???????????? -->
+    <div class="mb-3 input-group shadow-sm">
+      <span class="input-group-text"><i class="fa-solid fa-key"></i></span>
+      <input type="password" id="reg-pass" class="form-control login-input border-start-0" placeholder="???????????? (ENG/???)" oninput="this.value = this.value.replace(/[^a-zA-Z0-9]/g, '')">
+    </div>
+
+    <!-- 4. ????????????? (??? mb-4 ????????????????????????????????) -->
     <div class="mb-4 input-group shadow-sm">
       <span class="input-group-text"><i class="fa-solid fa-phone"></i></span>
-      <input type="tel" id="reg-phone" class="form-control login-input border-start-0" placeholder="เบอร์โทรศัพท์">
+      <input type="tel" id="reg-phone" class="form-control login-input border-start-0" placeholder="?????????????">
     </div>
+	
     <button class="btn btn-login-modern w-100 py-3 mb-3" onclick="regSendOTP()">
       <i class="fa-solid fa-paper-plane me-2"></i> รับรหัส OTP ทางอีเมล
     </button>
