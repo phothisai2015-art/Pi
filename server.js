@@ -44,9 +44,10 @@ async function sendAdminAlert(message) {
 app.get('/api/app-info', (req, res) => res.json({ version: "1.0.0" }));
 
 app.post('/api/login-shop', (req, res) => {
-  const { user, password } = req.body;
-  db.get(`SELECT * FROM tenants WHERE LOWER(user) = LOWER(?) AND password = ?`, [user, password], (err, row) => {
-    if (err || !row) return res.json({ status: "error", message: "User หรือรหัสผ่านไม่ถูกต้อง!" });
+  const { contact, password } = req.body;
+  // เช็คทั้งอีเมล และเบอร์โทรศัพท์
+  db.get(`SELECT * FROM tenants WHERE (LOWER(email) = LOWER(?) OR phone = ?) AND password = ?`, [contact, contact, password], (err, row) => {
+    if (err || !row) return res.json({ status: "error", message: "อีเมล/เบอร์โทร หรือรหัสผ่านไม่ถูกต้อง!" });
     if (row.status !== "ACTIVE") return res.json({ status: "error", message: "⚠️ สถานะร้านค้าไม่พร้อมใช้งาน" });
     const today = new Date(); today.setHours(0,0,0,0);
     const exp = new Date(row.expire_date); exp.setHours(0,0,0,0);
@@ -233,9 +234,9 @@ app.get('/api/tenant-info/:sheetId', (req, res) => {
 
 // 🌟 ปลดล็อก: เปิดใช้งานระบบส่ง OTP สมัครร้านผ่าน Email
 app.post('/api/request-register-otp', (req, res) => {
-  const { email, user } = req.body;
-  db.get(`SELECT id FROM tenants WHERE LOWER(user)=LOWER(?) OR LOWER(email)=LOWER(?)`, [user, email], (err, row) => {
-    if (row) return res.json({ status: "error", message: "User หรือ Email นี้มีในระบบแล้ว" });
+  const { email, phone } = req.body;
+  db.get(`SELECT id FROM tenants WHERE LOWER(email)=LOWER(?) OR phone=?`, [email, phone], (err, row) => {
+    if (row) return res.json({ status: "error", message: "Email หรือ เบอร์โทรศัพท์ นี้มีในระบบแล้ว" });
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     otpStore["REG_" + email] = otp;
 
@@ -253,18 +254,19 @@ app.post('/api/request-register-otp', (req, res) => {
 
 // 🌟 ปลดล็อก: ตรวจสอบ OTP และสร้างร้าน
 app.post('/api/verify-and-create-shop', (req, res) => {
-  const { user, password, shopName, email, phone, otp } = req.body;
+  const { password, shopName, email, phone, otp } = req.body;
   if (otpStore["REG_" + email] !== otp) return res.json({ status: "error", message: "รหัส OTP ไม่ถูกต้อง!" });
   
   const sheetId = "SHOP_" + Date.now();
   const expDate = new Date(); expDate.setDate(expDate.getDate() + 30);
   const expStr = expDate.toISOString().split('T')[0];
 
+  // นำ email ไปใส่ในช่อง user ด้วย เพื่อป้องกัน Error ฐานข้อมูล (ไม่ต้องลบตาราง DB ทิ้ง)
   db.run(`INSERT INTO tenants (user, password, shop_name, email, phone, sheet_id, status, expire_date) VALUES (?, ?, ?, ?, ?, ?, 'ACTIVE', ?)`,
-    [user, password, shopName, email, phone, sheetId, expStr], (err) => {
+    [email, password, shopName, email, phone, sheetId, expStr], (err) => {
       if (err) return res.json({ status: "error", message: err.message });
       delete otpStore["REG_" + email];
-      sendAdminAlert(`🎉 <b>มีร้านค้าสมัครใหม่!</b>\nUser: ${user}\nร้าน: ${shopName}\nเบอร์: ${phone}`);
+      sendAdminAlert(`🎉 <b>มีร้านค้าสมัครใหม่!</b>\nอีเมล: ${email}\nร้าน: ${shopName}\nเบอร์: ${phone}`);
       res.json({ status: "success", expireDate: `${padStr(expDate.getDate())}/${padStr(expDate.getMonth()+1)}/${expDate.getFullYear()}` });
     });
 });
