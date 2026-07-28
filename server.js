@@ -377,4 +377,40 @@ async function pollTelegram() {
 }
 pollTelegram();
 
+// =================================================================
+// 📥 API: รับข้อมูลจาก Excel เพื่ออัปเดต (Settings & Products)
+// =================================================================
+app.post('/api/import-excel', (req, res) => {
+  const { tenantId, payload } = req.body;
+  if (!tenantId || !payload) return res.json({ status: "error", message: "ข้อมูลไม่ครบถ้วน" });
+  
+  try {
+    const data = JSON.parse(payload);
+    const settings = data.settings || {};
+    const products = data.products || [];
+
+    // 1. อัปเดตการตั้งค่าร้านค้า
+    if (Object.keys(settings).length > 0) {
+      const stmt = db.prepare(`INSERT INTO settings (tenant_id, key, value) VALUES (?, ?, ?) ON CONFLICT(tenant_id, key) DO UPDATE SET value = excluded.value`);
+      for (const [key, value] of Object.entries(settings)) {
+        stmt.run(tenantId, key, String(value));
+      }
+      stmt.finalize();
+    }
+
+    // 2. อัปเดตหรือเพิ่มสินค้าใหม่
+    if (products.length > 0) {
+      const pStmt = db.prepare(`INSERT INTO products (tenant_id, id, name, price, image, category, stock, min_stock, unit) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(tenant_id, id) DO UPDATE SET name=excluded.name, price=excluded.price, image=excluded.image, category=excluded.category, stock=excluded.stock, min_stock=excluded.min_stock, unit=excluded.unit`);
+      products.forEach(p => {
+        pStmt.run(tenantId, p.id, p.name, p.price, p.image, p.category, p.stock, p.minStock, p.unit);
+      });
+      pStmt.finalize();
+    }
+    
+    res.json({ status: "success" });
+  } catch (e) {
+    res.json({ status: "error", message: e.message });
+  }
+});
+
 app.listen(3000, () => console.log('🚀 POS Application Server running on http://localhost:3000'));
