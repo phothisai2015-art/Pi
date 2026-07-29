@@ -6,6 +6,7 @@
 <link rel="icon" href="https://static.vecteezy.com/system/resources/previews/020/446/804/non_2x/pos-letter-logo-design-on-white-background-pos-creative-circle-letter-logo-concept-pos-letter-design-pos-letter-logo-design-on-white-background-pos-c-vector.jpg">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -57,14 +58,10 @@
         options.body = JSON.stringify({ password: args[0], shopName: args[1], email: args[2], phone: args[3], otp: args[4] });
         break;
 
-      // ?? ????????????????????? ???????????
-      case 'requestResetOTP':
-        url = '/api/request-reset-otp'; options.method = 'POST';
-        options.body = JSON.stringify({ email: args[0] });
-        break;
-      case 'resetPassword':
-        url = '/api/reset-password'; options.method = 'POST';
-        options.body = JSON.stringify({ email: args[0], otp: args[1], newPassword: args[2] });
+      case 'resetPasswordDirect':
+        url = '/api/reset-password-direct'; options.method = 'POST';
+        // เพิ่มการส่ง newPassword: args[2] ไปที่หลังบ้าน
+        options.body = JSON.stringify({ email: args[0], phone: args[1], newPassword: args[2] });
         break;
 
       // ?? ????????????????????? ???????
@@ -76,6 +73,10 @@
         url = '/api/upload-slip-notify'; options.method = 'POST';
         options.body = JSON.stringify({ email: args[0], shopName: args[1], pkgName: args[2], price: args[3], base64Data: args[4] });
         break;
+		case 'clearRenewNotify':
+  url = '/api/clear-renew-notify'; options.method = 'POST';
+  options.body = JSON.stringify({ sheetId: args[0] });
+  break;
 		
 	 default: if (successCb) successCb({ status: 'success' }); return;
     }
@@ -335,7 +336,10 @@ body.dark-theme .login-glass-card .form-floating > .form-control:not(:placeholde
 }
 .saas-page-screen::before { width: 450px; height: 450px; background: #93c5fd; top: -150px; left: -100px; }
 .saas-page-screen::after { width: 350px; height: 350px; background: #e9d5ff; bottom: -100px; right: -50px; animation-delay: -5s; }
-body.dark-theme .saas-page-screen { background: #0f172a; }
+body.dark-theme .saas-page-screen, 
+body.dark-theme #saas-login-screen { 
+  background: #0f172a !important; 
+}
 
 /* CSS สำหรับหน้ารีเซ็ตรหัสผ่าน (OTP & Input) */
 .otp-box { width: 48px; height: 56px; background: #f1f5f9 !important; border: 1.5px solid transparent !important; color: #0f172a !important; border-radius: 14px !important; text-align: center; font-size: 1.6rem; font-weight: 700; transition: all 0.2s ease; padding: 0 !important; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); }
@@ -386,6 +390,81 @@ body.dark-theme .saas-page-screen { background: #0f172a; }
   transform: rotate(0deg); 
 }
 
+/* 🌟 สไลด์โชว์โปรโมชั่นหน้าเข้าสู่ระบบ */
+.login-banner-wrap {
+  width: 100%;
+  max-width: 420px;
+  border-radius: 24px;
+  overflow: hidden;
+  margin-bottom: 20px;
+  position: relative;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+  z-index: 10;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+.login-banner-slider {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+.login-banner-slider::-webkit-scrollbar { display: none; /* ซ่อนแถบเลื่อน */ }
+.login-banner-slide {
+  flex: 0 0 100%;
+  width: 100%;
+  aspect-ratio: 16 / 9; /* สัดส่วนภาพแนวนอน (ปรับเป็น 1/1 ได้ถ้าใช้รูปจัตุรัส) */
+  object-fit: cover;
+  scroll-snap-align: start;
+}
+.login-banner-dots {
+  position: absolute;
+  bottom: 12px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  z-index: 20;
+}
+.login-banner-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.4);
+  transition: all 0.3s ease;
+  cursor: pointer; /* เพิ่มให้เมาส์เปลี่ยนเป็นรูปมือเวลากด */
+}
+.login-banner-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.4);
+  transition: all 0.3s ease;
+}
+.login-banner-dot.active {
+  background: #ffffff;
+  transform: scale(1.3);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+/* 🌟 อนุญาตให้หน้าล็อกอินไถจอขึ้นลงได้ กรณีจอมือถือเล็กมาก */
+#saas-login-screen {
+  justify-content: flex-start !important;
+  overflow-y: auto !important;
+  padding-top: 30px !important;
+  padding-bottom: 30px !important;
+}
+@media (min-height: 800px) {
+  #saas-login-screen { justify-content: center !important; padding-top: 15px !important; }
+}
+/* 🌟 เปลี่ยนสีตัวหนังสือเป็นสีขาว เฉพาะตอนเลือกแพ็กเกจ (ในโหมดมืด) */
+    body.dark-theme .renew-pkg-card.selected .renew-pkg-title,
+    body.dark-theme .renew-pkg-card.selected .renew-pkg-price,
+    body.dark-theme .renew-pkg-card.selected .renew-pkg-features {
+      color: #ffffff !important;
+    }
+
 </style>
 </head>
 <body>
@@ -397,6 +476,7 @@ body.dark-theme .saas-page-screen { background: #0f172a; }
 <!-- 🌟 หน้าจอเข้าสู่ระบบ -->
 <!-- 🌟 หน้าจอเข้าสู่ระบบ -->
 <div id="saas-login-screen" class="saas-page-screen">
+  
   <div class="login-glass-card">
     <div class="login-icon-wrap"><i class="fa-solid fa-bolt text-white"></i></div>
     <h3 class="fw-bold text-dark mb-2" style="letter-spacing: 1px;">SaaS POS System</h3>
@@ -423,7 +503,7 @@ body.dark-theme .saas-page-screen { background: #0f172a; }
     </div>
 
     <div class="mt-3">
-      <a href="https://line.me/ti/p/~NAKNAK_NICKNICK" target="_blank" class="login-link-item line-support justify-content-center mt-2">
+      <a href="https://lin.ee/zoOSrmC" target="_blank" class="login-link-item line-support justify-content-center mt-2">
         <i class="fa-brands fa-line fs-5"></i> ติดต่อแอดมิน / แจ้งปัญหา
       </a>
     </div>
@@ -467,7 +547,7 @@ body.dark-theme .saas-page-screen { background: #0f172a; }
     </div>
 	
     <button class="btn btn-login-modern w-100 py-3 mb-3" onclick="regSendOTP()">
-      <i class="fa-solid fa-paper-plane me-2"></i> รับรหัส OTP ทางอีเมล
+      <i class="fa-solid fa-paper-plane me-2"></i> สมัครเปิดร้านค้า
     </button>
     <a href="javascript:void(0);" onclick="switchSaaSPage('saas-login-screen')" class="login-link-item justify-content-center mt-2">
       <i class="fa-solid fa-arrow-left me-1"></i> ย้อนกลับไปหน้าเข้าสู่ระบบ
@@ -501,9 +581,9 @@ body.dark-theme .saas-page-screen { background: #0f172a; }
     </div>
     
     <div class="mb-4 text-start">
-      <label class="text-secondary fw-bold small mb-2 ps-1">อีเมลที่ลงทะเบียนร้านค้า</label>
-      <input type="email" id="renew-email-input" class="form-control form-control-lg login-input" placeholder="example@gmail.com">
-    </div>
+  <label class="text-secondary fw-bold small mb-2 ps-1">อีเมล หรือ เบอร์โทรศัพท์ ที่ลงทะเบียน</label>
+  <input type="text" id="renew-email-input" class="form-control form-control-lg login-input" placeholder="กรอกอีเมล หรือ เบอร์โทรศัพท์">
+</div>
 
     <div class="mb-4 text-start">
       <label class="text-secondary fw-bold small mb-2 ps-1">เลือกแพ็กเกจที่ต้องการ</label>
@@ -577,25 +657,51 @@ body.dark-theme .saas-page-screen { background: #0f172a; }
 </div>
 
 <!-- ============================================== -->
-<!-- 🌟 หน้ารีเซ็ตรหัสผ่าน (Reset Password)        -->
+<!-- 🌟 หน้ารีเซ็ตรหัสผ่าน (Reset Password แบบตั้งเอง) -->
 <!-- ============================================== -->
 <div id="page-reset" class="saas-page-screen" style="display: none;">
-  <div class="login-glass-card">
+  <!-- หน้ากรอกข้อมูล -->
+  <div class="login-glass-card" id="reset-step-1">
     <div class="text-center mb-4">
       <div class="icon-wrap" style="background: linear-gradient(135deg, #3b82f6, #6366f1);"><i class="fa-solid fa-unlock-keyhole"></i></div>
-      <h3 class="fw-bold text-dark">ลืมรหัสผ่าน?</h3>
-      <p class="text-secondary small mt-2">กรอกอีเมลที่ใช้สมัครเพื่อรับ OTP</p>
+      <h3 class="fw-bold text-dark">ตั้งรหัสผ่านใหม่</h3>
+      <p class="text-secondary small mt-2">กรอกข้อมูลให้ตรงกับที่ลงทะเบียนไว้เพื่อเปลี่ยนรหัส</p>
     </div>
-    <div class="mb-4 input-group shadow-sm">
+    
+    <div class="mb-3 input-group shadow-sm">
       <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
-      <input type="email" id="reset-email" class="form-control login-input border-start-0" placeholder="อีเมลของคุณ">
+      <input type="text" id="reset-email" class="form-control login-input border-start-0" placeholder="อีเมล (Gmail)">
     </div>
-    <button class="btn btn-login-modern w-100 py-3 mb-3" onclick="resetRequestOTP()">
-      <i class="fa-solid fa-paper-plane me-2"></i> รับ OTP รีเซ็ตรหัส
+    
+    <!-- เปลี่ยน margin ด้านล่างให้แคบลงเพื่อเพิ่มช่องรหัสผ่าน -->
+    <div class="mb-3 input-group shadow-sm">
+      <span class="input-group-text"><i class="fa-solid fa-phone"></i></span>
+      <input type="tel" id="reset-phone" class="form-control login-input border-start-0" placeholder="เบอร์โทรศัพท์ที่ลงทะเบียนไว้">
+    </div>
+
+    <!-- 🌟 เพิ่มช่องให้ตั้งรหัสผ่านใหม่ -->
+    <div class="mb-4 input-group shadow-sm">
+      <span class="input-group-text"><i class="fa-solid fa-key"></i></span>
+      <input type="password" id="reset-new-pass" class="form-control login-input border-start-0" placeholder="ตั้งรหัสผ่านใหม่ (ENG/เลข)" oninput="this.value = this.value.replace(/[^a-zA-Z0-9]/g, '')">
+    </div>
+
+    <button class="btn btn-login-modern w-100 py-3 mb-3" onclick="resetPasswordDirectly()">
+      <i class="fa-solid fa-floppy-disk me-2"></i> บันทึกรหัสผ่านใหม่
     </button>
     <a href="javascript:void(0);" onclick="switchSaaSPage('saas-login-screen')" class="login-link-item justify-content-center mt-2">
       <i class="fa-solid fa-arrow-left me-1"></i> ย้อนกลับไปหน้าเข้าสู่ระบบ
     </a>
+  </div>
+
+  <!-- หน้าแสดงผลลัพธ์สำเร็จ -->
+  <div class="login-glass-card text-center" id="reset-step-success" style="display: none;">
+    <i class="fa-solid fa-circle-check fa-4x text-success mb-3"></i>
+    <h3 class="fw-bold text-dark">สำเร็จ!</h3>
+    <p class="text-secondary small">ระบบได้เปลี่ยนรหัสผ่านให้ร้านของคุณเรียบร้อยแล้ว</p>
+    <div class="bg-white p-3 rounded-4 my-3 text-center border shadow-sm">
+      <span class="text-muted fw-bold">ร้านค้า:</span> <b class="text-primary fs-5 ms-2" id="reset-res-shop"></b>
+    </div>
+    <button class="btn btn-success w-100 py-3 fw-bold rounded-pill shadow-sm" onclick="switchSaaSPage('saas-login-screen')">เข้าสู่ระบบด้วยรหัสใหม่</button>
   </div>
 </div>
 
@@ -752,6 +858,11 @@ document.addEventListener("DOMContentLoaded", function() {
 
 function loadShopData(tenantId) {
   if(!tenantId) return;
+  // 🌟 เพิ่มการดึงข้อมูลเพื่อเช็ก Pop-up อนุมัติวันใช้งาน
+  google.script.run.withSuccessHandler(function(info) {
+    if(info) checkApprovalPopup(info);
+  }).getTenantInfoBySheetId(tenantId);
+
   google.script.run.withSuccessHandler(function(settings) {
     if(settings && settings.shop_logo) { document.getElementById('display-shop-logo').src = settings.shop_logo; document.getElementById('display-shop-logo').style.display = 'inline-block'; }
   }).getShopSettings(tenantId);
@@ -1042,16 +1153,21 @@ document.addEventListener("DOMContentLoaded", function() {
     </div>
   </div>
 
+  <!-- 🌟 Modal ระบบรับสินค้าเข้าด่วน -->
   <div id="bulk-stock-modal" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(5px); z-index: 1060; justify-content: center; align-items: center; padding: 20px;">
     <div class="bg-white p-4 rounded-4 shadow-lg d-flex flex-column" style="width: 100%; max-width: 800px; height: 85vh;">
       <div class="d-flex justify-content-between align-items-center mb-3">
         <h4 class="fw-bold text-success m-0"><i class="fa-solid fa-boxes-stacked me-2"></i> ระบบรับสินค้าเข้าด่วน</h4>
         <button class="btn-close" onclick="closeBulkModal()"></button>
       </div>
+      
+      <!-- 🌟 เพิ่มปุ่ม "ผูกบาร์โค้ดลัง" ไว้ข้างๆ ช่องยิงสแกน -->
       <div class="input-group mb-3 shadow-sm" style="border-radius: 12px; overflow: hidden;">
         <span class="input-group-text bg-success text-white border-0 px-4"><i class="fa-solid fa-barcode fa-lg"></i></span>
         <input type="text" id="bulk-scan-input" class="form-control form-control-lg border-0 bg-light fw-bold" placeholder="ยิงบาร์โค้ด (S/N) หรือ พิมพ์ชื่อสินค้าแล้วกด Enter..." autocomplete="off">
+        <button class="btn btn-warning fw-bold px-3 border-0" onclick="openBoxMappingModal()"><i class="fa-solid fa-box-open me-1"></i> ผูกบาร์โค้ดลัง</button>
       </div>
+
       <div class="flex-fill border rounded-3 bg-white" style="overflow-y: auto; overflow-x: auto; -webkit-overflow-scrolling: touch;">
         <table class="table table-hover align-middle mb-0" style="min-width: 450px;">
           <thead class="table-light sticky-top">
@@ -1066,6 +1182,48 @@ document.addEventListener("DOMContentLoaded", function() {
           <button class="btn btn-light fw-bold px-4 py-2" onclick="closeBulkModal()">ยกเลิก</button>
           <button class="btn btn-success fw-bold px-4 py-2 shadow-sm" id="btn-save-bulk" onclick="saveBulkStock()"><i class="fa-solid fa-floppy-disk me-2"></i> บันทึกสต็อกทั้งหมด</button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🌟 Modal การตั้งค่าผูกบาร์โค้ดลัง (ซ่อนไว้ เรียกใช้เมื่อกดปุ่ม) -->
+  <div id="box-mapping-modal" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(5px); z-index: 1070; justify-content: center; align-items: center; padding: 15px;">
+    <div class="bg-white p-4 rounded-4 shadow-lg d-flex flex-column" style="width: 100%; max-width: 600px; max-height: 85vh;">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold text-dark m-0"><i class="fa-solid fa-box-open text-warning me-2"></i> ตั้งค่าบาร์โค้ดยกลัง</h5>
+        <button class="btn-close" onclick="closeBoxMappingModal()"></button>
+      </div>
+      
+      <div class="bg-light p-3 rounded-3 border mb-3">
+         <div class="row g-2">
+           <div class="col-md-4">
+              <label class="small fw-bold text-muted">บาร์โค้ดข้างลัง</label>
+              <input type="text" id="map-box-code" class="form-control form-control-sm fw-bold" placeholder="เช่น 885999">
+           </div>
+           <div class="col-md-5">
+              <label class="small fw-bold text-muted">รหัสสินค้าชิ้นเดี่ยว</label>
+              <input type="text" id="map-item-code" class="form-control form-control-sm fw-bold" list="map-item-list" placeholder="เลือกรหัสสินค้า">
+              <datalist id="map-item-list"></datalist>
+           </div>
+           <div class="col-md-3">
+              <label class="small fw-bold text-muted">จำนวนชิ้น/ลัง</label>
+              <div class="input-group input-group-sm">
+                 <input type="number" id="map-qty" class="form-control fw-bold text-center" value="12" min="2">
+                 <button class="btn btn-primary fw-bold" onclick="addBoxMapping()"><i class="fa-solid fa-plus"></i></button>
+              </div>
+           </div>
+         </div>
+      </div>
+
+      <div class="flex-fill border rounded-3 bg-white" style="overflow-y: auto;">
+        <table class="table table-hover align-middle mb-0 small text-nowrap">
+          <thead class="table-light sticky-top">
+            <tr><th>บาร์โค้ดลัง</th><th>สินค้าเดี่ยวที่ผูกไว้</th><th class="text-center">จำนวน/ลัง</th><th class="text-end pe-3">ลบ</th></tr>
+          </thead>
+          <tbody id="box-mapping-body">
+             <tr><td colspan="4" class="text-center py-4 text-muted">กำลังโหลดข้อมูล...</td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
@@ -1227,13 +1385,32 @@ document.addEventListener("DOMContentLoaded", function() {
   function sendToGoogleScript(btn, data) {
     if(currentMode === 'add') {
       google.script.run.withSuccessHandler((res) => {
-        if (res === "duplicate") Swal.fire('รหัสสินค้าซ้ำ!', 'รหัสนี้มีอยู่ในระบบแล้ว', 'error');
+        if (res === "duplicate") {
+           Swal.fire('รหัสสินค้าซ้ำ!', 'รหัสนี้มีอยู่ในระบบแล้ว', 'error');
+           // 🌟 แก้บั๊ก: ปลดล็อกปุ่มและลบข้อความอัปโหลดค้าง
+           btn.disabled = false;
+           document.getElementById('upload-status').innerText = '';
+        }
         else { google.script.run.logAction(currentTenantSheetId, currentStaff.name, "เพิ่มสินค้า", "รหัส: " + data.id); finalizeSave(btn); }
+      }).withFailureHandler((err) => {
+         // ดักจับกรณีเน็ตหลุดหรือเซิร์ฟเวอร์มีปัญหา จะได้ไม่ค้าง
+         Swal.fire('ข้อผิดพลาด', err.message, 'error');
+         btn.disabled = false;
+         document.getElementById('upload-status').innerText = '';
       }).addProduct(currentTenantSheetId, data);
     } else {
       google.script.run.withSuccessHandler((res) => {
-        if (res === "duplicate") Swal.fire('รหัสสินค้าซ้ำ!', 'รหัสนี้ไปซ้ำกับสินค้าอื่น', 'error');
+        if (res === "duplicate") {
+           Swal.fire('รหัสสินค้าซ้ำ!', 'รหัสนี้ไปซ้ำกับสินค้าอื่น', 'error');
+           // 🌟 แก้บั๊ก: ปลดล็อกปุ่มและลบข้อความอัปโหลดค้าง
+           btn.disabled = false;
+           document.getElementById('upload-status').innerText = '';
+        }
         else { google.script.run.logAction(currentTenantSheetId, currentStaff.name, "แก้ไขสินค้า", "รหัส: " + data.id); finalizeSave(btn); }
+      }).withFailureHandler((err) => {
+         Swal.fire('ข้อผิดพลาด', err.message, 'error');
+         btn.disabled = false;
+         document.getElementById('upload-status').innerText = '';
       }).updateProduct(currentTenantSheetId, data);
     }
   }
@@ -1248,7 +1425,25 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   }
 
-  function openBulkModal() { bulkItems = []; renderBulkTable(); document.getElementById('bulk-stock-modal').style.display = 'flex'; setTimeout(() => document.getElementById('bulk-scan-input').focus(), 100); }
+  // ตัวแปรเก็บข้อมูลบาร์โค้ดลัง
+  window.globalBoxMappings = [];
+
+  function openBulkModal() { 
+    bulkItems = []; 
+    renderBulkTable(); 
+    document.getElementById('bulk-stock-modal').style.display = 'flex'; 
+    
+    // โหลดข้อมูล "การผูกลัง" จากเซิร์ฟเวอร์มารอไว้ก่อนเลย
+    google.script.run.withSuccessHandler(function(settings) {
+        if(settings && settings.box_mappings) {
+           try { window.globalBoxMappings = JSON.parse(settings.box_mappings); } 
+           catch(e) { window.globalBoxMappings = []; }
+        }
+    }).getShopSettings(currentTenantSheetId);
+
+    setTimeout(() => document.getElementById('bulk-scan-input').focus(), 100); 
+  }
+  
   function closeBulkModal() { document.getElementById('bulk-stock-modal').style.display = 'none'; }
 
   document.getElementById('bulk-scan-input').addEventListener('keypress', function(e) {
@@ -1256,12 +1451,137 @@ document.addEventListener("DOMContentLoaded", function() {
   });
 
   function processBulkScan(code) {
-    let prod = globalProducts.find(p => p.id.toLowerCase() === code || p.name.toLowerCase() === code);
+    let scanCode = code;
+    let multiplier = 1;
+    
+    // 1. ตรวจสอบว่ารหัสที่ยิงมาเป็น "บาร์โค้ดลัง" หรือไม่
+    if (typeof window.globalBoxMappings !== 'undefined') {
+      let mapping = window.globalBoxMappings.find(m => m.boxCode.toLowerCase() === code);
+      if (mapping) {
+        scanCode = mapping.itemCode.toLowerCase(); // แปลงเป็นรหัสสินค้าชิ้นเดี่ยว
+        multiplier = mapping.qty; // ดึงตัวคูณ (เช่น 12)
+      }
+    }
+
+    let prod = globalProducts.find(p => p.id.toLowerCase() === scanCode || p.name.toLowerCase() === scanCode);
     if (!prod) return Swal.fire({ icon: 'error', title: 'ไม่พบสินค้า', text: `รหัส: ${code}`, timer: 1500 });
+
+    // 2. 🚨 ดักจับและบล็อกสินค้าที่ "ไม่จำกัด" (Bug Fix)
+    if (prod.stock === "ไม่จำกัด") {
+       return Swal.fire({ 
+          icon: 'warning', 
+          title: 'ข้ามการรับเข้า', 
+          html: `สินค้านี้ <b class="text-danger">${prod.name}</b><br>ถูกตั้งค่าสต็อกเป็นแบบ <b>"ไม่จำกัด"</b><br>ไม่จำเป็นต้องรับเข้าคลังครับ!`, 
+          confirmButtonColor: '#f59e0b' 
+       });
+    }
+
+    // 3. เพิ่มลงตาราง (ถ้ามีอยู่แล้วบวกเพิ่ม, ถ้ายังไม่มีสร้างแถวใหม่)
     let existing = bulkItems.find(i => i.id === prod.id);
-    if (existing) existing.addQty += 1;
-    else bulkItems.unshift({ id: prod.id, name: prod.name, image: prod.image, unit: prod.unit || 'ชิ้น', oldStock: parseInt(prod.stock) || 0, addQty: 1 });
+    if (existing) {
+       existing.addQty += multiplier; // ถ้าเป็นลังจะบวกทีละ 12, ถ้าชิ้นเดี่ยวบวกทีละ 1
+    } else {
+       bulkItems.unshift({ 
+         id: prod.id, 
+         name: prod.name, 
+         image: prod.image, 
+         unit: prod.unit || 'ชิ้น', 
+         oldStock: parseInt(prod.stock) || 0, 
+         addQty: multiplier 
+       });
+    }
     renderBulkTable();
+  }
+
+  // ============================================
+  // 📦 ระบบตั้งค่าผูกบาร์โค้ดลัง (Box Mappings)
+  // ============================================
+  function openBoxMappingModal() {
+     document.getElementById('box-mapping-modal').style.display = 'flex';
+     
+     // โหลดรายชื่อสินค้าเดี่ยวลงใน Datalist เพื่อให้ค้นหาง่ายๆ
+     let datalist = document.getElementById('map-item-list');
+     datalist.innerHTML = '';
+     globalProducts.forEach(p => {
+        if(p.stock !== "ไม่จำกัด") {
+           let opt = document.createElement('option');
+           opt.value = p.id; opt.text = p.name;
+           datalist.appendChild(opt);
+        }
+     });
+     renderBoxMappingTable();
+  }
+
+  function closeBoxMappingModal() { document.getElementById('box-mapping-modal').style.display = 'none'; }
+
+  function renderBoxMappingTable() {
+     const tbody = document.getElementById('box-mapping-body');
+     tbody.innerHTML = '';
+     if(window.globalBoxMappings.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-muted">ยังไม่มีการตั้งค่าบาร์โค้ดลัง</td></tr>';
+        return;
+     }
+     
+     window.globalBoxMappings.forEach((m, index) => {
+        let prod = globalProducts.find(p => p.id === m.itemCode);
+        let prodName = prod ? prod.name : m.itemCode;
+        tbody.innerHTML += `
+          <tr>
+            <td class="fw-bold text-primary">${m.boxCode}</td>
+            <td>${prodName}<br><small class="text-muted">${m.itemCode}</small></td>
+            <td class="text-center fw-bold text-success">x${m.qty}</td>
+            <td class="text-end pe-3"><button class="btn btn-sm btn-outline-danger" onclick="deleteBoxMapping(${index})"><i class="fa-solid fa-trash"></i></button></td>
+          </tr>
+        `;
+     });
+  }
+
+  function addBoxMapping() {
+     let boxCode = document.getElementById('map-box-code').value.trim();
+     let itemCode = document.getElementById('map-item-code').value.trim();
+     let qty = parseInt(document.getElementById('map-qty').value);
+
+     if(!boxCode || !itemCode || isNaN(qty) || qty < 1) {
+        return Swal.fire('ข้อมูลไม่ครบ', 'กรุณากรอกบาร์โค้ดลัง รหัสสินค้าเดี่ยว และจำนวนให้ถูกต้อง', 'warning');
+     }
+     
+     let prod = globalProducts.find(p => p.id === itemCode);
+     if(!prod) return Swal.fire('ไม่พบสินค้า', 'ไม่มีรหัสสินค้านี้ในระบบ กรุณาเลือกใหม่', 'error');
+
+     // 🚨 เพิ่มระบบดักจับ: ห้ามบาร์โค้ดลัง ไปตรงกับ S/N ของสินค้าเดี่ยวชิ้นไหนเลยในคลัง
+     let conflictProd = globalProducts.find(p => p.id.toLowerCase() === boxCode.toLowerCase());
+     if (conflictProd) {
+        return Swal.fire({
+           icon: 'error',
+           title: 'รหัสลังซ้ำกับสินค้าปกติ!',
+           html: `รหัส <b>${boxCode}</b> นี้ไปชนกับสินค้า <b>${conflictProd.name}</b><br>กรุณาเติมตัวอักษรนำหน้า เช่น <b>B-${boxCode}</b> เพื่อป้องกันระบบสับสนครับ`
+        });
+     }
+
+     // ลบอันเก่าออกถ้าบาร์โค้ดลังซ้ำ (กรณีต้องการอัปเดตแก้ไข)
+     window.globalBoxMappings = window.globalBoxMappings.filter(m => m.boxCode !== boxCode);
+     
+     // เพิ่มการจับคู่ใหม่
+     window.globalBoxMappings.push({ boxCode: boxCode, itemCode: itemCode, qty: qty });
+     saveBoxMappingsToServer();
+     
+     document.getElementById('map-box-code').value = ''; document.getElementById('map-item-code').value = '';
+     document.getElementById('map-qty').value = '12'; document.getElementById('map-box-code').focus();
+  }
+
+  function deleteBoxMapping(index) {
+     window.globalBoxMappings.splice(index, 1);
+     saveBoxMappingsToServer();
+  }
+
+  function saveBoxMappingsToServer() {
+     Swal.fire({ title: 'กำลังบันทึก...', didOpen: () => Swal.showLoading(), allowOutsideClick: false });
+     let newSettings = { box_mappings: JSON.stringify(window.globalBoxMappings) };
+     google.script.run.withSuccessHandler(() => {
+        Swal.close();
+        renderBoxMappingTable();
+        Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 1500 }).fire({ icon: 'success', title: 'บันทึกเรียบร้อย' });
+     }).updateShopSettings(currentTenantSheetId, newSettings);
   }
 
   function updateBulkQty(id, newQty) { let val = parseInt(newQty) || 1; let item = bulkItems.find(i => i.id === id); if (item) { item.addQty = val; renderBulkTable(); } }
@@ -1511,6 +1831,9 @@ document.addEventListener("DOMContentLoaded", function() {
             </tbody>
           </table>
           <div class="footer-text">ออกโดยระบบ POS Management</div>
+		  
+		<script>
+
         </body>
       </html>
     `);
@@ -1536,12 +1859,13 @@ document.addEventListener("DOMContentLoaded", function() {
       .pos-mobile-unsticky { position: static !important; }
       #pos-cart-container { max-height: 40vh !important; min-height: 200px !important; }
       #pos-grid-view { max-height: 45vh !important; min-height: 200px !important; }
-      #pos-category-filter { width: 100% !important; margin-top: 5px; } 
-    }
-    @media (max-width: 991px) and (orientation: landscape) {
-      .pos-mobile-header { padding: 5px 15px !important; }
-      #pos-cart-container { max-height: 250px !important; }
-      #pos-grid-view { max-height: 250px !important; }
+      
+      /* 🌟 แก้ไขปัญหากล่องหมวดหมู่ทะลุขอบ และจัดปุ่มให้เต็มจอสวยงาม */
+      #page-pos .gap-3 { gap: 10px !important; padding: 12px !important; }
+      #page-pos .flex-shrink-0, #page-pos .input-group.flex-grow-1 { flex: 1 1 100% !important; width: 100% !important; min-width: 100% !important; justify-content: space-between; margin-bottom: 5px; }
+      #btn-mode-barcode, #btn-mode-grid { flex: 1; text-align: center; }
+      #pos-category-filter { flex: 1 1 100% !important; min-width: 100% !important; margin-top: 5px; font-size: 14px; } 
+      #grid-size-controller { justify-content: space-between; margin-top: 5px; padding: 0 5px; }
     }
     
     .return-item-row-pos { display: flex; align-items: center; gap: 10px; padding: 10px; border-bottom: 1px solid #e2e8f0; }
@@ -1558,17 +1882,53 @@ document.addEventListener("DOMContentLoaded", function() {
     .pos-card-badge { position: absolute; top: 6px; right: 6px; padding: 3px 8px; font-size: 11px; font-weight: 800; border-radius: 20px; color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
     .custom-colorful-slider { -webkit-appearance: none; width: 120px; height: 10px; background: linear-gradient(90deg, #3b82f6, #10b981); border-radius: 5px; outline: none; }
     .custom-colorful-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 24px; height: 24px; border-radius: 50%; background: #f59e0b; cursor: pointer; border: 3px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+	/* 🌟 ระบบ Grid รูปภาพแบบจัดเต็มพื้นที่ ยืดหดอัตโนมัติ */
+    /* 🌟 ระบบ Grid รูปภาพแบบจัดเต็มพื้นที่ ยืดหดอัตโนมัติ (รองรับ 5 ระดับ) */
+    #pos-menu-grid {
+      display: grid !important;
+      grid-template-columns: repeat(auto-fill, minmax(115px, 1fr)); /* ค่าเริ่มต้นระดับ 2 */
+      gap: 10px; /* ลดช่องไฟนิดนึงให้ยัด 4 รูปง่ายขึ้น */
+      width: 100%;
+    }
+    .pos-product-card {
+      width: 100% !important;
+      height: 100% !important;
+      min-height: 140px; /* ลดความสูงขั้นต่ำลงมารองรับกล่องเล็ก */
+      justify-content: flex-start !important;
+      padding: 8px !important; /* ลดระยะขอบในกล่องให้ตัวหนังสือมีที่อยู่ */
+    }
+    .pos-card-img, .pos-card-noimg {
+      width: 100% !important;
+      height: auto !important;
+      aspect-ratio: 1 / 1; 
+      min-height: unset !important;
+    }
+    .pos-card-noimg { flex-direction: column; }
+    
+    /* บังคับชื่อสินค้าและราคาให้ย่อตามขนาดกล่อง */
+    .pos-card-name {
+      font-size: 13px; 
+      white-space: normal; 
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2; /* อนุญาตให้โชว์ชื่อสินค้าได้ 2 บรรทัดถ้าแคบจัด */
+      -webkit-box-orient: vertical;
+    }
+    .pos-card-price { font-size: 14px; }
+    .pos-card-badge { font-size: 9px; padding: 3px 6px; top: 4px; right: 4px; }
+
   </style>
 
-  <div class="bg-white shadow-sm px-4 py-3 d-flex justify-content-between align-items-center sticky-top pos-mobile-header">
+  <div class="d-flex justify-content-between align-items-center mb-4 mt-3 px-3 px-md-4 pos-mobile-header" style="background: transparent;">
     <div class="d-flex align-items-center gap-4">
-      <h4 class="fw-bold text-primary m-0"><i class="fa-solid fa-cash-register me-2"></i> ระบบจุดขาย (POS)</h4>
+      <h3 class="fw-bold text-primary m-0"><i class="fa-solid fa-cash-register me-2"></i> ระบบจุดขาย (POS)</h3>
       <button class="btn btn-info text-white fw-bold rounded-pill px-3 px-md-4 shadow-sm d-none d-sm-block" onclick="openCFD()"><i class="fa-solid fa-desktop me-1"></i> จอลูกค้า</button>
     </div>
     <div class="d-flex align-items-center pos-mobile-btns">
       <button class="btn btn-info text-white fw-bold rounded-pill px-3 shadow-sm d-block d-sm-none me-2" onclick="openCFD()"><i class="fa-solid fa-desktop"></i></button>
-      <button class="btn btn-secondary fw-bold rounded-pill px-3 px-md-4 me-2 shadow-sm" onclick="lockScreenManual()"><i class="fa-solid fa-lock"></i><span class="d-none d-md-inline ms-1"> ล็อกเครื่อง</span></button>
-      <button class="btn btn-danger fw-bold rounded-pill px-3 px-md-4 shadow-sm" onclick="closePOSPage()"><i class="fa-solid fa-arrow-left me-md-2"></i> <span class="d-none d-md-inline">กลับ</span></button>
+      <button class="btn btn-outline-secondary fw-bold rounded-pill px-3 px-md-4 me-2" onclick="lockScreenManual()"><i class="fa-solid fa-lock"></i><span class="d-none d-md-inline ms-1"> ล็อกเครื่อง</span></button>
+      <button class="btn btn-outline-danger fw-bold rounded-pill px-4" onclick="closePOSPage()"><i class="fa-solid fa-arrow-left me-2"></i> กลับ </button>
     </div>
   </div>
 
@@ -1592,7 +1952,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
             <div id="grid-size-controller" class="d-none align-items-center gap-2 flex-shrink-0">
               <span class="fw-bold text-muted small"><i class="fa-solid fa-magnifying-glass-plus"></i> ขนาด:</span>
-              <input type="range" id="image-size-slider" min="100" max="220" step="30" value="130" class="custom-colorful-slider" oninput="changeGridSize(this.value)">
+              <input type="range" id="image-size-slider" min="75" max="235" step="40" value="115" class="custom-colorful-slider" oninput="changeGridSize(this.value)">
             </div>
           </div>
 
@@ -1726,15 +2086,46 @@ document.addEventListener("DOMContentLoaded", function() {
   <script>
     let posCart = []; let shopPromptPayNo = ""; let shopName = ""; let currentPOSMode = "barcode"; let isAutoPrintEnabled = false; let cachedShopSettings = {}; 
     let isProcessingOrder = false; let lastScannedItem = null; let posRawSalesData = []; 
-    const cfdChannel = new BroadcastChannel('pos_cfd_channel');
+
+    // 🌟 ระบบ Socket.io ส่งข้อมูลไปจอลูกค้าออนไลน์
+    const socket = io(); 
 
     function syncCFD(action = 'UPDATE_CART', extraData = {}) {
       if (isProcessingOrder && action === 'UPDATE_CART') return;
+      if (!currentTenantSheetId) return; // ป้องกันบักถ้าไม่ได้ล็อกอิน
+
       let discount = parseFloat(document.getElementById('pos-discount').value) || 0;
-      let payload = { action: action, cart: posCart, totalQty: document.getElementById('pos-total-qty').innerText, subtotal: document.getElementById('pos-subtotal').innerText, discount: discount, netTotal: document.getElementById('pos-net-total').innerText, latestItem: lastScannedItem, ...extraData };
-      cfdChannel.postMessage(payload);
+      let payload = { 
+        shopId: currentTenantSheetId, // 🌟 ระบุรหัสร้านเพื่อส่งเข้าห้องเฉพาะ
+        action: action, 
+        cart: posCart, 
+        totalQty: document.getElementById('pos-total-qty').innerText, 
+        subtotal: document.getElementById('pos-subtotal').innerText, 
+        discount: discount, 
+        netTotal: document.getElementById('pos-net-total').innerText, 
+        latestItem: lastScannedItem, 
+        ...extraData 
+      };
+      
+      socket.emit('update_cfd', payload); // ยิงข้อมูลขึ้นเซิร์ฟเวอร์
     }
-    function openCFD() { window.open('/cfd.html', "_blank"); }
+
+    // 🌟 สร้างหน้าต่าง QR Code ให้ลูกค้าสแกน
+    function openCFD() { 
+      if(!currentTenantSheetId) return Swal.fire('แจ้งเตือน', 'กรุณาล็อกอินเข้าสาขาก่อน', 'warning');
+      const cfdUrl = window.location.origin + '/cfd.html?shop=' + currentTenantSheetId;
+      document.getElementById('cfd-link-input').value = cfdUrl;
+      document.getElementById('cfd-qr-generate').innerHTML = '';
+      new QRCode(document.getElementById("cfd-qr-generate"), { text: cfdUrl, width: 220, height: 220, colorDark : "#0f172a", colorLight : "#ffffff" });
+      document.getElementById('cfd-connect-modal').style.display = 'flex';
+    }
+
+    function copyCfdLink() {
+      var copyText = document.getElementById("cfd-link-input");
+      copyText.select(); copyText.setSelectionRange(0, 99999);
+      navigator.clipboard.writeText(copyText.value);
+      Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 1500 }).fire({ icon: 'success', title: 'คัดลอกลิงก์แล้ว' });
+    }
 
     function openPOSPage() {
       document.getElementById('page-pos').style.display = 'block'; document.getElementById('pos-staff-badge').innerText = currentStaff.name || "-"; switchPOSMode('barcode');
@@ -1773,10 +2164,15 @@ document.addEventListener("DOMContentLoaded", function() {
 function renderMenuGrid() {
       const gridContainer = document.getElementById('pos-menu-grid'); gridContainer.innerHTML = '';
       if (!globalProducts || globalProducts.length === 0) { gridContainer.innerHTML = '<div class="text-center text-muted p-5 w-100">ไม่มีข้อมูลสินค้าในคลัง...</div>'; return; }
-      let currentSize = document.getElementById('image-size-slider').value; let selectedCat = document.getElementById('pos-category-filter').value; 
+      
+      let currentSize = document.getElementById('image-size-slider').value; 
+      let selectedCat = document.getElementById('pos-category-filter').value; 
+      
+      // 🌟 สั่งให้ Grid จัดเรียงและยืดขนาดให้เต็มจออัตโนมัติ
+      gridContainer.style.gridTemplateColumns = `repeat(auto-fill, minmax(${currentSize}px, 1fr))`;
+
       let filteredProducts = globalProducts.filter(p => selectedCat === "all" || p.category === selectedCat);
       
-      // เรียงลำดับสต็อก (ของหมด/ใกล้หมด ขึ้นบนสุด)
       filteredProducts.sort((a, b) => {
         const getStockStatus = (p) => {
           if (p.stock === "ไม่จำกัด" || isNaN(parseInt(p.stock))) return 4; 
@@ -1791,24 +2187,25 @@ function renderMenuGrid() {
       if (filteredProducts.length === 0) { gridContainer.innerHTML = '<div class="text-center text-muted p-5 w-100">ไม่พบสินค้าในหมวดหมู่นี้...</div>'; return; }
       
       filteredProducts.forEach(p => {
-        let sizePx = currentSize + "px"; 
-        let imgHtml = p.image ? `<img src="${p.image}" class="pos-card-img" style="height: ${currentSize - 40}px; min-height: ${currentSize - 40}px;">` : `<div class="pos-card-noimg" style="height: ${currentSize - 40}px; min-height: ${currentSize - 40}px;">ไม่มีรูป</div>`;
+        // 🌟 ถอดโค้ดที่ฟิกขนาดออกแบบตายตัวทิ้ง ปล่อยให้ CSS Grid จัดการ
+        let imgHtml = p.image ? `<img src="${p.image}" class="pos-card-img">` : `<div class="pos-card-noimg"><i class="fa-solid fa-image mb-1 fs-4 opacity-50"></i>ไม่มีรูป</div>`;
+        
         let stockNum = parseInt(p.stock); let currentMin = parseInt(p.minStock) || 5; let badgeHtml = ""; let isOut = false;
         if (p.stock !== "ไม่จำกัด" && !isNaN(stockNum)) {
-          if (stockNum <= 0) { badgeHtml = `<span class="pos-card-badge bg-danger">🔴 หมด</span>`; isOut = true; } else if (stockNum <= currentMin) { badgeHtml = `<span class="pos-card-badge bg-warning text-dark">⚠️ เหลือ ${stockNum} ${p.unit || 'ชิ้น'}</span>`; } else { badgeHtml = `<span class="pos-card-badge bg-success">🟢 มี ${stockNum} ${p.unit || 'ชิ้น'}</span>`; }
+          if (stockNum <= 0) { badgeHtml = `<span class="pos-card-badge bg-danger">🔴 หมด</span>`; isOut = true; } 
+          else if (stockNum <= currentMin) { badgeHtml = `<span class="pos-card-badge bg-warning text-dark">⚠️ เหลือ ${stockNum} ${p.unit || 'ชิ้น'}</span>`; } 
+          else { badgeHtml = `<span class="pos-card-badge bg-success">🟢 มี ${stockNum} ${p.unit || 'ชิ้น'}</span>`; }
         }
+        
         let card = document.createElement('div'); card.className = 'pos-product-card';
         if(isOut) { card.className += ' opacity-50 bg-light'; card.style.pointerEvents = 'none'; }
-        card.style.width = sizePx; 
-        // 🌟 ปรับขนาดความสูงกล่องให้เพิ่มขึ้น
-        card.style.height = (parseInt(currentSize) + 75) + "px"; 
+        
         if(!isOut) card.setAttribute('onclick', `addCartByItemData('${p.id}', '${p.name.replace(/'/g, "\\'")}', ${p.price})`);
         
-        // 🌟 มัดรวมชื่อและราคาให้ชิดกัน
         card.innerHTML = `
           ${badgeHtml}
           ${imgHtml}
-          <div style="margin-top: auto; width: 100%; padding-top: 5px;">
+          <div style="margin-top: auto; width: 100%; padding-top: 8px;">
             <div class="pos-card-name" style="display:block; min-height: 20px; line-height: 1.2; margin-bottom: 2px;" title="${p.name}">${p.name}</div>
             <p class="pos-card-price mb-0" style="margin-top: 0;">฿${parseFloat(p.price).toLocaleString()}</p>
           </div>
@@ -1818,16 +2215,8 @@ function renderMenuGrid() {
     }
 
     function changeGridSize(val) { 
-      let cards = document.querySelectorAll('.pos-product-card'); 
-      let imgs = document.querySelectorAll('.pos-card-img, .pos-card-noimg'); 
-      cards.forEach(c => { 
-        c.style.width = val + "px"; 
-        c.style.height = (parseInt(val) + 75) + "px"; // 🌟 ความสูงต้องตรงกับข้างบน
-      }); 
-      imgs.forEach(img => { 
-        img.style.height = (val - 40) + "px"; 
-        img.style.minHeight = (val - 40) + "px";
-      }); 
+      // 🌟 แค่เปลี่ยนค่าตั้งต้น Grid จะคำนวณและยืดการ์ดให้พอดีจอเอง
+      document.getElementById('pos-menu-grid').style.gridTemplateColumns = `repeat(auto-fill, minmax(${val}px, 1fr))`;
     }
 
     function addCartByItemData(id, name, price) {
@@ -2196,7 +2585,7 @@ function renderMenuGrid() {
       .dash-chart-box { height: 280px !important; } .dash-table-box { height: 400px !important; }
     }
     @media (max-width: 768px) and (orientation: portrait) {
-      .dash-header-wrapper { position: sticky; top: 0; z-index: 1045; background-color: #f8fafc; padding-top: 15px; margin-top: -15px; padding-bottom: 5px; margin-bottom: 10px !important; border-bottom: 1px solid #e2e8f0; }
+      .dash-header-wrapper { position: sticky; top: -15px; z-index: 1045; background-color: #f8fafc; padding-top: 25px; margin-top: -15px; padding-bottom: 10px; margin-bottom: 10px !important; border-bottom: 1px solid #e2e8f0; }
       body.dark-theme .dash-header-wrapper { background-color: #0f172a !important; border-bottom-color: #334155 !important; }
       .dash-title-action { flex-direction: column; align-items: flex-start !important; gap: 10px; margin-bottom: 10px !important; display: flex; }
       .dash-action-btns { display: flex; width: 100%; gap: 8px; justify-content: space-between; margin-bottom: 5px; }
@@ -2634,9 +3023,12 @@ function renderMenuGrid() {
     .pkg-price { font-size: 24px; color: #0f172a; font-weight: 800; line-height: 1; margin-bottom: 8px; }
   </style>
 
-  <div class="bg-white shadow-sm px-4 py-3 d-flex justify-content-between align-items-center mb-4 sticky-top settings-mobile-header">
-    <h4 class="fw-bold text-danger m-0"><i class="fa-solid fa-gear me-2"></i> ตั้งค่าระบบ & พนักงาน </h4>
-    <button class="btn btn-outline-secondary fw-bold rounded-pill px-4" onclick="closeSettingsPage()"><i class="fa-solid fa-arrow-left me-2"></i> กลับหน้าหลัก </button>
+  <div class="d-flex justify-content-between align-items-center mb-4 py-3 px-3 px-lg-4 sticky-top settings-mobile-header" style="background: inherit; z-index: 1045; margin-top: -20px;">
+    <div class="d-flex align-items-center gap-3">
+      <h3 class="fw-bold text-primary m-0"><i class="fa-solid fa-gear me-2"></i> ตั้งค่าระบบ </h3>
+      <button class="btn btn-primary btn-sm fw-bold rounded-pill shadow-sm" onclick="openUISettingsModal()"><i class="fa-solid fa-sliders me-1"></i> ปรับหน้าจอ</button>
+    </div>
+    <button class="btn btn-outline-danger fw-bold rounded-pill px-4" onclick="closeSettingsPage()"><i class="fa-solid fa-arrow-left me-2"></i> กลับ </button>
   </div>
 
   <div class="container-fluid px-3 px-lg-4 pb-5">
@@ -2862,32 +3254,75 @@ function renderMenuGrid() {
     function closeSettingsPage() { document.getElementById('page-settings').style.display = 'none'; }
 
     function loadTenantInfoSafely() {
-      document.getElementById('setting-exp-date').innerText = "กำลังดึงข้อมูล...";
-      document.getElementById('btn-open-renew').disabled = true;
+  document.getElementById('setting-exp-date').innerText = "กำลังดึงข้อมูล...";
+  const renewBtn = document.getElementById('btn-open-renew');
+  renewBtn.disabled = true;
 
-      google.script.run.withSuccessHandler(function(info) {
-        if(info && !info.error) {
-          document.getElementById('setting-exp-date').innerText = info.expireDate;
-          let expElement = document.getElementById('setting-exp-days');
-          if (expElement) {
-            let parentP = expElement.parentElement;
-            if (info.daysRemaining < 0) {
-              parentP.innerHTML = 'สถานะ: <span class="fw-bold text-danger fs-5">หมดอายุแล้ว! ❌</span>';
-            } else if (info.daysRemaining === 0) {
-              parentP.innerHTML = 'สถานะ: <span class="fw-bold text-danger fs-5">หมดอายุวันนี้! ⚠️</span>';
-            } else {
-              let colorClass = info.daysRemaining <= 7 ? 'text-danger' : 'text-warning';
-              parentP.innerHTML = 'เหลือเวลา: <span id="setting-exp-days" class="fw-bold ' + colorClass + ' fs-5">' + info.daysRemaining + '</span><span class="ms-1 text-light">วัน</span>';
-            }
-          }
-          tenantEmailForRenew = info.email; tenantShopNameForRenew = info.shopName;
-          document.getElementById('qr-email-show').innerText = info.email;
-          document.getElementById('btn-open-renew').disabled = false;
+  google.script.run.withSuccessHandler(function(info) {
+    if(info && !info.error) {
+      document.getElementById('setting-exp-date').innerText = info.expireDate;
+      let expElement = document.getElementById('setting-exp-days');
+      if (expElement) {
+        let parentP = expElement.parentElement;
+        if (info.daysRemaining < 0) {
+          parentP.innerHTML = 'สถานะ: <span class="fw-bold text-danger fs-5">หมดอายุแล้ว! ❌</span>';
+        } else if (info.daysRemaining === 0) {
+          parentP.innerHTML = 'สถานะ: <span class="fw-bold text-danger fs-5">หมดอายุวันนี้! ⚠️</span>';
         } else {
-          document.getElementById('setting-exp-date').innerText = "ข้อมูลไม่พร้อมใช้งาน";
+          let colorClass = info.daysRemaining <= 7 ? 'text-danger' : 'text-warning';
+          parentP.innerHTML = 'เหลือเวลา: <span id="setting-exp-days" class="fw-bold ' + colorClass + ' fs-5">' + info.daysRemaining + '</span><span class="ms-1 text-light">วัน</span>';
         }
-      }).getTenantInfoBySheetId(currentTenantSheetId);
+      }
+      tenantEmailForRenew = info.email; tenantShopNameForRenew = info.shopName;
+      document.getElementById('qr-email-show').innerText = info.email;
+
+      // 🌟 เช็กสถานะถ้ากำลังรอตรวจสอบ ให้เปลี่ยนปุ่มเป็นสีส้ม/ spin
+      if (info.renewStatus === 'PENDING') {
+        renewBtn.className = "btn btn-outline-warning fw-bold rounded-pill px-3 py-2";
+        renewBtn.innerHTML = '<i class="fa-solid fa-hourglass-half fa-spin me-1"></i> กำลังตรวจสอบการโอนเงิน';
+        renewBtn.disabled = true;
+      } else {
+        renewBtn.className = "btn btn-warning fw-bold rounded-pill shadow px-4 py-2";
+        renewBtn.innerHTML = '<i class="fa-solid fa-bolt text-danger me-1"></i> ต่ออายุทันที';
+        renewBtn.disabled = false;
+      }
+
+      // 🌟 เช็กป๊อปอัปแจ้งเตือนการอนุมัติ
+      checkApprovalPopup(info);
+
+    } else {
+      document.getElementById('setting-exp-date').innerText = "ข้อมูลไม่พร้อมใช้งาน";
     }
+  }).getTenantInfoBySheetId(currentTenantSheetId);
+}
+
+// 🌟 ฟังก์ชันแสดง Pop-up หน่วงเวลา 2.5 วินาทีเมื่อ Admin อนุมัติแล้ว
+function checkApprovalPopup(info) {
+  if (info && info.renewNotified === 0) {
+    setTimeout(() => {
+      Swal.fire({
+        icon: 'success',
+        title: '🎉 ต่ออายุระบบสำเร็จแล้ว!',
+        html: `
+          <div class="text-center">
+            <p class="fs-6 text-secondary mb-2">แอดมินได้ทำการอนุมัติการชำระเงินเรียบร้อยแล้วครับ</p>
+            <div class="bg-light p-3 rounded-4 border my-3">
+              <div class="text-muted small">วันหมดอายุใหม่ของคุณคือ</div>
+              <div class="fs-3 fw-bold text-success mt-1">${info.expireDate}</div>
+              <div class="badge bg-success rounded-pill px-3 py-1 mt-2">ใช้งานได้อีก ${info.daysRemaining} วัน</div>
+            </div>
+            <p class="small text-muted mb-0">ขอบพระคุณที่ไว้วางใจใช้บริการ POS ของเราครับ 😊</p>
+          </div>
+        `,
+        confirmButtonText: 'รับทราบ',
+        confirmButtonColor: '#10b981',
+        allowOutsideClick: false
+      }).then(() => {
+        google.script.run.clearRenewNotify(currentTenantSheetId);
+      });
+    }, 2500); 
+  }
+}
 
     function selectQuickRenewPkg(val, element) {
       document.getElementById('qr-pkg-select').value = val;
@@ -3106,7 +3541,11 @@ function switchSaaSPage(targetId) {
       renewSelectPkg('1M|150', firstCard);
     }
     if (targetId === 'page-reset') {
+      document.getElementById('reset-step-1').style.display = 'block';
+      document.getElementById('reset-step-success').style.display = 'none';
       document.getElementById('reset-email').value = '';
+      document.getElementById('reset-phone').value = '';
+      document.getElementById('reset-new-pass').value = ''; // เคลียร์ช่องรหัสผ่านด้วย
     }
 
     setTimeout(() => target.style.opacity = '1', 50);
@@ -3122,12 +3561,21 @@ function regSendOTP() {
 
   if(!pass || !shop || !email || !phone) return Swal.fire('ผิดพลาด', 'กรอกข้อมูลให้ครบถ้วน', 'warning');
 
-  Swal.fire({ title: 'กำลังตรวจสอบข้อมูล...', didOpen: () => Swal.showLoading(), allowOutsideClick: false });
+  Swal.fire({ title: 'กำลังสร้างร้านค้า...', didOpen: () => Swal.showLoading(), allowOutsideClick: false });
 
+  // ยิงตรงไปบันทึกข้อมูลร้านใหม่ โดยส่งข้อความสมมติ "NO_OTP" ไปแทน
   google.script.run.withSuccessHandler(function(res) {
-    if(res.status === 'error') Swal.fire('ผิดพลาด', res.message, 'error');
-    else regPromptOTP(pass, shop, email, phone);
-  }).requestRegisterOTP(email, phone);
+    if(res.status === 'error') {
+       Swal.fire('ผิดพลาด', res.message, 'error');
+    } else {
+      Swal.close();
+      document.getElementById('reg-step-1').style.display = 'none';
+      document.getElementById('reg-step-success').style.display = 'block';
+      document.getElementById('res-user').innerText = email; 
+      document.getElementById('res-pass').innerText = pass;
+      document.getElementById('res-expire').innerText = res.expireDate;
+    }
+  }).verifyAndCreateShop(pass, shop, email, phone, "NO_OTP");
 }
 
 function regPromptOTP(pass, shop, email, phone) {
@@ -3194,10 +3642,10 @@ function renewSelectPkg(val, element) {
 }
 
 function renewSearchShop() {
-  globalRenewEmail = document.getElementById('renew-email-input').value.trim();
+  var inputVal = document.getElementById('renew-email-input').value.trim();
   var pkgVal = document.getElementById('renew-package').value;
   
-  if(!globalRenewEmail) return Swal.fire('ผิดพลาด', 'กรุณากรอกอีเมลร้านค้า', 'warning');
+  if(!inputVal) return Swal.fire('ผิดพลาด', 'กรุณากรอกอีเมล หรือ เบอร์โทรศัพท์ร้านค้า', 'warning');
 
   var pkgSplit = pkgVal.split('|');
   globalRenewPkgName = pkgSplit[0];
@@ -3211,6 +3659,7 @@ function renewSearchShop() {
     } else {
       Swal.close();
       globalRenewShop = res.shopName;
+      globalRenewEmail = res.realEmail; // 🌟 บันทึกอีเมลจริงที่เซิร์ฟเวอร์ส่งกลับมา
       document.getElementById('renew-show-shop-name').innerText = globalRenewShop;
       document.getElementById('renew-show-price').innerText = globalRenewPrice + " บาท";
       document.getElementById('renew-qr-image').src = "https://promptpay.io/" + adminPromptPayForRenew + "/" + globalRenewPrice + ".png";
@@ -3220,12 +3669,12 @@ function renewSearchShop() {
     }
   }).withFailureHandler(function(error) {
     Swal.fire('ข้อผิดพลาด', error.message, 'error');
-  }).checkRenewEmail(globalRenewEmail);
+  }).checkRenewEmail(inputVal);
 }
 
 function renewSubmitSlip() {
   var fileInput = document.getElementById('renew-slip-file');
-  if(fileInput.files.length === 0) return Swal.fire('ผิดพลาด', 'กรุณาแนบสลิปโอนเงิน', 'warning');
+  if(!fileInput || fileInput.files.length === 0) return Swal.fire('ผิดพลาด', 'กรุณาแนบสลิปโอนเงิน', 'warning');
 
   var file = fileInput.files[0];
   var reader = new FileReader();
@@ -3234,82 +3683,51 @@ function renewSubmitSlip() {
 
   reader.onload = function(e) {
     var base64Data = e.target.result;
-    google.script.run.withSuccessHandler(function(res) {
-      if(res.status === 'error') {
-        Swal.fire('ผิดพลาด', res.message, 'error');
-      } else {
+    google.script.run
+      .withSuccessHandler(function(res) {
         Swal.close();
-        document.getElementById('renew-step-pay').style.display = 'none';
-        document.getElementById('renew-step-success').style.display = 'block';
-      }
-    }).withFailureHandler(function(error) {
-      Swal.fire('ข้อผิดพลาด', error.message, 'error');
-    }).uploadSlipAndNotify(globalRenewEmail, globalRenewShop, globalRenewPkgName, globalRenewPrice, base64Data);
+        if(res && res.status === 'error') {
+          Swal.fire('ผิดพลาด', res.message, 'error');
+        } else {
+          document.getElementById('renew-step-pay').style.display = 'none';
+          document.getElementById('renew-step-success').style.display = 'block';
+        }
+      })
+      .withFailureHandler(function(error) {
+        Swal.close();
+        Swal.fire('ข้อผิดพลาด', (error && error.message) ? error.message : 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้', 'error');
+      })
+      .uploadSlipAndNotify(globalRenewEmail, globalRenewShop, globalRenewPkgName, globalRenewPrice, base64Data);
   };
+
+  reader.onerror = function() {
+    Swal.close();
+    Swal.fire('ผิดพลาด', 'อ่านไฟล์รูปภาพสลิปไม่สำเร็จ กรุณาเลือกไฟล์ใหม่อีกครั้ง', 'error');
+  };
+
   reader.readAsDataURL(file);
 }
 
-// 🌟 [ฟังก์ชัน: รีเซ็ตรหัสผ่าน]
-function resetRequestOTP() {
+function resetPasswordDirectly() {
   var email = document.getElementById('reset-email').value.trim();
-  if(!email) return Swal.fire('ผิดพลาด', 'กรุณากรอกอีเมล', 'warning');
+  var phone = document.getElementById('reset-phone').value.trim();
+  var newPass = document.getElementById('reset-new-pass').value.trim(); // รับค่ารหัสผ่านใหม่
+  
+  if(!email || !phone || !newPass) return Swal.fire('ผิดพลาด', 'กรุณากรอกข้อมูลและตั้งรหัสผ่านใหม่ให้ครบถ้วน', 'warning');
 
-  Swal.fire({ title: 'กำลังค้นหาและส่งอีเมล...', didOpen: () => Swal.showLoading(), allowOutsideClick: false });
+  Swal.fire({ title: 'กำลังตรวจสอบข้อมูล...', didOpen: () => Swal.showLoading(), allowOutsideClick: false });
 
+  // ส่ง newPass ไปที่หลังบ้านด้วย
   google.script.run.withSuccessHandler(function(res) {
-    if(res.status === 'error') Swal.fire('ผิดพลาด', res.message, 'error');
-    else resetPromptNewPassword(email);
-  }).requestResetOTP(email);
-}
-
-function resetPromptNewPassword(email) {
-  Swal.fire({
-    title: 'ตั้งรหัสผ่านใหม่',
-    html: `
-      <p class="text-secondary small fw-bold mb-3">รหัสถูกส่งไปที่ <span class="text-primary">${email}</span> แล้ว</p>
-      <div class="mb-4 mt-2 text-start px-2">
-        <label class="form-label text-secondary small fw-bold mb-2 opacity-75">รหัส OTP (6 หลัก)</label>
-        <div class="d-flex justify-content-between gap-2" id="otp-container">
-          <input type="text" class="otp-box" maxlength="1" oninput="this.value=this.value.replace(/[^0-9]/g,''); if(this.value && this.nextElementSibling) this.nextElementSibling.focus();" onkeydown="if(event.key==='Backspace' && !this.value && this.previousElementSibling) this.previousElementSibling.focus();">
-          <input type="text" class="otp-box" maxlength="1" oninput="this.value=this.value.replace(/[^0-9]/g,''); if(this.value && this.nextElementSibling) this.nextElementSibling.focus();" onkeydown="if(event.key==='Backspace' && !this.value && this.previousElementSibling) this.previousElementSibling.focus();">
-          <input type="text" class="otp-box" maxlength="1" oninput="this.value=this.value.replace(/[^0-9]/g,''); if(this.value && this.nextElementSibling) this.nextElementSibling.focus();" onkeydown="if(event.key==='Backspace' && !this.value && this.previousElementSibling) this.previousElementSibling.focus();">
-          <input type="text" class="otp-box" maxlength="1" oninput="this.value=this.value.replace(/[^0-9]/g,''); if(this.value && this.nextElementSibling) this.nextElementSibling.focus();" onkeydown="if(event.key==='Backspace' && !this.value && this.previousElementSibling) this.previousElementSibling.focus();">
-          <input type="text" class="otp-box" maxlength="1" oninput="this.value=this.value.replace(/[^0-9]/g,''); if(this.value && this.nextElementSibling) this.nextElementSibling.focus();" onkeydown="if(event.key==='Backspace' && !this.value && this.previousElementSibling) this.previousElementSibling.focus();">
-          <input type="text" class="otp-box" maxlength="1" oninput="this.value=this.value.replace(/[^0-9]/g,'');" onkeydown="if(event.key==='Backspace' && !this.value && this.previousElementSibling) this.previousElementSibling.focus();">
-        </div>
-      </div>
-      <div class="mb-2 text-start px-2">
-        <label class="form-label text-secondary small fw-bold mb-2 opacity-75">ตั้งรหัสผ่านใหม่ (ENG/เลข)</label>
-        <div class="minimal-input-wrapper">
-          <input type="password" id="new-pass-input" placeholder="รหัสผ่านใหม่">
-          <i class="fa-solid fa-lock"></i>
-        </div>
-      </div>
-    `,
-    confirmButtonText: 'บันทึกรหัสผ่าน', showCancelButton: true, cancelButtonText: 'ยกเลิก',
-    showLoaderOnConfirm: true, allowOutsideClick: false,
-    customClass: { confirmButton: 'btn btn-primary px-4 py-2 fw-bold rounded-pill shadow-sm', cancelButton: 'btn btn-light px-4 py-2 fw-bold rounded-pill text-muted border-0' },
-    buttonsStyling: false,
-    preConfirm: () => {
-      const inputs = document.querySelectorAll('#otp-container .otp-box');
-      let otp = ''; inputs.forEach(input => otp += input.value);
-      const newPass = document.getElementById('new-pass-input').value;
-      
-      if (otp.length !== 6 || !newPass) { Swal.showValidationMessage('กรุณากรอกข้อมูลให้ครบถ้วน'); return false; }
-      
-      return new Promise((resolve) => {
-        google.script.run.withSuccessHandler(function(res) {
-          if(res.status === 'error') { Swal.showValidationMessage(res.message); resolve(false); }
-          else { resolve(true); }
-        }).resetPassword(email, otp, newPass);
-      });
+    if(res.status === 'error') {
+      Swal.fire('ผิดพลาด', res.message, 'error');
+    } else {
+      Swal.close();
+      document.getElementById('reset-step-1').style.display = 'none';
+      document.getElementById('reset-step-success').style.display = 'block';
+      document.getElementById('reset-res-shop').innerText = res.shopName;
     }
-  }).then((result) => {
-    if (result.isConfirmed && result.value) {
-      Swal.fire({ title: 'สำเร็จ', text: 'เปลี่ยนรหัสผ่านเรียบร้อย เข้าสู่ระบบได้เลย', icon: 'success', showConfirmButton: false, timer: 1500 })
-        .then(() => { switchSaaSPage('saas-login-screen'); });
-    }
-  });
+  }).resetPasswordDirect(email, phone, newPass);
 }
 // ==========================================
 // 📊 ระบบ Export / Import ข้อมูลผ่าน Excel
@@ -3477,8 +3895,236 @@ function importDataFromExcel(input) {
   
   reader.readAsArrayBuffer(file);
 }
+
+// ==========================================
+// 🎨 ระบบปรับแต่งการแสดงผลหน้าจอ (UI Customization)
+// ==========================================
+// ==========================================
+// 🎨 ระบบปรับแต่งการแสดงผลหน้าจอ (UI Customization) V2
+// ==========================================
+function applyUISettings() {
+    let s = cachedShopSettings || {};
+    // ถ้าไม่มีค่าใน DB ให้ถือว่าเปิด (true) เป็นค่าเริ่มต้น
+    const isON = (key) => s[key] !== "false" && s[key] !== false;
+
+    // --- หมวดขายของ (POS) ---
+    // 1. ปุ่มจอลูกค้า (CFD) (ใช้ !important ทับคลาสของ Bootstrap)
+    document.querySelectorAll('button[onclick="openCFD()"]').forEach(b => {
+        if (isON('ui_pos_cfd')) b.style.removeProperty('display');
+        else b.style.setProperty('display', 'none', 'important');
+    });
+    
+    // 2. โหมดสแกนบาร์โค้ด
+    let btnBarcode = document.getElementById('btn-mode-barcode');
+    let btnGrid = document.getElementById('btn-mode-grid');
+    let scanInput = document.getElementById('pos-barcode-input');
+    if (btnBarcode && btnGrid && scanInput) {
+        if (!isON('ui_pos_scan')) {
+            btnBarcode.style.setProperty('display', 'none', 'important');
+            btnGrid.style.setProperty('display', 'none', 'important');
+            scanInput.parentElement.style.setProperty('display', 'none', 'important');
+            // ถ้าปิดโหมดสแกน ให้บังคับสลับไปหน้าจิ้มรูปทันที
+            if (currentPOSMode === 'barcode') switchPOSMode('grid');
+        } else {
+            btnBarcode.style.removeProperty('display');
+            btnGrid.style.removeProperty('display');
+            scanInput.parentElement.style.removeProperty('display');
+        }
+    }
+
+    // 3. ค้นหาบิล & บิลย้อนหลัง
+    let searchInput = document.getElementById('pos-search-bill-input');
+    if (searchInput) {
+        let historyBox = searchInput.closest('.bg-white');
+        if (historyBox) {
+            if (isON('ui_pos_history')) historyBox.style.removeProperty('display');
+            else historyBox.style.setProperty('display', 'none', 'important');
+        }
+    }
+
+    // 4. แถบตัวกรองหมวดหมู่
+    let catFilter = document.getElementById('pos-category-filter');
+    if (catFilter) {
+        if (!isON('ui_pos_category')) catFilter.style.setProperty('display', 'none', 'important');
+        else catFilter.style.removeProperty('display');
+    }
+
+    // --- หมวดตั้งค่า (SETTINGS) ---
+    let shopNameEl = document.getElementById('set-shop-name');
+    if (shopNameEl) {
+        let shopContainer = shopNameEl.closest('.bg-white'); // กล่องขาวใหญ่สุด
+        
+        // แยกโซนข้อมูลร้าน และ Excel ออกจากกัน
+        if (!document.getElementById('ui-wrap-shopinfo')) {
+            let children = Array.from(shopContainer.children);
+            let hrIndex = children.findIndex(el => el.tagName === 'HR');
+            if (hrIndex !== -1) {
+                let wrapShop = document.createElement('div'); wrapShop.id = 'ui-wrap-shopinfo';
+                let wrapExcel = document.createElement('div'); wrapExcel.id = 'ui-wrap-excel';
+                children.forEach((c, i) => {
+                    if (i < hrIndex) wrapShop.appendChild(c);
+                    else wrapExcel.appendChild(c);
+                });
+                shopContainer.appendChild(wrapShop);
+                shopContainer.appendChild(wrapExcel);
+            }
+        }
+        
+        let wShop = document.getElementById('ui-wrap-shopinfo');
+        let wExcel = document.getElementById('ui-wrap-excel');
+        
+        if (wShop) wShop.style.setProperty('display', isON('ui_set_shopinfo') ? '' : 'none', 'important');
+        if (wExcel) wExcel.style.setProperty('display', isON('ui_set_excel') ? '' : 'none', 'important');
+
+        // 🌟 ถ่าปิดทั้ง ข้อมูลร้าน และ Excel ให้ซ่อนกล่องขาวทั้งกล่องไปเลย
+        if (!isON('ui_set_shopinfo') && !isON('ui_set_excel')) {
+            shopContainer.style.setProperty('display', 'none', 'important');
+        } else {
+            shopContainer.style.removeProperty('display');
+        }
+    }
+
+    // 5. จัดการพนักงาน
+    let usersTable = document.getElementById('users-table-body');
+    if (usersTable) {
+        let userCol = usersTable.closest('.col-lg-7');
+        if (userCol) {
+            if (isON('ui_set_users')) userCol.style.removeProperty('display');
+            else userCol.style.setProperty('display', 'none', 'important');
+        }
+    }
+
+    // 6. ประวัติการทำงาน (Log)
+    let logTable = document.getElementById('activity-log-body');
+    if (logTable) {
+        let logRow = logTable.closest('.row.g-4.mt-1');
+        if (logRow) {
+            if (isON('ui_set_log')) logRow.style.removeProperty('display');
+            else logRow.style.setProperty('display', 'none', 'important');
+        }
+    }
+}
+
+function openUISettingsModal() {
+    let s = cachedShopSettings || {};
+    const setToggle = (id, key) => { document.getElementById(id).checked = (s[key] !== "false" && s[key] !== false); };
+    setToggle('ui-pos-cfd', 'ui_pos_cfd'); setToggle('ui-pos-scan', 'ui_pos_scan');
+    setToggle('ui-pos-history', 'ui_pos_history'); setToggle('ui-pos-category', 'ui_pos_category');
+    setToggle('ui-set-shopinfo', 'ui_set_shopinfo'); setToggle('ui-set-excel', 'ui_set_excel');
+    setToggle('ui-set-log', 'ui_set_log'); setToggle('ui-set-users', 'ui_set_users');
+    document.getElementById('ui-settings-modal').style.display = 'flex';
+}
+
+function saveUISettings() {
+    let btn = document.getElementById('btn-save-ui-settings');
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึก...'; btn.disabled = true;
+    const getToggle = (id) => document.getElementById(id).checked ? "true" : "false";
+    
+    let newSettings = {
+        ui_pos_cfd: getToggle('ui-pos-cfd'), ui_pos_scan: getToggle('ui-pos-scan'),
+        ui_pos_history: getToggle('ui-pos-history'), ui_pos_category: getToggle('ui-pos-category'),
+        ui_set_shopinfo: getToggle('ui-set-shopinfo'), ui_set_excel: getToggle('ui-set-excel'),
+        ui_set_log: getToggle('ui-set-log'), ui_set_users: getToggle('ui-set-users')
+    };
+
+    google.script.run.withSuccessHandler(() => {
+        Object.assign(cachedShopSettings, newSettings); applyUISettings();
+        document.getElementById('ui-settings-modal').style.display = 'none';
+        btn.innerHTML = '<i class="fa-solid fa-floppy-disk me-2"></i> บันทึกการตั้งค่าหน้าจอ'; btn.disabled = false;
+        Swal.fire({icon: 'success', title: 'บันทึกสำเร็จ', timer: 1000, showConfirmButton: false});
+    }).updateShopSettings(currentTenantSheetId, newSettings);
+}
+
+// 🌟 ผูกฟังก์ชันเข้ากับจังหวะโหลดข้อมูลร้าน
+const originalLoadShopData = loadShopData;
+loadShopData = function(tenantId) {
+    originalLoadShopData(tenantId);
+    google.script.run.withSuccessHandler(s => { cachedShopSettings = s || {}; applyUISettings(); }).getShopSettings(tenantId);
+};
+
+// 🌟 ผูกฟังก์ชันเข้ากับปุ่มตอนกดเปิดหน้า POS (กันบั๊กโค้ดเดิมบังคับเปิดหน้าสแกน)
+const originalOpenPOSPage = openPOSPage;
+openPOSPage = function() {
+    originalOpenPOSPage();
+    applyUISettings(); // เช็คอีกรอบตอนกดเข้าหน้าขาย
+};
+
+
   </script>
 </div>
+
+<!-- 🌟 Modal สำหรับสแกนเชื่อมต่อจอลูกค้า (CFD) -->
+  <div id="cfd-connect-modal" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(5px); z-index: 1060; justify-content: center; align-items: center; padding: 15px;">
+    <div class="bg-white p-4 p-md-5 rounded-4 shadow-lg text-center" style="width: 100%; max-width: 450px;">
+      <h4 class="fw-bold text-primary mb-3"><i class="fa-solid fa-mobile-screen-button me-2"></i>เชื่อมต่อจอลูกค้า (CFD)</h4>
+      <p class="text-muted small mb-4">ใช้ iPad หรือมือถือเครื่องใดก็ได้ สแกน QR Code ด้านล่างนี้<br>ระบบจอลูกค้าจะซิงค์แบบเรียลไทม์ทันที</p>
+      <div id="cfd-qr-generate" class="d-flex justify-content-center p-3 bg-light rounded-4 border mb-3" style="min-height: 250px;"></div>
+      <div class="input-group mb-4 shadow-sm">
+        <input type="text" id="cfd-link-input" class="form-control text-center text-muted small bg-light" readonly>
+        <button class="btn btn-outline-secondary bg-white" onclick="copyCfdLink()"><i class="fa-solid fa-copy"></i></button>
+      </div>
+      <div class="d-flex gap-2">
+        <button class="btn btn-light flex-fill fw-bold py-3 rounded-3 shadow-sm border" onclick="document.getElementById('cfd-connect-modal').style.display='none'">ปิดหน้าต่าง</button>
+        <button class="btn btn-primary flex-fill fw-bold py-3 rounded-3 shadow-sm" onclick="window.open(document.getElementById('cfd-link-input').value, '_blank')">เปิดในเครื่องนี้</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 🌟 Modal ปรับแต่งหน้าจอ UI -->
+  <div id="ui-settings-modal" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(5px); z-index: 999999; justify-content: center; align-items: center; padding: 15px;">
+    <div class="bg-white p-4 rounded-4 shadow-lg d-flex flex-column" style="width: 100%; max-width: 450px; max-height: 90vh;">
+      <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-3">
+        <h5 class="fw-bold text-primary m-0"><i class="fa-solid fa-sliders me-2"></i> ปรับแต่งการแสดงผล</h5>
+        <button class="btn-close" onclick="document.getElementById('ui-settings-modal').style.display='none'"></button>
+      </div>
+      
+      <div style="overflow-y: auto; overflow-x: hidden; padding-right: 5px;">
+          <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-cash-register text-success me-2"></i> หมวดขายของ (POS)</h6>
+          <div class="form-check form-switch fs-6 mb-3 p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center">
+            <label class="form-check-label fw-bold text-secondary m-0" for="ui-pos-cfd">1. ปุ่มจอลูกค้า (CFD)</label>
+            <input class="form-check-input m-0" type="checkbox" id="ui-pos-cfd" style="width: 40px; height: 20px;">
+          </div>
+          <div class="form-check form-switch fs-6 mb-3 p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center">
+            <label class="form-check-label fw-bold text-secondary m-0" for="ui-pos-scan">2. โหมดสแกนบาร์โค้ด</label>
+            <input class="form-check-input m-0" type="checkbox" id="ui-pos-scan" style="width: 40px; height: 20px;">
+          </div>
+          <div class="form-check form-switch fs-6 mb-3 p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center">
+            <label class="form-check-label fw-bold text-secondary m-0" for="ui-pos-history">3. ค้นหาบิล & บิลย้อนหลัง</label>
+            <input class="form-check-input m-0" type="checkbox" id="ui-pos-history" style="width: 40px; height: 20px;">
+          </div>
+          <div class="form-check form-switch fs-6 mb-4 p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center">
+            <label class="form-check-label fw-bold text-secondary m-0" for="ui-pos-category">4. แถบตัวกรองหมวดหมู่</label>
+            <input class="form-check-input m-0" type="checkbox" id="ui-pos-category" style="width: 40px; height: 20px;">
+          </div>
+
+          <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-gear text-danger me-2"></i> หมวดตั้งค่า (Settings)</h6>
+          <div class="form-check form-switch fs-6 mb-3 p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center">
+            <label class="form-check-label fw-bold text-secondary m-0" for="ui-set-shopinfo">1. ข้อมูลร้านค้า & การพิมพ์</label>
+            <input class="form-check-input m-0" type="checkbox" id="ui-set-shopinfo" style="width: 40px; height: 20px;">
+          </div>
+          <div class="form-check form-switch fs-6 mb-3 p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center">
+            <label class="form-check-label fw-bold text-secondary m-0" for="ui-set-excel">2. จัดการข้อมูลด้วย Excel</label>
+            <input class="form-check-input m-0" type="checkbox" id="ui-set-excel" style="width: 40px; height: 20px;">
+          </div>
+          <div class="form-check form-switch fs-6 mb-3 p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center">
+            <label class="form-check-label fw-bold text-secondary m-0" for="ui-set-log">3. ประวัติการใช้งาน (Log)</label>
+            <input class="form-check-input m-0" type="checkbox" id="ui-set-log" style="width: 40px; height: 20px;">
+          </div>
+          <div class="form-check form-switch fs-6 mb-2 p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center">
+            <label class="form-check-label fw-bold text-secondary m-0" for="ui-set-users">4. จัดการพนักงาน & สิทธิ์</label>
+            <input class="form-check-input m-0" type="checkbox" id="ui-set-users" style="width: 40px; height: 20px;">
+          </div>
+      </div>
+
+      <div class="mt-3 pt-3 border-top">
+        <button class="btn btn-primary w-100 fw-bold py-3 shadow-sm rounded-pill" id="btn-save-ui-settings" onclick="saveUISettings()"><i class="fa-solid fa-floppy-disk me-2"></i> บันทึกการตั้งค่าหน้าจอ</button>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
+
 
 </body>
 </html>
