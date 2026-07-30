@@ -742,6 +742,29 @@ body.dark-theme .num-btn-del:hover {
   box-shadow: 0 12px 20px rgba(248, 113, 113, 0.2) !important;
 }
 
+/* ========================================================= */
+/* 🐯 CSS เสือ และ โหมดแมววิ่งหนี (Panic Mode) */
+/* ========================================================= */
+
+/* สีและลายพาดกลอนของเสือ */
+.tiger-coat { --coat: #f97316; --coat-dark: #c2410c; --collar: #000000; }
+.tiger-stripes {
+  background: repeating-linear-gradient(90deg, var(--coat), var(--coat) 6px, #1e293b 6px, #1e293b 10px) !important;
+}
+/* ให้เสือเดินสวนทางกับแมวปกติ */
+.route-tiger { animation: pathTimelineWhite 25s linear infinite reverse; } 
+
+/* 💨 โหมดแมววิ่งหนีป่าราบ (ความเร็วทะลุมิติ) */
+.panic-mode {
+  animation-duration: 3s !important; 
+}
+.panic-mode .cat-wrapper {
+  animation: catBobbing 0.05s ease-in-out infinite alternate !important; /* ตัวสั่นดุ๊กดิ๊กด้วยความกลัว */
+}
+.panic-mode .cat-tail-soft {
+  animation: tailWavingSoft 0.08s ease-in-out infinite alternate !important; /* หางชี้ปัดรัวๆ */
+}
+
 </style>
 </head>
 <body>
@@ -1339,40 +1362,84 @@ document.getElementById('input-login-contact').addEventListener('keypress', func
 document.getElementById('input-shop-password').addEventListener('keypress', function(e) { if (e.key === 'Enter') { e.preventDefault(); processSaaSLogin(); } });
 
 // ระบบลากแมวแก้บั๊กคลุมดำ
+// ระบบลากแมวแก้บั๊กคลุมดำ และ 🐯 ระบบเสือไล่แมว
 document.addEventListener("DOMContentLoaded", function() {
   const cats = document.querySelectorAll('.detailed-cat'); let isDragging = false; let currentCat = null; let offsetX = 0, offsetY = 0;
+  
   function startDrag(e, cat) {
     if (e.type === 'mousedown') e.preventDefault();
     isDragging = true; currentCat = cat;
     if (currentCat.walkInterval) clearInterval(currentCat.walkInterval);
     const computed = window.getComputedStyle(currentCat); const startLeft = parseFloat(computed.left); const startTop = parseFloat(computed.top);
     currentCat.style.left = startLeft + 'px'; currentCat.style.top = startTop + 'px';
-    currentCat.classList.remove('route-cat-black', 'route-cat-white', 'route-cat-orange');
+    currentCat.classList.remove('route-cat-black', 'route-cat-white', 'route-cat-orange', 'route-tiger');
     currentCat.style.animation = 'none'; currentCat.style.transition = 'none'; currentCat.style.zIndex = '1000';
     let clientX = e.clientX !== undefined ? e.clientX : e.touches[0].clientX; let clientY = e.clientY !== undefined ? e.clientY : e.touches[0].clientY;
     offsetX = clientX - startLeft; offsetY = clientY - startTop;
   }
+  
   function drag(e) {
     if (!isDragging || !currentCat) return; e.preventDefault(); 
     let clientX = e.clientX !== undefined ? e.clientX : (e.touches.length > 0 ? e.touches[0].clientX : 0); let clientY = e.clientY !== undefined ? e.clientY : (e.touches.length > 0 ? e.touches[0].clientY : 0);
     currentCat.style.left = (clientX - offsetX) + 'px'; currentCat.style.top = (clientY - offsetY) + 'px';
   }
+  
   function endDrag() {
     if (!currentCat) return;
-    let cat = currentCat; cat.style.zIndex = '1';
+    let cat = currentCat; cat.style.zIndex = (cat.id === 'the-tiger') ? '5' : '1';
     let direction = cat.dataset.dir ? parseInt(cat.dataset.dir) : 1; cat.style.transform = `scaleX(${direction})`;
     cat.walkInterval = setInterval(() => {
       if (document.getElementById('lock-screen').style.display === 'none') return;
       let currentLeft = parseFloat(cat.style.left); if (isNaN(currentLeft)) currentLeft = 0;
-      currentLeft += direction * 1.5; cat.style.left = currentLeft + 'px';
+      
+      // 💨 เพิ่มสปีดถ้าแมวตกใจ (panicMultiplier)
+      let speed = cat.panicMultiplier ? 1.5 * cat.panicMultiplier : 1.5;
+      currentLeft += direction * speed; 
+      
+      cat.style.left = currentLeft + 'px';
       if (currentLeft > window.innerWidth - 95) { direction = -1; cat.dataset.dir = direction; cat.style.transform = `scaleX(${direction})`; }
       if (currentLeft < 0) { direction = 1; cat.dataset.dir = direction; cat.style.transform = `scaleX(${direction})`; }
     }, 30);
     isDragging = false; currentCat = null;
   }
+  
   cats.forEach(cat => { cat.ondragstart = function() { return false; }; cat.addEventListener('mousedown', (e) => startDrag(e, cat)); cat.addEventListener('touchstart', (e) => startDrag(e, cat), {passive: false}); });
   document.addEventListener('mousemove', drag); document.addEventListener('touchmove', drag, {passive: false});
   document.addEventListener('mouseup', endDrag); document.addEventListener('touchend', endDrag); document.addEventListener('mouseleave', endDrag);
+
+  // 🐯 ระบบตรวจจับ เสือเจอแมว ให้แมววิ่งหนี!
+  setInterval(() => {
+    if (document.getElementById('lock-screen').style.display === 'none') return;
+    let tiger = document.getElementById('the-tiger');
+    if (!tiger) return;
+    
+    // หาตำแหน่งของพี่เสือ
+    let tRect = tiger.getBoundingClientRect();
+    let tX = tRect.left + (tRect.width / 2);
+    
+    // เช็คระยะห่างแมวแต่ละตัว
+    document.querySelectorAll('.detailed-cat:not(#the-tiger)').forEach(cat => {
+      let cRect = cat.getBoundingClientRect();
+      let cX = cRect.left + (cRect.width / 2);
+      
+      // ถ้าเข้าใกล้เกิน 150px และยังไม่ตกใจ
+      if (Math.abs(tX - cX) < 150 && !cat.classList.contains('panic-mode')) {
+        cat.classList.add('panic-mode');
+        cat.panicMultiplier = 10; // สปีดการเดิน JS x10
+        
+        // หันหน้าหนีเสือ
+        let direction = (cX > tX) ? 1 : -1;
+        cat.dataset.dir = direction;
+        cat.style.transform = `scaleX(${direction})`;
+        
+        // 3 วินาทีหายตกใจ
+        setTimeout(() => {
+          cat.classList.remove('panic-mode');
+          cat.panicMultiplier = 1;
+        }, 3000);
+      }
+    });
+  }, 100);
 });
 </script>
 
