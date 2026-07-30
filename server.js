@@ -75,7 +75,7 @@ app.get('/api/app-info', (req, res) => res.json({ version: "1.0.0" }));
 app.post('/api/login-shop', (req, res) => {
   const { contact, password } = req.body;
   
-  app.post('/api/login-shop', (req, res) => {
+app.post('/api/login-shop', (req, res) => {
   const { contact, password } = req.body;
 
   // 👑 ระบบดักจับ Super Admin (เปลี่ยน Username / Password ตรงนี้ได้เลยครับ)
@@ -83,9 +83,6 @@ app.post('/api/login-shop', (req, res) => {
     return res.json({ status: "superadmin" });
   }
 
-  // เช็คทั้งอีเมล และเบอร์โทรศัพท์ (โค้ดเดิม)
-  db.get(`SELECT * FROM tenants WHERE (LOWER(email) = LOWER(?) OR phone = ?) AND password = ?`, [contact, contact, password], (err, row) => {
-	  
   // เช็คทั้งอีเมล และเบอร์โทรศัพท์
   db.get(`SELECT * FROM tenants WHERE (LOWER(email) = LOWER(?) OR phone = ?) AND password = ?`, [contact, contact, password], (err, row) => {
     if (err || !row) return res.json({ status: "error", message: "อีเมล/เบอร์โทร หรือรหัสผ่านไม่ถูกต้อง!" });
