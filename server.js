@@ -551,8 +551,12 @@ app.post('/api/import-excel', (req, res) => {
 // =================================================================
 // 👑 ระบบ Super Admin (จัดการร้านค้า)
 // =================================================================
+// =================================================================
+// 👑 ระบบ Super Admin (จัดการร้านค้า)
+// =================================================================
 app.get('/api/superadmin/tenants', (req, res) => {
-  db.all(`SELECT id, shop_name, email, phone, expire_date, sheet_id, status FROM tenants ORDER BY id DESC`, [], (err, rows) => {
+  // 🌟 เพิ่มการดึง password ออกมาแสดง
+  db.all(`SELECT id, shop_name, email, phone, password, expire_date, sheet_id, status FROM tenants ORDER BY id DESC`, [], (err, rows) => {
     if (err) return res.json({ status: "error", message: err.message });
     res.json(rows || []);
   });
@@ -560,7 +564,6 @@ app.get('/api/superadmin/tenants', (req, res) => {
 
 app.post('/api/superadmin/delete-tenant', (req, res) => {
   const { sheetId } = req.body;
-  // ใช้ db.serialize เพื่อบังคับให้คำสั่งลบทำงานเรียงตามลำดับอย่างปลอดภัย
   db.serialize(() => {
     db.run(`DELETE FROM tenants WHERE sheet_id = ?`, [sheetId]);
     db.run(`DELETE FROM users WHERE tenant_id = ?`, [sheetId]);
@@ -571,6 +574,30 @@ app.post('/api/superadmin/delete-tenant', (req, res) => {
       if (err) return res.json({ status: "error", message: err.message });
       res.json({ status: "success" });
     });
+  });
+});
+
+// 🌟 API สำหรับแก้ไข รหัสผ่าน และ วันหมดอายุ
+app.post('/api/superadmin/edit-tenant', (req, res) => {
+  const { sheetId, password, expireDate } = req.body;
+  db.run(`UPDATE tenants SET password = ?, expire_date = ? WHERE sheet_id = ?`, [password, expireDate, sheetId], function(err) {
+    if (err) return res.json({ status: "error", message: err.message });
+    res.json({ status: "success" });
+  });
+});
+
+// 🌟 API สำหรับเพิ่มร้านค้าใหม่เอง (แอดมินสร้างให้)
+app.post('/api/superadmin/add-tenant', (req, res) => {
+  const { shopName, email, phone, password, expireDate } = req.body;
+  db.get(`SELECT id FROM tenants WHERE LOWER(email)=LOWER(?) OR phone=?`, [email, phone], (err, row) => {
+    if (row) return res.json({ status: "error", message: "Email หรือ เบอร์โทรศัพท์ นี้มีคนใช้งานแล้ว" });
+    
+    const sheetId = "SHOP_" + Date.now();
+    db.run(`INSERT INTO tenants (user, password, shop_name, email, phone, sheet_id, status, expire_date) VALUES (?, ?, ?, ?, ?, ?, 'ACTIVE', ?)`,
+      [email, password, shopName, email, phone, sheetId, expireDate], (err) => {
+        if (err) return res.json({ status: "error", message: err.message });
+        res.json({ status: "success" });
+      });
   });
 });
 
