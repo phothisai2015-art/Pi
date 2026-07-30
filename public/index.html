@@ -564,6 +564,54 @@ body.dark-theme .menu-card-btn:hover:not(:disabled) {
   transform: translateY(2px);
 }
 
+/* ========================================================= */
+/* 🌟 อัปเกรดหน้าคลังสินค้า (Products Premium UI) */
+/* ========================================================= */
+/* ลบเส้นขอบแข็งๆ ออก และใส่เงาให้ตารางดูนุ่มนวล */
+.prod-table-container {
+  border: none !important;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.05) !important;
+  border-radius: 24px !important;
+}
+/* เอฟเฟกต์เวลาเอาเมาส์ชี้แถวตารางสินค้า ให้แถวลอยขึ้นมา */
+.table-hover tbody tr {
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.table-hover tbody tr:hover {
+  background-color: #ffffff !important;
+  transform: scale(1.01);
+  box-shadow: 0 10px 25px rgba(59, 130, 246, 0.1);
+  z-index: 10;
+  position: relative;
+  border-radius: 12px;
+}
+
+/* ========================================================= */
+/* 🌟 อัปเกรดหน้าสถิติยอดขาย (Dashboard Premium UI) */
+/* ========================================================= */
+/* ทำให้การ์ดสรุปยอดสีๆ (เงินสด, โอน, รวม) เด้งดุ๊กดิ๊กเวลาเอาเมาส์ชี้ */
+.row.g-3.mb-3 > div > div.p-3 {
+  transition: all 0.3s ease !important;
+  border-radius: 20px !important;
+}
+.row.g-3.mb-3 > div > div.p-3:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 30px rgba(0,0,0,0.15) !important;
+  filter: brightness(1.05);
+}
+/* ปรับกล่องกราฟและตารางให้โค้งมนไร้ขอบ */
+.dash-chart-box, .dash-table-box {
+  border: none !important;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.04) !important;
+  border-radius: 24px !important;
+  transition: all 0.3s ease;
+}
+.dash-chart-box:hover, .dash-table-box:hover {
+  box-shadow: 0 20px 40px rgba(0,0,0,0.08) !important;
+  transform: translateY(-3px);
+}
+
+
 </style>
 </head>
 <body>
