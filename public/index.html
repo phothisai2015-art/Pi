@@ -465,6 +465,63 @@ body.dark-theme #saas-login-screen {
       color: #ffffff !important;
     }
 
+/* 🌟 สไตล์ปุ่มเมนูแบบใหม่ (Menu Grid Cards) */
+.menu-card-btn {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 24px;
+  padding: 30px 20px;
+  text-align: center;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.02);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+}
+.menu-card-btn:hover:not(:disabled) {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+  border-color: #cbd5e1;
+}
+.menu-card-btn:active:not(:disabled) {
+  transform: translateY(-2px);
+}
+.menu-card-btn:disabled {
+  background: #f8fafc;
+  opacity: 0.6;
+  cursor: not-allowed;
+  filter: grayscale(100%);
+}
+.menu-icon-wrap {
+  width: 70px;
+  height: 70px;
+  border-radius: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 30px;
+  transition: transform 0.3s ease;
+}
+.menu-card-btn:hover:not(:disabled) .menu-icon-wrap {
+  transform: scale(1.1) rotate(5deg);
+}
+
+body.dark-theme .menu-card-btn {
+  background: #1e293b;
+  border-color: #334155;
+}
+body.dark-theme .menu-card-btn:hover:not(:disabled) {
+  border-color: #475569;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+}
+
 </style>
 </head>
 <body>
