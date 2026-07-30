@@ -2804,7 +2804,50 @@ function renderMenuGrid() {
     .receipt-table { width: 100%; font-size: 14px; margin-bottom: 20px; }
     .receipt-summary { border-top: 2px dashed #000000 !important; padding-top: 15px; font-size: 15px; }
     .receipt-total { font-size: 20px; font-weight: 800; margin-top: 15px; border-top: 2px solid #000000 !important; padding-top: 10px; border-bottom: 2px solid #000000 !important; padding-bottom: 10px;}
-    @media print { body * { visibility: hidden; } #page-receipt { background: white !important; padding: 0 !important; position: absolute; left: 0; top: 0; } .receipt-paper, .receipt-paper * { visibility: visible; } }
+    /* ========================================================= */
+/* 🖨️ รูปแบบสำหรับการพิมพ์ใบเสร็จ (Thermal Printer 58mm) */
+/* ========================================================= */
+@media print {
+  /* บังคับขนาดกระดาษ 58mm และลบขอบขาวของเบราว์เซอร์ทิ้ง */
+  @page { 
+    size: 58mm auto; 
+    margin: 0; 
+  }
+  
+  body * { visibility: hidden; }
+  
+  #page-receipt { 
+    background: white !important; 
+    padding: 0 !important; 
+    position: absolute; 
+    left: 0; 
+    top: 0; 
+    width: 58mm !important; 
+  }
+  
+  .receipt-paper, .receipt-paper * { visibility: visible; }
+  
+  /* ปรับแต่งสลิปให้พอดีกระดาษม้วน */
+  .receipt-paper { 
+    width: 100% !important; 
+    max-width: 58mm !important; 
+    padding: 5px !important; 
+    box-shadow: none !important; 
+    margin: 0 !important; 
+    border-radius: 0 !important; 
+    font-size: 11px !important; /* ย่อตัวหนังสือลงให้พอดี 58mm */
+  }
+  
+  .receipt-title { font-size: 14px !important; }
+  .receipt-total { font-size: 14px !important; }
+  .no-print { display: none !important; }
+  
+  /* ซ่อน Header/Footer ของเบราว์เซอร์ (พวกวันที่และ URL ด้านบน/ล่าง) */
+  html, body {
+    margin: 0;
+    padding: 0;
+  }
+}
   </style>
 
   <div class="d-flex justify-content-center gap-3 mb-4 no-print">
