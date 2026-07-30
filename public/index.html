@@ -611,6 +611,35 @@ body.dark-theme .menu-card-btn:hover:not(:disabled) {
   transform: translateY(-3px);
 }
 
+/* ========================================================= */
+/* 🌟 แก้บั๊กโหมดมืด (Dark Mode Fix สำหรับตารางและการ์ด) */
+/* ========================================================= */
+
+/* 1. แก้บั๊กตาราง (คลังสินค้า & ตะกร้า POS) ห้ามเป็นสีขาวตอนเมาส์ชี้ในโหมดมืด */
+body.dark-theme .table-hover tbody tr:hover {
+  background-color: #1e293b !important; /* เปลี่ยนจากสีขาว เป็นสีเทาเข้ม */
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4) !important; /* เปลี่ยนเงาเป็นสีทึบ */
+}
+
+/* 2. แก้บั๊กการ์ดสินค้า (หน้า POS) ห้ามเป็นสีขาวตอนเมาส์ชี้ในโหมดมืด */
+body.dark-theme .pos-product-card:hover {
+  background-color: #1e293b !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* 3. ป้องกันตัวหนังสือกลืนกับพื้นหลัง */
+body.dark-theme .table-hover tbody tr:hover td,
+body.dark-theme .table-hover tbody tr:hover span.text-dark {
+  color: #f1f5f9 !important; /* บังคับตัวหนังสือให้สว่างเสมอ */
+}
+
+/* 4. บังคับสีพื้นหลังกล่อง Dashboard และตะกร้า ให้กลืนกับโหมดมืด */
+body.dark-theme #pos-cart-container,
+body.dark-theme .dash-chart-box, 
+body.dark-theme .dash-table-box {
+  background-color: #0f172a !important; 
+  border-color: #334155 !important;
+}
 
 </style>
 </head>
