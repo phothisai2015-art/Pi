@@ -72,8 +72,6 @@ async function sendAdminAlert(message) {
 
 app.get('/api/app-info', (req, res) => res.json({ version: "1.0.0" }));
 
-app.post('/api/login-shop', (req, res) => {
-  const { contact, password } = req.body;
   
 app.post('/api/login-shop', (req, res) => {
   const { contact, password } = req.body;
