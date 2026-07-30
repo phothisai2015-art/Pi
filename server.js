@@ -74,6 +74,18 @@ app.get('/api/app-info', (req, res) => res.json({ version: "1.0.0" }));
 
 app.post('/api/login-shop', (req, res) => {
   const { contact, password } = req.body;
+  
+  app.post('/api/login-shop', (req, res) => {
+  const { contact, password } = req.body;
+
+  // 👑 ระบบดักจับ Super Admin (เปลี่ยน Username / Password ตรงนี้ได้เลยครับ)
+  if (contact === 'superadmin' && password === '12345678') {
+    return res.json({ status: "superadmin" });
+  }
+
+  // เช็คทั้งอีเมล และเบอร์โทรศัพท์ (โค้ดเดิม)
+  db.get(`SELECT * FROM tenants WHERE (LOWER(email) = LOWER(?) OR phone = ?) AND password = ?`, [contact, contact, password], (err, row) => {
+	  
   // เช็คทั้งอีเมล และเบอร์โทรศัพท์
   db.get(`SELECT * FROM tenants WHERE (LOWER(email) = LOWER(?) OR phone = ?) AND password = ?`, [contact, contact, password], (err, row) => {
     if (err || !row) return res.json({ status: "error", message: "อีเมล/เบอร์โทร หรือรหัสผ่านไม่ถูกต้อง!" });
@@ -539,6 +551,32 @@ app.post('/api/import-excel', (req, res) => {
   } catch (e) {
     res.json({ status: "error", message: e.message });
   }
+});
+
+// =================================================================
+// 👑 ระบบ Super Admin (จัดการร้านค้า)
+// =================================================================
+app.get('/api/superadmin/tenants', (req, res) => {
+  db.all(`SELECT id, shop_name, email, phone, expire_date, sheet_id, status FROM tenants ORDER BY id DESC`, [], (err, rows) => {
+    if (err) return res.json({ status: "error", message: err.message });
+    res.json(rows || []);
+  });
+});
+
+app.post('/api/superadmin/delete-tenant', (req, res) => {
+  const { sheetId } = req.body;
+  // ใช้ db.serialize เพื่อบังคับให้คำสั่งลบทำงานเรียงตามลำดับอย่างปลอดภัย
+  db.serialize(() => {
+    db.run(`DELETE FROM tenants WHERE sheet_id = ?`, [sheetId]);
+    db.run(`DELETE FROM users WHERE tenant_id = ?`, [sheetId]);
+    db.run(`DELETE FROM products WHERE tenant_id = ?`, [sheetId]);
+    db.run(`DELETE FROM sales_log WHERE tenant_id = ?`, [sheetId]);
+    db.run(`DELETE FROM settings WHERE tenant_id = ?`, [sheetId]);
+    db.run(`DELETE FROM activity_log WHERE tenant_id = ?`, [sheetId], function(err) {
+      if (err) return res.json({ status: "error", message: err.message });
+      res.json({ status: "success" });
+    });
+  });
 });
 
 // =================================================================
