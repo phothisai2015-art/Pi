@@ -773,29 +773,66 @@ body.dark-theme #saas-login-screen {
   </div>
 </div>
 
-<!-- 🌟 หน้าเมนูหลัก (Main Menu) -->
-<div class="main-container" id="main-menu">
-  <div class="text-center mb-4">
-    <img id="display-shop-logo" src="" style="max-width: 150px; margin-bottom: 20px; border-radius: 16px; display: none; box-shadow: 0 10px 25px rgba(0,0,0,0.08);">
-    <h2 class="fw-bold text-dark"><i class="fa-solid fa-store text-primary me-2"></i> เมนูหลัก </h2>
-    <div class="badge bg-primary px-3 py-2 fs-6 rounded-pill mt-2 shadow-sm"> พนักงาน: <span id="display-staff-name"> กำลังโหลด... </span></div>
+<!-- 🌟 หน้าเมนูหลัก (Main Menu - Premium UI) -->
+<div class="main-container" id="main-menu" style="max-width: 800px; padding-top: 5vh;">
+  <div class="text-center mb-5">
+    <img id="display-shop-logo" src="" style="max-width: 120px; margin-bottom: 20px; border-radius: 24px; display: none; box-shadow: 0 15px 35px rgba(0,0,0,0.1);">
+    <h2 class="fw-bold text-dark" style="letter-spacing: -0.5px;"><i class="fa-solid fa-store text-primary me-2"></i> ระบบจัดการร้านค้า </h2>
+    <div class="d-inline-flex align-items-center bg-white px-4 py-2 mt-2 rounded-pill shadow-sm border">
+      <div class="bg-success rounded-circle me-2" style="width: 10px; height: 10px; animation: pulse 2s infinite;"></div>
+      <span class="text-muted fw-bold small me-2">พนักงาน:</span> 
+      <span id="display-staff-name" class="fw-bold text-primary"> กำลังโหลด... </span>
+    </div>
   </div>
 
+  <!-- 🌟 แมวแอบดู -->
   <div style="position: relative; width: 100%;">
-    <div class="panel-cat cat-orange-peeking" style="right: 45px;">
+    <div class="panel-cat cat-orange-peeking" style="right: 50px; top: -40px;">
       <div class="pcat-ear ear-l"></div><div class="pcat-ear ear-r"></div>
       <div class="pcat-head"><div class="pcat-eye eye-l"></div><div class="pcat-eye eye-r"></div><div class="pcat-nose"></div></div>
       <div class="pcat-paw paw-l"></div><div class="pcat-paw paw-r"></div>
     </div>
-    <button class="menu-btn btn-pos w-100" id="btn-menu-pos" onclick="openPOSPage()" disabled><i class="fa-solid fa-cash-register"></i> ขายสินค้า (POS) </button>
   </div>
 
-  <button class="menu-btn btn-products" id="btn-menu-stock" onclick="openProductsPage()" disabled><i class="fa-solid fa-box-open"></i> จัดการคลังสินค้า </button>
-  <button class="menu-btn btn-dash" id="btn-menu-dash" onclick="openDashboardPage()" disabled><i class="fa-solid fa-chart-pie"></i> ดูสถิติ (Dashboard) </button>
-  <button class="menu-btn btn-settings" id="btn-menu-admin" onclick="openSettingsPage()" disabled><i class="fa-solid fa-gear"></i> ตั้งค่าระบบ & พนักงาน </button>
+  <!-- 🌟 เมนูแบบ Grid Card 2x2 -->
+  <div class="row g-4">
+    <div class="col-6 col-md-6">
+      <button class="menu-card-btn w-100" id="btn-menu-pos" onclick="openPOSPage()" disabled>
+        <div class="menu-icon-wrap bg-primary bg-opacity-10 text-primary"><i class="fa-solid fa-cash-register"></i></div>
+        <h5 class="fw-bold mt-3 mb-1">ขายสินค้า (POS)</h5>
+        <span class="small text-muted">เปิดหน้าร้านและรับชำระเงิน</span>
+      </button>
+    </div>
+    
+    <div class="col-6 col-md-6">
+      <button class="menu-card-btn w-100" id="btn-menu-stock" onclick="openProductsPage()" disabled>
+        <div class="menu-icon-wrap bg-warning bg-opacity-10 text-warning"><i class="fa-solid fa-box-open"></i></div>
+        <h5 class="fw-bold mt-3 mb-1">คลังสินค้า</h5>
+        <span class="small text-muted">จัดการสต็อกและรายการสินค้า</span>
+      </button>
+    </div>
 
-  <div class="text-center mt-auto text-muted fw-bold small">
-    Version <span id="app-version-text">Loading...</span> | <a href="#" onclick="lockScreenManual()" class="text-danger text-decoration-none ms-2"><i class="fa-solid fa-lock"></i> ล็อกหน้าจอ </a>
+    <div class="col-6 col-md-6">
+      <button class="menu-card-btn w-100" id="btn-menu-dash" onclick="openDashboardPage()" disabled>
+        <div class="menu-icon-wrap bg-success bg-opacity-10 text-success"><i class="fa-solid fa-chart-pie"></i></div>
+        <h5 class="fw-bold mt-3 mb-1">สถิติยอดขาย</h5>
+        <span class="small text-muted">ดูสรุปรายได้และบิลย้อนหลัง</span>
+      </button>
+    </div>
+
+    <div class="col-6 col-md-6">
+      <button class="menu-card-btn w-100" id="btn-menu-admin" onclick="openSettingsPage()" disabled>
+        <div class="menu-icon-wrap bg-danger bg-opacity-10 text-danger"><i class="fa-solid fa-gear"></i></div>
+        <h5 class="fw-bold mt-3 mb-1">ตั้งค่าระบบ</h5>
+        <span class="small text-muted">จัดการร้านค้าและพนักงาน</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="text-center mt-5 text-muted fw-bold small d-flex justify-content-center align-items-center gap-3">
+    <span>Version <span id="app-version-text">Loading...</span></span>
+    <span class="text-secondary opacity-25">|</span>
+    <a href="#" onclick="lockScreenManual()" class="text-danger text-decoration-none hover-scale"><i class="fa-solid fa-lock me-1"></i> ล็อกหน้าจอ </a>
   </div>
 </div>
 
