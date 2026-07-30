@@ -22,6 +22,10 @@
     let url = ''; let options = { method: 'GET', headers: { 'Content-Type': 'application/json' } };
     switch(prop) {
       case 'getAppInfo': url = '/api/app-info'; break;
+	  
+	  case 'getSuperAdminTenants': url = '/api/superadmin/tenants'; break;
+      case 'deleteTenantData': url = '/api/superadmin/delete-tenant'; options.method = 'POST'; options.body = JSON.stringify({ sheetId: args[0] }); break;
+	  
       case 'getScriptUrl': if (successCb) successCb(window.location.origin); return;
       case 'loginShop': url = '/api/login-shop'; options.method = 'POST'; options.body = JSON.stringify({ contact: args[0], password: args[1] }); break;
       case 'getShopSettings': url = '/api/settings/' + args[0]; break;
@@ -982,6 +986,113 @@ body.dark-theme .num-btn-del:hover {
   </div>
 </div>
 
+<!-- ============================================== -->
+<!-- 👑 หน้า Super Admin Dashboard -->
+<!-- ============================================== -->
+<div id="page-superadmin" style="display: none; background: #f8fafc; height: 100vh; position: absolute; top: 0; left: 0; width: 100%; z-index: 100005; overflow-y: auto; padding: 20px;">
+   <div class="container" style="max-width: 1100px; margin: 0 auto; padding-top: 20px;">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+         <h3 class="fw-bold text-danger"><i class="fa-solid fa-user-shield me-2"></i> ศูนย์ควบคุมระบบ (Super Admin)</h3>
+         <button class="btn btn-outline-danger fw-bold rounded-pill px-4 shadow-sm" onclick="closeSuperAdminPage()"><i class="fa-solid fa-arrow-left me-2"></i> ออกจากระบบ</button>
+      </div>
+      
+      <div class="row mb-4 g-3">
+         <div class="col-md-4">
+            <div class="bg-white p-4 rounded-4 shadow-sm border border-danger text-center h-100 d-flex flex-column justify-content-center">
+               <h6 class="text-muted fw-bold mb-2">จำนวนร้านค้าในระบบทั้งหมด</h6>
+               <h1 class="text-danger fw-bold m-0 display-4" id="sa-total-shops">0</h1>
+            </div>
+         </div>
+         <div class="col-md-8">
+            <div class="bg-white p-4 rounded-4 shadow-sm border h-100 d-flex flex-column justify-content-center">
+               <h6 class="text-muted fw-bold mb-3"><i class="fa-solid fa-search"></i> ค้นหาร้านค้า</h6>
+               <input type="text" class="form-control form-control-lg bg-light fw-bold" id="sa-search-shop" placeholder="พิมพ์ชื่อร้าน, อีเมล หรือ เบอร์โทรศัพท์..." oninput="renderSuperAdminTable()">
+            </div>
+         </div>
+      </div>
+
+      <div class="bg-white p-3 rounded-4 shadow-sm border">
+         <div class="table-responsive" style="max-height: 60vh; overflow-y: auto;">
+            <table class="table table-hover align-middle mb-0 text-nowrap">
+               <thead class="table-light sticky-top shadow-sm">
+                  <tr>
+                    <th class="py-3 px-3">รหัสระบบ (Sheet ID)</th>
+                    <th class="py-3">ชื่อร้านค้า / ติดต่อ</th>
+                    <th class="py-3 text-center">วันหมดอายุ</th>
+                    <th class="py-3 text-end pe-3">จัดการ</th>
+                  </tr>
+               </thead>
+               <tbody id="sa-tenant-body">
+                  <tr><td colspan="4" class="text-center py-5">กำลังโหลดข้อมูล...</td></tr>
+               </tbody>
+            </table>
+         </div>
+      </div>
+   </div>
+</div>
+
+<script>
+// 👑 Javascript สำหรับ Super Admin
+let globalTenants = [];
+function openSuperAdminPage() {
+   document.getElementById('page-superadmin').style.display = 'block';
+   loadSuperAdminData();
+}
+function closeSuperAdminPage() {
+   document.getElementById('page-superadmin').style.display = 'none';
+   document.getElementById('input-login-contact').value = '';
+   document.getElementById('input-shop-password').value = '';
+   document.getElementById('saas-login-screen').style.display = 'flex';
+   setTimeout(() => document.getElementById('saas-login-screen').style.opacity = '1', 50);
+}
+function loadSuperAdminData() {
+   document.getElementById('sa-tenant-body').innerHTML = '<tr><td colspan="4" class="text-center py-5"><i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังโหลดข้อมูล...</td></tr>';
+   google.script.run.withSuccessHandler(data => {
+      globalTenants = data;
+      document.getElementById('sa-total-shops').innerText = data.length;
+      renderSuperAdminTable();
+   }).getSuperAdminTenants();
+}
+function renderSuperAdminTable() {
+   let keyword = document.getElementById('sa-search-shop').value.toLowerCase().trim();
+   let filtered = globalTenants.filter(t => (t.shop_name && t.shop_name.toLowerCase().includes(keyword)) || (t.email && t.email.toLowerCase().includes(keyword)) || (t.phone && t.phone.includes(keyword)));
+   const tbody = document.getElementById('sa-tenant-body'); tbody.innerHTML = '';
+   if(filtered.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="text-center py-5 text-muted">ไม่พบข้อมูลร้านค้า</td></tr>'; return; }
+   
+   filtered.forEach(t => {
+      // เช็คว่าหมดอายุหรือยัง
+      let expDate = new Date(t.expire_date); let today = new Date(); today.setHours(0,0,0,0);
+      let isExpired = expDate < today;
+      let expColor = isExpired ? "text-danger" : "text-success";
+      let expText = isExpired ? `<i class="fa-solid fa-circle-xmark"></i> ${t.expire_date} (หมดอายุ)` : `<i class="fa-solid fa-circle-check"></i> ${t.expire_date}`;
+
+      tbody.innerHTML += `
+        <tr>
+          <td class="px-3"><span class="badge bg-secondary px-3 py-2 rounded-pill">${t.sheet_id}</span></td>
+          <td><b class="text-primary fs-6">${t.shop_name}</b><br><small class="text-muted"><i class="fa-solid fa-envelope"></i> ${t.email} &nbsp;|&nbsp; <i class="fa-solid fa-phone"></i> ${t.phone}</small></td>
+          <td class="fw-bold ${expColor} text-center">${expText}</td>
+          <td class="text-end pe-3"><button class="btn btn-sm btn-danger fw-bold shadow-sm rounded-3 px-3 py-2" onclick="deleteTenantAdmin('${t.sheet_id}', '${t.shop_name}')"><i class="fa-solid fa-trash-can me-1"></i> ลบร้านทิ้ง</button></td>
+        </tr>
+      `;
+   });
+}
+function deleteTenantAdmin(sheetId, shopName) {
+   Swal.fire({
+      title: 'ลบร้านค้านี้ถาวร?',
+      html: `คุณกำลังจะลบร้าน <b>${shopName}</b><br><br><div class="alert alert-danger small text-start"><b>คำเตือน:</b> การลบนี้จะลบข้อมูลต่อไปนี้ทิ้งถาวร!<br>- บัญชีล็อกอิน<br>- คลังสินค้าทั้งหมด<br>- ประวัติการขายและบิลทั้งหมด<br>- การตั้งค่าร้านค้า</div>`,
+      icon: 'warning', showCancelButton: true, confirmButtonColor: '#dc3545', confirmButtonText: '<i class="fa-solid fa-trash"></i> ยืนยันการลบถาวร', cancelButtonText: 'ยกเลิก'
+   }).then(res => {
+      if(res.isConfirmed) {
+         Swal.fire({title:'กำลังกวาดล้างข้อมูล...', allowOutsideClick:false, didOpen:()=>Swal.showLoading()});
+         google.script.run.withSuccessHandler(r => {
+            if(r.status === 'success') { Swal.fire('สำเร็จ', `ลบร้าน ${shopName} เรียบร้อยแล้ว`, 'success'); loadSuperAdminData(); }
+            else { Swal.fire('ผิดพลาด', r.message, 'error'); }
+         }).deleteTenantData(sheetId);
+       }
+   });
+}
+</script>
+
 <!-- 🌟 หน้าจอล็อกพนักงาน (Numpad & Cats) -->
 <div id="lock-screen">
   <button class="btn logout-shop-btn" onclick="shopLogout()"><i class="fa-solid fa-right-from-bracket me-2"></i>ออกจากสาขา</button>
@@ -1273,6 +1384,13 @@ function processSaaSLogin() {
   
   google.script.run.withSuccessHandler(function(res) {
     isSaaSLoggingIn = false; Swal.close(); 
+	
+	if (res.status === "superadmin") {
+      hideLoginScreen();
+      setTimeout(() => openSuperAdminPage(), 500);
+      return;
+    }
+	
     if(res.status === "error") {
       Swal.fire({ icon: 'error', title: 'เข้าสู่ระบบล้มเหลว', text: res.message });
     } else {
