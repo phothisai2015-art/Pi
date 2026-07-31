@@ -752,52 +752,41 @@ body.dark-theme .num-btn-del:hover {
 </head>
 <body>
 
-<!-- 🌐 ปุ่มสลับภาษา (Global) อยู่บนสุด ไม่ซ้อนกับใคร -->
-<div style="position: fixed; top: 20px; right: 20px; z-index: 999999;">
-  <select id="lang-selector-global" ...> ... </select>
-</div>
-
 <button id="main-theme-btn" class="theme-toggle-btn" onclick="toggleThemeMode()" title="สลับโหมดมืด/สว่าง">
   <i id="theme-icon" class="fa-solid fa-moon"></i>
 </button>
 
 <!-- 🌟 หน้าจอเข้าสู่ระบบ -->
+<!-- 🌟 หน้าจอเข้าสู่ระบบ -->
 <div id="saas-login-screen" class="saas-page-screen">
+  
   <div class="login-glass-card">
     <div class="login-icon-wrap"><i class="fa-solid fa-bolt text-white"></i></div>
-    <h3 class="fw-bold text-dark mb-2" style="letter-spacing: 1px;" data-i18n="login_title">SaaS POS System</h3>
-    <p class="text-secondary small mb-4" style="font-weight: 500;" data-i18n="login_subtitle">เข้าสู่ระบบจัดการร้านค้าของคุณ</p>
-	
-	<!-- 🌐 ปุ่มเปลี่ยนภาษา (หน้า Login) -->
-<div style="position: absolute; top: 20px; right: 20px; z-index: 100001;">
-  <select id="lang-selector-login" class="form-select form-select-sm bg-white shadow-sm fw-bold text-dark border-secondary" onchange="changeLanguage(this.value)" style="border-radius: 12px; cursor: pointer; width: 110px;">
-    <option value="th">🇹🇭 ไทย</option>
-    <option value="en">🇬🇧 English</option>
-  </select>
-</div>
+    <h3 class="fw-bold text-dark mb-2" style="letter-spacing: 1px;">SaaS POS System</h3>
+    <p class="text-secondary small mb-4" style="font-weight: 500;">เข้าสู่ระบบจัดการร้านค้าของคุณ</p>
     
-    <div class="mb-3 input-group shadow-sm">
+<div class="mb-3 input-group shadow-sm">
       <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
-      <input type="text" class="form-control login-input border-start-0" id="input-login-contact" placeholder="อีเมล หรือ เบอร์โทรศัพท์" data-i18n="login_placeholder_contact">
+      <input type="text" class="form-control login-input border-start-0" id="input-login-contact" placeholder="อีเมล หรือ เบอร์โทรศัพท์">
     </div>
     
     <div class="mb-4 input-group shadow-sm">
       <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
-      <input type="password" class="form-control login-input border-start-0" id="input-shop-password" placeholder="รหัสผ่าน" data-i18n="login_placeholder_pass">
+      <input type="password" class="form-control login-input border-start-0" id="input-shop-password" placeholder="รหัสผ่าน">
     </div>
     
-    <button class="btn btn-login-modern w-100 py-3 mb-2" onclick="processSaaSLogin()" data-i18n="login_btn">
+    <button class="btn btn-login-modern w-100 py-3 mb-2" onclick="processSaaSLogin()">
       เข้าสู่ระบบ <i class="fa-solid fa-arrow-right ms-2"></i>
     </button>
 
     <div class="login-footer-links">
-      <a onclick="switchSaaSPage('page-reset')" class="login-link-item" data-i18n="login_forgot"><i class="fa-solid fa-key text-warning"></i> ลืมรหัส</a>
-      <a onclick="switchSaaSPage('page-renew')" class="login-link-item" data-i18n="login_renew"><i class="fa-solid fa-bolt-lightning text-success"></i> ต่ออายุ</a>
-      <a onclick="switchSaaSPage('page-register')" class="login-link-item" data-i18n="login_register"><i class="fa-solid fa-user-plus text-info"></i> สมัครฟรี</a>
+      <a onclick="switchSaaSPage('page-reset')" class="login-link-item"><i class="fa-solid fa-key text-warning"></i> ลืมรหัส</a>
+      <a onclick="switchSaaSPage('page-renew')" class="login-link-item"><i class="fa-solid fa-bolt-lightning text-success"></i> ต่ออายุ</a>
+      <a onclick="switchSaaSPage('page-register')" class="login-link-item"><i class="fa-solid fa-user-plus text-info"></i> สมัครฟรี</a>
     </div>
 
     <div class="mt-3">
-      <a href="https://lin.ee/zoOSrmC" target="_blank" class="login-link-item line-support justify-content-center mt-2" data-i18n="login_contact">
+      <a href="https://lin.ee/zoOSrmC" target="_blank" class="login-link-item line-support justify-content-center mt-2">
         <i class="fa-brands fa-line fs-5"></i> ติดต่อแอดมิน / แจ้งปัญหา
       </a>
     </div>
@@ -812,32 +801,42 @@ body.dark-theme .num-btn-del:hover {
   <div class="login-glass-card" id="reg-step-1">
     <div class="text-center mb-4">
       <div class="icon-wrap" style="background: linear-gradient(135deg, #3b82f6, #6366f1);"><i class="fa-solid fa-rocket"></i></div>
-      <h3 class="fw-bold text-dark" data-i18n="reg_title">เปิดร้านใหม่</h3>
-      <span class="badge bg-warning text-dark px-3 py-1 mt-1 shadow-sm rounded-pill" data-i18n="reg_free">ฟรี 30 วัน</span>
+      <h3 class="fw-bold text-dark">เปิดร้านใหม่</h3>
+      <span class="badge bg-warning text-dark px-3 py-1 mt-1 shadow-sm rounded-pill">ฟรี 30 วัน</span>
     </div>
+    
+    <!-- 1. ชื่อร้านค้า -->
     <div class="mb-3 input-group shadow-sm">
       <span class="input-group-text"><i class="fa-solid fa-store"></i></span>
-      <input type="text" id="reg-shop" class="form-control login-input border-start-0" placeholder="ชื่อร้านค้า" data-i18n="reg_shop">
+      <input type="text" id="reg-shop" class="form-control login-input border-start-0" placeholder="ชื่อร้านค้า">
     </div>
+
+    <!-- 2. อีเมล (Gmail) -->
     <div class="mb-3 input-group shadow-sm">
       <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
-      <input type="email" id="reg-email" class="form-control login-input border-start-0" placeholder="อีเมล (Gmail)" data-i18n="reg_email">
+      <input type="email" id="reg-email" class="form-control login-input border-start-0" placeholder="อีเมล (Gmail)">
     </div>
+
+    <!-- 3. ตั้งรหัสผ่าน -->
     <div class="mb-3 input-group shadow-sm">
       <span class="input-group-text"><i class="fa-solid fa-key"></i></span>
-      <input type="password" id="reg-pass" class="form-control login-input border-start-0" placeholder="ตั้งรหัสผ่าน (ENG/เลข)" data-i18n="reg_pass" oninput="this.value = this.value.replace(/[^a-zA-Z0-9]/g, '')">
+      <input type="password" id="reg-pass" class="form-control login-input border-start-0" placeholder="ตั้งรหัสผ่าน (ENG/เลข)" oninput="this.value = this.value.replace(/[^a-zA-Z0-9]/g, '')">
     </div>
+
+    <!-- 4. เบอร์โทรศัพท์ (ใส่ mb-4 เพื่อเว้นระยะห่างจากปุ่มด้านล่าง) -->
     <div class="mb-4 input-group shadow-sm">
       <span class="input-group-text"><i class="fa-solid fa-phone"></i></span>
-      <input type="tel" id="reg-phone" class="form-control login-input border-start-0" placeholder="เบอร์โทรศัพท์" data-i18n="reg_phone">
+      <input type="tel" id="reg-phone" class="form-control login-input border-start-0" placeholder="เบอร์โทรศัพท์">
     </div>
-    <button class="btn btn-login-modern w-100 py-3 mb-3" onclick="regSendOTP()" data-i18n="reg_btn">
+	
+    <button class="btn btn-login-modern w-100 py-3 mb-3" onclick="regSendOTP()">
       <i class="fa-solid fa-paper-plane me-2"></i> สมัครเปิดร้านค้า
     </button>
-    <a href="javascript:void(0);" onclick="switchSaaSPage('saas-login-screen')" class="login-link-item justify-content-center mt-2" data-i18n="reg_back">
+    <a href="javascript:void(0);" onclick="switchSaaSPage('saas-login-screen')" class="login-link-item justify-content-center mt-2">
       <i class="fa-solid fa-arrow-left me-1"></i> ย้อนกลับไปหน้าเข้าสู่ระบบ
     </a>
   </div>
+
   <div class="login-glass-card text-center" id="reg-step-success" style="display: none;">
     <i class="fa-solid fa-circle-check fa-4x text-success mb-3"></i>
     <h3 class="fw-bold text-dark">สำเร็จ!</h3>
@@ -860,18 +859,18 @@ body.dark-theme .num-btn-del:hover {
 <div id="page-renew" class="saas-page-screen" style="display: none;">
   <div class="login-glass-card" id="renew-step-search" style="max-width: 480px;">
     <div class="text-center mb-4">
-      <div class="icon-wrap" style="background: linear-gradient(135deg, #f59e0b, #facc15);"><i class="fa-solid fa-crown"></i></div>
-      <h3 class="fw-bold text-dark" data-i18n="renew_title">ต่ออายุ / เติมแพ็กเกจ</h3>
+      <div class="icon-wrap" style="background: linear-gradient(135deg, #f59e0b, #facc15); box-shadow: 0 12px 25px rgba(245, 158, 11, 0.3);"><i class="fa-solid fa-crown"></i></div>
+      <h3 class="fw-bold text-dark">ต่ออายุ / เติมแพ็กเกจ</h3>
     </div>
+    
     <div class="mb-4 text-start">
-      <label class="text-secondary fw-bold small mb-2 ps-1" data-i18n="renew_label1">อีเมล หรือ เบอร์โทรศัพท์ ที่ลงทะเบียน</label>
-      <input type="text" id="renew-email-input" class="form-control form-control-lg login-input" placeholder="กรอกอีเมล หรือ เบอร์โทรศัพท์" data-i18n="renew_placeholder">
-    </div>
+  <label class="text-secondary fw-bold small mb-2 ps-1">อีเมล หรือ เบอร์โทรศัพท์ ที่ลงทะเบียน</label>
+  <input type="text" id="renew-email-input" class="form-control form-control-lg login-input" placeholder="กรอกอีเมล หรือ เบอร์โทรศัพท์">
+</div>
+
     <div class="mb-4 text-start">
-      <label class="text-secondary fw-bold small mb-2 ps-1" data-i18n="renew_label2">เลือกแพ็กเกจที่ต้องการ</label>
+      <label class="text-secondary fw-bold small mb-2 ps-1">เลือกแพ็กเกจที่ต้องการ</label>
       <input type="hidden" id="renew-package" value="1M|150">
-      
-      <!-- แพ็กเกจที่ทำหายไป เอากลับมาแล้วครับ! -->
       <div class="renew-pkg-grid">
         <div class="renew-pkg-card selected" onclick="renewSelectPkg('1M|150', this)">
           <div class="renew-pkg-title">1 เดือน</div><div class="renew-pkg-price">฿150</div><div class="renew-pkg-perday">ตกวันละ 5.00 บ.</div>
@@ -907,10 +906,10 @@ body.dark-theme .num-btn-del:hover {
         </div>
       </div>
     </div>
-    <button class="btn btn-login-modern w-100 py-3 mb-3" onclick="renewSearchShop()" data-i18n="renew_btn">
+    <button class="btn btn-login-modern w-100 py-3 mb-3" onclick="renewSearchShop()">
       <i class="fa-solid fa-magnifying-glass me-2"></i> ค้นหาร้านค้าและชำระเงิน
     </button>
-    <a href="javascript:void(0);" onclick="switchSaaSPage('saas-login-screen')" class="login-link-item justify-content-center mt-2" data-i18n="reg_back">
+    <a href="javascript:void(0);" onclick="switchSaaSPage('saas-login-screen')" class="login-link-item justify-content-center mt-2">
       <i class="fa-solid fa-arrow-left me-1"></i> ย้อนกลับไปหน้าเข้าสู่ระบบ
     </a>
   </div>
@@ -934,39 +933,50 @@ body.dark-theme .num-btn-del:hover {
     <i class="fa-solid fa-circle-check fa-4x text-success mb-3"></i>
     <h3 class="fw-bold text-dark">ส่งข้อมูลสำเร็จ!</h3>
     <p class="text-secondary fw-bold mt-3">ระบบได้บันทึกการแจ้งชำระเงินแล้ว<br>กรุณารอระบบอนุมัติสักครู่ครับ</p>
-    <button class="btn btn-login-modern w-100 py-3 mt-4" onclick="switchSaaSPage('saas-login-screen')">กลับหน้าเข้าสู่ระบบ</button>
+    <button class="btn btn-login-modern w-100 py-3 mt-4" onclick="switchSaaSPage('saas-login-screen')">
+      กลับหน้าเข้าสู่ระบบ
+    </button>
   </div>
 </div>
 
 <!-- ============================================== -->
-<!-- 🌟 หน้ารีเซ็ตรหัสผ่าน (Reset Password) -->
+<!-- 🌟 หน้ารีเซ็ตรหัสผ่าน (Reset Password แบบตั้งเอง) -->
 <!-- ============================================== -->
 <div id="page-reset" class="saas-page-screen" style="display: none;">
+  <!-- หน้ากรอกข้อมูล -->
   <div class="login-glass-card" id="reset-step-1">
     <div class="text-center mb-4">
       <div class="icon-wrap" style="background: linear-gradient(135deg, #3b82f6, #6366f1);"><i class="fa-solid fa-unlock-keyhole"></i></div>
-      <h3 class="fw-bold text-dark" data-i18n="reset_title">ตั้งรหัสผ่านใหม่</h3>
-      <p class="text-secondary small mt-2" data-i18n="reset_sub">กรอกข้อมูลให้ตรงกับที่ลงทะเบียนไว้</p>
+      <h3 class="fw-bold text-dark">ตั้งรหัสผ่านใหม่</h3>
+      <p class="text-secondary small mt-2">กรอกข้อมูลให้ตรงกับที่ลงทะเบียนไว้เพื่อเปลี่ยนรหัส</p>
     </div>
+    
     <div class="mb-3 input-group shadow-sm">
       <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
-      <input type="text" id="reset-email" class="form-control login-input border-start-0" placeholder="อีเมล (Gmail)" data-i18n="reg_email">
+      <input type="text" id="reset-email" class="form-control login-input border-start-0" placeholder="อีเมล (Gmail)">
     </div>
+    
+    <!-- เปลี่ยน margin ด้านล่างให้แคบลงเพื่อเพิ่มช่องรหัสผ่าน -->
     <div class="mb-3 input-group shadow-sm">
       <span class="input-group-text"><i class="fa-solid fa-phone"></i></span>
-      <input type="tel" id="reset-phone" class="form-control login-input border-start-0" placeholder="เบอร์โทรศัพท์" data-i18n="reg_phone">
+      <input type="tel" id="reset-phone" class="form-control login-input border-start-0" placeholder="เบอร์โทรศัพท์ที่ลงทะเบียนไว้">
     </div>
+
+    <!-- 🌟 เพิ่มช่องให้ตั้งรหัสผ่านใหม่ -->
     <div class="mb-4 input-group shadow-sm">
       <span class="input-group-text"><i class="fa-solid fa-key"></i></span>
-      <input type="password" id="reset-new-pass" class="form-control login-input border-start-0" placeholder="ตั้งรหัสผ่านใหม่ (ENG/เลข)" data-i18n="reg_pass" oninput="this.value = this.value.replace(/[^a-zA-Z0-9]/g, '')">
+      <input type="password" id="reset-new-pass" class="form-control login-input border-start-0" placeholder="ตั้งรหัสผ่านใหม่ (ENG/เลข)" oninput="this.value = this.value.replace(/[^a-zA-Z0-9]/g, '')">
     </div>
-    <button class="btn btn-login-modern w-100 py-3 mb-3" onclick="resetPasswordDirectly()" data-i18n="reset_btn">
+
+    <button class="btn btn-login-modern w-100 py-3 mb-3" onclick="resetPasswordDirectly()">
       <i class="fa-solid fa-floppy-disk me-2"></i> บันทึกรหัสผ่านใหม่
     </button>
-    <a href="javascript:void(0);" onclick="switchSaaSPage('saas-login-screen')" class="login-link-item justify-content-center mt-2" data-i18n="reg_back">
+    <a href="javascript:void(0);" onclick="switchSaaSPage('saas-login-screen')" class="login-link-item justify-content-center mt-2">
       <i class="fa-solid fa-arrow-left me-1"></i> ย้อนกลับไปหน้าเข้าสู่ระบบ
     </a>
   </div>
+
+  <!-- หน้าแสดงผลลัพธ์สำเร็จ -->
   <div class="login-glass-card text-center" id="reset-step-success" style="display: none;">
     <i class="fa-solid fa-circle-check fa-4x text-success mb-3"></i>
     <h3 class="fw-bold text-dark">สำเร็จ!</h3>
@@ -1172,7 +1182,7 @@ function openSaAddModal() {
 
 <!-- 🌟 หน้าจอล็อกพนักงาน (Numpad & Cats) -->
 <div id="lock-screen">
-  <button class="btn logout-shop-btn" onclick="shopLogout()" data-i18n="lock_out"><i class="fa-solid fa-right-from-bracket me-2"></i>ออกจากสาขา</button>
+  <button class="btn logout-shop-btn" onclick="shopLogout()"><i class="fa-solid fa-right-from-bracket me-2"></i>ออกจากสาขา</button>
 
   <div class="detailed-cat route-cat-black cat-black-coat">
     <div class="cat-wrapper"><div class="cat-tail-soft"></div><div class="cat-body-main"></div><div class="cat-head-main"><div class="cat-ear ear-l"></div><div class="cat-ear ear-r"></div><div class="cat-eye eye-l"></div><div class="cat-eye eye-r"></div><div class="cat-nose"></div><div class="cat-whiskers whisker-l"></div><div class="cat-whiskers whisker-r"></div></div><div class="cat-collar-line"></div><div class="cat-gold-bell"></div><div class="cat-leg-detailed leg-front-left"></div><div class="cat-leg-detailed leg-front-right"></div><div class="cat-leg-detailed leg-back-left"></div><div class="cat-leg-detailed leg-back-right"></div></div>
@@ -1193,8 +1203,8 @@ function openSaAddModal() {
       <div class="pcat-paw paw-l"></div><div class="pcat-paw paw-r"></div>
     </div>
     <div class="numpad-header-wrap">
-      <h4 class="fw-bold text-primary mb-2"><i class="fa-solid fa-lock mb-2 fa-2x lock-icon-anim" style="..."></i><br> <span data-i18n="lock_title">กรุณาใส่รหัสพนักงาน</span> </h4>
-      <p class="text-muted small mb-4" data-i18n="lock_sub"> ระบบถูกล็อกเพื่อความปลอดภัย </p>
+      <h4 class="fw-bold text-primary mb-2"><i class="fa-solid fa-lock mb-2 fa-2x lock-icon-anim" style="display:inline-block; color:#3b82f6; text-shadow:0 8px 12px rgba(59,130,246,0.25); animation:floatLock 3s ease-in-out infinite;"></i><br> กรุณาใส่รหัสพนักงาน </h4>
+      <p class="text-muted small mb-4"> ระบบถูกล็อกเพื่อความปลอดภัย </p>
       <div class="pin-display" id="pin-display">
         <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
       </div>
@@ -1242,16 +1252,6 @@ function openSaAddModal() {
 
 <!-- 🌟 หน้าเมนูหลัก (Main Menu - Premium UI) -->
 <div class="main-container" id="main-menu" style="max-width: 800px; padding-top: 5vh;">
-<!-- 🌐 ปุ่มเปลี่ยนภาษา (หน้าเมนูหลัก) -->
-<div style="position: absolute; top: 20px; right: 20px; z-index: 10;">
-  <select id="lang-selector-main" class="form-select form-select-sm bg-white shadow-sm fw-bold text-dark border-secondary" onchange="changeLanguage(this.value)" style="border-radius: 12px; cursor: pointer; width: 110px;">
-    <option value="th">🇹🇭 ไทย</option>
-    <option value="en">🇬🇧 English</option>
-  </select>
-</div>
-  <!-- 🌐 ปุ่มสลับภาษา -->
-
-
   <div class="text-center mb-5">
     <img id="display-shop-logo" src="" style="max-width: 120px; margin-bottom: 20px; border-radius: 24px; display: none; box-shadow: 0 15px 35px rgba(0,0,0,0.1);">
     <h2 class="fw-bold text-dark" style="letter-spacing: -0.5px;"><i class="fa-solid fa-store text-primary me-2"></i> ระบบจัดการร้านค้า </h2>
@@ -1276,7 +1276,7 @@ function openSaAddModal() {
     <div class="col-6 col-md-6">
       <button class="menu-card-btn w-100" id="btn-menu-pos" onclick="openPOSPage()" disabled>
         <div class="menu-icon-wrap bg-primary bg-opacity-10 text-primary"><i class="fa-solid fa-cash-register"></i></div>
-        <h5 class="fw-bold mt-3 mb-1" data-i18n="menu_pos">ขายสินค้า (POS)</h5>
+        <h5 class="fw-bold mt-3 mb-1">ขายสินค้า (POS)</h5>
         <span class="small text-muted">เปิดหน้าร้านและรับชำระเงิน</span>
       </button>
     </div>
@@ -1284,7 +1284,7 @@ function openSaAddModal() {
     <div class="col-6 col-md-6">
       <button class="menu-card-btn w-100" id="btn-menu-stock" onclick="openProductsPage()" disabled>
         <div class="menu-icon-wrap bg-warning bg-opacity-10 text-warning"><i class="fa-solid fa-box-open"></i></div>
-        <h5 class="fw-bold mt-3 mb-1" data-i18n="menu_stock">คลังสินค้า</h5>
+        <h5 class="fw-bold mt-3 mb-1">คลังสินค้า</h5>
         <span class="small text-muted">จัดการสต็อกและรายการสินค้า</span>
       </button>
     </div>
@@ -1292,7 +1292,7 @@ function openSaAddModal() {
     <div class="col-6 col-md-6">
       <button class="menu-card-btn w-100" id="btn-menu-dash" onclick="openDashboardPage()" disabled>
         <div class="menu-icon-wrap bg-success bg-opacity-10 text-success"><i class="fa-solid fa-chart-pie"></i></div>
-        <h5 class="fw-bold mt-3 mb-1" data-i18n="menu_dashboard">สถิติยอดขาย</h5>
+        <h5 class="fw-bold mt-3 mb-1">สถิติยอดขาย</h5>
         <span class="small text-muted">ดูสรุปรายได้และบิลย้อนหลัง</span>
       </button>
     </div>
@@ -1300,7 +1300,7 @@ function openSaAddModal() {
     <div class="col-6 col-md-6">
       <button class="menu-card-btn w-100" id="btn-menu-admin" onclick="openSettingsPage()" disabled>
         <div class="menu-icon-wrap bg-danger bg-opacity-10 text-danger"><i class="fa-solid fa-gear"></i></div>
-        <h5 class="fw-bold mt-3 mb-1" data-i18n="menu_settings">ตั้งค่าระบบ</h5>
+        <h5 class="fw-bold mt-3 mb-1">ตั้งค่าระบบ</h5>
         <span class="small text-muted">จัดการร้านค้าและพนักงาน</span>
       </button>
     </div>
@@ -1309,7 +1309,7 @@ function openSaAddModal() {
   <div class="text-center mt-5 text-muted fw-bold small d-flex justify-content-center align-items-center gap-3">
     <span>Version <span id="app-version-text">Loading...</span></span>
     <span class="text-secondary opacity-25">|</span>
-    <a href="#" onclick="lockScreenManual()" class="text-danger text-decoration-none hover-scale"><i class="fa-solid fa-lock me-1"></i> <span data-i18n="menu_logout">ล็อกหน้าจอ</span> </a>
+    <a href="#" onclick="lockScreenManual()" class="text-danger text-decoration-none hover-scale"><i class="fa-solid fa-lock me-1"></i> ล็อกหน้าจอ </a>
   </div>
 </div>
 
@@ -1592,8 +1592,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
   <div class="prod-header-wrapper">
     <div class="d-flex justify-content-between align-items-center mb-4 mt-3">
-      <h3 class="fw-bold text-primary m-0"><i class="fa-solid fa-box-open me-2"></i> <span data-i18n="inv_title">คลังสินค้า</span> </h3>
-      <button class="btn btn-outline-danger fw-bold rounded-pill px-4" onclick="closeProductsPage()"><i class="fa-solid fa-arrow-left me-2"></i> <span data-i18n="btn_back">กลับ</span> </button>
+      <h3 class="fw-bold text-primary m-0"><i class="fa-solid fa-box-open me-2"></i> คลังสินค้า </h3>
+      <button class="btn btn-outline-danger fw-bold rounded-pill px-4" onclick="closeProductsPage()"><i class="fa-solid fa-arrow-left me-2"></i> กลับ </button>
     </div>
 
     <div class="d-flex flex-wrap flex-lg-nowrap align-items-center gap-2 mb-4 prod-mobile-stack" style="padding-bottom: 5px;">
@@ -2443,13 +2443,13 @@ document.addEventListener("DOMContentLoaded", function() {
 
   <div class="d-flex justify-content-between align-items-center mb-4 mt-3 px-3 px-md-4 pos-mobile-header" style="background: transparent;">
     <div class="d-flex align-items-center gap-4">
-      <h3 class="fw-bold text-primary m-0"><i class="fa-solid fa-cash-register me-2"></i> <span data-i18n="pos_title">ระบบจุดขาย (POS)</span></h3>
-      <button class="btn btn-info text-white fw-bold rounded-pill px-3 px-md-4 shadow-sm d-none d-sm-block" onclick="openCFD()"><i class="fa-solid fa-desktop me-1"></i> <span data-i18n="pos_btn_cfd">จอลูกค้า</span></button>
+      <h3 class="fw-bold text-primary m-0"><i class="fa-solid fa-cash-register me-2"></i> ระบบจุดขาย (POS)</h3>
+      <button class="btn btn-info text-white fw-bold rounded-pill px-3 px-md-4 shadow-sm d-none d-sm-block" onclick="openCFD()"><i class="fa-solid fa-desktop me-1"></i> จอลูกค้า</button>
     </div>
     <div class="d-flex align-items-center pos-mobile-btns">
       <button class="btn btn-info text-white fw-bold rounded-pill px-3 shadow-sm d-block d-sm-none me-2" onclick="openCFD()"><i class="fa-solid fa-desktop"></i></button>
-      <button class="btn btn-outline-secondary fw-bold rounded-pill px-3 px-md-4 me-2" onclick="lockScreenManual()"><i class="fa-solid fa-lock"></i><span class="d-none d-md-inline ms-1" data-i18n="pos_btn_lock"> ล็อกเครื่อง</span></button>
-      <button class="btn btn-outline-danger fw-bold rounded-pill px-4" onclick="closePOSPage()"><i class="fa-solid fa-arrow-left me-2"></i> <span data-i18n="btn_back">กลับ</span> </button>
+      <button class="btn btn-outline-secondary fw-bold rounded-pill px-3 px-md-4 me-2" onclick="lockScreenManual()"><i class="fa-solid fa-lock"></i><span class="d-none d-md-inline ms-1"> ล็อกเครื่อง</span></button>
+      <button class="btn btn-outline-danger fw-bold rounded-pill px-4" onclick="closePOSPage()"><i class="fa-solid fa-arrow-left me-2"></i> กลับ </button>
     </div>
   </div>
 
@@ -2468,7 +2468,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
             <div class="input-group flex-grow-1 shadow-sm" style="border-radius: 8px; overflow: hidden; min-width: 200px;">
               <span class="input-group-text bg-primary text-white border-0 px-3"><i class="fa-solid fa-barcode"></i></span>
-              <input type="text" id="pos-barcode-input" class="form-control border-0 bg-white fw-bold" placeholder="ยิงบาร์โค้ด หรือ พิมพ์รหัสแล้วกด Enter..." data-i18n="pos_search_placeholder">
+              <input type="text" id="pos-barcode-input" class="form-control border-0 bg-white fw-bold" placeholder="ยิงบาร์โค้ด หรือ พิมพ์รหัสแล้วกด Enter...">
             </div>
 
             <div id="grid-size-controller" class="d-none align-items-center gap-2 flex-shrink-0">
@@ -2481,7 +2481,7 @@ document.addEventListener("DOMContentLoaded", function() {
             <table class="table table-hover align-middle mb-0" style="min-width: 500px;">
               <thead class="table-light sticky-top" style="z-index: 10;">
                 <tr>
-                  <th width="45%" class="py-3 px-4" data-i18n="pos_cart_title">รายการสินค้า</th>
+                  <th width="45%" class="py-3 px-4">รายการสินค้า</th>
                   <th width="15%" class="text-center py-3">ราคา</th>
                   <th width="20%" class="text-center py-3">จำนวน</th>
                   <th width="15%" class="text-end py-3">รวม</th>
@@ -2489,7 +2489,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 </tr>
               </thead>
               <tbody id="pos-cart-body">
-                <tr><td colspan="5" class="text-center text-muted py-5"><i class="fa-solid fa-cart-arrow-down fa-3x mb-3 text-light"></i><br><span data-i18n="pos_empty_cart">ยังไม่มีสินค้าในตะกร้า</span></td></tr>
+                <tr><td colspan="5" class="text-center text-muted py-5"><i class="fa-solid fa-cart-arrow-down fa-3x mb-3 text-light"></i><br>ยังไม่มีสินค้าในตะกร้า</td></tr>
               </tbody>
             </table>
           </div>
@@ -2517,7 +2517,7 @@ document.addEventListener("DOMContentLoaded", function() {
           <div class="d-flex justify-content-between align-items-center mb-4">
             <h5 class="fw-bold text-dark m-0"><i class="fa-solid fa-file-invoice-dollar me-2 text-primary"></i> สรุปยอดชำระ</h5>
             <button class="btn btn-sm btn-outline-danger fw-bold rounded-3 px-2 py-1 shadow-sm" onclick="clearCartManual()" title="ล้างรายการสินค้าทั้งหมด">
-              <i class="fa-solid fa-trash-can me-1"></i> <span data-i18n="pos_clear_cart">ล้างบิล</span>
+              <i class="fa-solid fa-trash-can me-1"></i> ล้างบิล
             </button>
           </div>
 
@@ -2556,10 +2556,10 @@ document.addEventListener("DOMContentLoaded", function() {
 
           <div class="d-grid gap-3">
             <button class="btn btn-success btn-lg fw-bold p-3 rounded-4 shadow-sm" onclick="processCheckout('เงินสด')">
-              <i class="fa-solid fa-money-bill-wave me-2"></i> <span data-i18n="pos_pay_cash">รับเงินสด</span>
+              <i class="fa-solid fa-money-bill-wave me-2"></i> รับเงินสด
             </button>
             <button class="btn btn-info btn-lg text-white fw-bold p-3 rounded-4 shadow-sm" onclick="showPromptPay()" style="background: #0ea5e9; border: none;">
-              <i class="fa-solid fa-qrcode me-2"></i> <span data-i18n="pos_pay_transfer">สแกนจ่าย (PromptPay)</span>
+              <i class="fa-solid fa-qrcode me-2"></i> สแกนจ่าย (PromptPay)
             </button>
           </div>
         </div>
@@ -3165,10 +3165,10 @@ function renderMenuGrid() {
 
   <div class="dash-header-wrapper">
     <div class="d-flex justify-content-between align-items-center mb-3 dash-title-action">
-      <h4 class="fw-bold text-dark m-0"><i class="fa-solid fa-chart-pie text-success me-2"></i> <span data-i18n="dash_title">แผงควบคุมสถิติ (Dashboard)</span></h4>
+      <h4 class="fw-bold text-dark m-0"><i class="fa-solid fa-chart-pie text-success me-2"></i> แผงควบคุมสถิติ (Dashboard)</h4>
       <div class="dash-action-btns">
-        <button class="btn btn-danger fw-bold rounded-pill px-3 btn-sm shadow-sm" onclick="openClearTestModal()"><i class="fa-solid fa-trash-can me-1"></i> <span data-i18n="dash_btn_del_test">ลบข้อมูลทดสอบ</span></button>
-        <button class="btn btn-outline-danger fw-bold rounded-pill px-4 btn-sm shadow-sm" onclick="closeDashboardPage()"><i class="fa-solid fa-arrow-left me-2"></i> <span data-i18n="btn_back_main">กลับหน้าหลัก</span></button>
+        <button class="btn btn-danger fw-bold rounded-pill px-3 btn-sm shadow-sm" onclick="openClearTestModal()"><i class="fa-solid fa-trash-can me-1"></i> ลบข้อมูลทดสอบ</button>
+        <button class="btn btn-outline-danger fw-bold rounded-pill px-4 btn-sm shadow-sm" onclick="closeDashboardPage()"><i class="fa-solid fa-arrow-left me-2"></i> กลับหน้าหลัก</button>
       </div>
     </div>
 
@@ -3589,10 +3589,10 @@ function renderMenuGrid() {
 
   <div class="d-flex justify-content-between align-items-center mb-4 py-3 px-3 px-lg-4 sticky-top settings-mobile-header" style="background: inherit; z-index: 1045; margin-top: -20px;">
     <div class="d-flex align-items-center gap-3">
-      <h3 class="fw-bold text-primary m-0"><i class="fa-solid fa-gear me-2"></i> <span data-i18n="set_title">ตั้งค่าระบบ</span> </h3>
-      <button class="btn btn-primary btn-sm fw-bold rounded-pill shadow-sm" onclick="openUISettingsModal()"><i class="fa-solid fa-sliders me-1"></i> <span data-i18n="set_btn_ui">ปรับหน้าจอ</span></button>
+      <h3 class="fw-bold text-primary m-0"><i class="fa-solid fa-gear me-2"></i> ตั้งค่าระบบ </h3>
+      <button class="btn btn-primary btn-sm fw-bold rounded-pill shadow-sm" onclick="openUISettingsModal()"><i class="fa-solid fa-sliders me-1"></i> ปรับหน้าจอ</button>
     </div>
-    <button class="btn btn-outline-danger fw-bold rounded-pill px-4" onclick="closeSettingsPage()"><i class="fa-solid fa-arrow-left me-2"></i> <span data-i18n="btn_back">กลับ</span> </button>
+    <button class="btn btn-outline-danger fw-bold rounded-pill px-4" onclick="closeSettingsPage()"><i class="fa-solid fa-arrow-left me-2"></i> กลับ </button>
   </div>
 
   <div class="container-fluid px-3 px-lg-4 pb-5">
@@ -4685,64 +4685,10 @@ openPOSPage = function() {
       </div>
     </div>
   </div>
-  
-<!-- ========================================================= -->
-<!-- 🌐 ระบบแปลภาษา (Multi-Language) -->
-<!-- ========================================================= -->
-<script>
-const i18n = {
-  th: {
-    // Login & Menu
-    "login_title": "SaaS POS System", "login_subtitle": "เข้าสู่ระบบจัดการร้านค้าของคุณ", "login_placeholder_contact": "อีเมล หรือ เบอร์โทรศัพท์", "login_placeholder_pass": "รหัสผ่าน", "login_btn": 'เข้าสู่ระบบ <i class="fa-solid fa-arrow-right ms-2"></i>', "login_forgot": '<i class="fa-solid fa-key text-warning"></i> ลืมรหัส', "login_renew": '<i class="fa-solid fa-bolt-lightning text-success"></i> ต่ออายุ', "login_register": '<i class="fa-solid fa-user-plus text-info"></i> สมัครฟรี', "login_contact": '<i class="fa-brands fa-line fs-5"></i> ติดต่อแอดมิน / แจ้งปัญหา',
-    "menu_pos": "ขายสินค้า (POS)", "menu_stock": "คลังสินค้า", "menu_dashboard": "สถิติยอดขาย", "menu_settings": "ตั้งค่าระบบ", "menu_logout": "ล็อกหน้าจอ",
-    "lock_out": '<i class="fa-solid fa-right-from-bracket me-2"></i>ออกจากสาขา', "lock_title": "กรุณาใส่รหัสพนักงาน", "lock_sub": "ระบบถูกล็อกเพื่อความปลอดภัย",
-    
-    // Headers & Buttons
-    "btn_back": "กลับ", "btn_back_main": "กลับหน้าหลัก",
-    "pos_title": "ระบบจุดขาย (POS)", "pos_btn_cfd": "จอลูกค้า", "pos_btn_lock": "ล็อกเครื่อง",
-    "inv_title": "คลังสินค้า", "dash_title": "แผงควบคุมสถิติ (Dashboard)", "dash_btn_del_test": "ลบข้อมูลทดสอบ",
-    "set_title": "ตั้งค่าระบบ", "set_btn_ui": "ปรับหน้าจอ"
-  },
-  en: {
-    // Login & Menu
-    "login_title": "SaaS POS System", "login_subtitle": "Login to manage your store", "login_placeholder_contact": "Email or Phone Number", "login_placeholder_pass": "Password", "login_btn": 'Sign In <i class="fa-solid fa-arrow-right ms-2"></i>', "login_forgot": '<i class="fa-solid fa-key text-warning"></i> Forgot', "login_renew": '<i class="fa-solid fa-bolt-lightning text-success"></i> Renew', "login_register": '<i class="fa-solid fa-user-plus text-info"></i> Register', "login_contact": '<i class="fa-brands fa-line fs-5"></i> Support',
-    "menu_pos": "Point of Sale", "menu_stock": "Inventory", "menu_dashboard": "Dashboard", "menu_settings": "Settings", "menu_logout": "Lock Screen",
-    "lock_out": '<i class="fa-solid fa-right-from-bracket me-2"></i>Switch Store', "lock_title": "Enter PIN Code", "lock_sub": "System locked for security",
-    
-    // Headers & Buttons
-    "btn_back": "Back", "btn_back_main": "Back to Menu",
-    "pos_title": "Point of Sale (POS)", "pos_btn_cfd": "Customer Display", "pos_btn_lock": "Lock Screen",
-    "inv_title": "Inventory", "dash_title": "Dashboard", "dash_btn_del_test": "Clear Test Data",
-    "set_title": "Settings", "set_btn_ui": "UI Settings"
-  }
-};
 
-function changeLanguage(lang) {
-  // บันทึกภาษาลงในเครื่อง
-  localStorage.setItem('pos_lang', lang);
-  
-  // 🌟 อัปเดตหน้าตาปุ่มเลือกภาษาทุกจุดให้ซิงค์กัน
-  let loginSelector = document.getElementById('lang-selector-login');
-  let mainSelector = document.getElementById('lang-selector-main');
-  if(loginSelector) loginSelector.value = lang;
-  if(mainSelector) mainSelector.value = lang;
+</body>
+</html>
 
-  // วิ่งหาคำที่มีแท็ก data-i18n แล้วแปลภาษา
-  document.querySelectorAll('[data-i18n]').forEach(el => {
-    let key = el.getAttribute('data-i18n');
-    if (i18n[lang] && i18n[lang][key]) {
-      if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') el.placeholder = i18n[lang][key];
-      else el.innerHTML = i18n[lang][key];
-    }
-  });
-}
-
-// โหลดภาษาอัตโนมัติตอนเปิดเว็บ
-document.addEventListener('DOMContentLoaded', () => {
-  let savedLang = localStorage.getItem('pos_lang') || 'th';
-  changeLanguage(savedLang);
-});
-</script>
 
 </body>
 </html>
