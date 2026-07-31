@@ -1261,7 +1261,7 @@ function openSaAddModal() {
 <!-- 🌟 หน้าเมนูหลัก (Main Menu - Premium UI) -->
 <div class="main-container" id="main-menu" style="max-width: 800px; padding-top: 5vh;">
   <!-- 🌐 ปุ่มสลับภาษา -->
-  <div style="position: absolute; top: 20px; right: 20px; z-index: 100001;">
+  <div style="position: absolute; top: 20px; right: 20px; z-index: 10;">
     <select id="lang-selector-main" class="form-select form-select-sm bg-white shadow-sm fw-bold text-dark border-secondary" onchange="changeLanguage(this.value)" style="border-radius: 12px; cursor: pointer;">
       <option value="th">🇹🇭 ไทย</option>
       <option value="en">🇬🇧 English</option>
@@ -2459,7 +2459,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
   <div class="d-flex justify-content-between align-items-center mb-4 mt-3 px-3 px-md-4 pos-mobile-header" style="background: transparent;">
     <div class="d-flex align-items-center gap-4">
-      <h3 class="fw-bold text-primary m-0"><i class="fa-solid fa-cash-register me-2"></i> ระบบจุดขาย (POS)</h3>
+      <h3 class="fw-bold text-primary m-0"><i class="fa-solid fa-cash-register me-2"></i> <span data-i18n="pos_title">ระบบจุดขาย (POS)</span></h3>
       <button class="btn btn-info text-white fw-bold rounded-pill px-3 px-md-4 shadow-sm d-none d-sm-block" onclick="openCFD()"><i class="fa-solid fa-desktop me-1"></i> จอลูกค้า</button>
     </div>
     <div class="d-flex align-items-center pos-mobile-btns">
@@ -2484,7 +2484,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
             <div class="input-group flex-grow-1 shadow-sm" style="border-radius: 8px; overflow: hidden; min-width: 200px;">
               <span class="input-group-text bg-primary text-white border-0 px-3"><i class="fa-solid fa-barcode"></i></span>
-              <input type="text" id="pos-barcode-input" class="form-control border-0 bg-white fw-bold" placeholder="ยิงบาร์โค้ด หรือ พิมพ์รหัสแล้วกด Enter...">
+              <input type="text" id="pos-barcode-input" class="form-control border-0 bg-white fw-bold" placeholder="ยิงบาร์โค้ด หรือ พิมพ์รหัสแล้วกด Enter..." data-i18n="pos_search_placeholder">
             </div>
 
             <div id="grid-size-controller" class="d-none align-items-center gap-2 flex-shrink-0">
@@ -2497,7 +2497,7 @@ document.addEventListener("DOMContentLoaded", function() {
             <table class="table table-hover align-middle mb-0" style="min-width: 500px;">
               <thead class="table-light sticky-top" style="z-index: 10;">
                 <tr>
-                  <th width="45%" class="py-3 px-4">รายการสินค้า</th>
+                  <th width="45%" class="py-3 px-4" data-i18n="pos_cart_title">รายการสินค้า</th>
                   <th width="15%" class="text-center py-3">ราคา</th>
                   <th width="20%" class="text-center py-3">จำนวน</th>
                   <th width="15%" class="text-end py-3">รวม</th>
@@ -2505,7 +2505,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 </tr>
               </thead>
               <tbody id="pos-cart-body">
-                <tr><td colspan="5" class="text-center text-muted py-5"><i class="fa-solid fa-cart-arrow-down fa-3x mb-3 text-light"></i><br>ยังไม่มีสินค้าในตะกร้า</td></tr>
+                <tr><td colspan="5" class="text-center text-muted py-5"><i class="fa-solid fa-cart-arrow-down fa-3x mb-3 text-light"></i><br><span data-i18n="pos_empty_cart">ยังไม่มีสินค้าในตะกร้า</span></td></tr>
               </tbody>
             </table>
           </div>
@@ -2533,7 +2533,7 @@ document.addEventListener("DOMContentLoaded", function() {
           <div class="d-flex justify-content-between align-items-center mb-4">
             <h5 class="fw-bold text-dark m-0"><i class="fa-solid fa-file-invoice-dollar me-2 text-primary"></i> สรุปยอดชำระ</h5>
             <button class="btn btn-sm btn-outline-danger fw-bold rounded-3 px-2 py-1 shadow-sm" onclick="clearCartManual()" title="ล้างรายการสินค้าทั้งหมด">
-              <i class="fa-solid fa-trash-can me-1"></i> ล้างบิล
+              <i class="fa-solid fa-trash-can me-1"></i> <span data-i18n="pos_clear_cart">ล้างบิล</span>
             </button>
           </div>
 
@@ -2572,10 +2572,10 @@ document.addEventListener("DOMContentLoaded", function() {
 
           <div class="d-grid gap-3">
             <button class="btn btn-success btn-lg fw-bold p-3 rounded-4 shadow-sm" onclick="processCheckout('เงินสด')">
-              <i class="fa-solid fa-money-bill-wave me-2"></i> รับเงินสด
+              <i class="fa-solid fa-money-bill-wave me-2"></i> <span data-i18n="pos_pay_cash">รับเงินสด</span>
             </button>
             <button class="btn btn-info btn-lg text-white fw-bold p-3 rounded-4 shadow-sm" onclick="showPromptPay()" style="background: #0ea5e9; border: none;">
-              <i class="fa-solid fa-qrcode me-2"></i> สแกนจ่าย (PromptPay)
+              <i class="fa-solid fa-qrcode me-2"></i> <span data-i18n="pos_pay_transfer">สแกนจ่าย (PromptPay)</span>
             </button>
           </div>
         </div>
