@@ -656,26 +656,47 @@ app.post('/api/superadmin/request-otp', (req, res) => {
 });
 
 app.post('/api/superadmin/update-settings', (req, res) => {
-  const { otp, newEmail, newUsername, newPassword } = req.body;
+  let { otp, newEmail, newUsername, newPassword } = req.body;
+  
   db.get(`SELECT value FROM superadmin_settings WHERE key = 'email'`, [], (err, row) => {
     const currentEmail = row ? row.value : '';
     
-    // ตรวจสอบ OTP หากมีการผูกอีเมลไว้
+    // ตรวจสอบ OTP หากมีการผูกอีเมลเดิมเอาไว้
     if (currentEmail && currentEmail.trim() !== '' && otpStore["SA_OTP"] !== otp) {
       return res.json({ status: "error", message: "รหัส OTP ไม่ถูกต้อง" });
     }
 
-    // อัปเดตข้อมูล
+    // 🌟 ข้อ 1: ถ้าลบอีเมลออก (ยกเลิกผูก) ให้บังคับค่ากลับเป็นค่าเริ่มต้นเสมอ
+    if (!newEmail || newEmail.trim() === '') {
+      newUsername = 'superadmin';
+      newPassword = '1234';
+    }
+
+    // อัปเดตข้อมูลลงฐานข้อมูล
     const stmt = db.prepare(`UPDATE superadmin_settings SET value = ? WHERE key = ?`);
-    if (newEmail !== undefined) stmt.run(newEmail, 'email');
-    if (newUsername !== undefined) stmt.run(newUsername, 'username');
-    if (newPassword !== undefined) stmt.run(newPassword, 'password');
+    stmt.run(newEmail, 'email');
+    stmt.run(newUsername, 'username');
+    stmt.run(newPassword, 'password');
     stmt.finalize();
     
-    delete otpStore["SA_OTP"]; // เคลียร์ OTP
+    delete otpStore["SA_OTP"]; // เคลียร์ OTP ทิ้งหลังใช้เสร็จ
+
+    // 🌟 ข้อ 3 และ 4: หากมีการผูกอีเมลไว้ ให้ส่งข้อมูล Username/Password กลับไปที่อีเมลทันทีเพื่อกันลืม
+    if (newEmail && newEmail.trim() !== '') {
+      const mailOptions = {
+        from: transporter.options.auth.user,
+        to: newEmail,
+        subject: "🔐 ข้อมูลบัญชี Super Admin ของคุณได้รับการอัปเดต",
+        text: `ระบบได้รับการบันทึกข้อมูล Super Admin ของคุณเรียบร้อยแล้ว!\n\nโปรดเก็บข้อมูลนี้ไว้เป็นความลับ:\n- Username: ${newUsername}\n- Password: ${newPassword}\n\n*หมายเหตุ: หากคุณต้องการยกเลิกผูกอีเมล รหัสผ่านจะถูกรีเซ็ตกลับเป็นค่าเริ่มต้น (superadmin/1234) ทันที`
+      };
+      transporter.sendMail(mailOptions).catch(err => console.error("Mail Error:", err));
+    }
+
     res.json({ status: "success" });
   });
 });
+
+
 
 // 🌟 API สำหรับเพิ่มร้านค้าใหม่เอง (แอดมินสร้างให้)
 app.post('/api/superadmin/add-tenant', (req, res) => {
