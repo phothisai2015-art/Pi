@@ -114,9 +114,9 @@ app.post('/api/login-shop', (req, res) => {
       if (exp < today) return res.json({ status: "error", message: "❌ ระบบของคุณหมดอายุการใช้งานแล้ว" });
       const daysRemaining = Math.ceil((exp - today) / (1000 * 3600 * 24));
       res.json({ status: "success", sheetId: row.sheet_id, shopName: row.shop_name, daysRemaining });
-    }); // ปิด db.get
-  }); // 🌟 เพิ่มบรรทัดนี้เพื่อปิด db.all
-});
+    }); 
+  }); 
+}); // 🌟 จุดนี้ครับที่วงเล็บหายไป
 
 app.get('/api/settings/:tenantId', (req, res) => {
   db.all(`SELECT key, value FROM settings WHERE tenant_id = ?`, [req.params.tenantId], (err, rows) => {
