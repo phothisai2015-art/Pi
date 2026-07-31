@@ -24,6 +24,15 @@
       case 'getAppInfo': url = '/api/app-info'; break;
 	  
 	  case 'getSuperAdminTenants': url = '/api/superadmin/tenants'; break;
+	  case 'getSuperAdminTenants': url = '/api/superadmin/tenants'; break;
+      case 'deleteTenantData': url = '/api/superadmin/delete-tenant'; options.method = 'POST'; options.body = JSON.stringify({ sheetId: args[0] }); break;
+      case 'editTenantAdmin': url = '/api/superadmin/edit-tenant'; options.method = 'POST'; options.body = JSON.stringify(args[0]); break;
+      case 'addTenantAdmin': url = '/api/superadmin/add-tenant'; options.method = 'POST'; options.body = JSON.stringify(args[0]); break;
+      
+      // 🌟 เพิ่ม Adapter สำหรับ Super Admin Settings
+      case 'getSuperAdminSettings': url = '/api/superadmin/settings'; break;
+      case 'requestSAOTP': url = '/api/superadmin/request-otp'; options.method = 'POST'; break;
+      case 'updateSASettings': url = '/api/superadmin/update-settings'; options.method = 'POST'; options.body = JSON.stringify(args[0]); break;
       case 'deleteTenantData': url = '/api/superadmin/delete-tenant'; options.method = 'POST'; options.body = JSON.stringify({ sheetId: args[0] }); break;
       case 'editTenantAdmin': url = '/api/superadmin/edit-tenant'; options.method = 'POST'; options.body = JSON.stringify(args[0]); break;
       case 'addTenantAdmin': url = '/api/superadmin/add-tenant'; options.method = 'POST'; options.body = JSON.stringify(args[0]); break;
@@ -999,6 +1008,7 @@ body.dark-theme .num-btn-del:hover {
       <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
          <h3 class="fw-bold text-danger m-0"><i class="fa-solid fa-user-shield me-2"></i> ศูนย์ควบคุมระบบ (Super Admin)</h3>
          <div>
+            <button class="btn btn-warning fw-bold rounded-pill px-4 shadow-sm me-2" onclick="openSaSettingsModal()"><i class="fa-solid fa-gear me-2"></i>ตั้งค่าบัญชี</button>
             <button class="btn btn-success fw-bold rounded-pill px-4 shadow-sm me-2" onclick="openSaAddModal()"><i class="fa-solid fa-plus me-2"></i>สร้างร้านค้าใหม่</button>
             <button class="btn btn-outline-danger fw-bold rounded-pill px-4 shadow-sm" onclick="closeSuperAdminPage()"><i class="fa-solid fa-arrow-left me-2"></i> ออกจากระบบ</button>
          </div>
@@ -1178,6 +1188,90 @@ function openSaAddModal() {
       }
    });
 }
+// =================================================================
+// 🌟 ระบบจัดการบัญชี Super Admin (ตั้งค่า Username, Password, Email)
+// =================================================================
+let currentSAEmail = "";
+
+function openSaSettingsModal() {
+   Swal.fire({title: 'กำลังโหลดข้อมูล...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
+   
+   // ดึงข้อมูลปัจจุบัน
+   google.script.run.withSuccessHandler(sa => {
+      Swal.close();
+      currentSAEmail = sa.email || "";
+      
+      Swal.fire({
+         title: 'ตั้งค่าบัญชี Super Admin',
+         html: `
+            <div class="text-start px-2">
+               <div class="alert alert-warning small py-2 mb-3">หากมีการผูกอีเมลไว้ ระบบจะส่ง OTP เพื่อยืนยันการเปลี่ยนแปลงทุกครั้ง</div>
+               <label class="small fw-bold text-muted">Username (สำหรับล็อกอิน)</label>
+               <input type="text" id="sa-set-user" class="form-control mb-2 fw-bold text-primary" value="${sa.username || 'superadmin'}">
+               <label class="small fw-bold text-muted">Password (รหัสผ่าน)</label>
+               <input type="text" id="sa-set-pass" class="form-control mb-3 fw-bold text-primary" value="${sa.password || '1234'}">
+               <label class="small fw-bold text-muted">อีเมลผูกบัญชี (แจ้งเตือนล็อกอิน & ยืนยัน OTP)</label>
+               <input type="email" id="sa-set-email" class="form-control fw-bold" placeholder="เว้นว่างเพื่อยกเลิกการผูก" value="${sa.email || ''}">
+               <div class="text-muted" style="font-size: 11px; margin-top: 5px;">*หากต้องการยกเลิกผูก ให้ลบอีเมลออกให้เป็นช่องว่าง</div>
+            </div>
+         `,
+         showCancelButton: true, confirmButtonColor: '#0d6efd', confirmButtonText: 'บันทึกการตั้งค่า', cancelButtonText: 'ยกเลิก',
+         preConfirm: () => {
+            const newUsername = document.getElementById('sa-set-user').value.trim();
+            const newPassword = document.getElementById('sa-set-pass').value.trim();
+            const newEmail = document.getElementById('sa-set-email').value.trim();
+            if(!newUsername || !newPassword) { Swal.showValidationMessage('ห้ามเว้นว่าง Username และ Password'); return false; }
+            return { newUsername, newPassword, newEmail };
+         }
+      }).then(res => {
+         if(res.isConfirmed) processSASettingsUpdate(res.value);
+      });
+   }).getSuperAdminSettings();
+}
+
+function processSASettingsUpdate(newData) {
+   // ถ้ามีการผูกอีเมลเดิมอยู่ ต้องใช้ OTP ยืนยัน
+   if (currentSAEmail && currentSAEmail.trim() !== '') {
+      Swal.fire({title: 'กำลังส่งรหัส OTP...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
+      
+      google.script.run.withSuccessHandler(res => {
+         if (res.status === "success") {
+            Swal.fire({
+               title: 'ยืนยันรหัส OTP',
+               text: `รหัส OTP ส่งไปที่ ${res.email} แล้ว`,
+               input: 'text',
+               inputPlaceholder: 'กรอกรหัส 6 หลัก',
+               showCancelButton: true,
+               confirmButtonText: 'ยืนยัน',
+               preConfirm: (otp) => {
+                  if(!otp || otp.length !== 6) { Swal.showValidationMessage('กรุณากรอกรหัส OTP 6 หลัก'); return false; }
+                  return otp;
+               }
+            }).then(otpRes => {
+               if(otpRes.isConfirmed) executeSAUpdate({ otp: otpRes.value, ...newData });
+            });
+         } else {
+            // กรณีไม่มีอีเมล (fallback) ข้าม OTP ได้เลย
+            executeSAUpdate(newData);
+         }
+      }).requestSAOTP();
+   } else {
+      // ถ้าไม่มีอีเมลผูกไว้ บันทึกได้เลยไม่ต้องขอ OTP
+      executeSAUpdate(newData);
+   }
+}
+
+function executeSAUpdate(payload) {
+   Swal.fire({title: 'กำลังบันทึกข้อมูล...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
+   google.script.run.withSuccessHandler(res => {
+      if(res.status === 'success') {
+         Swal.fire('สำเร็จ', 'อัปเดตข้อมูล Super Admin เรียบร้อย', 'success');
+      } else {
+         Swal.fire('ผิดพลาด', res.message || 'OTP ไม่ถูกต้อง', 'error');
+      }
+   }).updateSASettings(payload);
+}
+
 </script>
 
 <!-- 🌟 หน้าจอล็อกพนักงาน (Numpad & Cats) -->
