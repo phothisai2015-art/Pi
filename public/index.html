@@ -761,7 +761,7 @@ body.dark-theme .num-btn-del:hover {
 <div id="saas-login-screen" class="saas-page-screen">
   
   <!-- 🌐 ปุ่มสลับภาษา -->
-  <div style="position: absolute; top: 20px; right: 20px; z-index: 100001;">
+  <div style="position: absolute; top: 20px; right: 20px; z-index: 10;">
     <select id="lang-selector" class="form-select form-select-sm bg-white shadow-sm fw-bold text-dark border-secondary" onchange="changeLanguage(this.value)" style="border-radius: 12px; cursor: pointer;">
       <option value="th">🇹🇭 ไทย</option>
       <option value="en">🇬🇧 English</option>
@@ -4772,7 +4772,10 @@ const i18n = {
 function changeLanguage(lang) {
   // บันทึกภาษาลงในเครื่อง (รีเฟรชก็ไม่หาย)
   localStorage.setItem('pos_lang', lang);
-  document.getElementById('lang-selector').value = lang;
+  
+  // 🌟 อัปเดตหน้าตาปุ่มเลือกภาษาทุกจุดให้ตรงกัน
+  if(document.getElementById('lang-selector')) document.getElementById('lang-selector').value = lang;
+  if(document.getElementById('lang-selector-main')) document.getElementById('lang-selector-main').value = lang;
 
   // วิ่งหาคำที่มีแท็ก data-i18n แล้วแปลภาษา
   document.querySelectorAll('[data-i18n]').forEach(el => {
