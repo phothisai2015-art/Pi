@@ -51,13 +51,13 @@
       case 'getTenantInfoBySheetId': url = '/api/tenant-info/' + args[0]; break;
       case 'uploadQuickRenewSlip': url = '/api/upload-quick-renew-slip'; options.method = 'POST'; options.body = JSON.stringify({ email: args[0], shopName: args[1], pkgName: args[2], price: args[3], base64Data: args[4] }); break;
       case 'importExcelData':
-	  case 'getSaConfig': url = '/api/superadmin/config'; break;
-      case 'updateSaAuth': url = '/api/superadmin/update-auth'; options.method = 'POST'; options.body = JSON.stringify(args[0]); break;
-      case 'requestSaOtp': url = '/api/superadmin/request-email-otp'; options.method = 'POST'; options.body = JSON.stringify(args[0]); break;
-      case 'updateSaEmail': url = '/api/superadmin/update-email'; options.method = 'POST'; options.body = JSON.stringify(args[0]); break;
         url = '/api/import-excel'; options.method = 'POST';
         options.body = JSON.stringify({ tenantId: args[0], payload: args[1] });
         break;
+      case 'getSaConfig': url = '/api/superadmin/config'; break;
+      case 'updateSaAuth': url = '/api/superadmin/update-auth'; options.method = 'POST'; options.body = JSON.stringify(args[0]); break;
+      case 'requestSaOtp': url = '/api/superadmin/request-email-otp'; options.method = 'POST'; options.body = JSON.stringify(args[0]); break;
+      case 'updateSaEmail': url = '/api/superadmin/update-email'; options.method = 'POST'; options.body = JSON.stringify(args[0]); break;
 	  // ?? ????????????????????? ?????????????
       case 'requestRegisterOTP':
         url = '/api/request-register-otp'; options.method = 'POST';
@@ -1300,6 +1300,122 @@ function verifySaOtp() {
 }
 </script>
 
+<!-- 🌟 Modal ตั้งค่าความปลอดภัย Superadmin -->
+<div id="sa-security-modal" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(5px); z-index: 1060; justify-content: center; align-items: center; padding: 15px;">
+  <div class="bg-white p-4 rounded-4 shadow-lg" style="width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto;">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="fw-bold text-dark m-0"><i class="fa-solid fa-shield-halved text-warning me-2"></i> ตั้งค่าความปลอดภัย</h5>
+      <button class="btn-close" onclick="document.getElementById('sa-security-modal').style.display='none'"></button>
+    </div>
+    
+    <!-- ส่วนเปลี่ยน User / Pass -->
+    <div class="border rounded-3 p-3 bg-light mb-3">
+       <h6 class="fw-bold text-primary mb-3">1. เปลี่ยนรหัสเข้าหน้า Superadmin</h6>
+       <input type="text" id="sa-sec-user" class="form-control mb-2 fw-bold" placeholder="Username ใหม่">
+       <input type="text" id="sa-sec-pass" class="form-control mb-2 fw-bold" placeholder="Password ใหม่">
+       <button class="btn btn-primary btn-sm fw-bold w-100 shadow-sm py-2" onclick="saveSaAuth()"><i class="fa-solid fa-floppy-disk me-1"></i> บันทึกรหัสเข้าใช้งาน</button>
+    </div>
+
+    <!-- ส่วนตั้งค่าอีเมลแจ้งเตือน -->
+    <div class="border rounded-3 p-3 bg-light">
+       <h6 class="fw-bold text-success mb-2">2. อีเมลแจ้งเตือนผู้บุกรุก</h6>
+       <p class="small text-muted mb-2">ปัจจุบัน: <span id="sa-current-email" class="fw-bold text-danger">ยังไม่ได้ผูก</span></p>
+       
+       <div id="sa-email-step1">
+         <input type="email" id="sa-sec-email" class="form-control mb-2 fw-bold" placeholder="กรอกอีเมลที่ต้องการรับแจ้งเตือน">
+         <div class="d-flex gap-2">
+            <button class="btn btn-success btn-sm fw-bold flex-fill shadow-sm py-2" onclick="requestSaOtp('setup_new')">รับ OTP ยืนยัน</button>
+            <button class="btn btn-outline-danger btn-sm fw-bold flex-fill shadow-sm py-2" id="btn-sa-remove-email" onclick="requestSaOtp('remove')" style="display:none;">ยกเลิกผูกอีเมล</button>
+         </div>
+       </div>
+
+       <div id="sa-email-step2" style="display:none;">
+         <p class="small text-primary fw-bold mb-1">กรอกรหัส OTP ที่ได้รับในอีเมล</p>
+         <input type="text" id="sa-sec-otp" class="form-control mb-2 fw-bold text-center fs-4" placeholder="------" maxlength="6" style="letter-spacing: 5px;">
+         <div class="d-flex gap-2">
+           <button class="btn btn-secondary btn-sm fw-bold w-50 py-2" onclick="document.getElementById('sa-email-step2').style.display='none'; document.getElementById('sa-email-step1').style.display='block';">ยกเลิก</button>
+           <button class="btn btn-success btn-sm fw-bold w-50 shadow-sm py-2" onclick="verifySaOtp()"><i class="fa-solid fa-check me-1"></i> ยืนยัน OTP</button>
+         </div>
+       </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// 🌟 สคริปต์ควบคุมการทำงานหน้าตั้งค่า Superadmin
+let currentSaAction = '';
+let currentSaSentTo = '';
+
+function openSaSecurityModal() {
+   Swal.fire({title: 'กำลังโหลดข้อมูล...', didOpen: () => Swal.showLoading()});
+   google.script.run.withSuccessHandler(data => {
+      Swal.close();
+      document.getElementById('sa-sec-user').value = data.username;
+      document.getElementById('sa-sec-pass').value = ''; 
+      
+      if(data.alert_email) {
+         document.getElementById('sa-current-email').innerHTML = `<span class="text-success">${data.alert_email}</span>`;
+         document.getElementById('btn-sa-remove-email').style.display = 'block';
+      } else {
+         document.getElementById('sa-current-email').innerHTML = `<span class="text-danger">ยังไม่ได้ผูก</span>`;
+         document.getElementById('btn-sa-remove-email').style.display = 'none';
+      }
+      
+      document.getElementById('sa-sec-email').value = '';
+      document.getElementById('sa-email-step1').style.display = 'block';
+      document.getElementById('sa-email-step2').style.display = 'none';
+      document.getElementById('sa-security-modal').style.display = 'flex';
+   }).getSaConfig();
+}
+
+function saveSaAuth() {
+   const user = document.getElementById('sa-sec-user').value.trim();
+   const pass = document.getElementById('sa-sec-pass').value.trim();
+   if(!user || !pass) return Swal.fire('ผิดพลาด', 'กรุณากรอก Username และ Password ใหม่ให้ครบถ้วน', 'warning');
+   
+   Swal.fire({title: 'กำลังบันทึก...', didOpen: () => Swal.showLoading()});
+   google.script.run.withSuccessHandler(res => {
+      if(res.status === 'success') {
+          Swal.fire('สำเร็จ', 'อัปเดตรหัสเข้าสู่ระบบแล้ว! (คุณต้องใช้รหัสนี้ในการเข้าครั้งต่อไป)', 'success');
+      } else Swal.fire('ผิดพลาด', res.message, 'error');
+   }).updateSaAuth({ newUsername: user, newPassword: pass });
+}
+
+function requestSaOtp(type) {
+   let email = document.getElementById('sa-sec-email').value.trim();
+   if(type === 'setup_new' && !email) return Swal.fire('ผิดพลาด', 'กรุณาระบุอีเมลใหม่ก่อนรับ OTP', 'warning');
+   
+   currentSaAction = type;
+   Swal.fire({title: 'กำลังส่งรหัส OTP...', didOpen: () => Swal.showLoading()});
+   google.script.run.withSuccessHandler(res => {
+      if(res.status === 'success') {
+         currentSaSentTo = res.sentTo; // จำอีเมลเป้าหมายไว้
+         Swal.close();
+         document.getElementById('sa-email-step1').style.display = 'none';
+         document.getElementById('sa-email-step2').style.display = 'block';
+         document.getElementById('sa-sec-otp').value = '';
+      } else {
+         Swal.fire('ผิดพลาด', res.message, 'error');
+      }
+   }).requestSaOtp({ newEmail: email, type: type });
+}
+
+function verifySaOtp() {
+   let email = document.getElementById('sa-sec-email').value.trim();
+   let otp = document.getElementById('sa-sec-otp').value.trim();
+   if(!otp) return Swal.fire('ผิดพลาด', 'กรุณากรอกรหัส OTP', 'warning');
+
+   Swal.fire({title: 'กำลังตรวจสอบ...', didOpen: () => Swal.showLoading()});
+   google.script.run.withSuccessHandler(res => {
+      if(res.status === 'success') {
+         Swal.fire('สำเร็จ', 'อัปเดตการตั้งค่าอีเมลเรียบร้อยแล้ว!', 'success');
+         openSaSecurityModal(); // รีเฟรชหน้าต่างอีกรอบให้ค่าเป็นปัจจุบัน
+      } else {
+         Swal.fire('รหัสไม่ถูกต้อง', res.message, 'error');
+      }
+   }).updateSaEmail({ otp: otp, newEmail: email, sentToEmail: currentSaSentTo, action: currentSaAction });
+}
+</script>
 
 <!-- 🌟 หน้าจอล็อกพนักงาน (Numpad & Cats) -->
 <div id="lock-screen">
