@@ -107,14 +107,15 @@ app.post('/api/login-shop', (req, res) => {
 
     // เช็คการล็อกอินของร้านค้าปกติ
     db.get(`SELECT * FROM tenants WHERE (LOWER(email) = LOWER(?) OR phone = ?) AND password = ?`, [contact, contact, password], (err, row) => {
-    if (err || !row) return res.json({ status: "error", message: "อีเมล/เบอร์โทร หรือรหัสผ่านไม่ถูกต้อง!" });
-    if (row.status !== "ACTIVE") return res.json({ status: "error", message: "⚠️ สถานะร้านค้าไม่พร้อมใช้งาน" });
-    const today = new Date(); today.setHours(0,0,0,0);
-    const exp = new Date(row.expire_date); exp.setHours(0,0,0,0);
-    if (exp < today) return res.json({ status: "error", message: "❌ ระบบของคุณหมดอายุการใช้งานแล้ว" });
-    const daysRemaining = Math.ceil((exp - today) / (1000 * 3600 * 24));
-    res.json({ status: "success", sheetId: row.sheet_id, shopName: row.shop_name, daysRemaining });
-  });
+      if (err || !row) return res.json({ status: "error", message: "อีเมล/เบอร์โทร หรือรหัสผ่านไม่ถูกต้อง!" });
+      if (row.status !== "ACTIVE") return res.json({ status: "error", message: "⚠️ สถานะร้านค้าไม่พร้อมใช้งาน" });
+      const today = new Date(); today.setHours(0,0,0,0);
+      const exp = new Date(row.expire_date); exp.setHours(0,0,0,0);
+      if (exp < today) return res.json({ status: "error", message: "❌ ระบบของคุณหมดอายุการใช้งานแล้ว" });
+      const daysRemaining = Math.ceil((exp - today) / (1000 * 3600 * 24));
+      res.json({ status: "success", sheetId: row.sheet_id, shopName: row.shop_name, daysRemaining });
+    }); // ปิด db.get
+  }); // 🌟 เพิ่มบรรทัดนี้เพื่อปิด db.all
 });
 
 app.get('/api/settings/:tenantId', (req, res) => {
