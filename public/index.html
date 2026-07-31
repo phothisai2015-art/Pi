@@ -1229,6 +1229,9 @@ function openSaSettingsModal() {
 // =================================================================
 // 🌟 ฟังก์ชันจัดการอัปเดต และตรวจสอบ OTP แบบไม่ปิดป๊อปอัปถ้าใส่ผิด
 // =================================================================
+// =================================================================
+// 🌟 ฟังก์ชันจัดการอัปเดต และตรวจสอบ OTP (ล็อคป๊อปอัปไม่ให้เด้งปิดเอง)
+// =================================================================
 function processSASettingsUpdate(newData) {
    // ถ้ามีการผูกอีเมลเดิมอยู่ ต้องใช้ OTP ยืนยัน
    if (currentSAEmail && currentSAEmail.trim() !== '') {
@@ -1243,27 +1246,27 @@ function processSASettingsUpdate(newData) {
                inputPlaceholder: 'กรอกรหัส 6 หลัก',
                showCancelButton: true,
                confirmButtonText: 'ยืนยัน',
-               showLoaderOnConfirm: true, // 🌟 เพิ่มลูกเล่นโหลดตอนกดยืนยัน
+               showLoaderOnConfirm: true, 
+               allowOutsideClick: false, // 🌟 ล็อคไม่ให้คลิกขอบจอแล้วหาย
                preConfirm: (otp) => {
                   if(!otp || otp.length !== 6) { Swal.showValidationMessage('กรุณากรอกรหัส OTP 6 หลัก'); return false; }
                   
-                  // 🌟 ยิง API เช็ค OTP ในขั้นตอนนี้เลย (ป๊อปอัปจะไม่ปิดจนกว่าจะถูก)
+                  // ยิง API เช็ค OTP ในขั้นตอนนี้เลย
                   return new Promise((resolve) => {
                      const payload = { otp: otp, ...newData };
                      google.script.run.withSuccessHandler(apiRes => {
                         if(apiRes.status === 'success') {
                            resolve(apiRes); // OTP ถูก ปิดหน้าต่างได้
                         } else {
-                           // OTP ผิด! โชว์ตัวหนังสือสีแดงและค้างหน้าต่างไว้ให้พิมพ์แก้
+                           // OTP ผิด! โชว์ตัวหนังสือสีแดงและค้างหน้าต่างไว้
                            Swal.showValidationMessage(apiRes.message || 'รหัส OTP ไม่ถูกต้อง กรุณาลองใหม่');
                            resolve(false); 
                         }
                      }).updateSASettings(payload);
                   });
-               },
-               allowOutsideClick: () => !Swal.isLoading()
+               }
             }).then(otpRes => {
-               // 🌟 เมื่อ OTP ถูกต้องและผ่าน preConfirm มาได้
+               // เมื่อ OTP ถูกต้องและผ่าน preConfirm มาได้
                if(otpRes.isConfirmed && otpRes.value !== false) {
                   Swal.fire('สำเร็จ', 'อัปเดตข้อมูล Super Admin เรียบร้อย', 'success');
                }
