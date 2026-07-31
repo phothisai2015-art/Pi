@@ -24,18 +24,15 @@
       case 'getAppInfo': url = '/api/app-info'; break;
 	  
 	  case 'getSuperAdminTenants': url = '/api/superadmin/tenants'; break;
-	  case 'getSuperAdminTenants': url = '/api/superadmin/tenants'; break;
       case 'deleteTenantData': url = '/api/superadmin/delete-tenant'; options.method = 'POST'; options.body = JSON.stringify({ sheetId: args[0] }); break;
       case 'editTenantAdmin': url = '/api/superadmin/edit-tenant'; options.method = 'POST'; options.body = JSON.stringify(args[0]); break;
       case 'addTenantAdmin': url = '/api/superadmin/add-tenant'; options.method = 'POST'; options.body = JSON.stringify(args[0]); break;
       
-      // 🌟 เพิ่ม Adapter สำหรับ Super Admin Settings
+      // 🌟 Adapter สำหรับ Super Admin Settings
       case 'getSuperAdminSettings': url = '/api/superadmin/settings'; break;
       case 'requestSAOTP': url = '/api/superadmin/request-otp'; options.method = 'POST'; break;
       case 'updateSASettings': url = '/api/superadmin/update-settings'; options.method = 'POST'; options.body = JSON.stringify(args[0]); break;
-      case 'deleteTenantData': url = '/api/superadmin/delete-tenant'; options.method = 'POST'; options.body = JSON.stringify({ sheetId: args[0] }); break;
-      case 'editTenantAdmin': url = '/api/superadmin/edit-tenant'; options.method = 'POST'; options.body = JSON.stringify(args[0]); break;
-      case 'addTenantAdmin': url = '/api/superadmin/add-tenant'; options.method = 'POST'; options.body = JSON.stringify(args[0]); break;
+      
 	  
       case 'getScriptUrl': if (successCb) successCb(window.location.origin); return;
       case 'loginShop': url = '/api/login-shop'; options.method = 'POST'; options.body = JSON.stringify({ contact: args[0], password: args[1] }); break;
