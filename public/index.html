@@ -1260,6 +1260,14 @@ function openSaAddModal() {
 
 <!-- 🌟 หน้าเมนูหลัก (Main Menu - Premium UI) -->
 <div class="main-container" id="main-menu" style="max-width: 800px; padding-top: 5vh;">
+  <!-- 🌐 ปุ่มสลับภาษา -->
+  <div style="position: absolute; top: 20px; right: 20px; z-index: 100001;">
+    <select id="lang-selector-main" class="form-select form-select-sm bg-white shadow-sm fw-bold text-dark border-secondary" onchange="changeLanguage(this.value)" style="border-radius: 12px; cursor: pointer;">
+      <option value="th">🇹🇭 ไทย</option>
+      <option value="en">🇬🇧 English</option>
+    </select>
+  </div>
+
   <div class="text-center mb-5">
     <img id="display-shop-logo" src="" style="max-width: 120px; margin-bottom: 20px; border-radius: 24px; display: none; box-shadow: 0 15px 35px rgba(0,0,0,0.1);">
     <h2 class="fw-bold text-dark" style="letter-spacing: -0.5px;"><i class="fa-solid fa-store text-primary me-2"></i> ระบบจัดการร้านค้า </h2>
@@ -1284,7 +1292,7 @@ function openSaAddModal() {
     <div class="col-6 col-md-6">
       <button class="menu-card-btn w-100" id="btn-menu-pos" onclick="openPOSPage()" disabled>
         <div class="menu-icon-wrap bg-primary bg-opacity-10 text-primary"><i class="fa-solid fa-cash-register"></i></div>
-        <h5 class="fw-bold mt-3 mb-1">ขายสินค้า (POS)</h5>
+        <h5 class="fw-bold mt-3 mb-1" data-i18n="menu_pos">ขายสินค้า (POS)</h5>
         <span class="small text-muted">เปิดหน้าร้านและรับชำระเงิน</span>
       </button>
     </div>
@@ -1292,7 +1300,7 @@ function openSaAddModal() {
     <div class="col-6 col-md-6">
       <button class="menu-card-btn w-100" id="btn-menu-stock" onclick="openProductsPage()" disabled>
         <div class="menu-icon-wrap bg-warning bg-opacity-10 text-warning"><i class="fa-solid fa-box-open"></i></div>
-        <h5 class="fw-bold mt-3 mb-1">คลังสินค้า</h5>
+        <h5 class="fw-bold mt-3 mb-1" data-i18n="menu_stock">คลังสินค้า</h5>
         <span class="small text-muted">จัดการสต็อกและรายการสินค้า</span>
       </button>
     </div>
@@ -1300,7 +1308,7 @@ function openSaAddModal() {
     <div class="col-6 col-md-6">
       <button class="menu-card-btn w-100" id="btn-menu-dash" onclick="openDashboardPage()" disabled>
         <div class="menu-icon-wrap bg-success bg-opacity-10 text-success"><i class="fa-solid fa-chart-pie"></i></div>
-        <h5 class="fw-bold mt-3 mb-1">สถิติยอดขาย</h5>
+        <h5 class="fw-bold mt-3 mb-1" data-i18n="menu_dashboard">สถิติยอดขาย</h5>
         <span class="small text-muted">ดูสรุปรายได้และบิลย้อนหลัง</span>
       </button>
     </div>
@@ -1308,7 +1316,7 @@ function openSaAddModal() {
     <div class="col-6 col-md-6">
       <button class="menu-card-btn w-100" id="btn-menu-admin" onclick="openSettingsPage()" disabled>
         <div class="menu-icon-wrap bg-danger bg-opacity-10 text-danger"><i class="fa-solid fa-gear"></i></div>
-        <h5 class="fw-bold mt-3 mb-1">ตั้งค่าระบบ</h5>
+        <h5 class="fw-bold mt-3 mb-1" data-i18n="menu_settings">ตั้งค่าระบบ</h5>
         <span class="small text-muted">จัดการร้านค้าและพนักงาน</span>
       </button>
     </div>
@@ -1317,7 +1325,7 @@ function openSaAddModal() {
   <div class="text-center mt-5 text-muted fw-bold small d-flex justify-content-center align-items-center gap-3">
     <span>Version <span id="app-version-text">Loading...</span></span>
     <span class="text-secondary opacity-25">|</span>
-    <a href="#" onclick="lockScreenManual()" class="text-danger text-decoration-none hover-scale"><i class="fa-solid fa-lock me-1"></i> ล็อกหน้าจอ </a>
+    <a href="#" onclick="lockScreenManual()" class="text-danger text-decoration-none hover-scale"><i class="fa-solid fa-lock me-1"></i> <span data-i18n="menu_logout">ล็อกหน้าจอ</span> </a>
   </div>
 </div>
 
@@ -4700,6 +4708,7 @@ openPOSPage = function() {
 <script>
 const i18n = {
   th: {
+    // 🌟 หน้า Login
     "login_title": "SaaS POS System",
     "login_subtitle": "เข้าสู่ระบบจัดการร้านค้าของคุณ",
     "login_placeholder_contact": "อีเมล หรือ เบอร์โทรศัพท์",
@@ -4708,9 +4717,28 @@ const i18n = {
     "login_forgot": '<i class="fa-solid fa-key text-warning"></i> ลืมรหัส',
     "login_renew": '<i class="fa-solid fa-bolt-lightning text-success"></i> ต่ออายุ',
     "login_register": '<i class="fa-solid fa-user-plus text-info"></i> สมัครฟรี',
-    "login_contact": '<i class="fa-brands fa-line fs-5"></i> ติดต่อแอดมิน / แจ้งปัญหา'
+    "login_contact": '<i class="fa-brands fa-line fs-5"></i> ติดต่อแอดมิน / แจ้งปัญหา',
+    
+    // 🌟 หน้าเมนูหลัก (Main Menu)
+    "menu_pos": "จุดขาย (POS)",
+    "menu_stock": "คลังสินค้า",
+    "menu_dashboard": "ยอดขาย",
+    "menu_settings": "ตั้งค่าร้าน",
+    "menu_logout": "ออกจากระบบ",
+    
+    // 🌟 หน้าจุดขาย (POS)
+    "pos_title": "ระบบจุดขาย (POS)",
+    "pos_search_placeholder": "ค้นหาสินค้า (ชื่อ, รหัส, หมวดหมู่)...",
+    "pos_cart_title": "รายการสินค้า",
+    "pos_clear_cart": "ล้างตะกร้า",
+    "pos_total": "ยอดรวมทั้งสิ้น",
+    "pos_pay_cash": "เงินสด",
+    "pos_pay_transfer": "โอนเงิน",
+    "pos_pay_button": "ชำระเงิน",
+    "pos_empty_cart": "ยังไม่มีสินค้าในตะกร้า"
   },
   en: {
+    // 🌟 Login Page
     "login_title": "SaaS POS System",
     "login_subtitle": "Login to manage your store",
     "login_placeholder_contact": "Email or Phone Number",
@@ -4719,7 +4747,25 @@ const i18n = {
     "login_forgot": '<i class="fa-solid fa-key text-warning"></i> Forgot',
     "login_renew": '<i class="fa-solid fa-bolt-lightning text-success"></i> Renew',
     "login_register": '<i class="fa-solid fa-user-plus text-info"></i> Register',
-    "login_contact": '<i class="fa-brands fa-line fs-5"></i> Contact Admin / Support'
+    "login_contact": '<i class="fa-brands fa-line fs-5"></i> Contact Admin / Support',
+    
+    // 🌟 Main Menu
+    "menu_pos": "Point of Sale (POS)",
+    "menu_stock": "Inventory",
+    "menu_dashboard": "Dashboard",
+    "menu_settings": "Settings",
+    "menu_logout": "Logout",
+    
+    // 🌟 POS Page
+    "pos_title": "Point of Sale (POS)",
+    "pos_search_placeholder": "Search (Name, ID, Category)...",
+    "pos_cart_title": "Shopping Cart",
+    "pos_clear_cart": "Clear Cart",
+    "pos_total": "Grand Total",
+    "pos_pay_cash": "Cash",
+    "pos_pay_transfer": "Transfer",
+    "pos_pay_button": "Pay Now",
+    "pos_empty_cart": "Cart is empty"
   }
 };
 
