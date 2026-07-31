@@ -1188,28 +1188,38 @@ function openSaAddModal() {
 // =================================================================
 // 🌟 ระบบจัดการบัญชี Super Admin (ตั้งค่า Username, Password, Email)
 // =================================================================
+// =================================================================
+// 🌟 ระบบจัดการบัญชี Super Admin (ตั้งค่า Username, Password, Email)
+// =================================================================
 let currentSAEmail = "";
+let originalSAData = {}; // ไว้เก็บข้อมูลเดิมเพื่อเปรียบเทียบ
 
 function openSaSettingsModal() {
    Swal.fire({title: 'กำลังโหลดข้อมูล...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
    
-   // ดึงข้อมูลปัจจุบัน
    google.script.run.withSuccessHandler(sa => {
       Swal.close();
       currentSAEmail = sa.email || "";
+      originalSAData = { user: sa.username || 'superadmin', pass: sa.password || '1234', email: currentSAEmail };
       
+      // 🌟 ข้อ 2: เช็คว่าผูกอีเมลหรือยัง ถ้ายังให้ล็อกช่อง Username/Password
+      const isLocked = !currentSAEmail;
+      const lockAttr = isLocked ? 'disabled style="background-color: #f1f5f9; cursor: not-allowed; opacity: 0.7;"' : '';
+      const lockMsg = isLocked ? '<div class="text-danger small fw-bold mb-3 p-2 bg-danger bg-opacity-10 rounded border border-danger"><i class="fa-solid fa-lock me-1"></i> กรุณาผูกอีเมลก่อน เพื่อปลดล็อคการเปลี่ยน Username และ Password</div>' : '';
+
       Swal.fire({
          title: 'ตั้งค่าบัญชี Super Admin',
          html: `
             <div class="text-start px-2">
-               <div class="alert alert-warning small py-2 mb-3">หากมีการผูกอีเมลไว้ ระบบจะส่ง OTP เพื่อยืนยันการเปลี่ยนแปลงทุกครั้ง</div>
+               <div class="alert alert-warning small py-2 mb-2">หากมีการผูกอีเมลไว้ ระบบจะส่ง OTP เพื่อยืนยันการเปลี่ยนแปลงทุกครั้ง<br><br><b>ข้อควรระวัง:</b> หากลบอีเมลออก (ยกเลิกผูก) รหัสผ่านจะถูกรีเซ็ตกลับเป็นค่าเริ่มต้น!</div>
+               ${lockMsg}
                <label class="small fw-bold text-muted">Username (สำหรับล็อกอิน)</label>
-               <input type="text" id="sa-set-user" class="form-control mb-2 fw-bold text-primary" value="${sa.username || 'superadmin'}">
+               <input type="text" id="sa-set-user" class="form-control mb-2 fw-bold text-primary" value="${originalSAData.user}" ${lockAttr}>
                <label class="small fw-bold text-muted">Password (รหัสผ่าน)</label>
-               <input type="text" id="sa-set-pass" class="form-control mb-3 fw-bold text-primary" value="${sa.password || '1234'}">
+               <input type="text" id="sa-set-pass" class="form-control mb-3 fw-bold text-primary" value="${originalSAData.pass}" ${lockAttr}>
                <label class="small fw-bold text-muted">อีเมลผูกบัญชี (แจ้งเตือนล็อกอิน & ยืนยัน OTP)</label>
-               <input type="email" id="sa-set-email" class="form-control fw-bold" placeholder="เว้นว่างเพื่อยกเลิกการผูก" value="${sa.email || ''}">
-               <div class="text-muted" style="font-size: 11px; margin-top: 5px;">*หากต้องการยกเลิกผูก ให้ลบอีเมลออกให้เป็นช่องว่าง</div>
+               <input type="email" id="sa-set-email" class="form-control fw-bold" placeholder="กรอกอีเมลเพื่อผูกบัญชี (เว้นว่างเพื่อยกเลิก)" value="${originalSAData.email}">
+               <div class="text-muted" style="font-size: 11px; margin-top: 5px;">*เว้นว่างช่องนี้ไว้ หากต้องการยกเลิกผูกอีเมล</div>
             </div>
          `,
          showCancelButton: true, confirmButtonColor: '#0d6efd', confirmButtonText: 'บันทึกการตั้งค่า', cancelButtonText: 'ยกเลิก',
@@ -1217,7 +1227,20 @@ function openSaSettingsModal() {
             const newUsername = document.getElementById('sa-set-user').value.trim();
             const newPassword = document.getElementById('sa-set-pass').value.trim();
             const newEmail = document.getElementById('sa-set-email').value.trim();
-            if(!newUsername || !newPassword) { Swal.showValidationMessage('ห้ามเว้นว่าง Username และ Password'); return false; }
+            
+            // 🌟 ข้อ 5: กันคนกดเล่น ถ้าพิมพ์เหมือนเดิมเป๊ะๆ ให้เด้งด่าเลย
+            if (newUsername === originalSAData.user && newPassword === originalSAData.pass && newEmail === originalSAData.email) {
+               Swal.showValidationMessage('ไม่มีข้อมูลเปลี่ยนแปลง ไม่สามารถบันทึกได้'); 
+               return false;
+            }
+
+            if (!newUsername || !newPassword) { 
+               // ถ้าไม่ได้กดยกเลิกผูกเมล แต่ดันปล่อยช่องพาสเวิร์ดว่าง
+               if (newEmail !== '') {
+                  Swal.showValidationMessage('ห้ามเว้นว่าง Username และ Password'); 
+                  return false; 
+               }
+            }
             return { newUsername, newPassword, newEmail };
          }
       }).then(res => {
@@ -1226,12 +1249,6 @@ function openSaSettingsModal() {
    }).getSuperAdminSettings();
 }
 
-// =================================================================
-// 🌟 ฟังก์ชันจัดการอัปเดต และตรวจสอบ OTP แบบไม่ปิดป๊อปอัปถ้าใส่ผิด
-// =================================================================
-// =================================================================
-// 🌟 ฟังก์ชันจัดการอัปเดต และตรวจสอบ OTP (ล็อคป๊อปอัปไม่ให้เด้งปิดเอง)
-// =================================================================
 function processSASettingsUpdate(newData) {
    // ถ้ามีการผูกอีเมลเดิมอยู่ ต้องใช้ OTP ยืนยัน
    if (currentSAEmail && currentSAEmail.trim() !== '') {
@@ -1247,18 +1264,15 @@ function processSASettingsUpdate(newData) {
                showCancelButton: true,
                confirmButtonText: 'ยืนยัน',
                showLoaderOnConfirm: true, 
-               allowOutsideClick: false, // 🌟 ล็อคไม่ให้คลิกขอบจอแล้วหาย
+               allowOutsideClick: false,
                preConfirm: (otp) => {
                   if(!otp || otp.length !== 6) { Swal.showValidationMessage('กรุณากรอกรหัส OTP 6 หลัก'); return false; }
                   
-                  // ยิง API เช็ค OTP ในขั้นตอนนี้เลย
                   return new Promise((resolve) => {
                      const payload = { otp: otp, ...newData };
                      google.script.run.withSuccessHandler(apiRes => {
-                        if(apiRes.status === 'success') {
-                           resolve(apiRes); // OTP ถูก ปิดหน้าต่างได้
-                        } else {
-                           // OTP ผิด! โชว์ตัวหนังสือสีแดงและค้างหน้าต่างไว้
+                        if(apiRes.status === 'success') resolve(apiRes);
+                        else {
                            Swal.showValidationMessage(apiRes.message || 'รหัส OTP ไม่ถูกต้อง กรุณาลองใหม่');
                            resolve(false); 
                         }
@@ -1266,18 +1280,16 @@ function processSASettingsUpdate(newData) {
                   });
                }
             }).then(otpRes => {
-               // เมื่อ OTP ถูกต้องและผ่าน preConfirm มาได้
                if(otpRes.isConfirmed && otpRes.value !== false) {
-                  Swal.fire('สำเร็จ', 'อัปเดตข้อมูล Super Admin เรียบร้อย', 'success');
+                  Swal.fire('สำเร็จ', 'อัปเดตข้อมูล Super Admin เรียบร้อย\nระบบได้ส่งข้อมูลใหม่ไปที่อีเมลของคุณแล้ว', 'success');
                }
             });
          } else {
-            // กรณีไม่มีอีเมล (fallback) ข้าม OTP ได้เลย
             executeSAUpdate(newData);
          }
       }).requestSAOTP();
    } else {
-      // ถ้าไม่มีอีเมลผูกไว้ บันทึกได้เลยไม่ต้องขอ OTP
+      // ไม่มีอีเมลเดิมผูกไว้ บันทึกได้เลย
       executeSAUpdate(newData);
    }
 }
@@ -1286,12 +1298,14 @@ function executeSAUpdate(payload) {
    Swal.fire({title: 'กำลังบันทึกข้อมูล...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
    google.script.run.withSuccessHandler(res => {
       if(res.status === 'success') {
-         Swal.fire('สำเร็จ', 'อัปเดตข้อมูล Super Admin เรียบร้อย', 'success');
+         Swal.fire('สำเร็จ', 'อัปเดตข้อมูล Super Admin เรียบร้อย\nระบบได้ส่งข้อมูลใหม่ไปที่อีเมลของคุณแล้ว', 'success');
       } else {
          Swal.fire('ผิดพลาด', res.message || 'เกิดข้อผิดพลาด', 'error');
       }
    }).updateSASettings(payload);
 }
+
+
 
 </script>
 
