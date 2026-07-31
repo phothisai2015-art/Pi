@@ -1707,14 +1707,19 @@ function processSaaSLogin() {
   });
   
   google.script.run.withSuccessHandler(function(res) {
-    isSaaSLoggingIn = false; Swal.close(); 
-	
-	if (res.status === "superadmin") {
+    isSaaSLoggingIn = false; 
+    
+    // 👑 เช็ค Superadmin เป็นอันดับแรกสุด!
+    if (res.status === "superadmin") {
+      Swal.close();
       hideLoginScreen();
-      setTimeout(() => openSuperAdminPage(), 500);
-      return;
+      setTimeout(() => { 
+        openSuperAdminPage(); 
+      }, 500);
+      return; // 🛑 สั่งให้ออกจากฟังก์ชันทันที ไม่ให้ไปรันโค้ดร้านค้าต่อ
     }
 	
+    Swal.close(); 
     if(res.status === "error") {
       Swal.fire({ icon: 'error', title: 'เข้าสู่ระบบล้มเหลว', text: res.message });
     } else {
