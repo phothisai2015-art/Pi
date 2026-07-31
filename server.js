@@ -21,6 +21,94 @@ app.use(express.static(path.join(__dirname, 'public')));
 db.run(`ALTER TABLE tenants ADD COLUMN renew_status TEXT DEFAULT 'NONE'`, () => {});
 db.run(`ALTER TABLE tenants ADD COLUMN renew_notified INTEGER DEFAULT 1`, () => {});
 
+// ... existing code ...
+app.post('/api/superadmin/add-tenant', (req, res) => {
+  const { shopName, email, phone, password, expireDate } = req.body;
+  db.get(`SELECT id FROM tenants WHERE LOWER(email)=LOWER(?) OR phone=?`, [email, phone], (err, row) => {
+    if (row) return res.json({ status: "error", message: "Email หรือ เบอร์โทรศัพท์ นี้มีคนใช้งานแล้ว" });
+    
+    const sheetId = "SHOP_" + Date.now();
+    db.run(`INSERT INTO tenants (user, password, shop_name, email, phone, sheet_id, status, expire_date) VALUES (?, ?, ?, ?, ?, ?, 'ACTIVE', ?)`,
+      [email, password, shopName, email, phone, sheetId, expireDate], (err) => {
+        if (err) return res.json({ status: "error", message: err.message });
+        res.json({ status: "success" });
+      });
+  });
+});
+
+// =================================================================
+// 👑 ระบบความปลอดภัย Superadmin (OTP & เปลี่ยนรหัส)
+// =================================================================
+
+app.get('/api/superadmin/config', (req, res) => {
+  db.get(`SELECT username, alert_email FROM superadmin LIMIT 1`, (err, row) => {
+    res.json(row || { username: 'superadmin', alert_email: '' });
+  });
+});
+
+app.post('/api/superadmin/update-auth', (req, res) => {
+  const { newUsername, newPassword } = req.body;
+  db.run(`UPDATE superadmin SET username = ?, password = ?`, [newUsername, newPassword], function(err) {
+    if(err) return res.json({ status: 'error', message: err.message });
+    res.json({ status: 'success' });
+  });
+});
+
+app.post('/api/superadmin/request-email-otp', (req, res) => {
+  const { newEmail, type } = req.body; // type: 'setup_new' หรือ 'change_old'
+  
+  db.get(`SELECT alert_email FROM superadmin LIMIT 1`, (err, row) => {
+    let currentEmail = row ? row.alert_email : '';
+    let targetEmail = '';
+
+    if (type === 'setup_new') {
+      // ถ้ายกเลิก/ไม่มีอีเมลเดิม ให้ส่งไปเช็คอีเมลใหม่
+      targetEmail = newEmail;
+    } else if (type === 'change_old' || type === 'remove') {
+      // ถ้ามีอีเมลเดิมอยู่ ต้องส่ง OTP ไปอีเมลเก่าเพื่อยืนยันสิทธิ์
+      if(!currentEmail) return res.json({ status: 'error', message: 'ไม่มีอีเมลเดิมให้ยืนยัน' });
+      targetEmail = currentEmail;
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    otpStore["SA_SEC_" + targetEmail] = otp;
+
+    const mailOptions = {
+      from: transporter.options.auth.user,
+      to: targetEmail,
+      subject: '🔒 รหัส OTP ตั้งค่าความปลอดภัย Superadmin',
+      text: `รหัส OTP ของคุณคือ: ${otp}\nใช้รหัสนี้เพื่อยืนยันการตั้งค่าความปลอดภัย (รหัสมีอายุ 10 นาที)`
+    };
+    
+    transporter.sendMail(mailOptions)
+      .then(() => res.json({ status: 'success', sentTo: targetEmail }))
+      .catch(err => {
+        console.error(err);
+        res.json({ status: 'error', message: 'ส่งอีเมลล้มเหลว' });
+      });
+  });
+});
+
+app.post('/api/superadmin/update-email', (req, res) => {
+  const { otp, newEmail, sentToEmail, action } = req.body;
+  
+  // ตรวจสอบ OTP
+  if (otpStore["SA_SEC_" + sentToEmail] !== otp) {
+    return res.json({ status: 'error', message: 'รหัส OTP ไม่ถูกต้อง!' });
+  }
+
+  let finalEmail = action === 'remove' ? '' : newEmail;
+
+  db.run(`UPDATE superadmin SET alert_email = ?`, [finalEmail], function(err) {
+    if(err) return res.json({ status: 'error', message: err.message });
+    delete otpStore["SA_SEC_" + sentToEmail]; // เคลียร์ OTP
+    res.json({ status: 'success' });
+  });
+});
+
+io.on('connection', (socket) => {
+// ... existing code ...
+
 // 🌟 ตั้งค่า Telegram Bot
 const TELEGRAM_BOT_TOKEN = "8383540467:AAHP2VfSU0U7riTyhrfq-dQHOQgiTmd8t0Y";
 const TELEGRAM_CHAT_ID = "5519991585";
@@ -73,25 +161,94 @@ async function sendAdminAlert(message) {
 app.get('/api/app-info', (req, res) => res.json({ version: "1.0.0" }));
 
   
-app.post('/api/login-shop', (req, res) => {
-  const { contact, password } = req.body;
-
-  // 👑 ระบบดักจับ Super Admin (เปลี่ยน Username / Password ตรงนี้ได้เลยครับ)
-  if (contact === 'superadmin' && password === '12345678') {
-    return res.json({ status: "superadmin" });
-  }
-
-  // เช็คทั้งอีเมล และเบอร์โทรศัพท์
-  db.get(`SELECT * FROM tenants WHERE (LOWER(email) = LOWER(?) OR phone = ?) AND password = ?`, [contact, contact, password], (err, row) => {
-    if (err || !row) return res.json({ status: "error", message: "อีเมล/เบอร์โทร หรือรหัสผ่านไม่ถูกต้อง!" });
-    if (row.status !== "ACTIVE") return res.json({ status: "error", message: "⚠️ สถานะร้านค้าไม่พร้อมใช้งาน" });
-    const today = new Date(); today.setHours(0,0,0,0);
-    const exp = new Date(row.expire_date); exp.setHours(0,0,0,0);
-    if (exp < today) return res.json({ status: "error", message: "❌ ระบบของคุณหมดอายุการใช้งานแล้ว" });
-    const daysRemaining = Math.ceil((exp - today) / (1000 * 3600 * 24));
-    res.json({ status: "success", sheetId: row.sheet_id, shopName: row.shop_name, daysRemaining });
+// ... existing code ...
+app.post('/api/superadmin/add-tenant', (req, res) => {
+  const { shopName, email, phone, password, expireDate } = req.body;
+  db.get(`SELECT id FROM tenants WHERE LOWER(email)=LOWER(?) OR phone=?`, [email, phone], (err, row) => {
+    if (row) return res.json({ status: "error", message: "Email หรือ เบอร์โทรศัพท์ นี้มีคนใช้งานแล้ว" });
+    
+    const sheetId = "SHOP_" + Date.now();
+    db.run(`INSERT INTO tenants (user, password, shop_name, email, phone, sheet_id, status, expire_date) VALUES (?, ?, ?, ?, ?, ?, 'ACTIVE', ?)`,
+      [email, password, shopName, email, phone, sheetId, expireDate], (err) => {
+        if (err) return res.json({ status: "error", message: err.message });
+        res.json({ status: "success" });
+      });
   });
 });
+
+// =================================================================
+// 👑 ระบบความปลอดภัย Superadmin (OTP & เปลี่ยนรหัส)
+// =================================================================
+
+app.get('/api/superadmin/config', (req, res) => {
+  db.get(`SELECT username, alert_email FROM superadmin LIMIT 1`, (err, row) => {
+    res.json(row || { username: 'superadmin', alert_email: '' });
+  });
+});
+
+app.post('/api/superadmin/update-auth', (req, res) => {
+  const { newUsername, newPassword } = req.body;
+  db.run(`UPDATE superadmin SET username = ?, password = ?`, [newUsername, newPassword], function(err) {
+    if(err) return res.json({ status: 'error', message: err.message });
+    res.json({ status: 'success' });
+  });
+});
+
+app.post('/api/superadmin/request-email-otp', (req, res) => {
+  const { newEmail, type } = req.body; // type: 'setup_new' หรือ 'change_old'
+  
+  db.get(`SELECT alert_email FROM superadmin LIMIT 1`, (err, row) => {
+    let currentEmail = row ? row.alert_email : '';
+    let targetEmail = '';
+
+    if (type === 'setup_new') {
+      // ถ้ายกเลิก/ไม่มีอีเมลเดิม ให้ส่งไปเช็คอีเมลใหม่
+      targetEmail = newEmail;
+    } else if (type === 'change_old' || type === 'remove') {
+      // ถ้ามีอีเมลเดิมอยู่ ต้องส่ง OTP ไปอีเมลเก่าเพื่อยืนยันสิทธิ์
+      if(!currentEmail) return res.json({ status: 'error', message: 'ไม่มีอีเมลเดิมให้ยืนยัน' });
+      targetEmail = currentEmail;
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    otpStore["SA_SEC_" + targetEmail] = otp;
+
+    const mailOptions = {
+      from: transporter.options.auth.user,
+      to: targetEmail,
+      subject: '🔒 รหัส OTP ตั้งค่าความปลอดภัย Superadmin',
+      text: `รหัส OTP ของคุณคือ: ${otp}\nใช้รหัสนี้เพื่อยืนยันการตั้งค่าความปลอดภัย (รหัสมีอายุ 10 นาที)`
+    };
+    
+    transporter.sendMail(mailOptions)
+      .then(() => res.json({ status: 'success', sentTo: targetEmail }))
+      .catch(err => {
+        console.error(err);
+        res.json({ status: 'error', message: 'ส่งอีเมลล้มเหลว' });
+      });
+  });
+});
+
+app.post('/api/superadmin/update-email', (req, res) => {
+  const { otp, newEmail, sentToEmail, action } = req.body;
+  
+  // ตรวจสอบ OTP
+  if (otpStore["SA_SEC_" + sentToEmail] !== otp) {
+    return res.json({ status: 'error', message: 'รหัส OTP ไม่ถูกต้อง!' });
+  }
+
+  let finalEmail = action === 'remove' ? '' : newEmail;
+
+  db.run(`UPDATE superadmin SET alert_email = ?`, [finalEmail], function(err) {
+    if(err) return res.json({ status: 'error', message: err.message });
+    delete otpStore["SA_SEC_" + sentToEmail]; // เคลียร์ OTP
+    res.json({ status: 'success' });
+  });
+});
+
+
+io.on('connection', (socket) => {
+// ... existing code ...
 
 app.get('/api/settings/:tenantId', (req, res) => {
   db.all(`SELECT key, value FROM settings WHERE tenant_id = ?`, [req.params.tenantId], (err, rows) => {
@@ -623,6 +780,93 @@ app.post('/api/superadmin/add-tenant', (req, res) => {
       });
   });
 });
+
+// ... existing code ...
+app.post('/api/superadmin/add-tenant', (req, res) => {
+  const { shopName, email, phone, password, expireDate } = req.body;
+  db.get(`SELECT id FROM tenants WHERE LOWER(email)=LOWER(?) OR phone=?`, [email, phone], (err, row) => {
+    if (row) return res.json({ status: "error", message: "Email หรือ เบอร์โทรศัพท์ นี้มีคนใช้งานแล้ว" });
+    
+    const sheetId = "SHOP_" + Date.now();
+    db.run(`INSERT INTO tenants (user, password, shop_name, email, phone, sheet_id, status, expire_date) VALUES (?, ?, ?, ?, ?, ?, 'ACTIVE', ?)`,
+      [email, password, shopName, email, phone, sheetId, expireDate], (err) => {
+        if (err) return res.json({ status: "error", message: err.message });
+        res.json({ status: "success" });
+      });
+  });
+});
+
+// =================================================================
+// 👑 ระบบความปลอดภัย Superadmin (OTP & เปลี่ยนรหัส)
+// =================================================================
+
+app.get('/api/superadmin/config', (req, res) => {
+  db.get(`SELECT username, alert_email FROM superadmin LIMIT 1`, (err, row) => {
+    res.json(row || { username: 'superadmin', alert_email: '' });
+  });
+});
+
+app.post('/api/superadmin/update-auth', (req, res) => {
+  const { newUsername, newPassword } = req.body;
+  db.run(`UPDATE superadmin SET username = ?, password = ?`, [newUsername, newPassword], function(err) {
+    if(err) return res.json({ status: 'error', message: err.message });
+    res.json({ status: 'success' });
+  });
+});
+
+app.post('/api/superadmin/request-email-otp', (req, res) => {
+  const { newEmail, type } = req.body; // type: 'setup_new' หรือ 'change_old'
+  
+  db.get(`SELECT alert_email FROM superadmin LIMIT 1`, (err, row) => {
+    let currentEmail = row ? row.alert_email : '';
+    let targetEmail = '';
+
+    if (type === 'setup_new') {
+      // ถ้ายกเลิก/ไม่มีอีเมลเดิม ให้ส่งไปเช็คอีเมลใหม่
+      targetEmail = newEmail;
+    } else if (type === 'change_old' || type === 'remove') {
+      // ถ้ามีอีเมลเดิมอยู่ ต้องส่ง OTP ไปอีเมลเก่าเพื่อยืนยันสิทธิ์
+      if(!currentEmail) return res.json({ status: 'error', message: 'ไม่มีอีเมลเดิมให้ยืนยัน' });
+      targetEmail = currentEmail;
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    otpStore["SA_SEC_" + targetEmail] = otp;
+
+    const mailOptions = {
+      from: transporter.options.auth.user,
+      to: targetEmail,
+      subject: '🔒 รหัส OTP ตั้งค่าความปลอดภัย Superadmin',
+      text: `รหัส OTP ของคุณคือ: ${otp}\nใช้รหัสนี้เพื่อยืนยันการตั้งค่าความปลอดภัย (รหัสมีอายุ 10 นาที)`
+    };
+    
+    transporter.sendMail(mailOptions)
+      .then(() => res.json({ status: 'success', sentTo: targetEmail }))
+      .catch(err => {
+        console.error(err);
+        res.json({ status: 'error', message: 'ส่งอีเมลล้มเหลว' });
+      });
+  });
+});
+
+app.post('/api/superadmin/update-email', (req, res) => {
+  const { otp, newEmail, sentToEmail, action } = req.body;
+  
+  // ตรวจสอบ OTP
+  if (otpStore["SA_SEC_" + sentToEmail] !== otp) {
+    return res.json({ status: 'error', message: 'รหัส OTP ไม่ถูกต้อง!' });
+  }
+
+  let finalEmail = action === 'remove' ? '' : newEmail;
+
+  db.run(`UPDATE superadmin SET alert_email = ?`, [finalEmail], function(err) {
+    if(err) return res.json({ status: 'error', message: err.message });
+    delete otpStore["SA_SEC_" + sentToEmail]; // เคลียร์ OTP
+    res.json({ status: 'success' });
+  });
+});
+
+
 
 // =================================================================
 // 🌟 Socket.io: ระบบจอลูกค้าออนไลน์ (CFD)
