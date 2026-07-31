@@ -752,21 +752,17 @@ body.dark-theme .num-btn-del:hover {
 </head>
 <body>
 
-<button id="main-theme-btn" class="theme-toggle-btn" onclick="toggleThemeMode()" title="สลับโหมดมืด/สว่าง">
-  <i id="theme-icon" class="fa-solid fa-moon"></i>
-</button>
-
-<!-- 🌟 หน้าจอเข้าสู่ระบบ -->
-<!-- 🌟 หน้าจอเข้าสู่ระบบ -->
-<div id="saas-login-screen" class="saas-page-screen">
-  
- <!-- 🌐 ปุ่มสลับภาษา (Global) อยู่บนสุด ไม่ซ้อนกับใคร -->
+<!-- 🌐 ปุ่มสลับภาษา (Global) อยู่บนสุด ไม่ซ้อนกับใคร -->
 <div style="position: fixed; top: 20px; right: 20px; z-index: 999999;">
   <select id="lang-selector-global" class="form-select form-select-sm bg-white shadow-sm fw-bold text-dark border-secondary" onchange="changeLanguage(this.value)" style="border-radius: 12px; cursor: pointer; width: 110px;">
     <option value="th">🇹🇭 ไทย</option>
     <option value="en">🇬🇧 English</option>
   </select>
 </div>
+
+<button id="main-theme-btn" class="theme-toggle-btn" onclick="toggleThemeMode()" title="สลับโหมดมืด/สว่าง">
+  <i id="theme-icon" class="fa-solid fa-moon"></i>
+</button>
 
 <!-- 🌟 หน้าจอเข้าสู่ระบบ -->
 <div id="saas-login-screen" class="saas-page-screen">
@@ -4678,9 +4674,6 @@ openPOSPage = function() {
     </div>
   </div>
   
-  <!-- ========================================================= -->
-<!-- 🌐 ระบบแปลภาษา (Multi-Language) -->
-<!-- ========================================================= -->
 <!-- ========================================================= -->
 <!-- 🌐 ระบบแปลภาษา (Multi-Language) -->
 <!-- ========================================================= -->
