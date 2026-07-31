@@ -754,10 +754,7 @@ body.dark-theme .num-btn-del:hover {
 
 <!-- 🌐 ปุ่มสลับภาษา (Global) อยู่บนสุด ไม่ซ้อนกับใคร -->
 <div style="position: fixed; top: 20px; right: 20px; z-index: 999999;">
-  <select id="lang-selector-global" class="form-select form-select-sm bg-white shadow-sm fw-bold text-dark border-secondary" onchange="changeLanguage(this.value)" style="border-radius: 12px; cursor: pointer; width: 110px;">
-    <option value="th">🇹🇭 ไทย</option>
-    <option value="en">🇬🇧 English</option>
-  </select>
+  <select id="lang-selector-global" ...> ... </select>
 </div>
 
 <button id="main-theme-btn" class="theme-toggle-btn" onclick="toggleThemeMode()" title="สลับโหมดมืด/สว่าง">
@@ -770,6 +767,14 @@ body.dark-theme .num-btn-del:hover {
     <div class="login-icon-wrap"><i class="fa-solid fa-bolt text-white"></i></div>
     <h3 class="fw-bold text-dark mb-2" style="letter-spacing: 1px;" data-i18n="login_title">SaaS POS System</h3>
     <p class="text-secondary small mb-4" style="font-weight: 500;" data-i18n="login_subtitle">เข้าสู่ระบบจัดการร้านค้าของคุณ</p>
+	
+	<!-- 🌐 ปุ่มเปลี่ยนภาษา (หน้า Login) -->
+<div style="position: absolute; top: 20px; right: 20px; z-index: 100001;">
+  <select id="lang-selector-login" class="form-select form-select-sm bg-white shadow-sm fw-bold text-dark border-secondary" onchange="changeLanguage(this.value)" style="border-radius: 12px; cursor: pointer; width: 110px;">
+    <option value="th">🇹🇭 ไทย</option>
+    <option value="en">🇬🇧 English</option>
+  </select>
+</div>
     
     <div class="mb-3 input-group shadow-sm">
       <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
@@ -1237,6 +1242,13 @@ function openSaAddModal() {
 
 <!-- 🌟 หน้าเมนูหลัก (Main Menu - Premium UI) -->
 <div class="main-container" id="main-menu" style="max-width: 800px; padding-top: 5vh;">
+<!-- 🌐 ปุ่มเปลี่ยนภาษา (หน้าเมนูหลัก) -->
+<div style="position: absolute; top: 20px; right: 20px; z-index: 10;">
+  <select id="lang-selector-main" class="form-select form-select-sm bg-white shadow-sm fw-bold text-dark border-secondary" onchange="changeLanguage(this.value)" style="border-radius: 12px; cursor: pointer; width: 110px;">
+    <option value="th">🇹🇭 ไทย</option>
+    <option value="en">🇬🇧 English</option>
+  </select>
+</div>
   <!-- 🌐 ปุ่มสลับภาษา -->
 
 
@@ -1580,8 +1592,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
   <div class="prod-header-wrapper">
     <div class="d-flex justify-content-between align-items-center mb-4 mt-3">
-      <h3 class="fw-bold text-primary m-0"><i class="fa-solid fa-box-open me-2"></i> คลังสินค้า </h3>
-      <button class="btn btn-outline-danger fw-bold rounded-pill px-4" onclick="closeProductsPage()"><i class="fa-solid fa-arrow-left me-2"></i> กลับ </button>
+      <h3 class="fw-bold text-primary m-0"><i class="fa-solid fa-box-open me-2"></i> <span data-i18n="inv_title">คลังสินค้า</span> </h3>
+      <button class="btn btn-outline-danger fw-bold rounded-pill px-4" onclick="closeProductsPage()"><i class="fa-solid fa-arrow-left me-2"></i> <span data-i18n="btn_back">กลับ</span> </button>
     </div>
 
     <div class="d-flex flex-wrap flex-lg-nowrap align-items-center gap-2 mb-4 prod-mobile-stack" style="padding-bottom: 5px;">
@@ -2432,12 +2444,12 @@ document.addEventListener("DOMContentLoaded", function() {
   <div class="d-flex justify-content-between align-items-center mb-4 mt-3 px-3 px-md-4 pos-mobile-header" style="background: transparent;">
     <div class="d-flex align-items-center gap-4">
       <h3 class="fw-bold text-primary m-0"><i class="fa-solid fa-cash-register me-2"></i> <span data-i18n="pos_title">ระบบจุดขาย (POS)</span></h3>
-      <button class="btn btn-info text-white fw-bold rounded-pill px-3 px-md-4 shadow-sm d-none d-sm-block" onclick="openCFD()"><i class="fa-solid fa-desktop me-1"></i> จอลูกค้า</button>
+      <button class="btn btn-info text-white fw-bold rounded-pill px-3 px-md-4 shadow-sm d-none d-sm-block" onclick="openCFD()"><i class="fa-solid fa-desktop me-1"></i> <span data-i18n="pos_btn_cfd">จอลูกค้า</span></button>
     </div>
     <div class="d-flex align-items-center pos-mobile-btns">
       <button class="btn btn-info text-white fw-bold rounded-pill px-3 shadow-sm d-block d-sm-none me-2" onclick="openCFD()"><i class="fa-solid fa-desktop"></i></button>
-      <button class="btn btn-outline-secondary fw-bold rounded-pill px-3 px-md-4 me-2" onclick="lockScreenManual()"><i class="fa-solid fa-lock"></i><span class="d-none d-md-inline ms-1"> ล็อกเครื่อง</span></button>
-      <button class="btn btn-outline-danger fw-bold rounded-pill px-4" onclick="closePOSPage()"><i class="fa-solid fa-arrow-left me-2"></i> กลับ </button>
+      <button class="btn btn-outline-secondary fw-bold rounded-pill px-3 px-md-4 me-2" onclick="lockScreenManual()"><i class="fa-solid fa-lock"></i><span class="d-none d-md-inline ms-1" data-i18n="pos_btn_lock"> ล็อกเครื่อง</span></button>
+      <button class="btn btn-outline-danger fw-bold rounded-pill px-4" onclick="closePOSPage()"><i class="fa-solid fa-arrow-left me-2"></i> <span data-i18n="btn_back">กลับ</span> </button>
     </div>
   </div>
 
@@ -3153,10 +3165,10 @@ function renderMenuGrid() {
 
   <div class="dash-header-wrapper">
     <div class="d-flex justify-content-between align-items-center mb-3 dash-title-action">
-      <h4 class="fw-bold text-dark m-0"><i class="fa-solid fa-chart-pie text-success me-2"></i> แผงควบคุมสถิติ (Dashboard)</h4>
+      <h4 class="fw-bold text-dark m-0"><i class="fa-solid fa-chart-pie text-success me-2"></i> <span data-i18n="dash_title">แผงควบคุมสถิติ (Dashboard)</span></h4>
       <div class="dash-action-btns">
-        <button class="btn btn-danger fw-bold rounded-pill px-3 btn-sm shadow-sm" onclick="openClearTestModal()"><i class="fa-solid fa-trash-can me-1"></i> ลบข้อมูลทดสอบ</button>
-        <button class="btn btn-outline-danger fw-bold rounded-pill px-4 btn-sm shadow-sm" onclick="closeDashboardPage()"><i class="fa-solid fa-arrow-left me-2"></i> กลับหน้าหลัก</button>
+        <button class="btn btn-danger fw-bold rounded-pill px-3 btn-sm shadow-sm" onclick="openClearTestModal()"><i class="fa-solid fa-trash-can me-1"></i> <span data-i18n="dash_btn_del_test">ลบข้อมูลทดสอบ</span></button>
+        <button class="btn btn-outline-danger fw-bold rounded-pill px-4 btn-sm shadow-sm" onclick="closeDashboardPage()"><i class="fa-solid fa-arrow-left me-2"></i> <span data-i18n="btn_back_main">กลับหน้าหลัก</span></button>
       </div>
     </div>
 
@@ -3577,10 +3589,10 @@ function renderMenuGrid() {
 
   <div class="d-flex justify-content-between align-items-center mb-4 py-3 px-3 px-lg-4 sticky-top settings-mobile-header" style="background: inherit; z-index: 1045; margin-top: -20px;">
     <div class="d-flex align-items-center gap-3">
-      <h3 class="fw-bold text-primary m-0"><i class="fa-solid fa-gear me-2"></i> ตั้งค่าระบบ </h3>
-      <button class="btn btn-primary btn-sm fw-bold rounded-pill shadow-sm" onclick="openUISettingsModal()"><i class="fa-solid fa-sliders me-1"></i> ปรับหน้าจอ</button>
+      <h3 class="fw-bold text-primary m-0"><i class="fa-solid fa-gear me-2"></i> <span data-i18n="set_title">ตั้งค่าระบบ</span> </h3>
+      <button class="btn btn-primary btn-sm fw-bold rounded-pill shadow-sm" onclick="openUISettingsModal()"><i class="fa-solid fa-sliders me-1"></i> <span data-i18n="set_btn_ui">ปรับหน้าจอ</span></button>
     </div>
-    <button class="btn btn-outline-danger fw-bold rounded-pill px-4" onclick="closeSettingsPage()"><i class="fa-solid fa-arrow-left me-2"></i> กลับ </button>
+    <button class="btn btn-outline-danger fw-bold rounded-pill px-4" onclick="closeSettingsPage()"><i class="fa-solid fa-arrow-left me-2"></i> <span data-i18n="btn_back">กลับ</span> </button>
   </div>
 
   <div class="container-fluid px-3 px-lg-4 pb-5">
@@ -4680,58 +4692,47 @@ openPOSPage = function() {
 <script>
 const i18n = {
   th: {
-    // 🌟 หน้า Login & Menu
+    // Login & Menu
     "login_title": "SaaS POS System", "login_subtitle": "เข้าสู่ระบบจัดการร้านค้าของคุณ", "login_placeholder_contact": "อีเมล หรือ เบอร์โทรศัพท์", "login_placeholder_pass": "รหัสผ่าน", "login_btn": 'เข้าสู่ระบบ <i class="fa-solid fa-arrow-right ms-2"></i>', "login_forgot": '<i class="fa-solid fa-key text-warning"></i> ลืมรหัส', "login_renew": '<i class="fa-solid fa-bolt-lightning text-success"></i> ต่ออายุ', "login_register": '<i class="fa-solid fa-user-plus text-info"></i> สมัครฟรี', "login_contact": '<i class="fa-brands fa-line fs-5"></i> ติดต่อแอดมิน / แจ้งปัญหา',
     "menu_pos": "ขายสินค้า (POS)", "menu_stock": "คลังสินค้า", "menu_dashboard": "สถิติยอดขาย", "menu_settings": "ตั้งค่าระบบ", "menu_logout": "ล็อกหน้าจอ",
-    
-    // 🌟 หน้า Register, Renew, Reset
-    "reg_title": "เปิดร้านใหม่", "reg_free": "ฟรี 30 วัน", "reg_shop": "ชื่อร้านค้า", "reg_email": "อีเมล (Gmail)", "reg_pass": "ตั้งรหัสผ่าน (ENG/เลข)", "reg_phone": "เบอร์โทรศัพท์", "reg_btn": '<i class="fa-solid fa-paper-plane me-2"></i> สมัครเปิดร้านค้า', "reg_back": '<i class="fa-solid fa-arrow-left me-1"></i> ย้อนกลับไปหน้าเข้าสู่ระบบ',
-    "renew_title": "ต่ออายุ / เติมแพ็กเกจ", "renew_label1": "อีเมล หรือ เบอร์โทรศัพท์ ที่ลงทะเบียน", "renew_placeholder": "กรอกอีเมล หรือ เบอร์โทรศัพท์", "renew_label2": "เลือกแพ็กเกจที่ต้องการ", "renew_btn": '<i class="fa-solid fa-magnifying-glass me-2"></i> ค้นหาร้านค้าและชำระเงิน',
-    "reset_title": "ตั้งรหัสผ่านใหม่", "reset_sub": "กรอกข้อมูลให้ตรงกับที่ลงทะเบียนไว้", "reset_btn": '<i class="fa-solid fa-floppy-disk me-2"></i> บันทึกรหัสผ่านใหม่',
-    
-    // 🌟 หน้า Lock Screen
     "lock_out": '<i class="fa-solid fa-right-from-bracket me-2"></i>ออกจากสาขา', "lock_title": "กรุณาใส่รหัสพนักงาน", "lock_sub": "ระบบถูกล็อกเพื่อความปลอดภัย",
-
-    // 🌟 หน้า POS
-    "pos_title": "ระบบจุดขาย (POS)", "pos_search_placeholder": "ยิงบาร์โค้ด หรือ พิมพ์รหัสแล้วกด Enter...", "pos_cart_title": "รายการสินค้า", "pos_empty_cart": "ยังไม่มีสินค้าในตะกร้า", "pos_clear_cart": "ล้างบิล", "pos_pay_cash": "รับเงินสด", "pos_pay_transfer": "สแกนจ่าย (PromptPay)"
+    
+    // Headers & Buttons
+    "btn_back": "กลับ", "btn_back_main": "กลับหน้าหลัก",
+    "pos_title": "ระบบจุดขาย (POS)", "pos_btn_cfd": "จอลูกค้า", "pos_btn_lock": "ล็อกเครื่อง",
+    "inv_title": "คลังสินค้า", "dash_title": "แผงควบคุมสถิติ (Dashboard)", "dash_btn_del_test": "ลบข้อมูลทดสอบ",
+    "set_title": "ตั้งค่าระบบ", "set_btn_ui": "ปรับหน้าจอ"
   },
   en: {
-    // 🌟 Login & Menu
+    // Login & Menu
     "login_title": "SaaS POS System", "login_subtitle": "Login to manage your store", "login_placeholder_contact": "Email or Phone Number", "login_placeholder_pass": "Password", "login_btn": 'Sign In <i class="fa-solid fa-arrow-right ms-2"></i>', "login_forgot": '<i class="fa-solid fa-key text-warning"></i> Forgot', "login_renew": '<i class="fa-solid fa-bolt-lightning text-success"></i> Renew', "login_register": '<i class="fa-solid fa-user-plus text-info"></i> Register', "login_contact": '<i class="fa-brands fa-line fs-5"></i> Support',
     "menu_pos": "Point of Sale", "menu_stock": "Inventory", "menu_dashboard": "Dashboard", "menu_settings": "Settings", "menu_logout": "Lock Screen",
-    
-    // 🌟 หน้า Register, Renew, Reset
-    "reg_title": "Open New Store", "reg_free": "30 Days Free", "reg_shop": "Store Name", "reg_email": "Email (Gmail)", "reg_pass": "Password (ENG/Num)", "reg_phone": "Phone Number", "reg_btn": '<i class="fa-solid fa-paper-plane me-2"></i> Register Now', "reg_back": '<i class="fa-solid fa-arrow-left me-1"></i> Back to Login',
-    "renew_title": "Renew / Upgrade", "renew_label1": "Registered Email or Phone", "renew_placeholder": "Enter Email or Phone", "renew_label2": "Select Package", "renew_btn": '<i class="fa-solid fa-magnifying-glass me-2"></i> Search & Pay',
-    "reset_title": "Reset Password", "reset_sub": "Enter your registered information", "reset_btn": '<i class="fa-solid fa-floppy-disk me-2"></i> Save Password',
-    
-    // 🌟 หน้า Lock Screen
     "lock_out": '<i class="fa-solid fa-right-from-bracket me-2"></i>Switch Store', "lock_title": "Enter PIN Code", "lock_sub": "System locked for security",
-
-    // 🌟 หน้า POS
-    "pos_title": "Point of Sale (POS)", "pos_search_placeholder": "Scan Barcode or Search...", "pos_cart_title": "Shopping Cart", "pos_empty_cart": "Cart is empty", "pos_clear_cart": "Clear Bill", "pos_pay_cash": "Cash", "pos_pay_transfer": "PromptPay (QR)"
+    
+    // Headers & Buttons
+    "btn_back": "Back", "btn_back_main": "Back to Menu",
+    "pos_title": "Point of Sale (POS)", "pos_btn_cfd": "Customer Display", "pos_btn_lock": "Lock Screen",
+    "inv_title": "Inventory", "dash_title": "Dashboard", "dash_btn_del_test": "Clear Test Data",
+    "set_title": "Settings", "set_btn_ui": "UI Settings"
   }
 };
 
 function changeLanguage(lang) {
-  // บันทึกภาษาลงในเครื่อง (รีเฟรชก็ไม่หาย)
+  // บันทึกภาษาลงในเครื่อง
   localStorage.setItem('pos_lang', lang);
   
-  // 🌟 อัปเดตกล่องเลือกภาษาหลักตัวเดียวจบ
-  let globalSelector = document.getElementById('lang-selector-global');
-  if(globalSelector) globalSelector.value = lang;
+  // 🌟 อัปเดตหน้าตาปุ่มเลือกภาษาทุกจุดให้ซิงค์กัน
+  let loginSelector = document.getElementById('lang-selector-login');
+  let mainSelector = document.getElementById('lang-selector-main');
+  if(loginSelector) loginSelector.value = lang;
+  if(mainSelector) mainSelector.value = lang;
 
   // วิ่งหาคำที่มีแท็ก data-i18n แล้วแปลภาษา
   document.querySelectorAll('[data-i18n]').forEach(el => {
     let key = el.getAttribute('data-i18n');
     if (i18n[lang] && i18n[lang][key]) {
-      // ถ้าเป็นช่องกรอกข้อความ ให้แปลที่ placeholder
-      if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
-        el.placeholder = i18n[lang][key];
-      } else {
-        // ถ้าเป็นข้อความธรรมดาหรือปุ่ม แปลที่ innerHTML
-        el.innerHTML = i18n[lang][key];
-      }
+      if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') el.placeholder = i18n[lang][key];
+      else el.innerHTML = i18n[lang][key];
     }
   });
 }
