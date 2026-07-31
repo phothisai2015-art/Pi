@@ -564,15 +564,31 @@ app.get('/api/superadmin/tenants', (req, res) => {
 
 app.post('/api/superadmin/delete-tenant', (req, res) => {
   const { sheetId } = req.body;
-  db.serialize(() => {
-    db.run(`DELETE FROM tenants WHERE sheet_id = ?`, [sheetId]);
-    db.run(`DELETE FROM users WHERE tenant_id = ?`, [sheetId]);
-    db.run(`DELETE FROM products WHERE tenant_id = ?`, [sheetId]);
-    db.run(`DELETE FROM sales_log WHERE tenant_id = ?`, [sheetId]);
-    db.run(`DELETE FROM settings WHERE tenant_id = ?`, [sheetId]);
-    db.run(`DELETE FROM activity_log WHERE tenant_id = ?`, [sheetId], function(err) {
-      if (err) return res.json({ status: "error", message: err.message });
-      res.json({ status: "success" });
+  
+  // 1. ค้นหารูปภาพสินค้าทั้งหมดของร้านนี้ และสั่งลบออกจากเครื่อง
+  db.all(`SELECT image FROM products WHERE tenant_id = ? AND image IS NOT NULL AND image != ''`, [sheetId], (err, productRows) => {
+    if (productRows) {
+      productRows.forEach(row => deleteLocalImage(row.image));
+    }
+    
+    // 2. ค้นหารูปโลโก้ของร้านนี้ และสั่งลบออกจากเครื่อง
+    db.get(`SELECT value FROM settings WHERE tenant_id = ? AND key = 'shop_logo' AND value IS NOT NULL AND value != ''`, [sheetId], (err, logoRow) => {
+      if (logoRow) {
+        deleteLocalImage(logoRow.value);
+      }
+      
+      // 3. กวาดล้างข้อมูลในฐานข้อมูล (เหมือนระบบเดิม)
+      db.serialize(() => {
+        db.run(`DELETE FROM tenants WHERE sheet_id = ?`, [sheetId]);
+        db.run(`DELETE FROM users WHERE tenant_id = ?`, [sheetId]);
+        db.run(`DELETE FROM products WHERE tenant_id = ?`, [sheetId]);
+        db.run(`DELETE FROM sales_log WHERE tenant_id = ?`, [sheetId]);
+        db.run(`DELETE FROM settings WHERE tenant_id = ?`, [sheetId]);
+        db.run(`DELETE FROM activity_log WHERE tenant_id = ?`, [sheetId], function(err) {
+          if (err) return res.json({ status: "error", message: err.message });
+          res.json({ status: "success" });
+        });
+      });
     });
   });
 });
