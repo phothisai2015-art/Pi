@@ -738,45 +738,5 @@ io.on('connection', (socket) => {
   });
 });
 
-// =================================================================
-// 🤖 API: ระบบ AI Chat Support (Gemini)
-// =================================================================
-const { GoogleGenerativeAI } = require("@google/generative-ai");
-
-// ⚠️ อย่าลืมเอา API Key ของ Gemini มาใส่ตรงนี้นะครับ (สมัครฟรีที่ Google AI Studio)
-const genAI = new GoogleGenerativeAI(""); 
-
-// ใส่ Knowledge Base และ System Prompt ที่เราเตรียมไว้
-const aiSystemPrompt = `
-คุณคือ "AI ผู้ช่วยดูแลลูกค้า" ประจำระบบ POS Management System หน้าที่คุณคือตอบคำถามลูกค้าตามข้อมูลอ้างอิงที่ให้มาเท่านั้น ห้ามเดาข้อมูลเองเด็ดขาด หากไม่รู้ให้บอกว่าให้ติดต่อแอดมินที่ LINE: @yourline
-
-[ข้อมูลคู่มือระบบ POS]
-- หากลืมรหัสผ่าน ให้กด "ลืมรหัส" กรอกอีเมล เบอร์โทร และรหัสผ่านใหม่
-- การต่ออายุ ให้กด "ต่ออายุ" กรอกอีเมล เลือกแพ็กเกจ (เช่น 1 เดือน 150 บาท) โอนเงินแล้วแนบสลิป
-- หน้าจอ POS มี 2 โหมด คือ โหมดสแกนบาร์โค้ด และ โหมดจิ้มรูป
-- การยกเลิกบิลต้องใช้สิทธิ์ ADMIN ทำในเมนูบิลย้อนหลังหน้า POS เท่านั้น สต็อกจะคืนเข้าคลังอัตโนมัติ
-- สินค้าที่หมดสต็อกจะกลายเป็นสีเทาและกดขายไม่ได้
-`;
-
-app.post('/api/ai-chat', async (req, res) => {
-  const { message } = req.body;
-  if (!message) return res.status(400).json({ reply: "กรุณาพิมพ์ข้อความ" });
-
-  try {
-    // ใช้โมเดล gemini-1.5-flash ซึ่งประมวลผลเร็วและเหมาะกับแชท
-    const model = genAI.getGenerativeModel({ 
-        model: "gemini-1.5-flash",
-        systemInstruction: aiSystemPrompt
-    });
-    
-    const result = await model.generateContent(message);
-    const response = await result.response;
-    res.json({ reply: response.text() });
-  } catch (error) {
-    console.error("AI Error:", error);
-    res.json({ reply: "ขออภัยครับ ตอนนี้ระบบ AI ขัดข้องชั่วคราว รบกวนติดต่อแอดมินนะครับ 🙏" });
-  }
-});
-
 // เปลี่ยนจาก app.listen เป็น server.listen
 server.listen(3000, () => console.log('🚀 POS Application Server running on http://localhost:3000'));
