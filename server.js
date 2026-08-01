@@ -47,8 +47,8 @@ const otpStore = {};
 // 🌟 [ฟังก์ชัน] ลบรูปภาพเก่าออกจาก Local Storage อัตโนมัติ
 function deleteLocalImage(imageUrl) {
   if (!imageUrl || !imageUrl.startsWith('/uploads/')) return;
-  const fileName = imageUrl.replace('/uploads/', '');
-  const filePath = path.join(__dirname, 'public', 'uploads', fileName);
+  // แปลง URL ให้ตรงกับ Path จริงในเครื่องแบบเป๊ะๆ รองรับโฟลเดอร์ย่อย
+  const filePath = path.join(__dirname, 'public', imageUrl);
   fs.unlink(filePath, (err) => {
     if (err && err.code !== 'ENOENT') console.error("❌ ลบรูปเก่าล้มเหลว:", err.message);
   });
@@ -183,10 +183,23 @@ app.post('/api/update-bulk-stock', (req, res) => {
 
 app.post('/api/upload-image', (req, res) => {
   try {
-    const { base64Data } = req.body; if (!base64Data || !base64Data.includes(',')) return res.json(base64Data);
-    const matches = base64Data.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/); const ext = matches ? (matches[1].split('/')[1] || 'png') : 'png';
-    const buffer = Buffer.from(matches ? matches[2] : base64Data, 'base64'); const safeName = `img_${Date.now()}_${Math.floor(Math.random()*1000)}.${ext}`;
-    fs.writeFileSync(path.join(__dirname, 'public', 'uploads', safeName), buffer); res.json(`/uploads/${safeName}`);
+    const { tenantId, base64Data } = req.body; // รับรหัสร้านค้า (tenantId) มาด้วย
+    if (!base64Data || !base64Data.includes(',')) return res.json(base64Data);
+    
+    const matches = base64Data.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/); 
+    const ext = matches ? (matches[1].split('/')[1] || 'png') : 'png';
+    const buffer = Buffer.from(matches ? matches[2] : base64Data, 'base64'); 
+    const safeName = `img_${Date.now()}_${Math.floor(Math.random()*1000)}.${ext}`;
+    
+    // สร้างโฟลเดอร์ตามรหัสร้าน (ถ้ายังไม่มี)
+    const shopDir = path.join(__dirname, 'public', 'uploads', tenantId || 'general');
+    if (!fs.existsSync(shopDir)) {
+      fs.mkdirSync(shopDir, { recursive: true });
+    }
+
+    fs.writeFileSync(path.join(shopDir, safeName), buffer); 
+    // คืนค่า Path รูปภาพที่อยู่ตามรหัสโฟลเดอร์ร้าน
+    res.json(`/uploads/${tenantId || 'general'}/${safeName}`);
   } catch(e) { res.json("error: " + e.message); }
 });
 
@@ -420,10 +433,10 @@ app.post(['/api/upload-slip-notify', '/api/upload-quick-renew-slip'], async (req
 	db.run(`UPDATE tenants SET renew_status = 'PENDING' WHERE LOWER(email) = LOWER(?)`, [email]);
     let fileUrl = "";
 
-    // 1. สร้างโฟลเดอร์ public/uploads อัตโนมัติถ้ายังไม่มี
-    const uploadsDir = path.join(__dirname, 'public', 'uploads');
-    if (!fs.existsSync(uploadsDir)) {
-      fs.mkdirSync(uploadsDir, { recursive: true });
+    // 1. สร้างโฟลเดอร์ public/uploads/slip อัตโนมัติ
+    const slipDir = path.join(__dirname, 'public', 'uploads', 'slip');
+    if (!fs.existsSync(slipDir)) {
+      fs.mkdirSync(slipDir, { recursive: true });
     }
 
     // 2. แปลงรูป Base64 และบันทึกลงเครื่อง
@@ -432,8 +445,9 @@ app.post(['/api/upload-slip-notify', '/api/upload-quick-renew-slip'], async (req
       const ext = matches ? (matches[1].split('/')[1] || 'jpg') : 'jpg';
       const buffer = Buffer.from(matches ? matches[2] : base64Data, 'base64'); 
       const safeName = `slip_${Date.now()}_${Math.floor(Math.random()*1000)}.${ext}`;
-      fs.writeFileSync(path.join(uploadsDir, safeName), buffer); 
-      fileUrl = `/uploads/${safeName}`;
+      
+      fs.writeFileSync(path.join(slipDir, safeName), buffer); 
+      fileUrl = `/uploads/slip/${safeName}`;
     }
 
     // 🌟 3. กรองตัวอักษรพิเศษ + ตัดชื่อแพ็กเกจให้เหลือเฉพาะรหัส (เช่น 1M, 3M, 6M, 12M)
@@ -589,31 +603,23 @@ app.get('/api/superadmin/tenants', (req, res) => {
 
 app.post('/api/superadmin/delete-tenant', (req, res) => {
   const { sheetId } = req.body;
-  
-  // 1. ค้นหารูปภาพสินค้าทั้งหมดของร้านนี้ และสั่งลบออกจากเครื่อง
-  db.all(`SELECT image FROM products WHERE tenant_id = ? AND image IS NOT NULL AND image != ''`, [sheetId], (err, productRows) => {
-    if (productRows) {
-      productRows.forEach(row => deleteLocalImage(row.image));
-    }
-    
-    // 2. ค้นหารูปโลโก้ของร้านนี้ และสั่งลบออกจากเครื่อง
-    db.get(`SELECT value FROM settings WHERE tenant_id = ? AND key = 'shop_logo' AND value IS NOT NULL AND value != ''`, [sheetId], (err, logoRow) => {
-      if (logoRow) {
-        deleteLocalImage(logoRow.value);
-      }
-      
-      // 3. กวาดล้างข้อมูลในฐานข้อมูล (เหมือนระบบเดิม)
-      db.serialize(() => {
-        db.run(`DELETE FROM tenants WHERE sheet_id = ?`, [sheetId]);
-        db.run(`DELETE FROM users WHERE tenant_id = ?`, [sheetId]);
-        db.run(`DELETE FROM products WHERE tenant_id = ?`, [sheetId]);
-        db.run(`DELETE FROM sales_log WHERE tenant_id = ?`, [sheetId]);
-        db.run(`DELETE FROM settings WHERE tenant_id = ?`, [sheetId]);
-        db.run(`DELETE FROM activity_log WHERE tenant_id = ?`, [sheetId], function(err) {
-          if (err) return res.json({ status: "error", message: err.message });
-          res.json({ status: "success" });
-        });
-      });
+
+  // 1. ระเบิดโฟลเดอร์รูปภาพของร้านนี้ทิ้งทั้งโฟลเดอร์ (หายเกลี้ยงแน่นอน)
+  const shopDirPath = path.join(__dirname, 'public', 'uploads', sheetId);
+  if (fs.existsSync(shopDirPath)) {
+    fs.rmSync(shopDirPath, { recursive: true, force: true });
+  }
+
+  // 2. กวาดล้างข้อมูลในฐานข้อมูล
+  db.serialize(() => {
+    db.run(`DELETE FROM tenants WHERE sheet_id = ?`, [sheetId]);
+    db.run(`DELETE FROM users WHERE tenant_id = ?`, [sheetId]);
+    db.run(`DELETE FROM products WHERE tenant_id = ?`, [sheetId]);
+    db.run(`DELETE FROM sales_log WHERE tenant_id = ?`, [sheetId]);
+    db.run(`DELETE FROM settings WHERE tenant_id = ?`, [sheetId]);
+    db.run(`DELETE FROM activity_log WHERE tenant_id = ?`, [sheetId], function(err) {
+      if (err) return res.json({ status: "error", message: err.message });
+      res.json({ status: "success" });
     });
   });
 });
