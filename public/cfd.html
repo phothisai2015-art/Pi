@@ -335,6 +335,45 @@
         handleSyncData(data);
       });
     }
+	// 1. พจนานุกรมคำศัพท์สำหรับจอลูกค้า
+const cfdI18n = {
+  th: {
+    cart_title: "รายการสินค้า",
+    total_items: "จำนวนสินค้า",
+    subtotal: "รวมเป็นเงิน",
+    net_total: "ยอดสุทธิ (NET TOTAL)"
+  },
+  en: {
+    cart_title: "Cart Items",
+    total_items: "Total Items",
+    subtotal: "Subtotal",
+    net_total: "NET TOTAL"
+  }
+};
+
+let cfdLang = 'th';
+
+function applyCfdLanguage() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (cfdI18n[cfdLang][key]) {
+      const icon = el.querySelector('i');
+      if (icon) {
+        el.innerHTML = icon.outerHTML + " " + cfdI18n[cfdLang][key];
+      } else {
+        el.innerHTML = cfdI18n[cfdLang][key];
+      }
+    }
+  });
+}
+
+// 2. รับคำสั่งเปลี่ยนภาษาจากเซิร์ฟเวอร์
+socket.on('sync_lang', function(data) {
+  if (data && data.lang) {
+    cfdLang = data.lang;
+    applyCfdLanguage();
+  }
+});
   </script>
 </body>
 </html>
