@@ -520,11 +520,11 @@ function regSendOTP() {
   var shop = document.getElementById('reg-shop').value.trim();
   var email = document.getElementById('reg-email').value.trim();
   var phone = document.getElementById('reg-phone').value.trim();
-  if(!pass || !shop || !email || !phone) return Swal.fire('ผิดพลาด', 'กรอกข้อมูลให้ครบถ้วน', 'warning');
-  Swal.fire({ title: 'กำลังสร้างร้านค้า...', didOpen: () => Swal.showLoading(), allowOutsideClick: false });
+  if(!pass || !shop || !email || !phone) return Swal.fire(i18n[currentLang]['swal_error_title'], i18n[currentLang]['swal_fill_all'], 'warning');
+  Swal.fire({ title: i18n[currentLang]['swal_creating_shop'], didOpen: () => Swal.showLoading(), allowOutsideClick: false });
 
   google.script.run.withSuccessHandler(function(res) {
-    if(res.status === 'error') { Swal.fire('ผิดพลาด', res.message, 'error'); } 
+    if(res.status === 'error') { Swal.fire(i18n[currentLang]['swal_error_title'], res.message, 'error'); } 
     else {
       Swal.close();
       document.getElementById('reg-step-1').style.display = 'none';
@@ -549,17 +549,17 @@ function renewSelectPkg(val, element) {
 function renewSearchShop() {
   var inputVal = document.getElementById('renew-email-input').value.trim();
   var pkgVal = document.getElementById('renew-package').value;
-  if(!inputVal) return Swal.fire('ผิดพลาด', 'กรุณากรอกอีเมล หรือ เบอร์โทรศัพท์', 'warning');
+  if(!inputVal) return Swal.fire(i18n[currentLang]['swal_error_title'], i18n[currentLang]['swal_req_email_phone'], 'warning');
   var pkgSplit = pkgVal.split('|'); globalRenewPkgName = pkgSplit[0]; globalRenewPrice = pkgSplit[1];
-  Swal.fire({ title: 'กำลังค้นหาข้อมูล...', didOpen: () => Swal.showLoading(), allowOutsideClick: false });
+  Swal.fire({ title: i18n[currentLang]['swal_searching'], didOpen: () => Swal.showLoading(), allowOutsideClick: false });
 
   google.script.run.withSuccessHandler(function(res) {
-    if(res.status === 'error') { Swal.fire('ผิดพลาด', res.message, 'error'); } 
+    if(res.status === 'error') { Swal.fire(i18n[currentLang]['swal_error_title'], res.message, 'error'); } 
     else {
       Swal.close();
       globalRenewShop = res.shopName; globalRenewEmail = res.realEmail;
       document.getElementById('renew-show-shop-name').innerText = globalRenewShop;
-      document.getElementById('renew-show-price').innerText = globalRenewPrice + " บาท";
+      document.getElementById('renew-show-price').innerText = globalRenewPrice + " " + (currentLang === 'th' ? "บาท" : "THB");
       document.getElementById('renew-qr-image').src = "https://promptpay.io/" + adminPromptPayForRenew + "/" + globalRenewPrice + ".png";
       document.getElementById('renew-step-search').style.display = 'none';
       document.getElementById('renew-step-pay').style.display = 'block';
@@ -591,11 +591,11 @@ function resetPasswordDirectly() {
   var email = document.getElementById('reset-email').value.trim();
   var phone = document.getElementById('reset-phone').value.trim();
   var newPass = document.getElementById('reset-new-pass').value.trim(); 
-  if(!email || !phone || !newPass) return Swal.fire('ผิดพลาด', 'กรุณากรอกข้อมูลและตั้งรหัสผ่านใหม่ให้ครบถ้วน', 'warning');
-  Swal.fire({ title: 'กำลังตรวจสอบข้อมูล...', didOpen: () => Swal.showLoading(), allowOutsideClick: false });
+  if(!email || !phone || !newPass) return Swal.fire(i18n[currentLang]['swal_error_title'], i18n[currentLang]['swal_req_reset_info'], 'warning');
+  Swal.fire({ title: i18n[currentLang]['swal_checking'], didOpen: () => Swal.showLoading(), allowOutsideClick: false });
 
   google.script.run.withSuccessHandler(function(res) {
-    if(res.status === 'error') { Swal.fire('ผิดพลาด', res.message, 'error'); } 
+    if(res.status === 'error') { Swal.fire(i18n[currentLang]['swal_error_title'], res.message, 'error'); } 
     else {
       Swal.close();
       document.getElementById('reset-step-1').style.display = 'none';

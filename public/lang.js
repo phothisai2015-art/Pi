@@ -57,6 +57,13 @@ var i18n = {
     renew_per_day_4_44: "ตกวันละ 4.44 บ.",
     renew_per_day_4_16: "ตกวันละ 4.16 บ.",
     renew_per_day_3_28: "ตกวันละ 3.28 บ.",
+	swal_error_title: "ผิดพลาด",
+    swal_fill_all: "กรอกข้อมูลให้ครบถ้วน",
+    swal_creating_shop: "กำลังสร้างร้านค้า...",
+    swal_req_email_phone: "กรุณากรอกอีเมล หรือ เบอร์โทรศัพท์",
+    swal_searching: "กำลังค้นหาข้อมูล...",
+    swal_req_reset_info: "กรุณากรอกข้อมูลและตั้งรหัสผ่านใหม่ให้ครบถ้วน",
+    swal_checking: "กำลังตรวจสอบข้อมูล...",
 	// --------------------------------
     // 🖥️ ส่วน HTML: หน้าเมนูหลัก และ Numpad (shop_menu.html)
     // --------------------------------
@@ -164,6 +171,13 @@ var i18n = {
     renew_per_day_4_44: "Only 4.44 ฿/day",
     renew_per_day_4_16: "Only 4.16 ฿/day",
     renew_per_day_3_28: "Only 3.28 ฿/day",
+	swal_error_title: "Error",
+    swal_fill_all: "Please fill in all fields completely",
+    swal_creating_shop: "Creating store...",
+    swal_req_email_phone: "Please enter Email or Phone Number",
+    swal_searching: "Searching for data...",
+    swal_req_reset_info: "Please fill in data and set a new password",
+    swal_checking: "Verifying data...",
 	// --------------------------------
     // 🖥️ HTML Section: Main Menu & Numpad (shop_menu.html)
     // --------------------------------
