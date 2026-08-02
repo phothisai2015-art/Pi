@@ -115,6 +115,12 @@ body.dark-theme .menu-card-btn:hover:not(:disabled) { border-color: #475569; box
 
 <!-- 🌟 หน้าจอล็อกพนักงาน (Numpad & Cats) -->
 <div id="lock-screen">
+  <div style="position: absolute; top: 20px; right: 20px; z-index: 10005;">
+    <select id="lang-selector" onchange="changeLanguage(this.value)" class="form-select form-select-sm shadow-sm border-0 fw-bold text-secondary" style="border-radius: 12px; cursor: pointer; padding: 8px 30px 8px 15px; background-color: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px);">
+      <option value="th">🇹🇭 TH</option>
+      <option value="en">🇬🇧 ENG</option>
+    </select>
+  </div>
   <button class="btn logout-shop-btn" onclick="shopLogout()" data-i18n="btn_logout_shop"><i class="fa-solid fa-right-from-bracket me-2"></i>ออกจากสาขา</button>
 
   <div class="detailed-cat route-cat-black cat-black-coat">
