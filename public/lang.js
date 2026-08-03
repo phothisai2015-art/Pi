@@ -608,7 +608,13 @@ var i18n = {
     set_log_detail_update_shop: "อัปเดตข้อมูลร้านค้า & การพิมพ์",
     set_log_detail_login_success: "ล็อกอินสำเร็จ",
     set_log_detail_logout_manual: "ผู้ใช้กดล็อกหน้าจอ (Manual)",
-    set_log_detail_logout_auto: "ระบบล็อกหน้าจออัตโนมัติ (Idle)"  
+    set_log_detail_logout_auto: "ระบบล็อกหน้าจออัตโนมัติ (Idle)",
+	set_btn_prev: "ก่อนหน้า",
+    set_btn_next: "ถัดไป",
+    set_log_detail_ui_update: "อัปเดตการแสดงผลหน้าจอ (UI)",
+    set_log_action_export: "📥 ดาวน์โหลด Excel",
+    set_log_action_import: "📤 นำเข้า Excel",
+    set_log_detail_export: "ดาวน์โหลดฟอร์มข้อมูลร้านค้าและสินค้า"
 	
   },
   en: {
@@ -1217,7 +1223,13 @@ var i18n = {
     set_log_detail_update_shop: "Updated store info & printing",
     set_log_detail_login_success: "Login successful",
     set_log_detail_logout_manual: "User locked screen (Manual)",
-    set_log_detail_logout_auto: "System auto-locked screen (Idle)"
+    set_log_detail_logout_auto: "System auto-locked screen (Idle)",
+	set_btn_prev: "Previous",
+    set_btn_next: "Next",
+    set_log_detail_ui_update: "Updated display layout (UI)",
+    set_log_action_export: "📥 Export Excel",
+    set_log_action_import: "📤 Import Excel",
+    set_log_detail_export: "Downloaded store and product data form"
   }
 };
 
