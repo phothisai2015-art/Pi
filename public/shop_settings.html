@@ -446,13 +446,28 @@
 
     function saveUserData() {
       let name = document.getElementById('user-name').value.trim(); let pin = document.getElementById('user-pin').value.trim();
+      if(name === "" || pin === "") return Swal.fire(i18n[currentLang]['swal_error_title'], i18n[currentLang]['swal_fill_all'], 'warning');
+      
+      let btn = document.getElementById('btn-save-user');
+      let originalText = btn.innerHTML;
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ${i18n[currentLang]['swal_saving_btn']}`;
+      btn.disabled = true;
+
       let perms = []; document.querySelectorAll('.perm-chk:checked').forEach(chk => perms.push(chk.value));
       let userData = { pin: pin, name: name, permissions: perms.join(',') };
-      google.script.run.withSuccessHandler(function(res) {
+      
+      google.script.run
+      .withSuccessHandler(function(res) {
+        btn.innerHTML = originalText; btn.disabled = false;
         closeUserForm(); loadUsersData(); Swal.fire(i18n[currentLang]['swal_save_success2'], i18n[currentLang]['swal_save_user_success'], 'success');
         let staff = (typeof currentStaff !== 'undefined' && currentStaff.name) ? currentStaff.name : 'Unknown';
         google.script.run.logAction(currentTenantSheetId, staff, "จัดการพนักงาน", "เพิ่ม/แก้ไขพนักงาน PIN: " + pin);
-      }).saveUser(currentTenantSheetId, userData);
+      })
+      .withFailureHandler(function(err) {
+        btn.innerHTML = originalText; btn.disabled = false;
+        Swal.fire(i18n[currentLang]['swal_error_title2'], err.message, 'error');
+      })
+      .saveUser(currentTenantSheetId, userData);
     }
 
     function confirmDeleteUser(pin) {
