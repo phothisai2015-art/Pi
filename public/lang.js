@@ -595,7 +595,20 @@ var i18n = {
     excel_header_prod_5: "สต็อกคงเหลือ",
     excel_header_prod_6: "จุดแจ้งเตือนสต็อก",
     excel_header_prod_7: "หน่วย",
-    excel_header_prod_8: "ลิงก์รูปภาพ (URL เริ่มด้วย http)"
+    excel_header_prod_8: "ลิงก์รูปภาพ (URL เริ่มด้วย http)",
+	set_err_del_self: "คุณไม่สามารถลบตัวเองได้",
+    set_confirm_del_user_title: "ยืนยันการลบพนักงาน",
+    set_confirm_del_user_desc: "ต้องการลบพนักงานรหัส PIN: ",
+    set_log_action_init: "เริ่มต้นระบบ",
+    set_log_action_manage_staff: "จัดการพนักงาน",
+    set_log_action_system_setting: "ตั้งค่าระบบ",
+    set_log_detail_init_success: "ตั้งค่า Admin คนแรกสำเร็จ",
+    set_log_detail_del_staff: "ลบพนักงาน PIN: ",
+    set_log_detail_add_staff: "เพิ่ม/แก้ไขพนักงาน PIN: ",
+    set_log_detail_update_shop: "อัปเดตข้อมูลร้านค้า & การพิมพ์",
+    set_log_detail_login_success: "ล็อกอินสำเร็จ",
+    set_log_detail_logout_manual: "ผู้ใช้กดล็อกหน้าจอ (Manual)",
+    set_log_detail_logout_auto: "ระบบล็อกหน้าจออัตโนมัติ (Idle)"  
 	
   },
   en: {
@@ -1191,7 +1204,20 @@ var i18n = {
     excel_header_prod_5: "สต็อกคงเหลือ",
     excel_header_prod_6: "จุดแจ้งเตือนสต็อก",
     excel_header_prod_7: "หน่วย",
-    excel_header_prod_8: "ลิงก์รูปภาพ (URL เริ่มด้วย http)"
+    excel_header_prod_8: "ลิงก์รูปภาพ (URL เริ่มด้วย http)",
+	set_err_del_self: "You cannot delete yourself.",
+    set_confirm_del_user_title: "Confirm Deletion",
+    set_confirm_del_user_desc: "Do you want to delete staff PIN: ",
+    set_log_action_init: "System Init",
+    set_log_action_manage_staff: "Manage Staff",
+    set_log_action_system_setting: "System Setting",
+    set_log_detail_init_success: "First Admin setup successful",
+    set_log_detail_del_staff: "Deleted staff PIN: ",
+    set_log_detail_add_staff: "Add/Edit staff PIN: ",
+    set_log_detail_update_shop: "Updated store info & printing",
+    set_log_detail_login_success: "Login successful",
+    set_log_detail_logout_manual: "User locked screen (Manual)",
+    set_log_detail_logout_auto: "System auto-locked screen (Idle)"  
   }
 };
 

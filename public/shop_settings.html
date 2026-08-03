@@ -110,6 +110,7 @@
                 <option value="ลบข้อมูลทดสอบ" data-i18n="set_log_clear_test">🗑️ ลบข้อมูลทดสอบ</option>
                 <option value="จัดการพนักงาน" data-i18n="set_log_manage_user">👥 จัดการพนักงาน</option>
                 <option value="ตั้งค่าระบบ" data-i18n="set_log_sys_set">⚙️ ตั้งค่าระบบ</option>
+                <option value="เริ่มต้นระบบ" data-i18n="set_log_action_init">🚀 เริ่มต้นระบบ</option>
               </select>
               <button class="btn btn-sm btn-outline-secondary rounded-3 fw-bold shadow-sm" onclick="loadActivityLogsData()"><i class="fa-solid fa-rotate-right"></i> <span data-i18n="set_btn_refresh">รีเฟรช</span></button>
             </div>
@@ -455,11 +456,28 @@
     }
 
     function confirmDeleteUser(pin) {
-      google.script.run.withSuccessHandler(() => { 
-        loadUsersData(); Swal.fire(i18n[currentLang]['swal_save_success2'], i18n[currentLang]['swal_del_user_success'], 'success'); 
-        let staff = (typeof currentStaff !== 'undefined' && currentStaff.name) ? currentStaff.name : 'Unknown';
-        google.script.run.logAction(currentTenantSheetId, staff, "จัดการพนักงาน", "ลบพนักงาน PIN: " + pin);
-      }).deleteUser(currentTenantSheetId, pin);
+      if (typeof currentStaff !== 'undefined' && currentStaff.pin === pin) {
+          Swal.fire(i18n[currentLang]['swal_error_title2'], i18n[currentLang]['set_err_del_self'], 'error');
+          return;
+      }
+      
+      Swal.fire({
+          title: i18n[currentLang]['set_confirm_del_user_title'],
+          text: i18n[currentLang]['set_confirm_del_user_desc'] + pin + "?",
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#ef4444',
+          confirmButtonText: i18n[currentLang]['swal_btn_delete'],
+          cancelButtonText: i18n[currentLang]['set_btn_cancel']
+      }).then((result) => {
+          if (result.isConfirmed) {
+              google.script.run.withSuccessHandler(() => { 
+                loadUsersData(); Swal.fire(i18n[currentLang]['swal_save_success2'], i18n[currentLang]['swal_del_user_success'], 'success'); 
+                let staff = (typeof currentStaff !== 'undefined' && currentStaff.name) ? currentStaff.name : 'Unknown';
+                google.script.run.logAction(currentTenantSheetId, staff, "จัดการพนักงาน", "ลบพนักงาน PIN: " + pin);
+              }).deleteUser(currentTenantSheetId, pin);
+          }
+      });
     }
 
     function loadActivityLogsData() {
@@ -494,8 +512,8 @@
       tbody.innerHTML = '';
       if (paginatedLogs.length === 0) { tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-muted">${i18n[currentLang]['set_empty_logs']}</td></tr>`; paginationContainer.innerHTML = ''; return; }
       
-      // Map actions for translation
       const actionMap = {
+        "เริ่มต้นระบบ": "set_log_action_init",
         "เข้าสู่ระบบ": "set_log_login",
         "ออกจากระบบ": "set_log_logout",
         "ขายสินค้า": "set_log_sell",
@@ -507,8 +525,22 @@
         "ลบสินค้า": "set_log_del_prod",
         "รับสินค้าเข้า": "set_log_recv_stock",
         "ลบข้อมูลทดสอบ": "set_log_clear_test",
-        "จัดการพนักงาน": "set_log_manage_user",
-        "ตั้งค่าระบบ": "set_log_sys_set"
+        "จัดการพนักงาน": "set_log_action_manage_staff",
+        "ตั้งค่าระบบ": "set_log_action_system_setting",
+        "System Init": "set_log_action_init",
+        "Login": "set_log_login",
+        "Logout": "set_log_logout",
+        "Sell": "set_log_sell",
+        "Void Bill": "set_log_void",
+        "Return Item": "set_log_return",
+        "Reprint Bill": "set_log_reprint",
+        "Add Product": "set_log_add_prod",
+        "Edit Product": "set_log_edit_prod",
+        "Delete Product": "set_log_del_prod",
+        "Receive Stock": "set_log_recv_stock",
+        "Clear Test Data": "set_log_clear_test",
+        "Manage Staff": "set_log_action_manage_staff",
+        "System Setting": "set_log_action_system_setting"
       };
 
       paginatedLogs.forEach(log => {
@@ -516,7 +548,23 @@
         if(actionMap[log.action] && i18n[currentLang][actionMap[log.action]]) {
            displayAction = i18n[currentLang][actionMap[log.action]];
         }
-        tbody.innerHTML += `<tr><td class="text-muted px-3">${log.timestamp}</td><td><span class="badge bg-secondary">${log.staff}</span></td><td><b>${displayAction}</b></td><td class="text-muted">${log.detail}</td></tr>`;
+        
+        let displayDetail = log.detail;
+        if (log.detail === "ตั้งค่า Admin คนแรกสำเร็จ" || log.detail === "First Admin setup successful") displayDetail = i18n[currentLang]['set_log_detail_init_success'];
+        else if (log.detail === "อัปเดตข้อมูลร้านค้า & การพิมพ์" || log.detail === "Updated store info & printing") displayDetail = i18n[currentLang]['set_log_detail_update_shop'];
+        else if (log.detail === "ล็อกอินสำเร็จ" || log.detail === "Login successful") displayDetail = i18n[currentLang]['set_log_detail_login_success'];
+        else if (log.detail === "ผู้ใช้กดล็อกหน้าจอ (Manual)" || log.detail === "User locked screen (Manual)") displayDetail = i18n[currentLang]['set_log_detail_logout_manual'];
+        else if (log.detail === "ระบบล็อกหน้าจออัตโนมัติ (Idle)" || log.detail === "System auto-locked screen (Idle)") displayDetail = i18n[currentLang]['set_log_detail_logout_auto'];
+        else if (log.detail && (log.detail.startsWith("ลบพนักงาน PIN: ") || log.detail.startsWith("Deleted staff PIN: "))) {
+           let pinPart = log.detail.replace("ลบพนักงาน PIN: ", "").replace("Deleted staff PIN: ", "");
+           displayDetail = i18n[currentLang]['set_log_detail_del_staff'] + pinPart;
+        }
+        else if (log.detail && (log.detail.startsWith("เพิ่ม/แก้ไขพนักงาน PIN: ") || log.detail.startsWith("Add/Edit staff PIN: "))) {
+           let pinPart = log.detail.replace("เพิ่ม/แก้ไขพนักงาน PIN: ", "").replace("Add/Edit staff PIN: ", "");
+           displayDetail = i18n[currentLang]['set_log_detail_add_staff'] + pinPart;
+        }
+
+        tbody.innerHTML += `<tr><td class="text-muted px-3">${log.timestamp}</td><td><span class="badge bg-secondary">${log.staff}</span></td><td><b>${displayAction}</b></td><td class="text-muted">${displayDetail}</td></tr>`;
       });
 
       paginationContainer.innerHTML = `<span class="text-muted small">${i18n[currentLang]['set_log_page']}${currentLogPage} / ${totalPages}</span>`;
