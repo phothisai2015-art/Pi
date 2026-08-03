@@ -614,7 +614,11 @@ var i18n = {
     set_log_detail_ui_update: "อัปเดตการแสดงผลหน้าจอ (UI)",
     set_log_action_export: "📥 ดาวน์โหลด Excel",
     set_log_action_import: "📤 นำเข้า Excel",
-    set_log_detail_export: "ดาวน์โหลดฟอร์มข้อมูลร้านค้าและสินค้า"
+    set_log_detail_export: "ดาวน์โหลดฟอร์มข้อมูลร้านค้าและสินค้า",
+	idx_alert_no_data_title: "ข้อมูลไม่ครบ",
+    idx_alert_no_data_desc: "กรุณากรอกข้อมูลให้ครบ",
+    idx_alert_login_fail_title: "ล้มเหลว",
+    idx_alert_conn_fail: "เชื่อมต่อเซิร์ฟเวอร์ไม่ได้"  
 	
   },
   en: {
@@ -1229,7 +1233,11 @@ var i18n = {
     set_log_detail_ui_update: "Updated display layout (UI)",
     set_log_action_export: "📥 Export Excel",
     set_log_action_import: "📤 Import Excel",
-    set_log_detail_export: "Downloaded store and product data form"
+    set_log_detail_export: "Downloaded store and product data form",
+	idx_alert_no_data_title: "Incomplete Data",
+    idx_alert_no_data_desc: "Please fill in all fields",
+    idx_alert_login_fail_title: "Failed",
+    idx_alert_conn_fail: "Could not connect to server"  
   }
 };
 
