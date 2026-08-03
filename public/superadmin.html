@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>Super Admin - POS System</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="https://static.vecteezy.com/system/resources/previews/020/446/804/non_2x/pos-letter-logo-design-on-white-background-pos-creative-circle-letter-logo-concept-pos-letter-design-pos-letter-logo-design-on-white-background-pos-c-vector.jpg">
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        body { font-family: 'Sarabun', sans-serif; background-color: #f8fafc; color: #334155; }
+        .swal2-container { z-index: 999999 !important; }
+    </style>
+
+    <script>
+    // 🌟 ป้องกันการเข้าหน้าเว็บตรงๆ โดยไม่มี Token
+    if (!sessionStorage.getItem('saas_superadmin_token')) {
+        window.location.href = '/';
+    }
+
+    (function() {
+      function callServerApi(prop, args, successCb, failureCb) {
+        const token = sessionStorage.getItem('saas_superadmin_token'); // 🌟 ดึง Token
+
+        let url = ''; 
+        let options = { 
+            method: 'GET', 
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token // 🌟 แนบ Token ทุุกการส่ง
+            } 
+        };
+
+        switch(prop) {
+          case 'getSuperAdminTenants': url = '/api/superadmin/tenants'; break;
+          case 'deleteTenantData': url = '/api/superadmin/delete-tenant'; options.method = 'POST'; options.body = JSON.stringify({ sheetId: args[0] }); break;
+          case 'editTenantAdmin': url = '/api/superadmin/edit-tenant'; options.method = 'POST'; options.body = JSON.stringify(args[0]); break;
+          case 'addTenantAdmin': url = '/api/superadmin/add-tenant'; options.method = 'POST'; options.body = JSON.stringify(args[0]); break;
+          case 'getSuperAdminSettings': url = '/api/superadmin/settings'; break;
+          case 'requestSAOTP': url = '/api/superadmin/request-otp'; options.method = 'POST'; break;
+          case 'updateSASettings': url = '/api/superadmin/update-settings'; options.method = 'POST'; options.body = JSON.stringify(args[0]); break;
+          default: if (successCb) successCb({ status: 'success' }); return;
+        }
+        
+        fetch(url, options)
+          .then(res => {
+              if(res.status === 401 || res.status === 403) {
+                  sessionStorage.removeItem('saas_superadmin_token');
+                  window.location.href = '/'; // หาก Token หมดอายุ เตะออก
+                  throw new Error("Unauthorized");
+              }
+              return res.json();
+          })
+          .then(data => { if (successCb) successCb(data); })
+          .catch(err => { if (failureCb) failureCb(err); });
+      }
+
+      function createGasRunner() {
+        let _success = null; let _failure = null;
+        const handler = {
+          get(target, prop) {
+            if (prop === 'withSuccessHandler') return function(cb) { _success = cb; return new Proxy({}, handler); };
+            if (prop === 'withFailureHandler') return function(cb) { _failure = cb; return new Proxy({}, handler); };
+            return function(...args) { callServerApi(prop, args, _success, _failure); };
+          }
+        }; return new Proxy({}, handler);
+      }
+      window.google = { script: { get run() { return createGasRunner(); } } };
+    })();
+    </script>
+</head>
+<body>
+
+<div style="background: #f8fafc; min-height: 100vh; width: 100%; padding: 20px;">
+   <div class="container" style="max-width: 1200px; margin: 0 auto; padding-top: 20px;">
+      <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+         <h3 class="fw-bold text-danger m-0"><i class="fa-solid fa-user-shield me-2"></i> ศูนย์ควบคุมระบบ (Super Admin)</h3>
+         <div>
+            <button class="btn btn-warning fw-bold rounded-pill px-4 shadow-sm me-2" onclick="openSaSettingsModal()"><i class="fa-solid fa-gear me-2"></i>ตั้งค่าบัญชี</button>
+            <button class="btn btn-success fw-bold rounded-pill px-4 shadow-sm me-2" onclick="openSaAddModal()"><i class="fa-solid fa-plus me-2"></i>สร้างร้านค้าใหม่</button>
+            <button class="btn btn-outline-danger fw-bold rounded-pill px-4 shadow-sm" onclick="logoutSuperAdmin()"><i class="fa-solid fa-arrow-left me-2"></i> ออกจากระบบ</button>
+         </div>
+      </div>
+      
+      <div class="row mb-4 g-3">
+         <div class="col-md-4">
+            <div class="bg-white p-4 rounded-4 shadow-sm border border-danger text-center h-100 d-flex flex-column justify-content-center">
+               <h6 class="text-muted fw-bold mb-2">จำนวนร้านค้าในระบบทั้งหมด</h6>
+               <h1 class="text-danger fw-bold m-0 display-4" id="sa-total-shops">0</h1>
+            </div>
+         </div>
+         <div class="col-md-8">
+            <div class="bg-white p-4 rounded-4 shadow-sm border h-100 d-flex flex-column justify-content-center">
+               <h6 class="text-muted fw-bold mb-3"><i class="fa-solid fa-search"></i> ค้นหาร้านค้า</h6>
+               <input type="text" class="form-control form-control-lg bg-light fw-bold" id="sa-search-shop" placeholder="พิมพ์ชื่อร้าน, อีเมล หรือ เบอร์โทรศัพท์..." oninput="renderSuperAdminTable()">
+            </div>
+         </div>
+      </div>
+
+      <div class="bg-white p-3 rounded-4 shadow-sm border">
+         <div class="table-responsive" style="max-height: 60vh; overflow-y: auto;">
+            <table class="table table-hover align-middle mb-0 text-nowrap">
+               <thead class="table-light sticky-top shadow-sm">
+                  <tr>
+                    <th class="py-3 px-3">รหัสระบบ (Sheet ID)</th>
+                    <th class="py-3">ชื่อร้านค้า / ติดต่อ</th>
+                    <th class="py-3">รหัสผ่าน</th>
+                    <th class="py-3 text-center">วันหมดอายุ</th>
+                    <th class="py-3 text-end pe-3">จัดการ</th>
+                  </tr>
+               </thead>
+               <tbody id="sa-tenant-body">
+                  <tr><td colspan="5" class="text-center py-5">กำลังโหลดข้อมูล...</td></tr>
+               </tbody>
+            </table>
+         </div>
+      </div>
+   </div>
+</div>
+
+<script>
+let globalTenants = [];
+
+window.onload = function() {
+    loadSuperAdminData();
+};
+
+function logoutSuperAdmin() {
+    Swal.fire({
+        title: 'กำลังออกจากระบบ...',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+    });
+    
+    // 🌟 ลบ Token ทิ้งเมื่อล็อกเอาท์
+    sessionStorage.removeItem('saas_superadmin_token');
+    
+    setTimeout(() => {
+        window.location.href = '/';
+    }, 500);
+}
+
+function loadSuperAdminData() {
+   document.getElementById('sa-tenant-body').innerHTML = '<tr><td colspan="5" class="text-center py-5"><i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังโหลดข้อมูล...</td></tr>';
+   google.script.run.withSuccessHandler(data => {
+      globalTenants = data;
+      document.getElementById('sa-total-shops').innerText = data.length;
+      renderSuperAdminTable();
+   }).getSuperAdminTenants();
+}
+
+function renderSuperAdminTable() {
+   let keyword = document.getElementById('sa-search-shop').value.toLowerCase().trim();
+   let filtered = globalTenants.filter(t => (t.shop_name && t.shop_name.toLowerCase().includes(keyword)) || (t.email && t.email.toLowerCase().includes(keyword)) || (t.phone && t.phone.includes(keyword)));
+   const tbody = document.getElementById('sa-tenant-body'); tbody.innerHTML = '';
+   if(filtered.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="text-center py-5 text-muted">ไม่พบข้อมูลร้านค้า</td></tr>'; return; }
+   
+   filtered.forEach(t => {
+      let expDate = new Date(t.expire_date); let today = new Date(); today.setHours(0,0,0,0);
+      let isExpired = expDate < today;
+      let expColor = isExpired ? "text-danger" : "text-success";
+      let expText = isExpired ? `<i class="fa-solid fa-circle-xmark"></i> ${t.expire_date} (หมดอายุ)` : `<i class="fa-solid fa-circle-check"></i> ${t.expire_date}`;
+
+      tbody.innerHTML += `
+        <tr>
+          <td class="px-3"><span class="badge bg-secondary px-3 py-2 rounded-pill">${t.sheet_id}</span></td>
+          <td><b class="text-primary fs-6">${t.shop_name}</b><br><small class="text-muted"><i class="fa-solid fa-envelope"></i> ${t.email} &nbsp;|&nbsp; <i class="fa-solid fa-phone"></i> ${t.phone}</small></td>
+          <td><span class="fw-bold"><i class="fa-solid fa-key text-warning"></i> ${t.password}</span></td>
+          <td class="fw-bold ${expColor} text-center">${expText}</td>
+          <td class="text-end pe-3">
+             <button class="btn btn-sm btn-warning fw-bold shadow-sm rounded-3 px-3 py-2 me-1" onclick="openSaEditModal('${t.sheet_id}', '${t.password}', '${t.expire_date}')"><i class="fa-solid fa-pen me-1"></i> แก้ไข</button>
+             <button class="btn btn-sm btn-danger fw-bold shadow-sm rounded-3 px-3 py-2" onclick="deleteTenantAdmin('${t.sheet_id}', '${t.shop_name}')"><i class="fa-solid fa-trash-can"></i></button>
+          </td>
+        </tr>
+      `;
+   });
+}
+
+function deleteTenantAdmin(sheetId, shopName) {
+   Swal.fire({
+      title: 'ลบร้านค้านี้ถาวร?',
+      html: `คุณกำลังจะลบร้าน <b>${shopName}</b><br><br><div class="alert alert-danger small text-start"><b>คำเตือน:</b> การลบนี้จะลบทิ้งถาวร! (คลังสินค้า, บิล, บัญชี)</div>`,
+      icon: 'warning', showCancelButton: true, confirmButtonColor: '#dc3545', confirmButtonText: '<i class="fa-solid fa-trash"></i> ยืนยันการลบ', cancelButtonText: 'ยกเลิก'
+   }).then(res => {
+      if(res.isConfirmed) {
+         Swal.fire({title:'กำลังกวาดล้างข้อมูล...', allowOutsideClick:false, didOpen:()=>Swal.showLoading()});
+         google.script.run.withSuccessHandler(r => {
+            if(r.status === 'success') { Swal.fire('สำเร็จ', `ลบร้าน ${shopName} เรียบร้อยแล้ว`, 'success'); loadSuperAdminData(); }
+            else { Swal.fire('ผิดพลาด', r.message, 'error'); }
+         }).deleteTenantData(sheetId);
+       }
+   });
+}
+
+function openSaEditModal(sheetId, currentPass, currentExp) {
+   Swal.fire({
+      title: 'แก้ไขข้อมูลร้านค้า',
+      html: `
+         <div class="text-start px-2">
+            <div class="alert alert-info small py-2 mb-3">แก้ไขร้าน: <b>${sheetId}</b></div>
+            <label class="small fw-bold text-muted">รหัสผ่าน (Password)</label>
+            <input type="text" id="sa-edit-pass" class="form-control mb-3 fw-bold text-primary" value="${currentPass}">
+            <label class="small fw-bold text-muted">วันหมดอายุ (เลื่อนวันได้ตามต้องการ)</label>
+            <input type="date" id="sa-edit-exp" class="form-control fw-bold" value="${currentExp}">
+         </div>
+      `,
+      showCancelButton: true, confirmButtonColor: '#0d6efd', confirmButtonText: 'อัปเดตข้อมูล', cancelButtonText: 'ยกเลิก',
+      preConfirm: () => {
+         const password = document.getElementById('sa-edit-pass').value.trim();
+         const expireDate = document.getElementById('sa-edit-exp').value;
+         if(!password || !expireDate) { Swal.showValidationMessage('ห้ามเว้นว่างข้อมูล'); return false; }
+         return { sheetId, password, expireDate };
+      }
+   }).then(res => {
+      if(res.isConfirmed) {
+         Swal.fire({title:'กำลังอัปเดต...', allowOutsideClick:false, didOpen:()=>Swal.showLoading()});
+         google.script.run.withSuccessHandler(r => {
+            if(r.status==='success') { Swal.fire('สำเร็จ','อัปเดตข้อมูลเรียบร้อย','success'); loadSuperAdminData(); }
+            else { Swal.fire('ผิดพลาด', r.message, 'error'); }
+         }).editTenantAdmin(res.value);
+      }
+   });
+}
+
+function openSaAddModal() {
+   const today = new Date(); today.setDate(today.getDate() + 30);
+   const defaultExp = today.toISOString().split('T')[0];
+
+   Swal.fire({
+      title: 'สร้างร้านค้าใหม่',
+      html: `
+         <div class="text-start px-2">
+            <label class="small fw-bold text-muted">ชื่อร้านค้า</label>
+            <input type="text" id="sa-add-name" class="form-control mb-2" placeholder="เช่น ร้านขายดีมินิมาร์ท">
+            <label class="small fw-bold text-muted">อีเมล (ใช้ล็อกอิน)</label>
+            <input type="email" id="sa-add-email" class="form-control mb-2" placeholder="email@gmail.com">
+            <label class="small fw-bold text-muted">เบอร์โทรศัพท์</label>
+            <input type="tel" id="sa-add-phone" class="form-control mb-2" placeholder="08xxxxxxxx">
+            <label class="small fw-bold text-muted">รหัสผ่าน (Password)</label>
+            <input type="text" id="sa-add-pass" class="form-control mb-2" placeholder="ตั้งรหัสผ่านให้ลูกค้า">
+            <label class="small fw-bold text-muted">วันหมดอายุการใช้งาน</label>
+            <input type="date" id="sa-add-exp" class="form-control mb-2" value="${defaultExp}">
+         </div>
+      `,
+      showCancelButton: true, confirmButtonColor: '#198754', confirmButtonText: 'บันทึกร้านค้า', cancelButtonText: 'ยกเลิก',
+      preConfirm: () => {
+         const shopName = document.getElementById('sa-add-name').value.trim();
+         const email = document.getElementById('sa-add-email').value.trim();
+         const phone = document.getElementById('sa-add-phone').value.trim();
+         const password = document.getElementById('sa-add-pass').value.trim();
+         const expireDate = document.getElementById('sa-add-exp').value;
+         if(!shopName || !email || !phone || !password || !expireDate) { Swal.showValidationMessage('กรุณากรอกข้อมูลให้ครบถ้วน'); return false; }
+         return { shopName, email, phone, password, expireDate };
+      }
+   }).then(res => {
+      if(res.isConfirmed) {
+         Swal.fire({title:'กำลังสร้างร้านค้า...', allowOutsideClick:false, didOpen:()=>Swal.showLoading()});
+         google.script.run.withSuccessHandler(r => {
+            if(r.status==='success') { Swal.fire('สำเร็จ','เพิ่มร้านค้าใหม่เข้าสู่ระบบแล้ว','success'); loadSuperAdminData(); }
+            else { Swal.fire('ผิดพลาด', r.message, 'error'); }
+         }).addTenantAdmin(res.value);
+      }
+   });
+}
+
+let currentSAEmail = "";
+let originalSAData = {}; 
+
+function openSaSettingsModal() {
+   Swal.fire({title: 'กำลังโหลดข้อมูล...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
+   
+   google.script.run.withSuccessHandler(sa => {
+      Swal.close();
+      currentSAEmail = sa.email || "";
+      originalSAData = { user: sa.username || 'superadmin', pass: sa.password || '1234', email: currentSAEmail };
+      
+      const isLocked = !currentSAEmail;
+      const lockAttr = isLocked ? 'disabled style="background-color: #f1f5f9; cursor: not-allowed; opacity: 0.7;"' : '';
+      const lockMsg = isLocked ? '<div class="text-danger small fw-bold mb-3 p-2 bg-danger bg-opacity-10 rounded border border-danger"><i class="fa-solid fa-lock me-1"></i> กรุณาผูกอีเมลก่อน เพื่อปลดล็อคการเปลี่ยน Username และ Password</div>' : '';
+
+      Swal.fire({
+         title: 'ตั้งค่าบัญชี Super Admin',
+         html: `
+            <div class="text-start px-2">
+               <div class="alert alert-warning small py-2 mb-2">หากมีการผูกอีเมลไว้ ระบบจะส่ง OTP เพื่อยืนยันการเปลี่ยนแปลงทุกครั้ง<br><br><b>ข้อควรระวัง:</b> หากลบอีเมลออก (ยกเลิกผูก) รหัสผ่านจะถูกรีเซ็ตกลับเป็นค่าเริ่มต้น!</div>
+               ${lockMsg}
+               <label class="small fw-bold text-muted">Username (สำหรับล็อกอิน)</label>
+               <input type="text" id="sa-set-user" class="form-control mb-2 fw-bold text-primary" value="${originalSAData.user}" ${lockAttr}>
+               <label class="small fw-bold text-muted">Password (รหัสผ่าน)</label>
+               <input type="text" id="sa-set-pass" class="form-control mb-3 fw-bold text-primary" value="${originalSAData.pass}" ${lockAttr}>
+               <label class="small fw-bold text-muted">อีเมลผูกบัญชี (แจ้งเตือนล็อกอิน & ยืนยัน OTP)</label>
+               <input type="email" id="sa-set-email" class="form-control fw-bold" placeholder="กรอกอีเมลเพื่อผูกบัญชี (เว้นว่างเพื่อยกเลิก)" value="${originalSAData.email}">
+               <div class="text-muted" style="font-size: 11px; margin-top: 5px;">*เว้นว่างช่องนี้ไว้ หากต้องการยกเลิกผูกอีเมล</div>
+            </div>
+         `,
+         showCancelButton: true, confirmButtonColor: '#0d6efd', confirmButtonText: 'บันทึกการตั้งค่า', cancelButtonText: 'ยกเลิก',
+         preConfirm: () => {
+            const newUsername = document.getElementById('sa-set-user').value.trim();
+            const newPassword = document.getElementById('sa-set-pass').value.trim();
+            const newEmail = document.getElementById('sa-set-email').value.trim();
+            
+            if (newUsername === originalSAData.user && newPassword === originalSAData.pass && newEmail === originalSAData.email) {
+               Swal.showValidationMessage('ไม่มีข้อมูลเปลี่ยนแปลง ไม่สามารถบันทึกได้'); 
+               return false;
+            }
+
+            if (!newUsername || !newPassword) { 
+               if (newEmail !== '') {
+                  Swal.showValidationMessage('ห้ามเว้นว่าง Username และ Password'); 
+                  return false; 
+               }
+            }
+            return { newUsername, newPassword, newEmail };
+         }
+      }).then(res => {
+         if(res.isConfirmed) processSASettingsUpdate(res.value);
+      });
+   }).getSuperAdminSettings();
+}
+
+function processSASettingsUpdate(newData) {
+   if (currentSAEmail && currentSAEmail.trim() !== '') {
+      Swal.fire({title: 'กำลังส่งรหัส OTP...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
+      
+      google.script.run.withSuccessHandler(res => {
+         if (res.status === "success") {
+            Swal.fire({
+               title: 'ยืนยันรหัส OTP',
+               text: `รหัส OTP ส่งไปที่ ${res.email} แล้ว`,
+               input: 'text',
+               inputPlaceholder: 'กรอกรหัส 6 หลัก',
+               showCancelButton: true,
+               confirmButtonText: 'ยืนยัน',
+               showLoaderOnConfirm: true, 
+               allowOutsideClick: false,
+               preConfirm: (otp) => {
+                  if(!otp || otp.length !== 6) { Swal.showValidationMessage('กรุณากรอกรหัส OTP 6 หลัก'); return false; }
+                  
+                  return new Promise((resolve) => {
+                     const payload = { otp: otp, ...newData };
+                     google.script.run.withSuccessHandler(apiRes => {
+                        if(apiRes.status === 'success') resolve(apiRes);
+                        else {
+                           Swal.showValidationMessage(apiRes.message || 'รหัส OTP ไม่ถูกต้อง กรุณาลองใหม่');
+                           resolve(false); 
+                        }
+                     }).updateSASettings(payload);
+                  });
+               }
+            }).then(otpRes => {
+               if(otpRes.isConfirmed && otpRes.value !== false) {
+                  Swal.fire('สำเร็จ', 'อัปเดตข้อมูล Super Admin เรียบร้อย\nระบบได้ส่งข้อมูลใหม่ไปที่อีเมลของคุณแล้ว', 'success');
+               }
+            });
+         } else {
+            executeSAUpdate(newData);
+         }
+      }).requestSAOTP();
+   } else {
+      executeSAUpdate(newData);
+   }
+}
+
+function executeSAUpdate(payload) {
+   Swal.fire({title: 'กำลังบันทึกข้อมูล...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
+   google.script.run.withSuccessHandler(res => {
+      if(res.status === 'success') {
+         Swal.fire('สำเร็จ', 'อัปเดตข้อมูล Super Admin เรียบร้อย\nระบบได้ส่งข้อมูลใหม่ไปที่อีเมลของคุณแล้ว', 'success');
+      } else {
+         Swal.fire('ผิดพลาด', res.message || 'เกิดข้อผิดพลาด', 'error');
+      }
+   }).updateSASettings(payload);
+}
+</script>
+
+</body>
+</html>

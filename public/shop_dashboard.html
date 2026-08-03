@@ -1,0 +1,426 @@
+<!-- ========================================================= -->
+<!-- 📊 ส่วนที่ 4: แผงควบคุมสถิติ (Dashboard) - ฉบับสมบูรณ์         -->
+<!-- ========================================================= -->
+<div id="page-dashboard" style="display: none; background: #f8fafc; height: 100vh; box-sizing: border-box; position: absolute; top: 0; left: 0; width: 100%; z-index: 1040; overflow-y: hidden;">
+  <style>
+    #page-dashboard { padding: 20px 60px 60px 60px; }
+    .dash-chart-box { height: 280px; display: flex; flex-direction: column; }
+    .dash-table-box { height: calc(100vh - 540px); min-height: 300px; display: flex; flex-direction: column; }
+    .dash-box-content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+    .return-item-row { display: flex; align-items: center; gap: 10px; padding: 10px; border-bottom: 1px solid #e2e8f0; }
+    .return-checkbox { width: 22px; height: 22px; cursor: pointer; }
+    .return-qty-input { width: 70px; text-align: center; font-weight: bold; border-radius: 6px; border: 1px solid #cbd5e1; }
+    #del-test-container { background-color: #f8fafc; }
+    body.dark-theme #del-test-container { background-color: #1e293b !important; border-color: #334155 !important; }
+    body.dark-theme #del-test-container .table-light th { background-color: #0f172a !important; color: #f8fafc !important; border-bottom: 1px solid #334155 !important; }
+    body.dark-theme #del-test-container td { border-bottom: 1px solid #334155 !important; color: #f8fafc !important; }
+
+    @media (max-width: 768px) {
+      #page-dashboard { padding: 15px 15px 40px 15px !important; overflow-y: auto !important; height: 100vh !important; }
+      .dash-chart-box { height: 280px !important; } .dash-table-box { height: 400px !important; }
+    }
+    @media (max-width: 768px) and (orientation: portrait) {
+      .dash-header-wrapper { position: sticky; top: -15px; z-index: 1045; background-color: #f8fafc; padding-top: 25px; margin-top: -15px; padding-bottom: 10px; margin-bottom: 10px !important; border-bottom: 1px solid #e2e8f0; }
+      body.dark-theme .dash-header-wrapper { background-color: #0f172a !important; border-bottom-color: #334155 !important; }
+      .dash-title-action { flex-direction: column; align-items: flex-start !important; gap: 10px; margin-bottom: 10px !important; display: flex; }
+      .dash-action-btns { display: flex; width: 100%; gap: 8px; justify-content: space-between; margin-bottom: 5px; }
+      .dash-action-btns button { flex: 1; margin: 0 !important; font-size: 13px !important; padding: 8px 4px !important; text-align: center; }
+      .dash-header-stack { display: flex !important; flex-wrap: wrap !important; gap: 8px !important; padding: 10px !important; flex-direction: row !important; }
+      .dash-date-stack { display: contents !important; } .dash-date-stack > span { display: none !important; }
+      #dash-quick-date { flex: 0 0 35% !important; width: 35% !important; order: 1; margin: 0 !important; font-size: 12px !important; }
+      #page-dashboard .dash-header-stack > .input-group { flex: 0 0 calc(65% - 8px) !important; width: calc(65% - 8px) !important; order: 2; margin: 0 !important; }
+      #dash-start-date { flex: 0 0 calc(50% - 4px) !important; width: calc(50% - 4px) !important; order: 3; margin: 0 !important; font-size: 12px !important; }
+      #dash-end-date { flex: 0 0 calc(50% - 4px) !important; width: calc(50% - 4px) !important; order: 4; margin: 0 !important; font-size: 12px !important; }
+    }
+  </style>
+
+  <div class="dash-header-wrapper">
+    <div class="d-flex justify-content-between align-items-center mb-3 dash-title-action">
+      <h4 class="fw-bold text-dark m-0"><i class="fa-solid fa-chart-pie text-success me-2"></i> แผงควบคุมสถิติ (Dashboard)</h4>
+      <div class="dash-action-btns">
+        <button class="btn btn-danger fw-bold rounded-pill px-3 btn-sm shadow-sm" onclick="openClearTestModal()"><i class="fa-solid fa-trash-can me-1"></i> ลบข้อมูลทดสอบ</button>
+        <button class="btn btn-outline-danger fw-bold rounded-pill px-4 btn-sm shadow-sm" onclick="closeDashboardPage()"><i class="fa-solid fa-arrow-left me-2"></i> กลับหน้าหลัก</button>
+      </div>
+    </div>
+
+    <div class="bg-white p-2 rounded-3 shadow-sm border mb-3 d-flex flex-wrap justify-content-between align-items-center gap-2 dash-header-stack">
+      <div class="d-flex align-items-center gap-2 flex-wrap dash-date-stack">
+        <span class="fw-bold text-muted small ms-2"><i class="fa-solid fa-filter"></i> ช่วงเวลา:</span>
+        <select id="dash-quick-date" class="form-select form-select-sm fw-bold bg-light" style="width: 120px;" onchange="applyQuickDate()">
+          <option value="1">วันนี้ (1 วัน)</option>
+          <option value="7">ย้อนหลัง 7 วัน</option>
+          <option value="30">ย้อนหลัง 30 วัน</option>
+          <option value="all">ทั้งหมด</option>
+          <option value="custom">กำหนดเอง...</option>
+        </select>
+        <input type="date" id="dash-start-date" class="form-control form-control-sm text-muted" style="width: 130px;" onchange="filterDashboardData(true)">
+        <span class="text-muted small">-</span>
+        <input type="date" id="dash-end-date" class="form-control form-control-sm text-muted" style="width: 130px;" onchange="filterDashboardData(true)">
+      </div>
+      <div class="input-group input-group-sm" style="width: 250px;">
+        <span class="input-group-text bg-white text-muted border-end-0"><i class="fa-solid fa-search"></i></span>
+        <input type="text" id="dash-search-bill" class="form-control border-start-0" placeholder="พิมพ์เลขที่บิล..." onkeypress="if(event.key==='Enter') dashSearchBillModal()">
+        <button class="btn btn-dark fw-bold" onclick="dashSearchBillModal()">ค้นหา</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-3">
+    <div class="col-lg-3 col-md-6 col-6"><div class="p-3 rounded-3 shadow-sm text-white" style="background-color: #3b82f6;"><div class="small fw-bold mb-1 opacity-75">ยอดขายรวม</div><h4 class="fw-bold m-0" id="dash-total-all">฿0</h4></div></div>
+    <div class="col-lg-3 col-md-6 col-6"><div class="p-3 rounded-3 shadow-sm text-white" style="background-color: #22c55e;"><div class="small fw-bold mb-1 opacity-75">ยอดขาย (เงินสด)</div><h4 class="fw-bold m-0" id="dash-total-cash">฿0</h4></div></div>
+    <div class="col-lg-3 col-md-6 col-6"><div class="p-3 rounded-3 shadow-sm text-white" style="background-color: #0ea5e9;"><div class="small fw-bold mb-1 opacity-75">ยอดขาย (โอน)</div><h4 class="fw-bold m-0" id="dash-total-transfer">฿0</h4></div></div>
+    <div class="col-lg-3 col-md-6 col-6"><div class="p-3 rounded-3 shadow-sm text-white" style="background-color: #f97316;"><div class="small fw-bold mb-1 opacity-75">จำนวนบิลทั้งหมด</div><h4 class="fw-bold m-0" id="dash-total-bills">0 บิล</h4></div></div>
+  </div>
+
+  <div class="row g-3 mb-3">
+    <div class="col-lg-4">
+      <div class="bg-white p-3 rounded-4 shadow-sm border dash-chart-box">
+        <h6 class="fw-bold text-muted text-center mb-2">สัดส่วนวิธีชำระเงิน</h6>
+        <div class="flex-fill" style="position: relative; min-height: 0; width: 100%;"><canvas id="paymentChart"></canvas></div>
+      </div>
+    </div>
+    <div class="col-lg-8">
+      <div class="bg-white p-3 rounded-4 shadow-sm border dash-chart-box">
+        <h6 class="fw-bold text-muted text-center mb-2">ยอดขายรายวัน</h6>
+        <div class="flex-fill" style="position: relative; min-height: 0; width: 100%;"><canvas id="dailySalesChart"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-lg-6">
+      <div class="bg-white p-3 rounded-4 shadow-sm border dash-table-box">
+        <h6 class="fw-bold text-muted mb-2"><i class="fa-solid fa-clock-rotate-left"></i> ประวัติการขาย (ตามช่วงเวลา)</h6>
+        <div class="dash-box-content mt-2 border rounded-3">
+          <table class="table table-hover align-middle mb-0 text-nowrap small">
+            <thead class="table-light sticky-top"><tr><th class="px-2">วันที่-เวลา</th><th>เลขที่บิล</th><th class="text-end">ยอด</th><th class="text-center px-2">วิธีชำระ</th></tr></thead>
+            <tbody id="dash-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="bg-white p-3 rounded-4 shadow-sm border dash-table-box">
+        <h6 class="fw-bold text-muted mb-2"><i class="fa-solid fa-boxes-packing text-warning"></i> สรุปยอดขายแยกตามสินค้า</h6>
+        <div class="dash-box-content mt-2 border rounded-3">
+          <table class="table table-hover align-middle mb-0 text-nowrap small">
+            <thead class="table-light sticky-top"><tr><th class="text-center">อันดับ</th><th>ชื่อสินค้า</th><th class="text-center">ขายแล้ว</th><th class="text-end pe-3">รายได้รวม</th></tr></thead>
+            <tbody id="dash-item-summary-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let rawSalesData = []; let salesChartInstance = null; let dailySalesChartInstance = null; 
+
+    function openDashboardPage() {
+      document.getElementById('page-dashboard').style.display = 'block';
+      document.getElementById('dash-quick-date').value = "1"; 
+      loadDashboardDataFromServer();
+    }
+    function closeDashboardPage() { document.getElementById('page-dashboard').style.display = 'none'; }
+
+    function loadDashboardDataFromServer() {
+      google.script.run.withSuccessHandler(function(data) {
+        rawSalesData = data; applyQuickDate(); 
+      }).getDashboardData(currentTenantSheetId); 
+    }
+
+    function applyQuickDate() {
+      let mode = document.getElementById('dash-quick-date').value;
+      let startInput = document.getElementById('dash-start-date');
+      let endInput = document.getElementById('dash-end-date');
+      let today = new Date();
+      let getLocalISODate = (d) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+
+      if (mode === "all") { startInput.value = ""; endInput.value = ""; } 
+      else if (mode !== "custom") {
+        let days = parseInt(mode); let startDate = new Date(); startDate.setDate(today.getDate() - (days - 1)); 
+        startInput.value = getLocalISODate(startDate); endInput.value = getLocalISODate(today);
+      }
+      filterDashboardData(false);
+    }
+
+    function filterDashboardData(isManualDate) {
+      if(isManualDate) document.getElementById('dash-quick-date').value = "custom"; 
+      let startStr = document.getElementById('dash-start-date').value;
+      let endStr = document.getElementById('dash-end-date').value;
+      let filtered = rawSalesData;
+
+      if (startStr && endStr) {
+        let startTime = new Date(startStr + "T00:00:00").getTime();
+        let endTime = new Date(endStr + "T23:59:59").getTime();
+        filtered = rawSalesData.filter(sale => {
+          let parts = sale.dateStr.split(' '); let d = parts[0].split('/');
+          let jsDateStr = `${d[2]}-${d[1].padStart(2,'0')}-${d[0].padStart(2,'0')}T${parts[1]}`;
+          let saleTime = new Date(jsDateStr).getTime();
+          return saleTime >= startTime && saleTime <= endTime;
+        });
+      }
+
+      let totalAll = 0, totalCash = 0, totalTransfer = 0;
+      let itemSummaryMap = {}; let dailySalesMap = {};
+
+      filtered.forEach(item => {
+        if (item.receiptId.includes('(ยกเลิก)')) return; 
+        let amt = parseFloat(item.total || 0); totalAll += amt;
+        if (item.method === 'เงินสด') totalCash += amt; else totalTransfer += amt;
+        
+        let dateOnly = item.dateStr.split(' ')[0]; 
+        if (!dailySalesMap[dateOnly]) dailySalesMap[dateOnly] = 0;
+        dailySalesMap[dateOnly] += amt;
+
+        let itemsStrArray = item.items.split(' | ');
+        itemsStrArray.forEach(str => {
+          if (str.startsWith('[หักส่วนลด') || str.startsWith('[คืนแล้ว]')) return; 
+          let match = str.match(/^(.*?)\s*\(x(\d+)(?:\s+(.*?))?\)\s*=\s*([\d\.,]+)\s*บ\./);
+          if (match) {
+            let name = match[1].trim(); let qty = parseInt(match[2]); let unit = match[3] ? match[3].trim() : 'ชิ้น'; let amount = parseFloat(match[4].replace(/,/g, ''));
+            if (!itemSummaryMap[name]) itemSummaryMap[name] = { qty: 0, unit: unit, amount: 0 };
+            itemSummaryMap[name].qty += qty; itemSummaryMap[name].amount += amount;
+          }
+        });
+      });
+
+      document.getElementById('dash-total-all').innerText = `฿${totalAll.toLocaleString()}`;
+      document.getElementById('dash-total-cash').innerText = `฿${totalCash.toLocaleString()}`;
+      document.getElementById('dash-total-transfer').innerText = `฿${totalTransfer.toLocaleString()}`;
+      document.getElementById('dash-total-bills').innerText = `${filtered.filter(f => !f.receiptId.includes('(ยกเลิก)')).length} บิล`;
+
+      let sortedDates = Object.keys(dailySalesMap).sort((a, b) => {
+         let [d1, m1, y1] = a.split('/'); let [d2, m2, y2] = b.split('/');
+         return new Date(`${y1}-${m1}-${d1}`) - new Date(`${y2}-${m2}-${d2}`);
+      });
+      let dailyLabels = []; let dailyData = [];
+      sortedDates.forEach(date => { dailyLabels.push(date.substring(0, 5)); dailyData.push(dailySalesMap[date]); });
+
+      drawChart(totalCash, totalTransfer);
+      drawBarChart(dailyLabels, dailyData); 
+
+      const tbody = document.getElementById('dash-table-body'); tbody.innerHTML = '';
+      filtered.forEach(sale => {
+        let isVoided = sale.receiptId.includes('(ยกเลิก)');
+        let methodBadge = sale.method === 'เงินสด' ? '<span class="badge bg-success rounded-pill px-2">เงินสด</span>' : '<span class="badge bg-info text-white rounded-pill px-2">โอนเงิน</span>';
+        let receiptText = isVoided ? `<span class="text-danger text-decoration-line-through">${sale.receiptId}</span>` : sale.receiptId;
+        tbody.innerHTML += `<tr style="cursor:pointer;" onclick="dashSearchBillModal('${sale.receiptId}')"><td class="px-2">${sale.dateStr.replace('/202', '/2')}</td><td>${receiptText}</td><td class="text-end fw-bold text-primary">฿${sale.total.toLocaleString()}</td><td class="text-center px-2">${methodBadge}</td></tr>`;
+      });
+
+      let summaryArray = Object.keys(itemSummaryMap).map(key => ({ name: key, qty: itemSummaryMap[key].qty, unit: itemSummaryMap[key].unit, amount: itemSummaryMap[key].amount })).sort((a, b) => b.qty - a.qty); 
+      const itemTbody = document.getElementById('dash-item-summary-body'); itemTbody.innerHTML = '';
+      if(summaryArray.length === 0) { itemTbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-muted">ไม่มีข้อมูลสินค้าที่ขายในช่วงเวลานี้</td></tr>'; } 
+      else {
+        summaryArray.forEach((item, index) => {
+          let rankBadge = index < 3 ? `<span class="badge bg-warning text-dark px-2 py-0 rounded-pill">#${index + 1}</span>` : `#${index + 1}`;
+          itemTbody.innerHTML += `<tr><td class="text-center text-muted fw-bold">${rankBadge}</td><td class="fw-bold text-dark text-truncate" style="max-width: 120px;">${item.name}</td><td class="text-center fw-bold text-success">${item.qty.toLocaleString()} <span class="small text-muted fw-normal">${item.unit}</span></td><td class="text-end fw-bold text-primary pe-3">฿${item.amount.toLocaleString()}</td></tr>`;
+        });
+      }
+    }
+
+    function drawChart(cash, transfer) {
+      const ctx = document.getElementById('paymentChart').getContext('2d');
+      if (salesChartInstance) salesChartInstance.destroy(); 
+      salesChartInstance = new Chart(ctx, { type: 'doughnut', data: { labels: ['เงินสด', 'โอนเงิน'], datasets: [{ data: [cash, transfer], backgroundColor: ['#22c55e', '#0ea5e9'] }] }, options: { responsive: true, maintainAspectRatio: false } });
+    }
+
+    function drawBarChart(labels, data) {
+      const ctx = document.getElementById('dailySalesChart').getContext('2d');
+      if (dailySalesChartInstance) dailySalesChartInstance.destroy(); 
+      dailySalesChartInstance = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [{ label: 'ยอดขาย', data: data, backgroundColor: '#3b82f6' }] }, options: { responsive: true, maintainAspectRatio: false } });
+    }
+
+    let currentReturnableItems = [];
+    function dashSearchBillModal(searchId = null) {
+      let keyword = searchId ? searchId : document.getElementById('dash-search-bill').value.toUpperCase().trim();
+      if(keyword === "") return Swal.fire('ข้อมูลไม่ครบ', 'กรุณาใส่เลขที่บิลที่ต้องการค้นหา', 'warning');
+      let found = rawSalesData.find(sale => sale.receiptId.toUpperCase().includes(keyword));
+      if(!found) return Swal.fire({ icon: 'error', title: 'ไม่พบบิล', text: `ไม่มีเลขที่บิล ${keyword} ในระบบ` });
+
+      let isAdmin = (typeof currentStaff !== 'undefined' && currentStaff.permissions && currentStaff.permissions.includes('ADMIN'));
+      let isVoided = found.receiptId.includes('(ยกเลิก)');
+      let itemsHtml = ''; currentReturnableItems = []; 
+      
+      found.items.split(' | ').forEach((str, index) => {
+        if (str.startsWith('[หักส่วนลด') || str.startsWith('[คืนแล้ว]')) {
+          itemsHtml += `<div class="p-2 border-bottom text-start fs-6 text-muted">${str}</div>`;
+        } else {
+          let match = str.match(/^(.*?)\s*\(x(\d+)(?:\s+(.*?))?\)\s*=\s*([\d\.,]+)\s*บ\./);
+          if (match) {
+            let itemName = match[1].trim(); let maxQty = parseInt(match[2]);
+            if (isAdmin && !isVoided) {
+              currentReturnableItems.push({ index: index, name: itemName, maxQty: maxQty });
+              itemsHtml += `<div class="return-item-row"><input type="checkbox" class="return-checkbox form-check-input" id="ret-cb-${index}" value="${index}" onchange="dashToggleReturnInput(${index})"><div class="flex-fill text-start fw-bold fs-6">${str}</div><input type="number" id="ret-qty-${index}" class="return-qty-input" min="1" max="${maxQty}" value="${maxQty}" disabled></div>`;
+            } else { itemsHtml += `<div class="p-2 border-bottom text-start fs-6">${str}</div>`; }
+          }
+        }
+      });
+      
+      let bulkReturnBtn = (isAdmin && !isVoided && currentReturnableItems.length > 0) ? `<button class="btn btn-warning fw-bold flex-fill shadow-sm" onclick="dashProcessBulkReturn('${found.receiptId}')"><i class="fa-solid fa-rotate-left me-1"></i> คืนรายการที่เลือก</button>` : '';
+      let voidBtn = (isAdmin && !isVoided) ? `<button class="btn btn-outline-danger fw-bold flex-fill shadow-sm" onclick="dashConfirmVoidBill('${found.receiptId}')"><i class="fa-solid fa-ban me-1"></i> ยกเลิกทั้งบิล</button>` : '';
+      let reprintBtn = `<button class="btn btn-primary fw-bold flex-fill shadow-sm" onclick="dashReprintBill('${found.receiptId}')"><i class="fa-solid fa-print me-1"></i> พิมพ์บิลซ้ำ</button>`;
+
+      Swal.fire({
+        title: `บิล: ${isVoided ? `<span class="text-danger">${found.receiptId}</span>` : found.receiptId}`,
+        html: `<div class="text-start mb-3"><div class="text-muted fs-6"><i class="fa-solid fa-clock"></i> ${found.dateStr}</div><div class="text-muted fs-6"><i class="fa-solid fa-credit-card"></i> วิธีชำระ: <b class="text-dark">${found.method}</b></div></div><div class="border rounded-3 overflow-hidden mb-3 bg-light"><div class="bg-secondary text-white p-2 text-start fw-bold fs-6">รายการสินค้า</div><div class="bg-white">${itemsHtml}</div></div><div class="text-end fs-5 fw-bold text-dark mb-4">ยอดรวมสุทธิ: <span class="text-primary">฿${parseFloat(found.total).toLocaleString()}</span></div><div class="d-flex gap-2 mt-3">${bulkReturnBtn}</div><div class="d-flex gap-2 mt-2">${voidBtn}${reprintBtn}</div>`,
+        showConfirmButton: false, showCloseButton: true, width: '500px', allowOutsideClick: false
+      });
+    }
+
+    function dashToggleReturnInput(index) { let cb = document.getElementById(`ret-cb-${index}`); document.getElementById(`ret-qty-${index}`).disabled = !cb.checked; }
+
+    function dashProcessBulkReturn(receiptId) {
+      let selectedItems = []; 
+      let checkedBoxes = document.querySelectorAll('.return-checkbox:checked');
+      
+      if (checkedBoxes.length === 0) return Swal.showValidationMessage('กรุณาติ๊กเลือกสินค้าที่ต้องการคืนอย่างน้อย 1 รายการ');
+      
+      let totalQtyToReturn = 0;
+      let isFullReturn = true;
+
+      checkedBoxes.forEach(cb => {
+         let index = parseInt(cb.value); 
+         let returnQty = parseInt(document.getElementById(`ret-qty-${index}`).value);
+         let itemData = currentReturnableItems.find(i => i.index === index);
+         
+         selectedItems.push({ index: index, qty: returnQty, name: itemData.name });
+         totalQtyToReturn += returnQty;
+         
+         if (returnQty !== itemData.maxQty) { isFullReturn = false; }
+      });
+
+      if (checkedBoxes.length !== currentReturnableItems.length) { isFullReturn = false; }
+
+      if (isFullReturn) {
+         Swal.close(); 
+         setTimeout(() => { dashConfirmVoidBill(receiptId); }, 250);
+         return;
+      }
+
+      Swal.fire({
+        title: 'ยืนยันการคืนสินค้า', 
+        html: `คุณต้องการคืนสินค้าจำนวน <b>${selectedItems.length} รายการ</b> (รวม <b>${totalQtyToReturn} ชิ้น</b>) ใช่หรือไม่?`, 
+        icon: 'question',
+        showCancelButton: true, confirmButtonColor: '#f59e0b', confirmButtonText: 'ยืนยันการคืน', cancelButtonText: 'ยกเลิก'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          Swal.fire({ title: 'กำลังประมวลผล...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+          dashExecuteBulkReturnSequential(receiptId, selectedItems, 0);
+        }
+      });
+    }
+
+    function dashExecuteBulkReturnSequential(receiptId, items, currentIndex) {
+       if (currentIndex >= items.length) {
+          Swal.fire({icon:'success', title:'คืนสินค้าสำเร็จ', timer: 1000, showConfirmButton:false});
+          let staff = (typeof currentStaff !== 'undefined' && currentStaff.name) ? currentStaff.name : 'Unknown';
+          google.script.run.logAction(currentTenantSheetId, staff, "คืนสินค้า", "แดชบอร์ด: บิล " + receiptId);
+          if (typeof refreshProductsData === 'function') refreshProductsData(); 
+          loadDashboardDataFromServer(); return;
+       }
+       let currentItem = items[currentIndex];
+       google.script.run.withSuccessHandler(res => {
+          if (res === 'success') dashExecuteBulkReturnSequential(receiptId, items, currentIndex + 1);
+       }).voidPartialItem(currentTenantSheetId, receiptId, currentItem.index, currentItem.qty);
+    }
+
+    function dashConfirmVoidBill(receiptId) {
+      Swal.fire({
+        title: 'ยืนยันยกเลิกบิล', text: `ต้องการยกเลิกบิล ${receiptId} และคืนสต็อกใช่หรือไม่?`, icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', confirmButtonText: 'ยืนยันยกเลิก', cancelButtonText: 'ปิด'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          google.script.run.withSuccessHandler(res => {
+            Swal.fire({ icon: 'success', title: 'ยกเลิกบิลสำเร็จ', timer: 1500, showConfirmButton: false});
+            let staff = (typeof currentStaff !== 'undefined' && currentStaff.name) ? currentStaff.name : 'Unknown';
+            google.script.run.logAction(currentTenantSheetId, staff, "ยกเลิกบิล", "แดชบอร์ด: ยกเลิกบิล " + receiptId);
+            if (typeof refreshProductsData === 'function') refreshProductsData(); 
+            loadDashboardDataFromServer(); 
+          }).voidOrder(currentTenantSheetId, receiptId); 
+        }
+      });
+    }
+
+    function dashReprintBill(receiptId) {
+       let found = rawSalesData.find(sale => sale.receiptId === receiptId); if(!found) return;
+       let reconstructedItems = []; let discount = 0;
+       found.items.split(' | ').forEach(str => {
+          if (str.startsWith('[หักส่วนลด')) { let dMatch = str.match(/หักส่วนลด\s*([\d\.,]+)/); if (dMatch) discount = parseFloat(dMatch[1].replace(/,/g, '')); return; }
+          if (str.startsWith('[คืนแล้ว]')) return; 
+          let match = str.match(/^(.*?)\s*\(x(\d+)(?:\s+(.*?))?\)\s*=\s*([\d\.,]+)\s*บ\./);
+          if (match) { let qty = parseInt(match[2]); if (qty > 0) reconstructedItems.push({ name: match[1].trim(), price: parseFloat(match[4].replace(/,/g, '')) / qty, qty: qty, unit: match[3] ? match[3].trim() : 'ชิ้น' }); }
+       });
+       let receiptData = { receiptId: found.receiptId + ' (พิมพ์ซ้ำ)', date: found.dateStr, seller: "Reprint", customer: "-", items: reconstructedItems, subtotal: parseFloat(found.total) + discount, discount: discount, netTotal: parseFloat(found.total), payment: found.method };
+       
+       let staff = (typeof currentStaff !== 'undefined' && currentStaff.name) ? currentStaff.name : 'Unknown';
+       google.script.run.logAction(currentTenantSheetId, staff, "พิมพ์บิลซ้ำ", "แดชบอร์ด: พิมพ์บิล " + receiptId);
+       Swal.close(); setTimeout(() => { if (typeof openReceipt === "function") { openReceipt(receiptData, cachedShopSettings); setTimeout(() => { window.print(); }, 800); } }, 300);
+    }
+
+    let billsToDelete = [];
+    function openClearTestModal() {
+      const today = new Date().toISOString().split('T')[0]; 
+      Swal.fire({
+        title: '<i class="fa-solid fa-dumpster-fire text-danger"></i> ลบข้อมูลทดสอบ',
+        html: `
+          <div class="text-start">
+            <div class="d-flex align-items-center mb-2 gap-2 w-100">
+              <input type="date" id="del-start" class="form-control form-control-sm" style="flex:1;" value="${today}">
+              <span class="text-muted fw-bold">-</span>
+              <input type="date" id="del-end" class="form-control form-control-sm" style="flex:1;" value="${today}">
+            </div>
+            <button class="btn btn-dark btn-sm fw-bold px-3 w-100 mb-3 shadow-sm" onclick="filterTestBills()"><i class="fa-solid fa-search"></i> ดึงบิล</button>
+            <div class="alert alert-warning small fw-bold mb-2 py-2"><i class="fa-solid fa-triangle-exclamation"></i> การลบนี้จะลบออกจากฐานข้อมูลถาวร (ไม่มีการคืนสต็อก เหมาะสำหรับเคลียร์บิลเทส)</div>
+            <div id="del-test-container" class="border rounded-3 bg-light shadow-inner" style="height: 250px; overflow-y: auto;">
+              <table class="table table-hover small text-nowrap mb-0 bg-white w-100">
+                 <thead class="table-light sticky-top shadow-sm">
+                    <tr><th width="5%"><input type="checkbox" id="del-check-all" onchange="toggleAllDelChecks()"></th><th>วันที่-เวลา</th><th>เลขที่บิล</th><th class="text-end">ยอดรวม</th></tr>
+                 </thead>
+                 <tbody id="del-test-body"><tr><td colspan="4" class="text-center py-4 text-muted">กรุณากดปุ่ม "ดึงบิล"</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        `,
+        width: '600px', showCancelButton: true, confirmButtonColor: '#dc3545', confirmButtonText: '<i class="fa-solid fa-trash"></i> ลบบิลที่เลือกถาวร', cancelButtonText: 'ปิด',
+        preConfirm: () => {
+           let checked = document.querySelectorAll('.del-cb:checked');
+           if(checked.length === 0) { Swal.showValidationMessage('กรุณาติ๊กเลือกบิลอย่างน้อย 1 บิล'); return false; }
+           let targetIds = []; checked.forEach(cb => { let cleanId = cb.value.replace(/\(ยกเลิก\)/g, '').trim(); targetIds.push(cb.value); targetIds.push(cleanId); });
+           return [...new Set(targetIds)];
+        }
+      }).then((res) => { if(res.isConfirmed) confirmDeleteSelected(res.value); });
+    }
+
+    function filterTestBills() {
+      let startStr = document.getElementById('del-start').value; let endStr = document.getElementById('del-end').value;
+      if (!startStr || !endStr) return;
+      let startTime = new Date(startStr + "T00:00:00").getTime(); let endTime = new Date(endStr + "T23:59:59").getTime();
+      billsToDelete = rawSalesData.filter(sale => {
+        let parts = sale.dateStr.split(' '); let d = parts[0].split('/');
+        let jsDateStr = `${d[2]}-${d[1].padStart(2,'0')}-${d[0].padStart(2,'0')}T00:00:00`; 
+        let saleTime = new Date(jsDateStr).getTime(); return saleTime >= startTime && saleTime <= endTime;
+      });
+      const tbody = document.getElementById('del-test-body'); tbody.innerHTML = '';
+      if(billsToDelete.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-4">ไม่พบบิลในช่วงเวลานี้</td></tr>'; return; }
+      billsToDelete.forEach(sale => {
+        tbody.innerHTML += `<tr><td><input type="checkbox" class="del-cb" value="${sale.receiptId}"></td><td class="text-muted">${sale.dateStr}</td><td class="fw-bold">${sale.receiptId}</td><td class="text-end fw-bold text-primary">฿${parseFloat(sale.total).toLocaleString()}</td></tr>`;
+      });
+    }
+
+    function toggleAllDelChecks() { let master = document.getElementById('del-check-all').checked; document.querySelectorAll('.del-cb').forEach(cb => cb.checked = master); }
+
+    function confirmDeleteSelected(receiptIds) {
+       Swal.fire({ title: 'เตือนครั้งสุดท้าย!', text: `ยืนยันการลบบิลออกจากฐานข้อมูลถาวร?`, icon: 'warning', showCancelButton: true, confirmButtonColor: '#dc3545', confirmButtonText: 'ลบทิ้งถาวร', cancelButtonText: 'ยกเลิก' }).then(res => {
+          if(res.isConfirmed) {
+             Swal.fire({title: 'กำลังกวาดล้างข้อมูล...', allowOutsideClick:false, didOpen:() => Swal.showLoading()});
+             google.script.run.withSuccessHandler(response => {
+                if(response.status === 'success') {
+                   let staff = (typeof currentStaff !== 'undefined') ? currentStaff.name : 'Unknown';
+                   google.script.run.logAction(currentTenantSheetId, staff, "ลบข้อมูลทดสอบ", "กวาดล้างบิล " + response.count + " แถว");
+                   Swal.fire('สำเร็จ', `กวาดล้างข้อมูลสำเร็จ (${response.count} แถว)`, 'success'); loadDashboardDataFromServer(); 
+                } else Swal.fire('เกิดข้อผิดพลาด', response.message, 'error'); 
+             }).deleteTestBills(currentTenantSheetId, receiptIds); 
+          }
+       });
+    }
+  </script>
+</div>

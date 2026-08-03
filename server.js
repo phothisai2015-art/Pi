@@ -3,7 +3,8 @@ const path = require('path');
 const fs = require('fs');
 const cors = require('cors');
 const axios = require('axios');
-const nodemailer = require('nodemailer'); // 🌟 เรียกใช้ Nodemailer
+const nodemailer = require('nodemailer'); 
+const jwt = require('jsonwebtoken'); // 🌟 เรียกใช้ JWT
 const db = require('./database');
 
 const http = require('http');
@@ -16,13 +17,42 @@ app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.static(path.join(__dirname, 'public')));
+
+// 🌟 ตั้งค่ารหัสลับสำหรับ Token (ห้ามบอกใคร)
+const SECRET_KEY = "MySuperSecretKey1234!"; 
+
+// ==========================================
+// 🌟 1. ระบบจัดการหน้าเว็บ (Routing)
+// ==========================================
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+app.get('/shop', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'shop.html'));
+});
+
+app.get('/superadmin', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'superadmin.html'));
+});
+
+
+
+// ==========================================
+// 🌟 Routing สำหรับไฟล์ประกอบของหน้า SHOP
+// ==========================================
+app.get('/shop/menu', (req, res) => { res.sendFile(path.join(__dirname, 'public', 'shop_menu.html')); });
+app.get('/shop/pos', (req, res) => { res.sendFile(path.join(__dirname, 'public', 'shop_pos.html')); });
+app.get('/shop/receipt', (req, res) => { res.sendFile(path.join(__dirname, 'public', 'shop_receipt.html')); });
+app.get('/shop/products', (req, res) => { res.sendFile(path.join(__dirname, 'public', 'shop_products.html')); });
+app.get('/shop/dashboard', (req, res) => { res.sendFile(path.join(__dirname, 'public', 'shop_dashboard.html')); });
+app.get('/shop/settings', (req, res) => { res.sendFile(path.join(__dirname, 'public', 'shop_settings.html')); });
 
 db.run(`ALTER TABLE tenants ADD COLUMN renew_status TEXT DEFAULT 'NONE'`, () => {});
 db.run(`ALTER TABLE tenants ADD COLUMN renew_notified INTEGER DEFAULT 1`, () => {});
+
 // 🌟 ตารางตั้งค่า Super Admin
 db.run(`CREATE TABLE IF NOT EXISTS superadmin_settings (key TEXT PRIMARY KEY, value TEXT)`, () => {
-  // ค่าเริ่มต้นตามที่กำหนด (superadmin / 1234 และอีเมลว่างเปล่า)
   const defaults = { username: 'superadmin', password: '1234', email: '' };
   const stmt = db.prepare(`INSERT OR IGNORE INTO superadmin_settings (key, value) VALUES (?, ?)`);
   for (const [k, v] of Object.entries(defaults)) stmt.run(k, v);
@@ -37,24 +67,21 @@ const TELEGRAM_CHAT_ID = "5519991585";
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'my.server.pos.online@gmail.com', // ✏️ เปลี่ยนเป็นอีเมล Gmail ของคุณ
-    pass: 'blfllltvbernypps'     // ✏️ เปลี่ยนเป็นรหัสผ่านแอป 16 หลัก ที่ได้จาก Google
+    user: 'my.server.pos.online@gmail.com', 
+    pass: 'blfllltvbernypps'     
   }
 });
 
 const otpStore = {};
 
-// 🌟 [ฟังก์ชัน] ลบรูปภาพเก่าออกจาก Local Storage อัตโนมัติ
 function deleteLocalImage(imageUrl) {
   if (!imageUrl || !imageUrl.startsWith('/uploads/')) return;
-  // แปลง URL ให้ตรงกับ Path จริงในเครื่องแบบเป๊ะๆ รองรับโฟลเดอร์ย่อย
   const filePath = path.join(__dirname, 'public', imageUrl);
   fs.unlink(filePath, (err) => {
     if (err && err.code !== 'ENOENT') console.error("❌ ลบรูปเก่าล้มเหลว:", err.message);
   });
 }
 
-// 🌟 ฟังก์ชันช่วยแปลงอักขระพิเศษเพื่อป้องกัน Telegram API พัง
 function escapeHtml(text) {
   if (!text) return '';
   return String(text)
@@ -65,7 +92,6 @@ function escapeHtml(text) {
     .replace(/'/g, "&#039;");
 }
 
-// 🌟 อัปเดตฟังก์ชันแจ้งเตือนให้พิมพ์ Error แจ้งให้เราทราบ
 async function sendAdminAlert(message) {
   try { 
     await axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, { 
@@ -80,19 +106,14 @@ async function sendAdminAlert(message) {
 
 app.get('/api/app-info', (req, res) => res.json({ version: "1.0.0" }));
 
-  
 app.post('/api/login-shop', (req, res) => {
   const { contact, password } = req.body;
 
-  // 👑 ระบบดักจับ Super Admin
   db.all(`SELECT key, value FROM superadmin_settings`, [], (err, rows) => {
     const sa = {};
     if (rows) rows.forEach(r => sa[r.key] = r.value);
     
-    // ตรวจสอบ Username และ Password
     if (contact === (sa.username || 'superadmin') && password === (sa.password || '1234')) {
-      
-      // 🌟 ส่งอีเมลแจ้งเตือนเมื่อมีการล็อกอิน (ถ้ามีการผูกอีเมลไว้)
       if (sa.email && sa.email.trim() !== '') {
         const mailOptions = {
           from: transporter.options.auth.user,
@@ -102,10 +123,11 @@ app.post('/api/login-shop', (req, res) => {
         };
         transporter.sendMail(mailOptions).catch(e => console.error("SA Mail Error:", e));
       }
-      return res.json({ status: "superadmin" });
+      // 🌟 สร้าง Token อายุ 1 วัน
+      const token = jwt.sign({ role: 'superadmin' }, SECRET_KEY, { expiresIn: '1d' });
+      return res.json({ status: "superadmin", token: token });
     }
 
-    // เช็คการล็อกอินของร้านค้าปกติ
     db.get(`SELECT * FROM tenants WHERE (LOWER(email) = LOWER(?) OR phone = ?) AND password = ?`, [contact, contact, password], (err, row) => {
       if (err || !row) return res.json({ status: "error", message: "อีเมล/เบอร์โทร หรือรหัสผ่านไม่ถูกต้อง!" });
       if (row.status !== "ACTIVE") return res.json({ status: "error", message: "⚠️ สถานะร้านค้าไม่พร้อมใช้งาน" });
@@ -116,7 +138,7 @@ app.post('/api/login-shop', (req, res) => {
       res.json({ status: "success", sheetId: row.sheet_id, shopName: row.shop_name, daysRemaining });
     }); 
   }); 
-}); // 🌟 จุดนี้ครับที่วงเล็บหายไป
+}); 
 
 app.get('/api/settings/:tenantId', (req, res) => {
   db.all(`SELECT key, value FROM settings WHERE tenant_id = ?`, [req.params.tenantId], (err, rows) => {
@@ -183,7 +205,7 @@ app.post('/api/update-bulk-stock', (req, res) => {
 
 app.post('/api/upload-image', (req, res) => {
   try {
-    const { tenantId, base64Data } = req.body; // รับรหัสร้านค้า (tenantId) มาด้วย
+    const { tenantId, base64Data } = req.body; 
     if (!base64Data || !base64Data.includes(',')) return res.json(base64Data);
     
     const matches = base64Data.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/); 
@@ -191,14 +213,12 @@ app.post('/api/upload-image', (req, res) => {
     const buffer = Buffer.from(matches ? matches[2] : base64Data, 'base64'); 
     const safeName = `img_${Date.now()}_${Math.floor(Math.random()*1000)}.${ext}`;
     
-    // สร้างโฟลเดอร์ตามรหัสร้าน (ถ้ายังไม่มี)
     const shopDir = path.join(__dirname, 'public', 'uploads', tenantId || 'general');
     if (!fs.existsSync(shopDir)) {
       fs.mkdirSync(shopDir, { recursive: true });
     }
 
     fs.writeFileSync(path.join(shopDir, safeName), buffer); 
-    // คืนค่า Path รูปภาพที่อยู่ตามรหัสโฟลเดอร์ร้าน
     res.json(`/uploads/${tenantId || 'general'}/${safeName}`);
   } catch(e) { res.json("error: " + e.message); }
 });
@@ -295,7 +315,6 @@ app.post('/api/log-action', (req, res) => {
 });
 app.get('/api/activity-logs/:tenantId', (req, res) => { db.all(`SELECT timestamp, staff_name as staff, action, detail FROM activity_log WHERE tenant_id = ? ORDER BY id DESC LIMIT 300`, [req.params.tenantId], (err, rows) => res.json(rows || [])); });
 
-// 9. SaaS Master APIs
 function padStr(n) { return String(n).padStart(2, '0'); }
 app.get('/api/tenant-info/:sheetId', (req, res) => {
   db.get(`SELECT email, shop_name as shopName, expire_date, renew_status, renew_notified FROM tenants WHERE sheet_id = ?`, [req.params.sheetId], (err, row) => {
@@ -313,7 +332,6 @@ app.get('/api/tenant-info/:sheetId', (req, res) => {
   });
 });
 
-// 🌟 API สำหรับล้างสถานะ Pop-up เมื่อลูกค้าสลัดปิดแจ้งเตือนแล้ว
 app.post('/api/clear-renew-notify', (req, res) => {
   const { sheetId } = req.body;
   db.run(`UPDATE tenants SET renew_notified = 1 WHERE sheet_id = ?`, [sheetId], () => {
@@ -321,7 +339,6 @@ app.post('/api/clear-renew-notify', (req, res) => {
   });
 });
 
-// 🌟 ปลดล็อก: เปิดใช้งานระบบส่ง OTP สมัครร้านผ่าน Email
 app.post('/api/request-register-otp', (req, res) => {
   const { email, phone } = req.body;
   db.get(`SELECT id FROM tenants WHERE LOWER(email)=LOWER(?) OR phone=?`, [email, phone], (err, row) => {
@@ -341,12 +358,8 @@ app.post('/api/request-register-otp', (req, res) => {
   });
 });
 
-// 🌟 ปลดล็อก: ตรวจสอบ OTP และสร้างร้าน
-// 🌟 ปลดล็อก: สร้างร้านทันทีโดยไม่ต้องใช้ OTP
 app.post('/api/verify-and-create-shop', (req, res) => {
-  const { password, shopName, email, phone } = req.body; // ลบ otp ออกจากการรับค่า
-  
-  // เช็คอีเมลหรือเบอร์โทรซ้ำก่อนสร้างร้าน
+  const { password, shopName, email, phone } = req.body; 
   db.get(`SELECT id FROM tenants WHERE LOWER(email)=LOWER(?) OR phone=?`, [email, phone], (err, row) => {
     if (row) return res.json({ status: "error", message: "Email หรือ เบอร์โทรศัพท์ นี้มีในระบบแล้ว" });
     
@@ -357,22 +370,18 @@ app.post('/api/verify-and-create-shop', (req, res) => {
     db.run(`INSERT INTO tenants (user, password, shop_name, email, phone, sheet_id, status, expire_date) VALUES (?, ?, ?, ?, ?, ?, 'ACTIVE', ?)`,
       [email, password, shopName, email, phone, sheetId, expStr], (err) => {
         if (err) return res.json({ status: "error", message: err.message });
-        
-        // ส่งแจ้งเตือนเข้า Telegram เหมือนเดิม
         sendAdminAlert(`🎉 <b>มีร้านค้าสมัครใหม่!</b>\nอีเมล: ${escapeHtml(email)}\nร้าน: ${escapeHtml(shopName)}\nเบอร์: ${escapeHtml(phone)}`);
-        
         res.json({ status: "success", expireDate: `${padStr(expDate.getDate())}/${padStr(expDate.getMonth()+1)}/${expDate.getFullYear()}` });
       });
   });
 });
 
-// 🌟 ปลดล็อก: เปิดใช้งานระบบส่ง OTP ลืมรหัสผ่าน
 app.post('/api/request-reset-otp', (req, res) => {
   const { email } = req.body;
   db.get(`SELECT email FROM tenants WHERE LOWER(email)=LOWER(?) OR phone=?`, [email, email], (err, row) => {
     if (err || !row) return res.json({ status: "error", message: "ไม่พบ อีเมล หรือ เบอร์โทร นี้ในระบบ" });
     
-    const targetEmail = row.email; // ใช้อีเมลจริงที่เจอในระบบสำหรับส่ง OTP
+    const targetEmail = row.email; 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     otpStore["RES_" + targetEmail] = otp;
 
@@ -388,43 +397,24 @@ app.post('/api/request-reset-otp', (req, res) => {
   });
 });
 
-// 🌟 ปลดล็อก: ระบบรีเซ็ตรหัสผ่านแบบเช็ค อีเมล + เบอร์โทร (ตั้งรหัสเอง)
 app.post('/api/reset-password-direct', (req, res) => {
-  const { email, phone, newPassword } = req.body; // รับค่า newPassword มาด้วย
-  
-  // เช็คว่าอีเมลและเบอร์โทรตรงกับในฐานข้อมูลหรือไม่
+  const { email, phone, newPassword } = req.body; 
   db.get(`SELECT email, shop_name FROM tenants WHERE LOWER(email)=LOWER(?) AND phone=?`, [email, phone], (err, row) => {
     if (err || !row) return res.json({ status: "error", message: "❌ อีเมล หรือ เบอร์โทรศัพท์ ไม่ถูกต้อง" });
-    
-    // อัปเดตรหัสผ่านใหม่ที่ลูกค้าตั้งเองลงฐานข้อมูล
     db.run(`UPDATE tenants SET password = ? WHERE LOWER(email)=LOWER(?) AND phone=?`, [newPassword, email, phone], (err) => {
       if (err) return res.json({ status: "error", message: "เกิดข้อผิดพลาดในการเปลี่ยนรหัส" });
-      
-      // ส่งแค่สถานะสำเร็จและชื่อร้านกลับไป
       res.json({ status: "success", shopName: row.shop_name });
     });
   });
 });
 
 app.post('/api/check-renew-email', (req, res) => {
-  const { email } = req.body; // รับค่ามาซึ่งอาจเป็นได้ทั้ง Email หรือ Phone
+  const { email } = req.body; 
   db.get(`SELECT email, shop_name FROM tenants WHERE LOWER(email)=LOWER(?) OR phone=?`, [email, email], (err, row) => {
     if (err || !row) return res.json({ status: "error", message: "ไม่พบข้อมูลร้านค้าจาก อีเมล หรือ เบอร์โทร นี้" });
-    // ส่งทั้ง shop_name และ email จริงกลับไป (กรณีลูกค้าพิมพ์เบอร์มา จะได้ใช้อีเมลจริงส่งแจ้งเตือนต่อ)
     res.json({ status: "success", shopName: row.shop_name, realEmail: row.email });
   });
 });
-
-const FormData = require('form-data');
-
-// 🌟 ฟังก์ชันแปลงตัวอักษรพิเศษ ป้องกัน Telegram Reject ข้อความ HTML
-function escapeHtml(text) {
-  if (!text) return '';
-  return String(text)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
-}
 
 app.post(['/api/upload-slip-notify', '/api/upload-quick-renew-slip'], async (req, res) => {
   console.log("📥 [API แจ้งสลิป] ได้รับข้อมูลจากอีเมล:", req.body.email);
@@ -433,37 +423,30 @@ app.post(['/api/upload-slip-notify', '/api/upload-quick-renew-slip'], async (req
 	db.run(`UPDATE tenants SET renew_status = 'PENDING' WHERE LOWER(email) = LOWER(?)`, [email]);
     let fileUrl = "";
 
-    // 1. สร้างโฟลเดอร์ public/uploads/slip อัตโนมัติ
     const slipDir = path.join(__dirname, 'public', 'uploads', 'slip');
     if (!fs.existsSync(slipDir)) {
       fs.mkdirSync(slipDir, { recursive: true });
     }
 
-    // 2. แปลงรูป Base64 และบันทึกลงเครื่อง
     if (base64Data && base64Data.includes(',')) {
       const matches = base64Data.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/); 
       const ext = matches ? (matches[1].split('/')[1] || 'jpg') : 'jpg';
       const buffer = Buffer.from(matches ? matches[2] : base64Data, 'base64'); 
       const safeName = `slip_${Date.now()}_${Math.floor(Math.random()*1000)}.${ext}`;
-      
       fs.writeFileSync(path.join(slipDir, safeName), buffer); 
       fileUrl = `/uploads/slip/${safeName}`;
     }
 
-    // 🌟 3. กรองตัวอักษรพิเศษ + ตัดชื่อแพ็กเกจให้เหลือเฉพาะรหัส (เช่น 1M, 3M, 6M, 12M)
     const cleanShop = String(shopName || '-').replace(/[&<>]/g, '');
     const cleanEmail = String(email || '-').trim();
     const cleanPkg = String(pkgName || '1M').split('|')[0].trim(); 
     const cleanPrice = String(price || '0').split('|')[0].trim();
 
-    // 1. เข้ารหัส URL ป้องกันช่องว่างหรือภาษาไทยที่ทำให้ลิงก์ใน Telegram พัง
     const fullSlipUrl = `http://${req.get('host')}${fileUrl}`;
     const safeUrl = encodeURI(fullSlipUrl);
 
-    // 2. สร้างข้อความแจ้งเตือน (ใช้ escapeHtml ป้องกันบั๊ก)
     const message = `💳 <b>แจ้งโอนเงินต่ออายุ</b>\n\n🏢 ร้าน: ${escapeHtml(shopName)}\n📧 อีเมล: ${escapeHtml(email)}\n📦 แพ็กเกจ: ${escapeHtml(pkgName)}\n💰 ยอดเงิน: ${escapeHtml(price)} บาท\n\n📄 <a href="${safeUrl}">คลิกดูสลิปโอนเงิน</a>`;
     
-    // 3. ย่อ callback_data ให้สั้น ป้องกันเกินโควต้า 64 ตัวอักษรของ Telegram
     const approveData = `APPROVE_${cleanPkg}_${cleanEmail}`.substring(0, 64);
     const rejectData = `REJECT_${cleanEmail}`.substring(0, 64);
 
@@ -476,7 +459,6 @@ app.post(['/api/upload-slip-notify', '/api/upload-quick-renew-slip'], async (req
 
     console.log("📤 กำลังส่งแจ้งเตือนเข้า Telegram...");
 
-    // 🌟 6. ยิงส่งเข้า Telegram
     const response = await axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, { 
       chat_id: TELEGRAM_CHAT_ID, 
       text: message, 
@@ -494,7 +476,6 @@ app.post(['/api/upload-slip-notify', '/api/upload-quick-renew-slip'], async (req
     } else {
       console.error(e.message);
     }
-    // ตอบกลับ success หน้าบ้านจะได้ไม่หมุนค้าง
     res.json({ status: "success", note: "telegram_failed" }); 
   }
 });
@@ -525,8 +506,6 @@ async function pollTelegram() {
                 const newExpStr = baseDate.toISOString().split('T')[0];
 
                 db.run(`UPDATE tenants SET expire_date = ?, renew_status = 'NONE', renew_notified = 0 WHERE LOWER(email) = LOWER(?)`, [newExpStr, email], async () => {
-                  
-                  // 🌟 ส่งอีเมลแจ้งเตือนลูกค้าว่าแอดมินอนุมัติแล้ว
                   const mailOptions = {
                     from: transporter.options.auth.user,
                     to: email,
@@ -551,9 +530,6 @@ async function pollTelegram() {
 }
 pollTelegram();
 
-// =================================================================
-// 📥 API: รับข้อมูลจาก Excel เพื่ออัปเดต (Settings & Products)
-// =================================================================
 app.post('/api/import-excel', (req, res) => {
   const { tenantId, payload } = req.body;
   if (!tenantId || !payload) return res.json({ status: "error", message: "ข้อมูลไม่ครบถ้วน" });
@@ -563,7 +539,6 @@ app.post('/api/import-excel', (req, res) => {
     const settings = data.settings || {};
     const products = data.products || [];
 
-    // 1. อัปเดตการตั้งค่าร้านค้า
     if (Object.keys(settings).length > 0) {
       const stmt = db.prepare(`INSERT INTO settings (tenant_id, key, value) VALUES (?, ?, ?) ON CONFLICT(tenant_id, key) DO UPDATE SET value = excluded.value`);
       for (const [key, value] of Object.entries(settings)) {
@@ -572,7 +547,6 @@ app.post('/api/import-excel', (req, res) => {
       stmt.finalize();
     }
 
-    // 2. อัปเดตหรือเพิ่มสินค้าใหม่
     if (products.length > 0) {
       const pStmt = db.prepare(`INSERT INTO products (tenant_id, id, name, price, image, category, stock, min_stock, unit) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(tenant_id, id) DO UPDATE SET name=excluded.name, price=excluded.price, image=excluded.image, category=excluded.category, stock=excluded.stock, min_stock=excluded.min_stock, unit=excluded.unit`);
       products.forEach(p => {
@@ -588,29 +562,39 @@ app.post('/api/import-excel', (req, res) => {
 });
 
 // =================================================================
-// 👑 ระบบ Super Admin (จัดการร้านค้า)
+// 👑 ระบบ Super Admin (จัดการร้านค้า) + ยามรักษาความปลอดภัย JWT
 // =================================================================
-// =================================================================
-// 👑 ระบบ Super Admin (จัดการร้านค้า)
-// =================================================================
-app.get('/api/superadmin/tenants', (req, res) => {
-  // 🌟 เพิ่มการดึง password ออกมาแสดง
+
+// 🌟 ยามรักษาความปลอดภัย (Middleware)
+const verifySuperAdmin = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ status: "error", message: "Unauthorized: ไม่มีสิทธิ์เข้าถึง" });
+    }
+    const token = authHeader.split(" ")[1];
+    jwt.verify(token, SECRET_KEY, (err, decoded) => {
+        if (err || decoded.role !== 'superadmin') {
+            return res.status(403).json({ status: "error", message: "Forbidden: บัตรไม่ถูกต้องหรือหมดอายุ" });
+        }
+        next(); // ผ่านด่านได้
+    });
+};
+
+// 🌟 กั้นกำแพงให้กับ API ของ Super Admin ทุกตัว
+app.get('/api/superadmin/tenants', verifySuperAdmin, (req, res) => {
   db.all(`SELECT id, shop_name, email, phone, password, expire_date, sheet_id, status FROM tenants ORDER BY id DESC`, [], (err, rows) => {
     if (err) return res.json({ status: "error", message: err.message });
     res.json(rows || []);
   });
 });
 
-app.post('/api/superadmin/delete-tenant', (req, res) => {
+app.post('/api/superadmin/delete-tenant', verifySuperAdmin, (req, res) => {
   const { sheetId } = req.body;
-
-  // 1. ระเบิดโฟลเดอร์รูปภาพของร้านนี้ทิ้งทั้งโฟลเดอร์ (หายเกลี้ยงแน่นอน)
   const shopDirPath = path.join(__dirname, 'public', 'uploads', sheetId);
   if (fs.existsSync(shopDirPath)) {
     fs.rmSync(shopDirPath, { recursive: true, force: true });
   }
 
-  // 2. กวาดล้างข้อมูลในฐานข้อมูล
   db.serialize(() => {
     db.run(`DELETE FROM tenants WHERE sheet_id = ?`, [sheetId]);
     db.run(`DELETE FROM users WHERE tenant_id = ?`, [sheetId]);
@@ -624,31 +608,28 @@ app.post('/api/superadmin/delete-tenant', (req, res) => {
   });
 });
 
-// 🌟 API สำหรับแก้ไข รหัสผ่าน และ วันหมดอายุ
-app.post('/api/superadmin/edit-tenant', (req, res) => {
+app.post('/api/superadmin/edit-tenant', verifySuperAdmin, (req, res) => {
   const { sheetId, password, expireDate } = req.body;
   db.run(`UPDATE tenants SET password = ?, expire_date = ? WHERE sheet_id = ?`, [password, expireDate, sheetId], function(err) {
     if (err) return res.json({ status: "error", message: err.message });
     res.json({ status: "success" });
   });
 });
-// =================================================================
-// 👑 API สำหรับตั้งค่าบัญชี Super Admin
-// =================================================================
-app.get('/api/superadmin/settings', (req, res) => {
+
+app.get('/api/superadmin/settings', verifySuperAdmin, (req, res) => {
   db.all(`SELECT key, value FROM superadmin_settings`, [], (err, rows) => {
     const sa = {}; if (rows) rows.forEach(r => sa[r.key] = r.value);
     res.json(sa);
   });
 });
 
-app.post('/api/superadmin/request-otp', (req, res) => {
+app.post('/api/superadmin/request-otp', verifySuperAdmin, (req, res) => {
   db.get(`SELECT value FROM superadmin_settings WHERE key = 'email'`, [], (err, row) => {
     const email = row ? row.value : '';
     if (!email || email.trim() === '') return res.json({ status: "no_email_bound" }); 
     
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    otpStore["SA_OTP"] = otp; // บันทึก OTP ในหน่วยความจำ
+    otpStore["SA_OTP"] = otp; 
 
     const mailOptions = {
       from: transporter.options.auth.user,
@@ -661,33 +642,29 @@ app.post('/api/superadmin/request-otp', (req, res) => {
   });
 });
 
-app.post('/api/superadmin/update-settings', (req, res) => {
+app.post('/api/superadmin/update-settings', verifySuperAdmin, (req, res) => {
   let { otp, newEmail, newUsername, newPassword } = req.body;
   
   db.get(`SELECT value FROM superadmin_settings WHERE key = 'email'`, [], (err, row) => {
     const currentEmail = row ? row.value : '';
     
-    // ตรวจสอบ OTP หากมีการผูกอีเมลเดิมเอาไว้
     if (currentEmail && currentEmail.trim() !== '' && otpStore["SA_OTP"] !== otp) {
       return res.json({ status: "error", message: "รหัส OTP ไม่ถูกต้อง" });
     }
 
-    // 🌟 ข้อ 1: ถ้าลบอีเมลออก (ยกเลิกผูก) ให้บังคับค่ากลับเป็นค่าเริ่มต้นเสมอ
     if (!newEmail || newEmail.trim() === '') {
       newUsername = 'superadmin';
       newPassword = '1234';
     }
 
-    // อัปเดตข้อมูลลงฐานข้อมูล
     const stmt = db.prepare(`UPDATE superadmin_settings SET value = ? WHERE key = ?`);
     stmt.run(newEmail, 'email');
     stmt.run(newUsername, 'username');
     stmt.run(newPassword, 'password');
     stmt.finalize();
     
-    delete otpStore["SA_OTP"]; // เคลียร์ OTP ทิ้งหลังใช้เสร็จ
+    delete otpStore["SA_OTP"]; 
 
-    // 🌟 ข้อ 3 และ 4: หากมีการผูกอีเมลไว้ ให้ส่งข้อมูล Username/Password กลับไปที่อีเมลทันทีเพื่อกันลืม
     if (newEmail && newEmail.trim() !== '') {
       const mailOptions = {
         from: transporter.options.auth.user,
@@ -702,10 +679,7 @@ app.post('/api/superadmin/update-settings', (req, res) => {
   });
 });
 
-
-
-// 🌟 API สำหรับเพิ่มร้านค้าใหม่เอง (แอดมินสร้างให้)
-app.post('/api/superadmin/add-tenant', (req, res) => {
+app.post('/api/superadmin/add-tenant', verifySuperAdmin, (req, res) => {
   const { shopName, email, phone, password, expireDate } = req.body;
   db.get(`SELECT id FROM tenants WHERE LOWER(email)=LOWER(?) OR phone=?`, [email, phone], (err, row) => {
     if (row) return res.json({ status: "error", message: "Email หรือ เบอร์โทรศัพท์ นี้มีคนใช้งานแล้ว" });
@@ -723,13 +697,11 @@ app.post('/api/superadmin/add-tenant', (req, res) => {
 // 🌟 Socket.io: ระบบจอลูกค้าออนไลน์ (CFD)
 // =================================================================
 io.on('connection', (socket) => {
-  // เมื่อ iPad สแกน QR Code จะส่งรหัสร้านมาขอเข้าห้อง
   socket.on('join_shop_room', (shopId) => {
     socket.join(shopId);
     console.log(`📱 จอลูกค้า (CFD) เชื่อมต่อร้าน: ${shopId}`);
   });
 
-  // เมื่อแคชเชียร์ยิงบาร์โค้ด จะส่งข้อมูลมากระจายให้ iPad ในห้องนั้นๆ
   socket.on('update_cfd', (data) => {
     const room = data.shopId;
     if (room) {
@@ -738,45 +710,4 @@ io.on('connection', (socket) => {
   });
 });
 
-// =================================================================
-// 🤖 API: ระบบ AI Chat Support (Gemini)
-// =================================================================
-const { GoogleGenerativeAI } = require("@google/generative-ai");
-
-// ⚠️ อย่าลืมเอา API Key ของ Gemini มาใส่ตรงนี้นะครับ (สมัครฟรีที่ Google AI Studio)
-const genAI = new GoogleGenerativeAI(""); 
-
-// ใส่ Knowledge Base และ System Prompt ที่เราเตรียมไว้
-const aiSystemPrompt = `
-คุณคือ "AI ผู้ช่วยดูแลลูกค้า" ประจำระบบ POS Management System หน้าที่คุณคือตอบคำถามลูกค้าตามข้อมูลอ้างอิงที่ให้มาเท่านั้น ห้ามเดาข้อมูลเองเด็ดขาด หากไม่รู้ให้บอกว่าให้ติดต่อแอดมินที่ LINE: @yourline
-
-[ข้อมูลคู่มือระบบ POS]
-- หากลืมรหัสผ่าน ให้กด "ลืมรหัส" กรอกอีเมล เบอร์โทร และรหัสผ่านใหม่
-- การต่ออายุ ให้กด "ต่ออายุ" กรอกอีเมล เลือกแพ็กเกจ (เช่น 1 เดือน 150 บาท) โอนเงินแล้วแนบสลิป
-- หน้าจอ POS มี 2 โหมด คือ โหมดสแกนบาร์โค้ด และ โหมดจิ้มรูป
-- การยกเลิกบิลต้องใช้สิทธิ์ ADMIN ทำในเมนูบิลย้อนหลังหน้า POS เท่านั้น สต็อกจะคืนเข้าคลังอัตโนมัติ
-- สินค้าที่หมดสต็อกจะกลายเป็นสีเทาและกดขายไม่ได้
-`;
-
-app.post('/api/ai-chat', async (req, res) => {
-  const { message } = req.body;
-  if (!message) return res.status(400).json({ reply: "กรุณาพิมพ์ข้อความ" });
-
-  try {
-    // ใช้โมเดล gemini-1.5-flash ซึ่งประมวลผลเร็วและเหมาะกับแชท
-    const model = genAI.getGenerativeModel({ 
-        model: "gemini-1.5-flash",
-        systemInstruction: aiSystemPrompt
-    });
-    
-    const result = await model.generateContent(message);
-    const response = await result.response;
-    res.json({ reply: response.text() });
-  } catch (error) {
-    console.error("AI Error:", error);
-    res.json({ reply: "ขออภัยครับ ตอนนี้ระบบ AI ขัดข้องชั่วคราว รบกวนติดต่อแอดมินนะครับ 🙏" });
-  }
-});
-
-// เปลี่ยนจาก app.listen เป็น server.listen
 server.listen(3000, () => console.log('🚀 POS Application Server running on http://localhost:3000'));
