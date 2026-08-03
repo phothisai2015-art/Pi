@@ -354,7 +354,30 @@ var i18n = {
     shoplist_err_create_img: "ไม่สามารถสร้างรูปภาพได้: ",
     shoplist_warn_popup_title: "แจ้งเตือน",
     shoplist_warn_popup_desc: "กรุณาอนุญาตให้เปิด Pop-up บนเบราว์เซอร์เพื่อพิมพ์",
-	prod_alert_code: "รหัส: "
+	prod_alert_code: "รหัส: ",
+	// --------------------------------
+    // 🧾 ส่วน: ใบเสร็จรับเงิน (shop_receipt.html)
+    // --------------------------------
+    rc_btn_back_pos: "กลับหน้า POS",
+    rc_btn_print: "พิมพ์ใบเสร็จ",
+    rc_title: "ใบเสร็จรับเงิน / RECEIPT",
+    rc_shop_name_default: "ชื่อร้านค้า",
+    rc_shop_address_default: "ที่อยู่ร้าน...",
+    rc_shop_phone_prefix: "โทร: ",
+    rc_shop_phone_default: "โทร: -",
+    rc_no_label: "เลขที่: ",
+    rc_date_label: "วันที่: ",
+    rc_cashier_label: "พนักงาน (Cashier): ",
+    rc_customer_label: "ลูกค้า: ",
+    rc_table_item: "รายการ",
+    rc_table_qty: "จำนวน",
+    rc_table_total: "รวม",
+    rc_item_price_prefix: "ราคา ",
+    rc_summary_total_qty: "จำนวนรวมทั้งหมด",
+    rc_summary_subtotal: "รวมเป็นเงิน",
+    rc_summary_discount: "ส่วนลด",
+    rc_summary_net: "ยอดสุทธิ (NET)",
+    rc_payment_method: "วิธีชำระ: "
 	
   },
   en: {
@@ -709,7 +732,30 @@ var i18n = {
     shoplist_err_create_img: "Could not create image: ",
     shoplist_warn_popup_title: "Warning",
     shoplist_warn_popup_desc: "Please allow pop-ups on your browser to print.",
-	prod_alert_code: "Code: "
+	prod_alert_code: "Code: ",
+	// --------------------------------
+    // 🧾 Section: Receipt (shop_receipt.html)
+    // --------------------------------
+    rc_btn_back_pos: "Back to POS",
+    rc_btn_print: "Print Receipt",
+    rc_title: "RECEIPT",
+    rc_shop_name_default: "Store Name",
+    rc_shop_address_default: "Store Address...",
+    rc_shop_phone_prefix: "Tel: ",
+    rc_shop_phone_default: "Tel: -",
+    rc_no_label: "Receipt No: ",
+    rc_date_label: "Date: ",
+    rc_cashier_label: "Cashier: ",
+    rc_customer_label: "Customer: ",
+    rc_table_item: "Item",
+    rc_table_qty: "Qty",
+    rc_table_total: "Total",
+    rc_item_price_prefix: "Price ",
+    rc_summary_total_qty: "Total Quantity",
+    rc_summary_subtotal: "Subtotal",
+    rc_summary_discount: "Discount",
+    rc_summary_net: "NET TOTAL",
+    rc_payment_method: "Payment: "
   }
 };
 
