@@ -108,9 +108,11 @@
                 <option value="ลบสินค้า" data-i18n="set_log_del_prod">🗑️ ลบสินค้า</option>
                 <option value="รับสินค้าเข้า" data-i18n="set_log_recv_stock">📥 รับสินค้าเข้า</option>
                 <option value="ลบข้อมูลทดสอบ" data-i18n="set_log_clear_test">🗑️ ลบข้อมูลทดสอบ</option>
-                <option value="จัดการพนักงาน" data-i18n="set_log_manage_user">👥 จัดการพนักงาน</option>
-                <option value="ตั้งค่าระบบ" data-i18n="set_log_sys_set">⚙️ ตั้งค่าระบบ</option>
+                <option value="จัดการพนักงาน" data-i18n="set_log_action_manage_staff">👥 จัดการพนักงาน</option>
+                <option value="ตั้งค่าระบบ" data-i18n="set_log_action_system_setting">⚙️ ตั้งค่าระบบ</option>
                 <option value="เริ่มต้นระบบ" data-i18n="set_log_action_init">🚀 เริ่มต้นระบบ</option>
+                <option value="ดาวน์โหลด Excel" data-i18n="set_log_action_export">📥 ดาวน์โหลด Excel</option>
+                <option value="นำเข้า Excel" data-i18n="set_log_action_import">📤 นำเข้า Excel</option>
               </select>
               <button class="btn btn-sm btn-outline-secondary rounded-3 fw-bold shadow-sm" onclick="loadActivityLogsData()"><i class="fa-solid fa-rotate-right"></i> <span data-i18n="set_btn_refresh">รีเฟรช</span></button>
             </div>
@@ -121,7 +123,7 @@
               <tbody id="activity-log-body"><tr><td colspan="4" class="text-center py-4 text-muted" data-i18n="set_loading_logs">กำลังโหลดข้อมูลประวัติ...</td></tr></tbody>
             </table>
           </div>
-          <div id="log-pagination" class="d-flex justify-content-end align-items-center mt-3 gap-2"></div>
+          <div id="log-pagination" class="d-flex justify-content-between align-items-center mt-3 gap-2 bg-white p-2 rounded-3 border shadow-sm"></div>
         </div>
       </div>
     </div>
@@ -398,7 +400,11 @@
     }
 
     function saveSettings() {
-      const btn = document.getElementById('btn-save-settings'); btn.disabled = true;
+      const btn = document.getElementById('btn-save-settings'); 
+      let originalText = btn.innerHTML;
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ${i18n[currentLang]['swal_saving_btn']}`;
+      btn.disabled = true;
+
       const fileInput = document.getElementById('set-logo-file');
       
       if(fileInput.files.length > 0) {
@@ -406,13 +412,13 @@
         const file = fileInput.files[0]; const reader = new FileReader();
         reader.onload = function(e) {
           google.script.run.withSuccessHandler(function(url) {
-            document.getElementById('set-logo-url').value = url; submitSettingsData(btn);
+            document.getElementById('set-logo-url').value = url; submitSettingsData(btn, originalText);
           }).uploadImageToDrive(currentTenantSheetId, e.target.result, "Logo_" + file.name);
         }; reader.readAsDataURL(file);
-      } else { submitSettingsData(btn); }
+      } else { submitSettingsData(btn, originalText); }
     }
 
-    function submitSettingsData(btn) {
+    function submitSettingsData(btn, originalText) {
       document.getElementById('set-upload-status').innerText = i18n[currentLang]['swal_saving_data'];
       const newSettings = {
         shop_name: document.getElementById('set-shop-name').value, shop_promptpay: document.getElementById('set-promptpay').value,
@@ -421,7 +427,8 @@
         shop_logo: document.getElementById('set-logo-url').value
       };
       google.script.run.withSuccessHandler(() => { 
-        document.getElementById('set-upload-status').innerText = ''; btn.disabled = false;
+        document.getElementById('set-upload-status').innerText = ''; 
+        btn.innerHTML = originalText; btn.disabled = false;
         let staff = (typeof currentStaff !== 'undefined' && currentStaff.name) ? currentStaff.name : 'Unknown';
         google.script.run.logAction(currentTenantSheetId, staff, "ตั้งค่าระบบ", "อัปเดตข้อมูลร้านค้า & การพิมพ์");
         Swal.fire(i18n[currentLang]['swal_save_success2'], i18n[currentLang]['swal_save_setting_success'], 'success'); loadActivityLogsData(); 
@@ -462,6 +469,7 @@
         closeUserForm(); loadUsersData(); Swal.fire(i18n[currentLang]['swal_save_success2'], i18n[currentLang]['swal_save_user_success'], 'success');
         let staff = (typeof currentStaff !== 'undefined' && currentStaff.name) ? currentStaff.name : 'Unknown';
         google.script.run.logAction(currentTenantSheetId, staff, "จัดการพนักงาน", "เพิ่ม/แก้ไขพนักงาน PIN: " + pin);
+        loadActivityLogsData();
       })
       .withFailureHandler(function(err) {
         btn.innerHTML = originalText; btn.disabled = false;
@@ -490,6 +498,7 @@
                 loadUsersData(); Swal.fire(i18n[currentLang]['swal_save_success2'], i18n[currentLang]['swal_del_user_success'], 'success'); 
                 let staff = (typeof currentStaff !== 'undefined' && currentStaff.name) ? currentStaff.name : 'Unknown';
                 google.script.run.logAction(currentTenantSheetId, staff, "จัดการพนักงาน", "ลบพนักงาน PIN: " + pin);
+                loadActivityLogsData();
               }).deleteUser(currentTenantSheetId, pin);
           }
       });
@@ -525,7 +534,11 @@
       const paginatedLogs = filteredLogs.slice(startIndex, startIndex + logsPerPage);
 
       tbody.innerHTML = '';
-      if (paginatedLogs.length === 0) { tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-muted">${i18n[currentLang]['set_empty_logs']}</td></tr>`; paginationContainer.innerHTML = ''; return; }
+      if (paginatedLogs.length === 0) { 
+          tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-muted">${i18n[currentLang]['set_empty_logs']}</td></tr>`; 
+          paginationContainer.innerHTML = ''; 
+          return; 
+      }
       
       const actionMap = {
         "เริ่มต้นระบบ": "set_log_action_init",
@@ -542,6 +555,8 @@
         "ลบข้อมูลทดสอบ": "set_log_clear_test",
         "จัดการพนักงาน": "set_log_action_manage_staff",
         "ตั้งค่าระบบ": "set_log_action_system_setting",
+        "นำเข้า Excel": "set_log_action_import",
+        "ดาวน์โหลด Excel": "set_log_action_export",
         "System Init": "set_log_action_init",
         "Login": "set_log_login",
         "Logout": "set_log_logout",
@@ -555,7 +570,9 @@
         "Receive Stock": "set_log_recv_stock",
         "Clear Test Data": "set_log_clear_test",
         "Manage Staff": "set_log_action_manage_staff",
-        "System Setting": "set_log_action_system_setting"
+        "System Setting": "set_log_action_system_setting",
+        "Import Excel": "set_log_action_import",
+        "Export Excel": "set_log_action_export"
       };
 
       paginatedLogs.forEach(log => {
@@ -567,6 +584,8 @@
         let displayDetail = log.detail;
         if (log.detail === "ตั้งค่า Admin คนแรกสำเร็จ" || log.detail === "First Admin setup successful") displayDetail = i18n[currentLang]['set_log_detail_init_success'];
         else if (log.detail === "อัปเดตข้อมูลร้านค้า & การพิมพ์" || log.detail === "Updated store info & printing") displayDetail = i18n[currentLang]['set_log_detail_update_shop'];
+        else if (log.detail === "อัปเดตการแสดงผลหน้าจอ (UI)") displayDetail = i18n[currentLang]['set_log_detail_ui_update'];
+        else if (log.detail === "ดาวน์โหลดฟอร์มข้อมูลร้านค้าและสินค้า") displayDetail = i18n[currentLang]['set_log_detail_export'];
         else if (log.detail === "ล็อกอินสำเร็จ" || log.detail === "Login successful") displayDetail = i18n[currentLang]['set_log_detail_login_success'];
         else if (log.detail === "ผู้ใช้กดล็อกหน้าจอ (Manual)" || log.detail === "User locked screen (Manual)") displayDetail = i18n[currentLang]['set_log_detail_logout_manual'];
         else if (log.detail === "ระบบล็อกหน้าจออัตโนมัติ (Idle)" || log.detail === "System auto-locked screen (Idle)") displayDetail = i18n[currentLang]['set_log_detail_logout_auto'];
@@ -582,13 +601,28 @@
         tbody.innerHTML += `<tr><td class="text-muted px-3">${log.timestamp}</td><td><span class="badge bg-secondary">${log.staff}</span></td><td><b>${displayAction}</b></td><td class="text-muted">${displayDetail}</td></tr>`;
       });
 
-      paginationContainer.innerHTML = `<span class="text-muted small">${i18n[currentLang]['set_log_page']}${currentLogPage} / ${totalPages}</span>`;
+      let prevDisabled = currentLogPage <= 1 ? 'disabled' : '';
+      let nextDisabled = currentLogPage >= totalPages ? 'disabled' : '';
+
+      paginationContainer.innerHTML = `
+        <button class="btn btn-sm btn-outline-secondary fw-bold" onclick="changeLogPage(${currentLogPage - 1})" ${prevDisabled}>
+          <i class="fa-solid fa-chevron-left"></i> <span data-i18n="set_btn_prev">${i18n[currentLang]['set_btn_prev'] || 'ก่อนหน้า'}</span>
+        </button>
+        <span class="text-muted small mx-3 fw-bold">${i18n[currentLang]['set_log_page']}${currentLogPage} / ${totalPages}</span>
+        <button class="btn btn-sm btn-outline-secondary fw-bold" onclick="changeLogPage(${currentLogPage + 1})" ${nextDisabled}>
+          <span data-i18n="set_btn_next">${i18n[currentLang]['set_btn_next'] || 'ถัดไป'}</span> <i class="fa-solid fa-chevron-right"></i>
+        </button>
+      `;
     }
 
     // ==========================================
     // 📊 ระบบ Export / Import ข้อมูลผ่าน Excel
     // ==========================================
     function exportDataToExcel() {
+      let staff = (typeof currentStaff !== 'undefined' && currentStaff.name) ? currentStaff.name : 'Unknown';
+      google.script.run.logAction(currentTenantSheetId, staff, "ดาวน์โหลด Excel", "ดาวน์โหลดฟอร์มข้อมูลร้านค้าและสินค้า");
+      loadActivityLogsData();
+      
       Swal.fire({ title: i18n[currentLang]['swal_prep_excel'], didOpen: () => Swal.showLoading(), allowOutsideClick: false });
       
       try {
@@ -736,6 +770,7 @@
                 Swal.fire(i18n[currentLang]['swal_update_success_title'], i18n[currentLang]['swal_update_success_desc'], 'success').then(() => {
                   loadShopData(currentTenantSheetId); 
                   refreshProductsData(); 
+                  loadActivityLogsData();
                 });
               } else {
                 Swal.fire(i18n[currentLang]['swal_err_server'], res.message, 'error');
@@ -945,7 +980,10 @@
           Object.assign(cachedShopSettings, newSettings); applyUISettings();
           document.getElementById('ui-settings-modal').style.display = 'none';
           btn.innerHTML = `<i class="fa-solid fa-floppy-disk me-2"></i> ${i18n[currentLang]['ui_btn_save']}`; btn.disabled = false;
+          let staff = (typeof currentStaff !== 'undefined' && currentStaff.name) ? currentStaff.name : 'Unknown';
+          google.script.run.logAction(currentTenantSheetId, staff, "ตั้งค่าระบบ", "อัปเดตการแสดงผลหน้าจอ (UI)");
           Swal.fire({icon: 'success', title: i18n[currentLang]['swal_save_success2'], timer: 1000, showConfirmButton: false});
+          loadActivityLogsData();
       }).updateShopSettings(currentTenantSheetId, newSettings);
   }
 
