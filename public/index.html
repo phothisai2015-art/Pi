@@ -503,7 +503,14 @@ function processSaaSLogin() {
           window.location.href = '/superadmin'; 
           return; 
       }
-      if (res.status === "error") { Swal.fire({ icon: 'error', title: i18n[currentLang]['idx_alert_login_fail_title'] || 'ล้มเหลว', text: res.message }); } 
+      if (res.status === "error") { 
+          let errorMsg = res.message;
+          // 🌟 ดักจับข้อความ Error จากเซิร์ฟเวอร์แล้วแปลภาษา
+          if (errorMsg === "อีเมล/เบอร์โทร หรือรหัสผ่านไม่ถูกต้อง!") {
+              errorMsg = i18n[currentLang]['idx_alert_login_wrong_cred'] || errorMsg;
+          }
+          Swal.fire({ icon: 'error', title: i18n[currentLang]['idx_alert_login_fail_title'] || 'ล้มเหลว', text: errorMsg }); 
+      } 
       else {
           localStorage.setItem('saas_tenant_id', res.sheetId);
           localStorage.setItem('saas_shop_name', res.shopName);
