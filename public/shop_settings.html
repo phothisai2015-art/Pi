@@ -13,10 +13,10 @@
 
   <div class="d-flex justify-content-between align-items-center mb-4 py-3 px-3 px-lg-4 sticky-top settings-mobile-header" style="background: inherit; z-index: 1045; margin-top: -20px;">
     <div class="d-flex align-items-center gap-3">
-      <h3 class="fw-bold text-primary m-0"><i class="fa-solid fa-gear me-2"></i> ตั้งค่าระบบ </h3>
-      <button class="btn btn-primary btn-sm fw-bold rounded-pill shadow-sm" onclick="openUISettingsModal()"><i class="fa-solid fa-sliders me-1"></i> ปรับหน้าจอ</button>
+      <h3 class="fw-bold text-primary m-0" data-i18n="set_header_title"><i class="fa-solid fa-gear me-2"></i> ตั้งค่าระบบ </h3>
+      <button class="btn btn-primary btn-sm fw-bold rounded-pill shadow-sm" onclick="openUISettingsModal()"><i class="fa-solid fa-sliders me-1"></i> <span data-i18n="set_btn_ui">ปรับหน้าจอ</span></button>
     </div>
-    <button class="btn btn-outline-danger fw-bold rounded-pill px-4" onclick="closeSettingsPage()"><i class="fa-solid fa-arrow-left me-2"></i> กลับ </button>
+    <button class="btn btn-outline-danger fw-bold rounded-pill px-4" onclick="closeSettingsPage()"><i class="fa-solid fa-arrow-left me-2"></i> <span data-i18n="set_btn_back">กลับ</span> </button>
   </div>
 
   <div class="container-fluid px-3 px-lg-4 pb-5">
@@ -25,30 +25,30 @@
         <div class="p-3 p-lg-4 rounded-4 shadow-sm border mb-4" style="background: linear-gradient(135deg, #1e293b, #0f172a);">
           <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
             <div>
-              <h5 class="fw-bold text-warning mb-2"><i class="fa-solid fa-crown me-2"></i> แพ็กเกจร้านค้า</h5>
-              <p class="mb-1 text-light small">ใช้งานได้ถึง: <span id="setting-exp-date" class="fw-bold text-white fs-6">กำลังเชื่อมต่อ...</span></p>
-              <p class="mb-0 text-light small">เหลือเวลา: <span id="setting-exp-days" class="fw-bold text-warning fs-5">...</span><span class="ms-1">วัน</span></p>
+              <h5 class="fw-bold text-warning mb-2" data-i18n="set_pkg_title"><i class="fa-solid fa-crown me-2"></i> แพ็กเกจร้านค้า</h5>
+              <p class="mb-1 text-light small"><span data-i18n="set_pkg_valid_until">ใช้งานได้ถึง: </span><span id="setting-exp-date" class="fw-bold text-white fs-6" data-i18n="set_pkg_connecting">กำลังเชื่อมต่อ...</span></p>
+              <p class="mb-0 text-light small"><span data-i18n="set_pkg_remaining">เหลือเวลา: </span><span id="setting-exp-days" class="fw-bold text-warning fs-5">...</span><span class="ms-1" data-i18n="set_pkg_days">วัน</span></p>
             </div>
             <button id="btn-open-renew" class="btn btn-warning fw-bold rounded-pill shadow px-4 py-2" onclick="openQuickRenewModal()" disabled>
-              <i class="fa-solid fa-bolt text-danger me-1"></i> ต่ออายุทันที
+              <i class="fa-solid fa-bolt text-danger me-1"></i> <span data-i18n="set_btn_renew_now">ต่ออายุทันที</span>
             </button>
           </div>
         </div>
 
         <div class="bg-white p-3 p-lg-4 rounded-4 shadow-sm border h-100">
-          <h5 class="fw-bold text-dark mb-4"><i class="fa-solid fa-store text-danger me-2"></i> ข้อมูลร้านค้า & การพิมพ์ </h5>
+          <h5 class="fw-bold text-dark mb-4" data-i18n="set_shop_info_title"><i class="fa-solid fa-store text-danger me-2"></i> ข้อมูลร้านค้า & การพิมพ์ </h5>
           <div class="form-check form-switch fs-6 mb-4 p-3 bg-light rounded-3 border">
             <input class="form-check-input ms-0 me-3" type="checkbox" id="set-auto-print" style="width: 40px; height: 20px;">
-            <label class="form-check-label fw-bold text-dark" for="set-auto-print"> เปิดระบบพิมพ์ใบเสร็จอัตโนมัติหลังจ่ายเงิน </label>
+            <label class="form-check-label fw-bold text-dark" for="set-auto-print" data-i18n="set_auto_print"> เปิดระบบพิมพ์ใบเสร็จอัตโนมัติหลังจ่ายเงิน </label>
           </div>
-          <div class="form-floating mb-3"><input type="text" id="set-shop-name" class="form-control fw-bold bg-light" placeholder="ระบุชื่อร้านค้า"><label class="fw-bold text-muted"> ชื่อร้านค้า / ชื่อบริษัท </label></div>
-          <div class="mb-3"><label class="form-label fw-bold text-muted small"> เบอร์พร้อมเพย์ (รับเงิน) </label><input type="text" id="set-promptpay" class="form-control fw-bold text-primary bg-light" placeholder="08XXXXXXXX"></div>
-          <div class="form-floating mb-3"><input type="text" id="set-account-name" class="form-control fw-bold bg-light" placeholder="ชื่อบัญชี"><label class="fw-bold text-muted"> ชื่อบัญชีธนาคาร (แสดงตอนสแกน) </label></div>
-          <div class="form-floating mb-3"><input type="text" id="set-phone" class="form-control fw-bold bg-light" placeholder="เบอร์โทร"><label class="fw-bold text-muted"> เบอร์โทรศัพท์ร้าน </label></div>
-          <div class="form-floating mb-3"><textarea id="set-address" class="form-control fw-bold bg-light" style="height: 80px" placeholder="ที่อยู่"></textarea><label class="fw-bold text-muted"> ที่อยู่ร้านค้า </label></div>
+          <div class="form-floating mb-3"><input type="text" id="set-shop-name" class="form-control fw-bold bg-light" placeholder="ระบุชื่อร้านค้า" data-i18n="set_placeholder_shop_name"><label class="fw-bold text-muted" data-i18n="set_label_shop_name"> ชื่อร้านค้า / ชื่อบริษัท </label></div>
+          <div class="mb-3"><label class="form-label fw-bold text-muted small" data-i18n="set_label_promptpay"> เบอร์พร้อมเพย์ (รับเงิน) </label><input type="text" id="set-promptpay" class="form-control fw-bold text-primary bg-light" placeholder="08XXXXXXXX" data-i18n="set_placeholder_promptpay"></div>
+          <div class="form-floating mb-3"><input type="text" id="set-account-name" class="form-control fw-bold bg-light" placeholder="ชื่อบัญชี" data-i18n="set_placeholder_acc_name"><label class="fw-bold text-muted" data-i18n="set_label_acc_name"> ชื่อบัญชีธนาคาร (แสดงตอนสแกน) </label></div>
+          <div class="form-floating mb-3"><input type="text" id="set-phone" class="form-control fw-bold bg-light" placeholder="เบอร์โทร" data-i18n="set_placeholder_phone"><label class="fw-bold text-muted" data-i18n="set_label_phone"> เบอร์โทรศัพท์ร้าน </label></div>
+          <div class="form-floating mb-3"><textarea id="set-address" class="form-control fw-bold bg-light" style="height: 80px" placeholder="ที่อยู่" data-i18n="set_placeholder_address"></textarea><label class="fw-bold text-muted" data-i18n="set_label_address"> ที่อยู่ร้านค้า </label></div>
           
           <div class="mb-4 p-3 bg-light rounded-3 border">
-             <label class="form-label fw-bold small text-muted"><i class="fa-solid fa-image me-1"></i> โลโก้ร้านค้า </label>
+             <label class="form-label fw-bold small text-muted"><i class="fa-solid fa-image me-1"></i> <span data-i18n="set_label_logo">โลโก้ร้านค้า</span> </label>
              <div class="d-flex align-items-center gap-3">
                 <img id="set-logo-preview" src="" style="width: 60px; height: 60px; object-fit: contain; background: white; border: 1px dashed #ccc; border-radius: 8px; display: none;">
                 <div class="flex-fill">
@@ -59,28 +59,28 @@
              <input type="hidden" id="set-logo-url">
           </div>
 
-          <button id="btn-save-settings" class="btn btn-danger w-100 fw-bold py-2 rounded-3 shadow-sm" onclick="saveSettings()"><i class="fa-solid fa-floppy-disk me-2"></i> บันทึกการตั้งค่าร้าน</button>
+          <button id="btn-save-settings" class="btn btn-danger w-100 fw-bold py-2 rounded-3 shadow-sm" onclick="saveSettings()"><i class="fa-solid fa-floppy-disk me-2"></i> <span data-i18n="set_btn_save_settings">บันทึกการตั้งค่าร้าน</span></button>
         <hr class="my-4 border-secondary opacity-25">
-          <h5 class="fw-bold text-success mb-3"><i class="fa-solid fa-file-excel me-2"></i> จัดการข้อมูลด้วย Excel</h5>
+          <h5 class="fw-bold text-success mb-3" data-i18n="set_excel_title"><i class="fa-solid fa-file-excel me-2"></i> จัดการข้อมูลด้วย Excel</h5>
           <div class="d-flex gap-2">
-            <button class="btn btn-outline-success flex-fill fw-bold py-2 shadow-sm" onclick="exportDataToExcel()"><i class="fa-solid fa-download me-1"></i> โหลดฟอร์ม</button>
-            <button class="btn btn-success flex-fill fw-bold py-2 shadow-sm" onclick="document.getElementById('import-excel-input').value=''; document.getElementById('import-excel-input').click()"><i class="fa-solid fa-upload me-1"></i> นำเข้าข้อมูล</button>
+            <button class="btn btn-outline-success flex-fill fw-bold py-2 shadow-sm" onclick="exportDataToExcel()"><i class="fa-solid fa-download me-1"></i> <span data-i18n="set_btn_export">โหลดฟอร์ม</span></button>
+            <button class="btn btn-success flex-fill fw-bold py-2 shadow-sm" onclick="document.getElementById('import-excel-input').value=''; document.getElementById('import-excel-input').click()"><i class="fa-solid fa-upload me-1"></i> <span data-i18n="set_btn_import">นำเข้าข้อมูล</span></button>
             <input type="file" id="import-excel-input" class="d-none" accept=".xlsx, .xls" onchange="importDataFromExcel(this)">
           </div>
-          <div class="text-muted small mt-2">* โหลดฟอร์มออกมาแก้ไข (ตั้งค่าร้าน หรือ สินค้า) แล้วกด "นำเข้าข้อมูล" เพื่ออัปเดตทับได้ทันที ถ้ารหัสสินค้าตรงกันจะอัปเดต ถ้ารหัสใหม่จะเพิ่มสินค้าให้ครับ</div>
+          <div class="text-muted small mt-2" data-i18n="set_excel_hint">* โหลดฟอร์มออกมาแก้ไข (ตั้งค่าร้าน หรือ สินค้า) แล้วกด "นำเข้าข้อมูล" เพื่ออัปเดตทับได้ทันที ถ้ารหัสสินค้าตรงกันจะอัปเดต ถ้ารหัสใหม่จะเพิ่มสินค้าให้ครับ</div>
 		</div>
       </div>
 
       <div class="col-lg-7">
         <div class="bg-white p-3 p-lg-4 rounded-4 shadow-sm border h-100">
           <div class="d-flex justify-content-between align-items-center mb-4 user-mgmt-header">
-            <h5 class="fw-bold text-dark m-0"><i class="fa-solid fa-users-gear text-primary me-2"></i> จัดการพนักงาน & สิทธิ์การใช้งาน </h5>
-            <button class="btn btn-primary btn-sm fw-bold rounded-pill px-3 shadow-sm" onclick="openUserForm()"><i class="fa-solid fa-user-plus me-1"></i> เพิ่มพนักงาน </button>
+            <h5 class="fw-bold text-dark m-0" data-i18n="set_user_title"><i class="fa-solid fa-users-gear text-primary me-2"></i> จัดการพนักงาน & สิทธิ์การใช้งาน </h5>
+            <button class="btn btn-primary btn-sm fw-bold rounded-pill px-3 shadow-sm" onclick="openUserForm()"><i class="fa-solid fa-user-plus me-1"></i> <span data-i18n="set_btn_add_user">เพิ่มพนักงาน</span> </button>
           </div>
           <div class="table-responsive user-table-wrapper" style="max-height: 60vh; overflow-y: auto;">
             <table class="table table-hover align-middle" style="min-width: 500px;">
-              <thead class="table-light sticky-top"><tr><th> ชื่อพนักงาน </th><th class="text-center"> รหัส PIN </th><th> สิทธิ์การเข้าถึง </th><th class="text-end"> จัดการ </th></tr></thead>
-              <tbody id="users-table-body"><tr><td colspan="4" class="text-center text-muted py-4"> กำลังโหลดข้อมูลพนักงาน... </td></tr></tbody>
+              <thead class="table-light sticky-top"><tr><th data-i18n="set_th_user_name"> ชื่อพนักงาน </th><th class="text-center" data-i18n="set_th_pin"> รหัส PIN </th><th data-i18n="set_th_permission"> สิทธิ์การเข้าถึง </th><th class="text-end" data-i18n="set_th_manage"> จัดการ </th></tr></thead>
+              <tbody id="users-table-body"><tr><td colspan="4" class="text-center text-muted py-4" data-i18n="set_loading_users"> กำลังโหลดข้อมูลพนักงาน... </td></tr></tbody>
             </table>
           </div>
         </div>
@@ -92,19 +92,32 @@
       <div class="col-12">
         <div class="bg-white p-3 p-lg-4 rounded-4 shadow-sm border">
           <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-            <h5 class="fw-bold text-dark m-0"><i class="fa-solid fa-list-check text-warning me-2"></i> ประวัติการใช้งานระบบ (Activity Log)</h5>
+            <h5 class="fw-bold text-dark m-0" data-i18n="set_log_title"><i class="fa-solid fa-list-check text-warning me-2"></i> ประวัติการใช้งานระบบ (Activity Log)</h5>
             <div class="d-flex flex-wrap gap-2">
-              <select id="log-staff-filter" class="form-select form-select-sm fw-bold border-secondary bg-light text-dark" style="width: auto; min-width: 140px;" onchange="changeLogPage(1)"><option value="all">👤 พนักงานทั้งหมด</option></select>
+              <select id="log-staff-filter" class="form-select form-select-sm fw-bold border-secondary bg-light text-dark" style="width: auto; min-width: 140px;" onchange="changeLogPage(1)"><option value="all" data-i18n="set_filter_all_staff">👤 พนักงานทั้งหมด</option></select>
               <select id="log-filter" class="form-select form-select-sm fw-bold border-secondary bg-light text-dark" style="width: auto; min-width: 160px;" onchange="changeLogPage(1)">
-                <option value="all">📁 ทุกหมวดหมู่</option><option value="เข้าสู่ระบบ">🔓 เข้าสู่ระบบ</option><option value="ออกจากระบบ">🔒 ออกจากระบบ</option><option value="ขายสินค้า">🛒 ขายสินค้า</option><option value="ยกเลิกบิล">🚫 ยกเลิกบิล</option><option value="คืนสินค้า">↩️ คืนสินค้า</option><option value="พิมพ์บิลซ้ำ">🖨️ พิมพ์บิลซ้ำ</option><option value="เพิ่มสินค้า">📦 เพิ่มสินค้า</option><option value="แก้ไขสินค้า">✏️ แก้ไขสินค้า</option><option value="ลบสินค้า">🗑️ ลบสินค้า</option><option value="รับสินค้าเข้า">📥 รับสินค้าเข้า</option><option value="ลบข้อมูลทดสอบ">🗑️ ลบข้อมูลทดสอบ</option><option value="จัดการพนักงาน">👥 จัดการพนักงาน</option><option value="ตั้งค่าระบบ">⚙️ ตั้งค่าระบบ</option>
+                <option value="all" data-i18n="set_filter_all_cat">📁 ทุกหมวดหมู่</option>
+                <option value="เข้าสู่ระบบ" data-i18n="set_log_login">🔓 เข้าสู่ระบบ</option>
+                <option value="ออกจากระบบ" data-i18n="set_log_logout">🔒 ออกจากระบบ</option>
+                <option value="ขายสินค้า" data-i18n="set_log_sell">🛒 ขายสินค้า</option>
+                <option value="ยกเลิกบิล" data-i18n="set_log_void">🚫 ยกเลิกบิล</option>
+                <option value="คืนสินค้า" data-i18n="set_log_return">↩️ คืนสินค้า</option>
+                <option value="พิมพ์บิลซ้ำ" data-i18n="set_log_reprint">🖨️ พิมพ์บิลซ้ำ</option>
+                <option value="เพิ่มสินค้า" data-i18n="set_log_add_prod">📦 เพิ่มสินค้า</option>
+                <option value="แก้ไขสินค้า" data-i18n="set_log_edit_prod">✏️ แก้ไขสินค้า</option>
+                <option value="ลบสินค้า" data-i18n="set_log_del_prod">🗑️ ลบสินค้า</option>
+                <option value="รับสินค้าเข้า" data-i18n="set_log_recv_stock">📥 รับสินค้าเข้า</option>
+                <option value="ลบข้อมูลทดสอบ" data-i18n="set_log_clear_test">🗑️ ลบข้อมูลทดสอบ</option>
+                <option value="จัดการพนักงาน" data-i18n="set_log_manage_user">👥 จัดการพนักงาน</option>
+                <option value="ตั้งค่าระบบ" data-i18n="set_log_sys_set">⚙️ ตั้งค่าระบบ</option>
               </select>
-              <button class="btn btn-sm btn-outline-secondary rounded-3 fw-bold shadow-sm" onclick="loadActivityLogsData()"><i class="fa-solid fa-rotate-right"></i> รีเฟรช</button>
+              <button class="btn btn-sm btn-outline-secondary rounded-3 fw-bold shadow-sm" onclick="loadActivityLogsData()"><i class="fa-solid fa-rotate-right"></i> <span data-i18n="set_btn_refresh">รีเฟรช</span></button>
             </div>
           </div>
           <div class="table-responsive border rounded-3 bg-light log-table-wrapper" style="max-height: 480px; overflow-y: auto;">
             <table class="table table-hover align-middle mb-0 text-nowrap small bg-white">
-              <thead class="table-light sticky-top shadow-sm"><tr><th class="py-2 px-3 text-muted">วัน-เวลา</th><th class="py-2 text-muted">พนักงาน</th><th class="py-2 text-muted">หมวดหมู่</th><th class="py-2 text-muted">รายละเอียด</th></tr></thead>
-              <tbody id="activity-log-body"><tr><td colspan="4" class="text-center py-4 text-muted">กำลังโหลดข้อมูลประวัติ...</td></tr></tbody>
+              <thead class="table-light sticky-top shadow-sm"><tr><th class="py-2 px-3 text-muted" data-i18n="set_th_datetime">วัน-เวลา</th><th class="py-2 text-muted" data-i18n="set_th_staff">พนักงาน</th><th class="py-2 text-muted" data-i18n="set_th_category">หมวดหมู่</th><th class="py-2 text-muted" data-i18n="set_th_detail">รายละเอียด</th></tr></thead>
+              <tbody id="activity-log-body"><tr><td colspan="4" class="text-center py-4 text-muted" data-i18n="set_loading_logs">กำลังโหลดข้อมูลประวัติ...</td></tr></tbody>
             </table>
           </div>
           <div id="log-pagination" class="d-flex justify-content-end align-items-center mt-3 gap-2"></div>
@@ -116,19 +129,19 @@
   <!-- Modal เพิ่มพนักงาน -->
   <div id="user-form-modal" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); z-index: 1050; justify-content: center; align-items: center; padding: 15px;">
     <div class="bg-white p-4 p-md-5 rounded-4 shadow-lg" style="width: 100%; max-width: 400px;">
-      <h5 class="fw-bold mb-4 text-primary" id="user-form-title"> เพิ่มพนักงานใหม่ </h5>
-      <div class="form-floating mb-3"><input type="text" id="user-name" class="form-control fw-bold" placeholder="ชื่อพนักงาน"><label class="fw-bold text-muted"> ชื่อพนักงาน </label></div>
-      <div class="form-floating mb-4"><input type="number" id="user-pin" class="form-control fw-bold fs-4 text-center" placeholder="PIN" oninput="if(this.value.length > 4) this.value = this.value.slice(0,4);"><label class="fw-bold text-muted"> รหัส PIN 4 หลัก </label></div>
-      <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-shield-halved text-warning me-1"></i> กำหนดสิทธิ์เข้าใช้งาน </h6>
+      <h5 class="fw-bold mb-4 text-primary" id="user-form-title" data-i18n="set_modal_user_title"> เพิ่มพนักงานใหม่ </h5>
+      <div class="form-floating mb-3"><input type="text" id="user-name" class="form-control fw-bold" placeholder="ชื่อพนักงาน" data-i18n="set_placeholder_emp_name"><label class="fw-bold text-muted" data-i18n="set_label_emp_name"> ชื่อพนักงาน </label></div>
+      <div class="form-floating mb-4"><input type="number" id="user-pin" class="form-control fw-bold fs-4 text-center" placeholder="PIN" data-i18n="set_placeholder_pin" oninput="if(this.value.length > 4) this.value = this.value.slice(0,4);"><label class="fw-bold text-muted" data-i18n="set_label_pin"> รหัส PIN 4 หลัก </label></div>
+      <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-shield-halved text-warning me-1"></i> <span data-i18n="set_label_permission">กำหนดสิทธิ์เข้าใช้งาน</span> </h6>
       <div class="bg-light p-3 rounded-3 border mb-4">
-        <div class="form-check mb-2"><input class="form-check-input perm-chk" type="checkbox" value="POS" id="chk-pos"><label class="form-check-label fw-bold" for="chk-pos"> ขายสินค้า (POS) </label></div>
-        <div class="form-check mb-2"><input class="form-check-input perm-chk" type="checkbox" value="STOCK" id="chk-stock"><label class="form-check-label fw-bold" for="chk-stock"> จัดการคลังสินค้า </label></div>
-        <div class="form-check mb-2"><input class="form-check-input perm-chk" type="checkbox" value="DASH" id="chk-dash"><label class="form-check-label fw-bold" for="chk-dash"> ดูสถิติยอดขาย (Dashboard) </label></div>
-        <div class="form-check"><input class="form-check-input perm-chk" type="checkbox" value="ADMIN" id="chk-admin"><label class="form-check-label fw-bold text-danger" for="chk-admin"> จัดการระบบ & พนักงาน (Admin) </label></div>
+        <div class="form-check mb-2"><input class="form-check-input perm-chk" type="checkbox" value="POS" id="chk-pos"><label class="form-check-label fw-bold" for="chk-pos" data-i18n="set_chk_pos"> ขายสินค้า (POS) </label></div>
+        <div class="form-check mb-2"><input class="form-check-input perm-chk" type="checkbox" value="STOCK" id="chk-stock"><label class="form-check-label fw-bold" for="chk-stock" data-i18n="set_chk_stock"> จัดการคลังสินค้า </label></div>
+        <div class="form-check mb-2"><input class="form-check-input perm-chk" type="checkbox" value="DASH" id="chk-dash"><label class="form-check-label fw-bold" for="chk-dash" data-i18n="set_chk_dash"> ดูสถิติยอดขาย (Dashboard) </label></div>
+        <div class="form-check"><input class="form-check-input perm-chk" type="checkbox" value="ADMIN" id="chk-admin"><label class="form-check-label fw-bold text-danger" for="chk-admin" data-i18n="set_chk_admin"> จัดการระบบ & พนักงาน (Admin) </label></div>
       </div>
       <div class="d-flex gap-2">
-        <button class="btn btn-light flex-fill fw-bold py-2" onclick="closeUserForm()"> ยกเลิก </button>
-        <button class="btn btn-primary flex-fill fw-bold py-2 shadow-sm" id="btn-save-user" onclick="saveUserData()"> บันทึก </button>
+        <button class="btn btn-light flex-fill fw-bold py-2" onclick="closeUserForm()" data-i18n="set_btn_cancel"> ยกเลิก </button>
+        <button class="btn btn-primary flex-fill fw-bold py-2 shadow-sm" id="btn-save-user" onclick="saveUserData()" data-i18n="set_btn_save"> บันทึก </button>
       </div>
     </div>
   </div>
@@ -138,11 +151,11 @@
     <div class="bg-white p-4 rounded-4 shadow-lg text-center" style="width: 100%; max-width: 480px; position: relative; max-height: 95vh; overflow-y: auto;">
       <button type="button" class="btn-close position-absolute top-0 end-0 m-3" onclick="closeQuickRenewModal()"></button>
       
-      <h4 class="fw-bold mb-1 mt-2" style="color: #0d6efd !important;"><i class="fa-solid fa-crown text-warning me-2"></i> ต่ออายุแพ็กเกจ</h4>
-      <p class="text-muted small mb-3">อีเมล: <span id="qr-email-show" class="fw-bold text-dark"></span></p>
+      <h4 class="fw-bold mb-1 mt-2" style="color: #0d6efd !important;" data-i18n="set_modal_renew_title"><i class="fa-solid fa-crown text-warning me-2"></i> ต่ออายุแพ็กเกจ</h4>
+      <p class="text-muted small mb-3"><span data-i18n="set_renew_email">อีเมล: </span><span id="qr-email-show" class="fw-bold text-dark"></span></p>
 
       <div class="text-start mb-2">
-        <label class="fw-bold small text-muted mb-2">เลือกแพ็กเกจที่ต้องการ</label>
+        <label class="fw-bold small text-muted mb-2" data-i18n="set_renew_choose">เลือกแพ็กเกจที่ต้องการ</label>
         <input type="hidden" id="qr-pkg-select" value="1M|150">
         
         <div class="row g-2 mb-3">
@@ -150,14 +163,14 @@
               <div class="card h-100 pkg-card selected" onclick="selectQuickRenewPkg('1M|150', this)" style="cursor: pointer; border-radius: 12px; border: 2px solid #3b82f6; position: relative;">
                  <div class="card-body text-center p-3">
                     <div class="position-absolute top-0 end-0 m-2 text-primary check-icon"><i class="fa-solid fa-circle-check"></i></div>
-                    <div class="text-muted small fw-bold mb-1">1 เดือน</div>
+                    <div class="text-muted small fw-bold mb-1" data-i18n="set_renew_1m">1 เดือน</div>
                     <h3 class="fw-bold text-dark mb-2">฿150</h3>
-                    <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-1 mb-2">ตกวันละ 5.00 บ.</span>
+                    <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-1 mb-2" data-i18n="renew_per_day_5">ตกวันละ 5.00 บ.</span>
                     <hr class="my-2">
                     <ul class="text-start small text-muted mb-0 ps-3" style="font-size: 11px; line-height: 1.6;">
-                       <li><i class="fa-solid fa-circle-check text-success"></i> ใช้งาน POS ได้เต็มรูปแบบ</li>
-                       <li><i class="fa-solid fa-circle-check text-success"></i> ไม่จำกัดจำนวนบิล/สินค้า</li>
-                       <li><i class="fa-solid fa-circle-check text-success"></i> มีสรุปยอดขาย Dashboard</li>
+                       <li><i class="fa-solid fa-circle-check text-success"></i> <span data-i18n="set_renew_feat1">ใช้งาน POS ได้เต็มรูปแบบ</span></li>
+                       <li><i class="fa-solid fa-circle-check text-success"></i> <span data-i18n="set_renew_feat2">ไม่จำกัดจำนวนบิล/สินค้า</span></li>
+                       <li><i class="fa-solid fa-circle-check text-success"></i> <span data-i18n="set_renew_feat3">มีสรุปยอดขาย Dashboard</span></li>
                     </ul>
                  </div>
               </div>
@@ -166,14 +179,14 @@
               <div class="card h-100 pkg-card" onclick="selectQuickRenewPkg('3M|400', this)" style="cursor: pointer; border-radius: 12px; border: 2px solid #e2e8f0; position: relative;">
                  <div class="card-body text-center p-3">
                     <div class="position-absolute top-0 end-0 m-2 text-primary check-icon d-none"><i class="fa-solid fa-circle-check"></i></div>
-                    <div class="text-muted small fw-bold mb-1">3 เดือน</div>
+                    <div class="text-muted small fw-bold mb-1" data-i18n="set_renew_3m">3 เดือน</div>
                     <h3 class="fw-bold text-dark mb-2">฿400</h3>
-                    <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-1 mb-2">ตกวันละ 4.44 บ.</span>
+                    <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-1 mb-2" data-i18n="renew_per_day_4_44">ตกวันละ 4.44 บ.</span>
                     <hr class="my-2">
                     <ul class="text-start small text-muted mb-0 ps-3" style="font-size: 11px; line-height: 1.6;">
-                       <li><i class="fa-solid fa-circle-check text-success"></i> ใช้งาน POS ได้เต็มรูปแบบ</li>
-                       <li><i class="fa-solid fa-circle-check text-success"></i> ไม่จำกัดจำนวนบิล/สินค้า</li>
-                       <li><i class="fa-solid fa-circle-check text-success"></i> มีสรุปยอดขาย Dashboard</li>
+                       <li><i class="fa-solid fa-circle-check text-success"></i> <span data-i18n="set_renew_feat1">ใช้งาน POS ได้เต็มรูปแบบ</span></li>
+                       <li><i class="fa-solid fa-circle-check text-success"></i> <span data-i18n="set_renew_feat2">ไม่จำกัดจำนวนบิล/สินค้า</span></li>
+                       <li><i class="fa-solid fa-circle-check text-success"></i> <span data-i18n="set_renew_feat3">มีสรุปยอดขาย Dashboard</span></li>
                     </ul>
                  </div>
               </div>
@@ -182,31 +195,31 @@
               <div class="card h-100 pkg-card" onclick="selectQuickRenewPkg('6M|750', this)" style="cursor: pointer; border-radius: 12px; border: 2px solid #e2e8f0; position: relative;">
                  <div class="card-body text-center p-3">
                     <div class="position-absolute top-0 end-0 m-2 text-primary check-icon d-none"><i class="fa-solid fa-circle-check"></i></div>
-                    <div class="text-muted small fw-bold mb-1">6 เดือน</div>
+                    <div class="text-muted small fw-bold mb-1" data-i18n="set_renew_6m">6 เดือน</div>
                     <h3 class="fw-bold text-dark mb-2">฿750</h3>
-                    <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-1 mb-2">ตกวันละ 4.16 บ.</span>
+                    <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-1 mb-2" data-i18n="renew_per_day_4_16">ตกวันละ 4.16 บ.</span>
                     <hr class="my-2">
                     <ul class="text-start small text-muted mb-0 ps-3" style="font-size: 11px; line-height: 1.6;">
-                       <li><i class="fa-solid fa-circle-check text-success"></i> ใช้งาน POS ได้เต็มรูปแบบ</li>
-                       <li><i class="fa-solid fa-circle-check text-success"></i> ไม่จำกัดจำนวนบิล/สินค้า</li>
-                       <li><i class="fa-solid fa-circle-check text-success"></i> มีสรุปยอดขาย Dashboard</li>
+                       <li><i class="fa-solid fa-circle-check text-success"></i> <span data-i18n="set_renew_feat1">ใช้งาน POS ได้เต็มรูปแบบ</span></li>
+                       <li><i class="fa-solid fa-circle-check text-success"></i> <span data-i18n="set_renew_feat2">ไม่จำกัดจำนวนบิล/สินค้า</span></li>
+                       <li><i class="fa-solid fa-circle-check text-success"></i> <span data-i18n="set_renew_feat3">มีสรุปยอดขาย Dashboard</span></li>
                     </ul>
                  </div>
               </div>
            </div>
            <div class="col-6">
               <div class="card h-100 pkg-card" onclick="selectQuickRenewPkg('12M|1200', this)" style="cursor: pointer; border-radius: 12px; border: 2px solid #e2e8f0; position: relative; overflow: hidden;">
-                 <div style="position: absolute; top: 12px; left: -28px; background: #ef4444; color: white; font-size: 10px; font-weight: bold; padding: 2px 30px; transform: rotate(-45deg); box-shadow: 0 2px 4px rgba(0,0,0,0.2); z-index: 2;">คุ้มสุด!</div>
+                 <div style="position: absolute; top: 12px; left: -28px; background: #ef4444; color: white; font-size: 10px; font-weight: bold; padding: 2px 30px; transform: rotate(-45deg); box-shadow: 0 2px 4px rgba(0,0,0,0.2); z-index: 2;" data-i18n="set_renew_best">คุ้มสุด!</div>
                  <div class="card-body text-center p-3">
                     <div class="position-absolute top-0 end-0 m-2 text-primary check-icon d-none"><i class="fa-solid fa-circle-check"></i></div>
-                    <div class="text-muted small fw-bold mb-1">1 ปีเต็ม</div>
+                    <div class="text-muted small fw-bold mb-1" data-i18n="set_renew_1y">1 ปีเต็ม</div>
                     <h3 class="fw-bold text-dark mb-2">฿1,200</h3>
-                    <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-1 mb-2">ตกวันละ 3.28 บ.</span>
+                    <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-1 mb-2" data-i18n="renew_per_day_3_28">ตกวันละ 3.28 บ.</span>
                     <hr class="my-2">
                     <ul class="text-start small text-muted mb-0 ps-3" style="font-size: 11px; line-height: 1.6;">
-                       <li><i class="fa-solid fa-circle-check text-success"></i> ใช้งาน POS ได้เต็มรูปแบบ</li>
-                       <li><i class="fa-solid fa-circle-check text-success"></i> ไม่จำกัดจำนวนบิล/สินค้า</li>
-                       <li><i class="fa-solid fa-circle-check text-success"></i> มีสรุปยอดขาย Dashboard</li>
+                       <li><i class="fa-solid fa-circle-check text-success"></i> <span data-i18n="set_renew_feat1">ใช้งาน POS ได้เต็มรูปแบบ</span></li>
+                       <li><i class="fa-solid fa-circle-check text-success"></i> <span data-i18n="set_renew_feat2">ไม่จำกัดจำนวนบิล/สินค้า</span></li>
+                       <li><i class="fa-solid fa-circle-check text-success"></i> <span data-i18n="set_renew_feat3">มีสรุปยอดขาย Dashboard</span></li>
                     </ul>
                  </div>
               </div>
@@ -215,17 +228,17 @@
       </div>
 
       <div class="border rounded-3 p-3 mb-3 text-center bg-light">
-         <div class="text-muted small mb-1">สแกน QR Code เพื่อชำระเงิน</div>
-         <h4 class="text-danger fw-bold mb-2" id="qr-price-show">150 บาท</h4>
+         <div class="text-muted small mb-1" data-i18n="set_renew_scan">สแกน QR Code เพื่อชำระเงิน</div>
+         <h4 class="text-danger fw-bold mb-2"><span id="qr-price-show">150</span><span data-i18n="set_renew_baht"> บาท</span></h4>
          <img id="qr-promptpay-img" src="" alt="QR" style="width: 150px; height: 150px; background: white; padding: 5px; border-radius: 8px; margin: 0 auto;">
       </div>
 
       <div class="text-start mb-3">
-         <label class="fw-bold small text-muted mb-1">แนบสลิปโอนเงิน</label>
+         <label class="fw-bold small text-muted mb-1" data-i18n="set_renew_attach">แนบสลิปโอนเงิน</label>
          <input type="file" id="qr-slip-file" class="form-control" accept="image/*">
       </div>
       <button class="btn btn-success w-100 fw-bold py-2 shadow-sm rounded-pill" id="btn-submit-quick-renew" onclick="submitQuickRenewSlip()">
-        <i class="fa-solid fa-paper-plane me-2"></i> แจ้งชำระเงิน
+        <i class="fa-solid fa-paper-plane me-2"></i> <span data-i18n="set_btn_notify">แจ้งชำระเงิน</span>
       </button>
     </div>
   </div>
@@ -237,12 +250,13 @@
 
     function openSettingsPage() {
       document.getElementById('page-settings').style.display = 'block';
+      if (typeof changeLanguage === 'function') changeLanguage(currentLang);
       loadSettingsData(); loadUsersData(); loadActivityLogsData(); loadTenantInfoSafely();
     }
     function closeSettingsPage() { document.getElementById('page-settings').style.display = 'none'; }
 
     function loadTenantInfoSafely() {
-      document.getElementById('setting-exp-date').innerText = "กำลังดึงข้อมูล...";
+      document.getElementById('setting-exp-date').innerText = i18n[currentLang]['alert_loading'];
       const renewBtn = document.getElementById('btn-open-renew');
       renewBtn.disabled = true;
 
@@ -253,12 +267,12 @@
           if (expElement) {
             let parentP = expElement.parentElement;
             if (info.daysRemaining < 0) {
-              parentP.innerHTML = 'สถานะ: <span class="fw-bold text-danger fs-5">หมดอายุแล้ว! ❌</span>';
+              parentP.innerHTML = i18n[currentLang]['set_status_expired'];
             } else if (info.daysRemaining === 0) {
-              parentP.innerHTML = 'สถานะ: <span class="fw-bold text-danger fs-5">หมดอายุวันนี้! ⚠️</span>';
+              parentP.innerHTML = i18n[currentLang]['set_status_expire_today'];
             } else {
               let colorClass = info.daysRemaining <= 7 ? 'text-danger' : 'text-warning';
-              parentP.innerHTML = 'เหลือเวลา: <span id="setting-exp-days" class="fw-bold ' + colorClass + ' fs-5">' + info.daysRemaining + '</span><span class="ms-1 text-light">วัน</span>';
+              parentP.innerHTML = i18n[currentLang]['set_pkg_remaining'] + '<span id="setting-exp-days" class="fw-bold ' + colorClass + ' fs-5">' + info.daysRemaining + '</span><span class="ms-1 text-light">' + i18n[currentLang]['set_pkg_days'] + '</span>';
             }
           }
           tenantEmailForRenew = info.email; tenantShopNameForRenew = info.shopName;
@@ -266,17 +280,17 @@
 
           if (info.renewStatus === 'PENDING') {
             renewBtn.className = "btn btn-outline-warning fw-bold rounded-pill px-3 py-2";
-            renewBtn.innerHTML = '<i class="fa-solid fa-hourglass-half fa-spin me-1"></i> กำลังตรวจสอบการโอนเงิน';
+            renewBtn.innerHTML = '<i class="fa-solid fa-hourglass-half fa-spin me-1"></i> ' + i18n[currentLang]['set_renew_checking'];
             renewBtn.disabled = true;
           } else {
             renewBtn.className = "btn btn-warning fw-bold rounded-pill shadow px-4 py-2";
-            renewBtn.innerHTML = '<i class="fa-solid fa-bolt text-danger me-1"></i> ต่ออายุทันที';
+            renewBtn.innerHTML = '<i class="fa-solid fa-bolt text-danger me-1"></i> ' + i18n[currentLang]['set_btn_renew_now'];
             renewBtn.disabled = false;
           }
 
           checkApprovalPopup(info);
         } else {
-          document.getElementById('setting-exp-date').innerText = "ข้อมูลไม่พร้อมใช้งาน";
+          document.getElementById('setting-exp-date').innerText = i18n[currentLang]['swal_error_title'];
         }
       }).getTenantInfoBySheetId(currentTenantSheetId);
     }
@@ -286,19 +300,19 @@
         setTimeout(() => {
           Swal.fire({
             icon: 'success',
-            title: '🎉 ต่ออายุระบบสำเร็จแล้ว!',
+            title: i18n[currentLang]['swal_renew_success_title'],
             html: `
               <div class="text-center">
-                <p class="fs-6 text-secondary mb-2">แอดมินได้ทำการอนุมัติการชำระเงินเรียบร้อยแล้วครับ</p>
+                <p class="fs-6 text-secondary mb-2">${i18n[currentLang]['swal_renew_success_desc1']}</p>
                 <div class="bg-light p-3 rounded-4 border my-3">
-                  <div class="text-muted small">วันหมดอายุใหม่ของคุณคือ</div>
+                  <div class="text-muted small">${i18n[currentLang]['swal_renew_success_desc2']}</div>
                   <div class="fs-3 fw-bold text-success mt-1">${info.expireDate}</div>
-                  <div class="badge bg-success rounded-pill px-3 py-1 mt-2">ใช้งานได้อีก ${info.daysRemaining} วัน</div>
+                  <div class="badge bg-success rounded-pill px-3 py-1 mt-2">${i18n[currentLang]['swal_renew_success_desc3']} ${info.daysRemaining} ${i18n[currentLang]['set_pkg_days']}</div>
                 </div>
-                <p class="small text-muted mb-0">ขอบพระคุณที่ไว้วางใจใช้บริการ POS ของเราครับ 😊</p>
+                <p class="small text-muted mb-0">${i18n[currentLang]['swal_renew_success_desc4']}</p>
               </div>
             `,
-            confirmButtonText: 'รับทราบ',
+            confirmButtonText: i18n[currentLang]['swal_btn_ack'],
             confirmButtonColor: '#10b981',
             allowOutsideClick: false
           }).then(() => {
@@ -331,7 +345,7 @@
     function updateQuickRenewQR() {
       let pkgVal = document.getElementById('qr-pkg-select').value;
       let price = pkgVal.split('|')[1];
-      document.getElementById('qr-price-show').innerText = price + " บาท";
+      document.getElementById('qr-price-show').innerText = price;
       document.getElementById('qr-promptpay-img').src = "https://promptpay.io/" + ADMIN_PROMPTPAY + "/" + price + ".png";
     }
 
@@ -339,32 +353,32 @@
       let fileInput = document.getElementById('qr-slip-file');
       let pkgVal = document.getElementById('qr-pkg-select').value;
       
-      if(!tenantEmailForRenew) return Swal.fire('ผิดพลาด', 'ไม่พบอีเมลผู้ใช้งาน กรุณารีเฟรชหน้าเว็บ', 'error');
-      if(fileInput.files.length === 0) return Swal.fire('ผิดพลาด', 'กรุณาแนบสลิปโอนเงิน', 'warning');
+      if(!tenantEmailForRenew) return Swal.fire(i18n[currentLang]['swal_error_title'], i18n[currentLang]['swal_err_no_email'], 'error');
+      if(fileInput.files.length === 0) return Swal.fire(i18n[currentLang]['swal_error_title'], i18n[currentLang]['swal_err_no_slip'], 'warning');
 
       let pkgSplit = pkgVal.split('|'); let pkgName = pkgSplit[0]; let price = pkgSplit[1];
       let file = fileInput.files[0]; let reader = new FileReader();
       
-      Swal.fire({ title: 'กำลังอัปโหลดสลิป...', text: 'โปรดรอสักครู่ ห้ามปิดหน้าต่างนี้', didOpen: () => Swal.showLoading(), allowOutsideClick: false });
+      Swal.fire({ title: i18n[currentLang]['swal_upload_slip'], text: i18n[currentLang]['swal_wait_dont_close'], didOpen: () => Swal.showLoading(), allowOutsideClick: false });
 
       reader.onload = function(e) {
         let base64Data = e.target.result;
         google.script.run
           .withSuccessHandler(function(res) {
             Swal.close();
-            if(res.status === 'error') Swal.fire('ผิดพลาด', res.message, 'error');
-            else { Swal.fire('ส่งข้อมูลสำเร็จ!', 'ระบบส่งสลิปให้แอดมินเรียบร้อยแล้ว<br>วันหมดอายุจะอัปเดตอัตโนมัติเมื่อแอดมินกดอนุมัติครับ', 'success'); closeQuickRenewModal(); }
+            if(res.status === 'error') Swal.fire(i18n[currentLang]['swal_error_title'], res.message, 'error');
+            else { Swal.fire(i18n[currentLang]['renew_success_title'], i18n[currentLang]['swal_send_slip_success'], 'success'); closeQuickRenewModal(); loadTenantInfoSafely(); }
           })
           .withFailureHandler(function(err) {
             Swal.close();
-            Swal.fire('เกิดข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้: ' + (err.message || 'กรุณาลองใหม่อีกครั้ง'), 'error');
+            Swal.fire(i18n[currentLang]['swal_error_title2'], i18n[currentLang]['swal_conn_fail'] + (err.message || i18n[currentLang]['swal_try_again']), 'error');
           })
           .uploadQuickRenewSlip(tenantEmailForRenew, tenantShopNameForRenew, pkgName, price, base64Data);
       };
 
       reader.onerror = function() {
         Swal.close();
-        Swal.fire('ผิดพลาด', 'อ่านไฟล์รูปภาพสลิปไม่สำเร็จ กรุณาเลือกไฟล์ภาพใหม่อีกครั้ง', 'error');
+        Swal.fire(i18n[currentLang]['swal_error_title'], i18n[currentLang]['swal_read_slip_err'], 'error');
       };
 
       reader.readAsDataURL(file);
@@ -387,7 +401,7 @@
       const fileInput = document.getElementById('set-logo-file');
       
       if(fileInput.files.length > 0) {
-        document.getElementById('set-upload-status').innerText = 'กำลังอัปโหลดโลโก้...';
+        document.getElementById('set-upload-status').innerText = i18n[currentLang]['swal_uploading_logo'];
         const file = fileInput.files[0]; const reader = new FileReader();
         reader.onload = function(e) {
           google.script.run.withSuccessHandler(function(url) {
@@ -398,7 +412,7 @@
     }
 
     function submitSettingsData(btn) {
-      document.getElementById('set-upload-status').innerText = 'กำลังบันทึกข้อมูล...';
+      document.getElementById('set-upload-status').innerText = i18n[currentLang]['swal_saving_data'];
       const newSettings = {
         shop_name: document.getElementById('set-shop-name').value, shop_promptpay: document.getElementById('set-promptpay').value,
         shop_account_name: document.getElementById('set-account-name').value, shop_phone: document.getElementById('set-phone').value,
@@ -409,7 +423,7 @@
         document.getElementById('set-upload-status').innerText = ''; btn.disabled = false;
         let staff = (typeof currentStaff !== 'undefined' && currentStaff.name) ? currentStaff.name : 'Unknown';
         google.script.run.logAction(currentTenantSheetId, staff, "ตั้งค่าระบบ", "อัปเดตข้อมูลร้านค้า & การพิมพ์");
-        Swal.fire('สำเร็จ', 'บันทึกการตั้งค่าแล้ว', 'success'); loadActivityLogsData(); 
+        Swal.fire(i18n[currentLang]['swal_save_success2'], i18n[currentLang]['swal_save_setting_success'], 'success'); loadActivityLogsData(); 
       }).updateShopSettings(currentTenantSheetId, newSettings);
     }
 
@@ -419,7 +433,7 @@
 
     function renderUsersTable() {
       const tbody = document.getElementById('users-table-body'); tbody.innerHTML = '';
-      if(settingsUsers.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-4">ยังไม่มีข้อมูลพนักงาน</td></tr>'; return; }
+      if(settingsUsers.length === 0) { tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted py-4">${i18n[currentLang]['set_empty_users']}</td></tr>`; return; }
       settingsUsers.forEach(u => {
         let permBadges = u.permissions.split(',').map(p => `<span class="badge bg-secondary me-1">${p}</span>`).join('');
         tbody.innerHTML += `<tr><td class="fw-bold">${u.name}</td><td class="text-center fw-bold text-primary">${u.pin}</td><td>${permBadges}</td><td class="text-end"><button class="btn btn-sm btn-light text-danger" onclick="confirmDeleteUser('${u.pin}')"><i class="fa-solid fa-trash"></i></button></td></tr>`;
@@ -434,7 +448,7 @@
       let perms = []; document.querySelectorAll('.perm-chk:checked').forEach(chk => perms.push(chk.value));
       let userData = { pin: pin, name: name, permissions: perms.join(',') };
       google.script.run.withSuccessHandler(function(res) {
-        closeUserForm(); loadUsersData(); Swal.fire('สำเร็จ', 'บันทึกพนักงานเรียบร้อย', 'success');
+        closeUserForm(); loadUsersData(); Swal.fire(i18n[currentLang]['swal_save_success2'], i18n[currentLang]['swal_save_user_success'], 'success');
         let staff = (typeof currentStaff !== 'undefined' && currentStaff.name) ? currentStaff.name : 'Unknown';
         google.script.run.logAction(currentTenantSheetId, staff, "จัดการพนักงาน", "เพิ่ม/แก้ไขพนักงาน PIN: " + pin);
       }).saveUser(currentTenantSheetId, userData);
@@ -442,7 +456,7 @@
 
     function confirmDeleteUser(pin) {
       google.script.run.withSuccessHandler(() => { 
-        loadUsersData(); Swal.fire('สำเร็จ', 'ลบพนักงานแล้ว', 'success'); 
+        loadUsersData(); Swal.fire(i18n[currentLang]['swal_save_success2'], i18n[currentLang]['swal_del_user_success'], 'success'); 
         let staff = (typeof currentStaff !== 'undefined' && currentStaff.name) ? currentStaff.name : 'Unknown';
         google.script.run.logAction(currentTenantSheetId, staff, "จัดการพนักงาน", "ลบพนักงาน PIN: " + pin);
       }).deleteUser(currentTenantSheetId, pin);
@@ -457,7 +471,7 @@
     function updateStaffFilterDropdown() {
       const staffFilter = document.getElementById('log-staff-filter');
       const uniqueStaffNames = [...new Set(globalActivityLogs.map(log => log.staff))].sort();
-      staffFilter.innerHTML = '<option value="all">👤 พนักงานทั้งหมด</option>';
+      staffFilter.innerHTML = `<option value="all">${i18n[currentLang]['set_filter_all_staff']}</option>`;
       uniqueStaffNames.forEach(staff => { staffFilter.innerHTML += `<option value="${staff}">${staff}</option>`; });
     }
 
@@ -478,24 +492,45 @@
       const paginatedLogs = filteredLogs.slice(startIndex, startIndex + logsPerPage);
 
       tbody.innerHTML = '';
-      if (paginatedLogs.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-muted">ไม่พบประวัติการทำงาน</td></tr>'; paginationContainer.innerHTML = ''; return; }
+      if (paginatedLogs.length === 0) { tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-muted">${i18n[currentLang]['set_empty_logs']}</td></tr>`; paginationContainer.innerHTML = ''; return; }
       
+      // Map actions for translation
+      const actionMap = {
+        "เข้าสู่ระบบ": "set_log_login",
+        "ออกจากระบบ": "set_log_logout",
+        "ขายสินค้า": "set_log_sell",
+        "ยกเลิกบิล": "set_log_void",
+        "คืนสินค้า": "set_log_return",
+        "พิมพ์บิลซ้ำ": "set_log_reprint",
+        "เพิ่มสินค้า": "set_log_add_prod",
+        "แก้ไขสินค้า": "set_log_edit_prod",
+        "ลบสินค้า": "set_log_del_prod",
+        "รับสินค้าเข้า": "set_log_recv_stock",
+        "ลบข้อมูลทดสอบ": "set_log_clear_test",
+        "จัดการพนักงาน": "set_log_manage_user",
+        "ตั้งค่าระบบ": "set_log_sys_set"
+      };
+
       paginatedLogs.forEach(log => {
-        tbody.innerHTML += `<tr><td class="text-muted px-3">${log.timestamp}</td><td><span class="badge bg-secondary">${log.staff}</span></td><td><b>${log.action}</b></td><td class="text-muted">${log.detail}</td></tr>`;
+        let displayAction = log.action;
+        if(actionMap[log.action] && i18n[currentLang][actionMap[log.action]]) {
+           displayAction = i18n[currentLang][actionMap[log.action]];
+        }
+        tbody.innerHTML += `<tr><td class="text-muted px-3">${log.timestamp}</td><td><span class="badge bg-secondary">${log.staff}</span></td><td><b>${displayAction}</b></td><td class="text-muted">${log.detail}</td></tr>`;
       });
 
-      paginationContainer.innerHTML = `<span class="text-muted small">หน้า ${currentLogPage} / ${totalPages}</span>`;
+      paginationContainer.innerHTML = `<span class="text-muted small">${i18n[currentLang]['set_log_page']}${currentLogPage} / ${totalPages}</span>`;
     }
 
     // ==========================================
     // 📊 ระบบ Export / Import ข้อมูลผ่าน Excel
     // ==========================================
     function exportDataToExcel() {
-      Swal.fire({ title: 'กำลังเตรียมไฟล์ Excel...', didOpen: () => Swal.showLoading(), allowOutsideClick: false });
+      Swal.fire({ title: i18n[currentLang]['swal_prep_excel'], didOpen: () => Swal.showLoading(), allowOutsideClick: false });
       
       try {
         const settingsSheetData = [
-          ["หัวข้อตั้งค่า (ห้ามแก้ภาษาอังกฤษในวงเล็บ)", "ข้อมูลที่ต้องการแก้ไข"],
+          [i18n[currentLang]['excel_header_settings_1'] || "หัวข้อตั้งค่า (ห้ามแก้ภาษาอังกฤษในวงเล็บ)", i18n[currentLang]['excel_header_settings_2'] || "ข้อมูลที่ต้องการแก้ไข"],
           ["ชื่อร้านค้า (shop_name)", document.getElementById('set-shop-name').value],
           ["เบอร์พร้อมเพย์ (shop_promptpay)", document.getElementById('set-promptpay').value],
           ["ชื่อบัญชีธนาคาร (shop_account_name)", document.getElementById('set-account-name').value],
@@ -506,7 +541,16 @@
         ];
 
         const productsSheetData = [
-          ["รหัสสินค้า (ID) *ห้ามซ้ำ", "ชื่อสินค้า", "ราคาขาย", "หมวดหมู่", "สต็อกคงเหลือ", "จุดแจ้งเตือนสต็อก", "หน่วย", "ลิงก์รูปภาพ (URL เริ่มด้วย http)"]
+          [
+            i18n[currentLang]['excel_header_prod_1'] || "รหัสสินค้า (ID) *ห้ามซ้ำ", 
+            i18n[currentLang]['excel_header_prod_2'] || "ชื่อสินค้า", 
+            i18n[currentLang]['excel_header_prod_3'] || "ราคาขาย", 
+            i18n[currentLang]['excel_header_prod_4'] || "หมวดหมู่", 
+            i18n[currentLang]['excel_header_prod_5'] || "สต็อกคงเหลือ", 
+            i18n[currentLang]['excel_header_prod_6'] || "จุดแจ้งเตือนสต็อก", 
+            i18n[currentLang]['excel_header_prod_7'] || "หน่วย", 
+            i18n[currentLang]['excel_header_prod_8'] || "ลิงก์รูปภาพ (URL เริ่มด้วย http)"
+          ]
         ];
         globalProducts.forEach(p => {
           productsSheetData.push([p.id, p.name, p.price, p.category, p.stock, p.minStock, p.unit, p.image]);
@@ -532,13 +576,13 @@
           }
         }
 
-        XLSX.utils.book_append_sheet(wb, wsSettings, "ตั้งค่าร้านค้า");
-        XLSX.utils.book_append_sheet(wb, wsProducts, "คลังสินค้า");
+        XLSX.utils.book_append_sheet(wb, wsSettings, i18n[currentLang]['excel_sheet_settings'] || "ตั้งค่าร้านค้า");
+        XLSX.utils.book_append_sheet(wb, wsProducts, i18n[currentLang]['excel_sheet_products'] || "คลังสินค้า");
 
         Swal.close();
         XLSX.writeFile(wb, "ShopData_POS.xlsx");
       } catch (err) {
-        Swal.fire('ข้อผิดพลาด', 'ไลบรารี Excel ไม่ทำงาน กรุณารีเฟรชหน้าเว็บ', 'error');
+        Swal.fire(i18n[currentLang]['swal_error_title2'], i18n[currentLang]['swal_err_excel_lib'], 'error');
       }
     }
 
@@ -547,7 +591,7 @@
       const file = input.files[0];
       const reader = new FileReader();
 
-      Swal.fire({ title: 'กำลังอ่านไฟล์ Excel...', didOpen: () => Swal.showLoading(), allowOutsideClick: false });
+      Swal.fire({ title: i18n[currentLang]['swal_read_excel'], didOpen: () => Swal.showLoading(), allowOutsideClick: false });
 
       reader.onload = function(e) {
         try {
@@ -557,8 +601,16 @@
           let newSettings = {};
           let newProducts = [];
 
-          if (workbook.SheetNames.includes("ตั้งค่าร้านค้า")) {
-            const wsSettings = workbook.Sheets["ตั้งค่าร้านค้า"];
+          let thSettingsStr = i18n['th']['excel_sheet_settings'];
+          let thProductsStr = i18n['th']['excel_sheet_products'];
+          let enSettingsStr = i18n['en']['excel_sheet_settings'];
+          let enProductsStr = i18n['en']['excel_sheet_products'];
+
+          let foundSettingsSheet = workbook.SheetNames.find(n => n === thSettingsStr || n === enSettingsStr);
+          let foundProductsSheet = workbook.SheetNames.find(n => n === thProductsStr || n === enProductsStr);
+
+          if (foundSettingsSheet) {
+            const wsSettings = workbook.Sheets[foundSettingsSheet];
             const settingsData = XLSX.utils.sheet_to_json(wsSettings, {header: 1});
             for(let i = 1; i < settingsData.length; i++) {
                let row = settingsData[i];
@@ -585,12 +637,12 @@
             }
           }
 
-          if (workbook.SheetNames.includes("คลังสินค้า")) {
-            const wsProducts = workbook.Sheets["คลังสินค้า"];
+          if (foundProductsSheet) {
+            const wsProducts = workbook.Sheets[foundProductsSheet];
             const productsData = XLSX.utils.sheet_to_json(wsProducts, {header: 1});
             for(let i = 1; i < productsData.length; i++) {
               let row = productsData[i];
-              if(row[0] && row[0] !== "รหัสสินค้า (ID) *ห้ามซ้ำ") {
+              if(row[0] && !String(row[0]).includes("(ID)")) {
                 newProducts.push({
                   id: String(row[0]).trim(),
                   name: String(row[1] || "").trim(),
@@ -606,10 +658,10 @@
           }
 
           if (Object.keys(newSettings).length === 0 && newProducts.length === 0) {
-             input.value = ""; return Swal.fire('ผิดพลาด', 'ไฟล์นี้ไม่มีข้อมูล หรือโครงสร้างไม่ถูกต้อง', 'error');
+             input.value = ""; return Swal.fire(i18n[currentLang]['swal_error_title'], i18n[currentLang]['swal_err_excel_format'], 'error');
           }
 
-          Swal.fire({ title: 'กำลังอัปเดตระบบ...', didOpen: () => Swal.showLoading(), allowOutsideClick: false });
+          Swal.fire({ title: i18n[currentLang]['swal_updating_sys'], didOpen: () => Swal.showLoading(), allowOutsideClick: false });
 
           google.script.run
             .withSuccessHandler(function(res) {
@@ -618,23 +670,23 @@
                 let staff = (typeof currentStaff !== 'undefined' && currentStaff.name) ? currentStaff.name : 'Unknown';
                 google.script.run.logAction(currentTenantSheetId, staff, "นำเข้า Excel", "อัปเดตระบบและสินค้า " + newProducts.length + " รายการ");
                 
-                Swal.fire('อัปเดตสำเร็จ!', 'ระบบดึงข้อมูลจาก Excel เข้าสู่ฐานข้อมูลเรียบร้อยแล้ว', 'success').then(() => {
+                Swal.fire(i18n[currentLang]['swal_update_success_title'], i18n[currentLang]['swal_update_success_desc'], 'success').then(() => {
                   loadShopData(currentTenantSheetId); 
                   refreshProductsData(); 
                 });
               } else {
-                Swal.fire('ผิดพลาดจากเซิร์ฟเวอร์', res.message, 'error');
+                Swal.fire(i18n[currentLang]['swal_err_server'], res.message, 'error');
               }
             })
             .withFailureHandler(function(err) {
               input.value = ""; 
-              Swal.fire('การเชื่อมต่อล้มเหลว', 'ไม่สามารถส่งข้อมูลไปเซิร์ฟเวอร์ได้ (ลอง Restart Server)', 'error');
+              Swal.fire(i18n[currentLang]['swal_error_title2'], i18n[currentLang]['swal_conn_fail_import'], 'error');
             })
             .importExcelData(currentTenantSheetId, JSON.stringify({ settings: newSettings, products: newProducts }));
 
         } catch (err) {
           input.value = "";
-          Swal.fire('ข้อผิดพลาด', 'รูปแบบไฟล์ไม่ถูกต้อง หรืออ่านข้อมูลล้มเหลว', 'error');
+          Swal.fire(i18n[currentLang]['swal_error_title2'], i18n[currentLang]['swal_err_read_format'], 'error');
         }
       };
       
@@ -646,16 +698,16 @@
 <!-- 🌟 Modal สำหรับสแกนเชื่อมต่อจอลูกค้า (CFD) -->
 <div id="cfd-connect-modal" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(5px); z-index: 1060; justify-content: center; align-items: center; padding: 15px;">
   <div class="bg-white p-4 p-md-5 rounded-4 shadow-lg text-center" style="width: 100%; max-width: 450px;">
-    <h4 class="fw-bold text-primary mb-3"><i class="fa-solid fa-mobile-screen-button me-2"></i>เชื่อมต่อจอลูกค้า (CFD)</h4>
-    <p class="text-muted small mb-4">ใช้ iPad หรือมือถือเครื่องใดก็ได้ สแกน QR Code ด้านล่างนี้<br>ระบบจอลูกค้าจะซิงค์แบบเรียลไทม์ทันที</p>
+    <h4 class="fw-bold text-primary mb-3" data-i18n="cfd_title"><i class="fa-solid fa-mobile-screen-button me-2"></i>เชื่อมต่อจอลูกค้า (CFD)</h4>
+    <p class="text-muted small mb-4" data-i18n="cfd_desc">ใช้ iPad หรือมือถือเครื่องใดก็ได้ สแกน QR Code ด้านล่างนี้<br>ระบบจอลูกค้าจะซิงค์แบบเรียลไทม์ทันที</p>
     <div id="cfd-qr-generate" class="d-flex justify-content-center p-3 bg-light rounded-4 border mb-3" style="min-height: 250px;"></div>
     <div class="input-group mb-4 shadow-sm">
       <input type="text" id="cfd-link-input" class="form-control text-center text-muted small bg-light" readonly>
       <button class="btn btn-outline-secondary bg-white" onclick="copyCfdLink()"><i class="fa-solid fa-copy"></i></button>
     </div>
     <div class="d-flex gap-2">
-      <button class="btn btn-light flex-fill fw-bold py-3 rounded-3 shadow-sm border" onclick="document.getElementById('cfd-connect-modal').style.display='none'">ปิดหน้าต่าง</button>
-      <button class="btn btn-primary flex-fill fw-bold py-3 rounded-3 shadow-sm" onclick="window.open(document.getElementById('cfd-link-input').value, '_blank')">เปิดในเครื่องนี้</button>
+      <button class="btn btn-light flex-fill fw-bold py-3 rounded-3 shadow-sm border" onclick="document.getElementById('cfd-connect-modal').style.display='none'" data-i18n="cfd_btn_close">ปิดหน้าต่าง</button>
+      <button class="btn btn-primary flex-fill fw-bold py-3 rounded-3 shadow-sm" onclick="window.open(document.getElementById('cfd-link-input').value, '_blank')" data-i18n="cfd_btn_open_this">เปิดในเครื่องนี้</button>
     </div>
   </div>
 </div>
@@ -664,50 +716,50 @@
 <div id="ui-settings-modal" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(5px); z-index: 999999; justify-content: center; align-items: center; padding: 15px;">
   <div class="bg-white p-4 rounded-4 shadow-lg d-flex flex-column" style="width: 100%; max-width: 450px; max-height: 90vh;">
     <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-3">
-      <h5 class="fw-bold text-primary m-0"><i class="fa-solid fa-sliders me-2"></i> ปรับแต่งการแสดงผล</h5>
+      <h5 class="fw-bold text-primary m-0" data-i18n="ui_title"><i class="fa-solid fa-sliders me-2"></i> ปรับแต่งการแสดงผล</h5>
       <button class="btn-close" onclick="document.getElementById('ui-settings-modal').style.display='none'"></button>
     </div>
     
     <div style="overflow-y: auto; overflow-x: hidden; padding-right: 5px;">
-        <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-cash-register text-success me-2"></i> หมวดขายของ (POS)</h6>
+        <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-cash-register text-success me-2"></i> <span data-i18n="ui_cat_pos">หมวดขายของ (POS)</span></h6>
         <div class="form-check form-switch fs-6 mb-3 p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center">
-          <label class="form-check-label fw-bold text-secondary m-0" for="ui-pos-cfd">1. ปุ่มจอลูกค้า (CFD)</label>
+          <label class="form-check-label fw-bold text-secondary m-0" for="ui-pos-cfd" data-i18n="ui_pos_1">1. ปุ่มจอลูกค้า (CFD)</label>
           <input class="form-check-input m-0" type="checkbox" id="ui-pos-cfd" style="width: 40px; height: 20px;">
         </div>
         <div class="form-check form-switch fs-6 mb-3 p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center">
-          <label class="form-check-label fw-bold text-secondary m-0" for="ui-pos-scan">2. โหมดสแกนบาร์โค้ด</label>
+          <label class="form-check-label fw-bold text-secondary m-0" for="ui-pos-scan" data-i18n="ui_pos_2">2. โหมดสแกนบาร์โค้ด</label>
           <input class="form-check-input m-0" type="checkbox" id="ui-pos-scan" style="width: 40px; height: 20px;">
         </div>
         <div class="form-check form-switch fs-6 mb-3 p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center">
-          <label class="form-check-label fw-bold text-secondary m-0" for="ui-pos-history">3. ค้นหาบิล & บิลย้อนหลัง</label>
+          <label class="form-check-label fw-bold text-secondary m-0" for="ui-pos-history" data-i18n="ui_pos_3">3. ค้นหาบิล & บิลย้อนหลัง</label>
           <input class="form-check-input m-0" type="checkbox" id="ui-pos-history" style="width: 40px; height: 20px;">
         </div>
         <div class="form-check form-switch fs-6 mb-4 p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center">
-          <label class="form-check-label fw-bold text-secondary m-0" for="ui-pos-category">4. แถบตัวกรองหมวดหมู่</label>
+          <label class="form-check-label fw-bold text-secondary m-0" for="ui-pos-category" data-i18n="ui_pos_4">4. แถบตัวกรองหมวดหมู่</label>
           <input class="form-check-input m-0" type="checkbox" id="ui-pos-category" style="width: 40px; height: 20px;">
         </div>
 
-        <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-gear text-danger me-2"></i> หมวดตั้งค่า (Settings)</h6>
+        <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-gear text-danger me-2"></i> <span data-i18n="ui_cat_set">หมวดตั้งค่า (Settings)</span></h6>
         <div class="form-check form-switch fs-6 mb-3 p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center">
-          <label class="form-check-label fw-bold text-secondary m-0" for="ui-set-shopinfo">1. ข้อมูลร้านค้า & การพิมพ์</label>
+          <label class="form-check-label fw-bold text-secondary m-0" for="ui-set-shopinfo" data-i18n="ui_set_1">1. ข้อมูลร้านค้า & การพิมพ์</label>
           <input class="form-check-input m-0" type="checkbox" id="ui-set-shopinfo" style="width: 40px; height: 20px;">
         </div>
         <div class="form-check form-switch fs-6 mb-3 p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center">
-          <label class="form-check-label fw-bold text-secondary m-0" for="ui-set-excel">2. จัดการข้อมูลด้วย Excel</label>
+          <label class="form-check-label fw-bold text-secondary m-0" for="ui-set-excel" data-i18n="ui_set_2">2. จัดการข้อมูลด้วย Excel</label>
           <input class="form-check-input m-0" type="checkbox" id="ui-set-excel" style="width: 40px; height: 20px;">
         </div>
         <div class="form-check form-switch fs-6 mb-3 p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center">
-          <label class="form-check-label fw-bold text-secondary m-0" for="ui-set-log">3. ประวัติการใช้งาน (Log)</label>
+          <label class="form-check-label fw-bold text-secondary m-0" for="ui-set-log" data-i18n="ui_set_3">3. ประวัติการใช้งาน (Log)</label>
           <input class="form-check-input m-0" type="checkbox" id="ui-set-log" style="width: 40px; height: 20px;">
         </div>
         <div class="form-check form-switch fs-6 mb-2 p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center">
-          <label class="form-check-label fw-bold text-secondary m-0" for="ui-set-users">4. จัดการพนักงาน & สิทธิ์</label>
+          <label class="form-check-label fw-bold text-secondary m-0" for="ui-set-users" data-i18n="ui_set_4">4. จัดการพนักงาน & สิทธิ์</label>
           <input class="form-check-input m-0" type="checkbox" id="ui-set-users" style="width: 40px; height: 20px;">
         </div>
     </div>
 
     <div class="mt-3 pt-3 border-top">
-      <button class="btn btn-primary w-100 fw-bold py-3 shadow-sm rounded-pill" id="btn-save-ui-settings" onclick="saveUISettings()"><i class="fa-solid fa-floppy-disk me-2"></i> บันทึกการตั้งค่าหน้าจอ</button>
+      <button class="btn btn-primary w-100 fw-bold py-3 shadow-sm rounded-pill" id="btn-save-ui-settings" onclick="saveUISettings()"><i class="fa-solid fa-floppy-disk me-2"></i> <span data-i18n="ui_btn_save">บันทึกการตั้งค่าหน้าจอ</span></button>
     </div>
   </div>
 </div>
@@ -816,7 +868,7 @@
 
   function saveUISettings() {
       let btn = document.getElementById('btn-save-ui-settings');
-      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึก...'; btn.disabled = true;
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ${i18n[currentLang]['swal_saving_btn']}`; btn.disabled = true;
       const getToggle = (id) => document.getElementById(id).checked ? "true" : "false";
       
       let newSettings = {
@@ -829,8 +881,8 @@
       google.script.run.withSuccessHandler(() => {
           Object.assign(cachedShopSettings, newSettings); applyUISettings();
           document.getElementById('ui-settings-modal').style.display = 'none';
-          btn.innerHTML = '<i class="fa-solid fa-floppy-disk me-2"></i> บันทึกการตั้งค่าหน้าจอ'; btn.disabled = false;
-          Swal.fire({icon: 'success', title: 'บันทึกสำเร็จ', timer: 1000, showConfirmButton: false});
+          btn.innerHTML = `<i class="fa-solid fa-floppy-disk me-2"></i> ${i18n[currentLang]['ui_btn_save']}`; btn.disabled = false;
+          Swal.fire({icon: 'success', title: i18n[currentLang]['swal_save_success2'], timer: 1000, showConfirmButton: false});
       }).updateShopSettings(currentTenantSheetId, newSettings);
   }
 
