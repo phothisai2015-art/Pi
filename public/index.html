@@ -489,10 +489,10 @@ function processSaaSLogin() {
   const password = document.getElementById('input-shop-password').value.trim();
   
   if(!contact || !password) { 
-    Swal.fire({ icon: 'warning', title: 'ข้อมูลไม่ครบ', text: 'กรุณากรอกข้อมูลให้ครบ' }); return; 
+    Swal.fire({ icon: 'warning', title: i18n[currentLang]['idx_alert_no_data_title'] || 'ข้อมูลไม่ครบ', text: i18n[currentLang]['idx_alert_no_data_desc'] || 'กรุณากรอกข้อมูลให้ครบ' }); return; 
   }
   isSaaSLoggingIn = true; 
-  Swal.fire({ title: 'กำลังตรวจสอบข้อมูล...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+  Swal.fire({ title: i18n[currentLang]['swal_checking'] || 'กำลังตรวจสอบข้อมูล...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
   
   google.script.run.withSuccessHandler(function(res) {
       isSaaSLoggingIn = false;
@@ -503,14 +503,14 @@ function processSaaSLogin() {
           window.location.href = '/superadmin'; 
           return; 
       }
-      if (res.status === "error") { Swal.fire({ icon: 'error', title: 'ล้มเหลว', text: res.message }); } 
+      if (res.status === "error") { Swal.fire({ icon: 'error', title: i18n[currentLang]['idx_alert_login_fail_title'] || 'ล้มเหลว', text: res.message }); } 
       else {
           localStorage.setItem('saas_tenant_id', res.sheetId);
           localStorage.setItem('saas_shop_name', res.shopName);
           window.location.href = '/shop'; 
       }
   }).withFailureHandler(function(err) {
-      isSaaSLoggingIn = false; Swal.fire({ icon: 'error', title: 'Error', text: 'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้' });
+      isSaaSLoggingIn = false; Swal.fire({ icon: 'error', title: 'Error', text: i18n[currentLang]['idx_alert_conn_fail'] || 'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้' });
   }).loginShop(contact, password); 
 }
 
@@ -569,14 +569,14 @@ function renewSearchShop() {
 
 function renewSubmitSlip() {
   var fileInput = document.getElementById('renew-slip-file');
-  if(!fileInput || fileInput.files.length === 0) return Swal.fire('ผิดพลาด', 'กรุณาแนบสลิปโอนเงิน', 'warning');
+  if(!fileInput || fileInput.files.length === 0) return Swal.fire(i18n[currentLang]['swal_error_title'] || 'ผิดพลาด', i18n[currentLang]['swal_err_no_slip'] || 'กรุณาแนบสลิปโอนเงิน', 'warning');
   var file = fileInput.files[0]; var reader = new FileReader();
-  Swal.fire({ title: 'กำลังอัปโหลดสลิป...', text: 'โปรดรอสักครู่ ห้ามปิดหน้าต่างนี้', didOpen: () => Swal.showLoading(), allowOutsideClick: false });
+  Swal.fire({ title: i18n[currentLang]['swal_upload_slip'] || 'กำลังอัปโหลดสลิป...', text: i18n[currentLang]['swal_wait_dont_close'] || 'โปรดรอสักครู่ ห้ามปิดหน้าต่างนี้', didOpen: () => Swal.showLoading(), allowOutsideClick: false });
   reader.onload = function(e) {
     var base64Data = e.target.result;
     google.script.run.withSuccessHandler(function(res) {
         Swal.close();
-        if(res && res.status === 'error') { Swal.fire('ผิดพลาด', res.message, 'error'); } 
+        if(res && res.status === 'error') { Swal.fire(i18n[currentLang]['swal_error_title'] || 'ผิดพลาด', res.message, 'error'); } 
         else {
           document.getElementById('renew-step-pay').style.display = 'none';
           document.getElementById('renew-step-success').style.display = 'block';
