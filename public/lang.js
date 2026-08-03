@@ -1193,7 +1193,6 @@ var i18n = {
     excel_header_prod_7: "หน่วย",
     excel_header_prod_8: "ลิงก์รูปภาพ (URL เริ่มด้วย http)"
   }
-  }
 };
 
 var currentLang = sessionStorage.getItem('pos_lang') || 'th';
