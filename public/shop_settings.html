@@ -16,10 +16,10 @@
     
     .settings-sidebar { width: 100%; display: flex; overflow-x: auto; gap: 8px; padding-bottom: 5px; scrollbar-width: none; }
     .settings-sidebar::-webkit-scrollbar { display: none; }
-    @media (min-width: 992px) { .settings-sidebar { width: 280px; flex-direction: column; flex-shrink: 0; padding-bottom: 0; position: sticky; top: 20px; } }
+    @media (min-width: 992px) { .settings-sidebar { width: 300px; flex-direction: column; flex-shrink: 0; padding-bottom: 0; position: sticky; top: 20px; } }
     
     .settings-tab { background: transparent; border: none; padding: 14px 20px; text-align: left; border-radius: 12px; font-weight: 600; color: #64748b; transition: all 0.2s; white-space: nowrap; display: flex; align-items: center; gap: 12px; font-size: 15px; }
-    .settings-tab i { width: 20px; text-align: center; font-size: 18px; }
+    .settings-tab i { width: 22px; text-align: center; font-size: 18px; }
     .settings-tab:hover { background: #f1f5f9; color: #0f172a; }
     .settings-tab.active { background: #eff6ff; color: #3b82f6; box-shadow: inset 4px 0 0 #3b82f6; }
     @media (max-width: 991px) { .settings-tab.active { box-shadow: inset 0 -4px 0 #3b82f6; } }
@@ -40,48 +40,44 @@
   <div class="d-flex justify-content-between align-items-center mb-4 py-3 px-3 px-lg-4 sticky-top settings-mobile-header" style="background: inherit; z-index: 1045; margin-top: -20px;">
     <div class="d-flex align-items-center gap-3">
       <h3 class="fw-bold text-primary m-0" data-i18n="set_header_title"><i class="fa-solid fa-gear me-2"></i> ตั้งค่าระบบ </h3>
-      <button class="btn btn-primary btn-sm fw-bold rounded-pill shadow-sm" onclick="openUISettingsModal()"><i class="fa-solid fa-sliders me-1"></i> <span data-i18n="set_btn_ui">ปรับหน้าจอ</span></button>
     </div>
     <button class="btn btn-outline-danger fw-bold rounded-pill px-4" onclick="closeSettingsPage()"><i class="fa-solid fa-arrow-left me-2"></i> <span data-i18n="set_btn_back">กลับ</span> </button>
   </div>
 
   <div class="container-fluid px-3 px-lg-4 pb-5 settings-layout">
     
-    <!-- 🌟 Sidebar Menu -->
+    <!-- 🌟 Sidebar Menu (ปรับตามที่คุณขอเป๊ะๆ) -->
     <div class="settings-sidebar bg-white p-2 p-lg-3 rounded-4 shadow-sm border">
       <h6 class="fw-bold text-muted px-3 mt-2 mb-3 d-none d-lg-block" data-i18n="set_sidebar_menu_title">เมนูการตั้งค่า</h6>
       
       <button class="settings-tab active" onclick="switchSettingsTab('tab-profile')" id="tab-btn-profile">
-         <i class="fa-solid fa-store text-danger"></i> <span data-i18n="set_shop_info_title">ข้อมูลร้านค้า & การพิมพ์</span>
+         <i class="fa-solid fa-store text-danger"></i> <span data-i18n="set_shop_info_title">🏢 ข้อมูลร้านค้า (Store Profile)</span>
       </button>
       
       <button class="settings-tab" onclick="switchSettingsTab('tab-package')" id="tab-btn-package">
-         <i class="fa-solid fa-crown text-warning"></i> <span data-i18n="set_pkg_title">แพ็กเกจร้านค้า</span>
+         <i class="fa-solid fa-crown text-warning"></i> <span data-i18n="set_pkg_title">👑 แพ็กเกจต่ออายุ (Subscription)</span>
       </button>
       
       <button class="settings-tab" onclick="switchSettingsTab('tab-staff')" id="tab-btn-staff">
-         <i class="fa-solid fa-users-gear text-primary"></i> <span data-i18n="set_user_title">จัดการพนักงาน & สิทธิ์</span>
+         <i class="fa-solid fa-users-gear text-primary"></i> <span data-i18n="set_user_title">👥 จัดการพนักงาน (Staff & Roles)</span>
       </button>
       
       <button class="settings-tab" onclick="switchSettingsTab('tab-log')" id="tab-btn-log">
-         <i class="fa-solid fa-list-check text-warning"></i> <span data-i18n="set_log_title">ประวัติการใช้งาน (Log)</span>
+         <i class="fa-solid fa-list-check text-info"></i> <span data-i18n="set_log_title">📊 ประวัติการใช้งาน (Activity Log)</span>
       </button>
       
       <button class="settings-tab" onclick="switchSettingsTab('tab-advanced')" id="tab-btn-advanced">
-         <i class="fa-solid fa-file-excel text-success"></i> <span data-i18n="set_excel_title">จัดการข้อมูลด้วย Excel</span>
+         <i class="fa-solid fa-gear text-secondary"></i> <span data-i18n="set_advanced_title">⚙️ ตั้งค่าขั้นสูง (Excel, UI, Auto-print)</span>
       </button>
     </div>
 
     <!-- 🌟 Main Content Area -->
     <div class="settings-content">
       
-      <!-- 🏢 TAB: ข้อมูลร้านค้า -->
+      <!-- 🏢 TAB: ข้อมูลร้านค้า (สะอาดขึ้น ย้าย Auto-print ออก) -->
       <div id="tab-profile" class="settings-panel active bg-white p-3 p-lg-4 rounded-4 shadow-sm border h-100">
-        <h5 class="fw-bold text-dark mb-4"><i class="fa-solid fa-store text-danger me-2"></i> <span data-i18n="set_shop_info_title">ข้อมูลร้านค้า & การพิมพ์</span></h5>
-        <div class="form-check form-switch fs-6 mb-4 p-3 bg-light rounded-3 border">
-          <input class="form-check-input ms-0 me-3" type="checkbox" id="set-auto-print" style="width: 40px; height: 20px;">
-          <label class="form-check-label fw-bold text-dark" for="set-auto-print" data-i18n="set_auto_print"> เปิดระบบพิมพ์ใบเสร็จอัตโนมัติหลังจ่ายเงิน </label>
-        </div>
+        <h5 class="fw-bold text-dark mb-4"><i class="fa-solid fa-store text-danger me-2"></i> <span data-i18n="set_shop_info_title">ข้อมูลร้านค้า (Store Profile)</span></h5>
+        
         <div class="form-floating mb-3"><input type="text" id="set-shop-name" class="form-control fw-bold bg-light" placeholder="ระบุชื่อร้านค้า" data-i18n="set_placeholder_shop_name"><label class="fw-bold text-muted" data-i18n="set_label_shop_name"> ชื่อร้านค้า / ชื่อบริษัท </label></div>
         <div class="mb-3"><label class="form-label fw-bold text-muted small" data-i18n="set_label_promptpay"> เบอร์พร้อมเพย์ (รับเงิน) </label><input type="text" id="set-promptpay" class="form-control fw-bold text-primary bg-light" placeholder="08XXXXXXXX" data-i18n="set_placeholder_promptpay"></div>
         <div class="form-floating mb-3"><input type="text" id="set-account-name" class="form-control fw-bold bg-light" placeholder="ชื่อบัญชี" data-i18n="set_placeholder_acc_name"><label class="fw-bold text-muted" data-i18n="set_label_acc_name"> ชื่อบัญชีธนาคาร (แสดงตอนสแกน) </label></div>
@@ -108,7 +104,7 @@
         <div class="p-4 rounded-4 shadow-sm border" style="background: linear-gradient(135deg, #1e293b, #0f172a);">
           <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
             <div>
-              <h5 class="fw-bold text-warning mb-3" data-i18n="set_pkg_title"><i class="fa-solid fa-crown me-2"></i> แพ็กเกจร้านค้า</h5>
+              <h5 class="fw-bold text-warning mb-3" data-i18n="set_pkg_title"><i class="fa-solid fa-crown me-2"></i> แพ็กเกจต่ออายุ (Subscription)</h5>
               <p class="mb-1 text-light"><span data-i18n="set_pkg_valid_until">ใช้งานได้ถึง: </span><span id="setting-exp-date" class="fw-bold text-white fs-5" data-i18n="set_pkg_connecting">กำลังเชื่อมต่อ...</span></p>
               <p class="mb-0 text-light"><span data-i18n="set_pkg_remaining">เหลือเวลา: </span><span id="setting-exp-days" class="fw-bold text-warning fs-3">...</span><span class="ms-1" data-i18n="set_pkg_days">วัน</span></p>
             </div>
@@ -122,7 +118,7 @@
       <!-- 👥 TAB: จัดการพนักงาน -->
       <div id="tab-staff" class="settings-panel bg-white p-3 p-lg-4 rounded-4 shadow-sm border h-100">
         <div class="d-flex justify-content-between align-items-center mb-4 user-mgmt-header">
-          <h5 class="fw-bold text-dark m-0"><i class="fa-solid fa-users-gear text-primary me-2"></i> <span data-i18n="set_user_title">จัดการพนักงาน & สิทธิ์การใช้งาน</span> </h5>
+          <h5 class="fw-bold text-dark m-0"><i class="fa-solid fa-users-gear text-primary me-2"></i> <span data-i18n="set_user_title">จัดการพนักงาน (Staff & Roles)</span> </h5>
           <button class="btn btn-primary btn-sm fw-bold rounded-pill px-3 shadow-sm" onclick="openUserForm()"><i class="fa-solid fa-user-plus me-1"></i> <span data-i18n="set_btn_add_user">เพิ่มพนักงาน</span> </button>
         </div>
         <div class="table-responsive user-table-wrapper" style="max-height: 60vh; overflow-y: auto;">
@@ -136,7 +132,7 @@
       <!-- 📊 TAB: ประวัติการใช้งาน -->
       <div id="tab-log" class="settings-panel bg-white p-3 p-lg-4 rounded-4 shadow-sm border h-100">
         <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-          <h5 class="fw-bold text-dark m-0"><i class="fa-solid fa-list-check text-warning me-2"></i> <span data-i18n="set_log_title">ประวัติการใช้งานระบบ (Activity Log)</span></h5>
+          <h5 class="fw-bold text-dark m-0"><i class="fa-solid fa-list-check text-warning me-2"></i> <span data-i18n="set_log_title">ประวัติการใช้งาน (Activity Log)</span></h5>
           <div class="d-flex flex-wrap gap-2">
             <select id="log-staff-filter" class="form-select form-select-sm fw-bold border-secondary bg-light text-dark" style="width: auto; min-width: 140px;" onchange="changeLogPage(1)"><option value="all" data-i18n="set_filter_all_staff">👤 พนักงานทั้งหมด</option></select>
             <select id="log-filter" class="form-select form-select-sm fw-bold border-secondary bg-light text-dark" style="width: auto; min-width: 160px;" onchange="changeLogPage(1)">
@@ -170,9 +166,27 @@
         <div id="log-pagination" class="d-flex justify-content-between align-items-center mt-3 gap-2 bg-white p-2 rounded-3 border shadow-sm"></div>
       </div>
 
-      <!-- ⚙️ TAB: จัดการข้อมูลด้วย Excel -->
+      <!-- ⚙️ TAB: ตั้งค่าขั้นสูง (Excel, UI, Auto-print) -->
       <div id="tab-advanced" class="settings-panel bg-white p-3 p-lg-4 rounded-4 shadow-sm border h-100">
-        <h5 class="fw-bold text-success mb-4"><i class="fa-solid fa-file-excel me-2"></i> <span data-i18n="set_excel_title">จัดการข้อมูลด้วย Excel</span></h5>
+        <h5 class="fw-bold text-secondary mb-4"><i class="fa-solid fa-gear me-2"></i> <span data-i18n="set_advanced_title">ตั้งค่าขั้นสูง (Excel, UI, Auto-print)</span></h5>
+        
+        <!-- ระบบพิมพ์บิล -->
+        <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-print text-primary me-2"></i> ระบบการพิมพ์</h6>
+        <div class="form-check form-switch fs-6 mb-4 p-3 bg-light rounded-3 border">
+          <!-- ย้าย onchange="saveSettings()" มาไว้ตรงนี้ เพื่อให้เซฟทันทีเมื่อเปิดปิด -->
+          <input class="form-check-input ms-0 me-3" type="checkbox" id="set-auto-print-advanced" style="width: 40px; height: 20px;" onchange="syncAutoPrintAndSave()">
+          <label class="form-check-label fw-bold text-dark" for="set-auto-print-advanced" data-i18n="set_auto_print"> เปิดระบบพิมพ์ใบเสร็จอัตโนมัติหลังจ่ายเงิน </label>
+        </div>
+
+        <!-- ระบบ UI Layout -->
+        <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-desktop text-info me-2"></i> การแสดงผล</h6>
+        <div class="mb-4 p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center">
+          <span class="fw-bold text-dark" data-i18n="set_btn_ui">ปรับแต่งการแสดงผล (UI Layout)</span>
+          <button class="btn btn-primary btn-sm fw-bold rounded-pill shadow-sm px-3" onclick="openUISettingsModal()"><i class="fa-solid fa-sliders me-1"></i> <span data-i18n="set_btn_ui">ปรับหน้าจอ</span></button>
+        </div>
+
+        <!-- Excel Data -->
+        <h6 class="fw-bold text-success mb-3"><i class="fa-solid fa-file-excel me-2"></i> <span data-i18n="set_excel_title">จัดการข้อมูลด้วย Excel</span></h6>
         <div class="d-flex gap-3 flex-column flex-md-row">
           <button class="btn btn-outline-success flex-fill fw-bold py-3 shadow-sm rounded-pill" onclick="exportDataToExcel()"><i class="fa-solid fa-download me-1"></i> <span data-i18n="set_btn_export">โหลดฟอร์ม</span></button>
           <button class="btn btn-success flex-fill fw-bold py-3 shadow-sm rounded-pill" onclick="document.getElementById('import-excel-input').value=''; document.getElementById('import-excel-input').click()"><i class="fa-solid fa-upload me-1"></i> <span data-i18n="set_btn_import">นำเข้าข้อมูล</span></button>
@@ -369,6 +383,14 @@
        if(targetPanel) targetPanel.classList.add('active');
     }
 
+    // ฟังก์ชันซิงค์การทำงานของปุ่ม Auto Print เพื่อให้สามารถกดบันทึกได้เนียนๆ
+    function syncAutoPrintAndSave() {
+        let isChecked = document.getElementById('set-auto-print-advanced').checked;
+        let originalPrint = document.getElementById('set-auto-print');
+        if (originalPrint) originalPrint.checked = isChecked;
+        saveSettings();
+    }
+
     let settingsUsers = []; let globalActivityLogs = []; let currentLogPage = 1; const logsPerPage = 10;
     let tenantEmailForRenew = ""; let tenantShopNameForRenew = "";
     const ADMIN_PROMPTPAY = "0981697930"; 
@@ -533,15 +555,22 @@
         document.getElementById('set-phone').value = s.shop_phone || '';
         document.getElementById('set-address').value = s.shop_address || '';
         document.getElementById('set-auto-print').checked = (s.auto_print === "true" || s.auto_print === true);
+        
+        let advancedAutoPrint = document.getElementById('set-auto-print-advanced');
+        if (advancedAutoPrint) advancedAutoPrint.checked = (s.auto_print === "true" || s.auto_print === true);
+
         if(s.shop_logo) { document.getElementById('set-logo-preview').src = s.shop_logo; document.getElementById('set-logo-preview').style.display = 'block'; }
       }).getShopSettings(currentTenantSheetId);
     }
 
     function saveSettings() {
       const btn = document.getElementById('btn-save-settings'); 
-      let originalText = btn.innerHTML;
-      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ${i18n[currentLang]['swal_saving_btn']}`;
-      btn.disabled = true;
+      let originalText = btn ? btn.innerHTML : `<i class="fa-solid fa-floppy-disk me-2"></i> ${i18n[currentLang]['set_btn_save_settings']}`;
+      
+      if (btn) {
+         btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ${i18n[currentLang]['swal_saving_btn']}`;
+         btn.disabled = true;
+      }
 
       const fileInput = document.getElementById('set-logo-file');
       
@@ -557,7 +586,9 @@
     }
 
     function submitSettingsData(btn, originalText) {
-      document.getElementById('set-upload-status').innerText = i18n[currentLang]['swal_saving_data'];
+      let uploadStatus = document.getElementById('set-upload-status');
+      if (uploadStatus) uploadStatus.innerText = i18n[currentLang]['swal_saving_data'];
+      
       const newSettings = {
         shop_name: document.getElementById('set-shop-name').value, shop_promptpay: document.getElementById('set-promptpay').value,
         shop_account_name: document.getElementById('set-account-name').value, shop_phone: document.getElementById('set-phone').value,
@@ -565,8 +596,8 @@
         shop_logo: document.getElementById('set-logo-url').value
       };
       google.script.run.withSuccessHandler(() => { 
-        document.getElementById('set-upload-status').innerText = ''; 
-        btn.innerHTML = originalText; btn.disabled = false;
+        if (uploadStatus) uploadStatus.innerText = ''; 
+        if (btn) { btn.innerHTML = originalText; btn.disabled = false; }
         let staff = (typeof currentStaff !== 'undefined' && currentStaff.name) ? currentStaff.name : 'Unknown';
         google.script.run.logAction(currentTenantSheetId, staff, "ตั้งค่าระบบ", "อัปเดตข้อมูลร้านค้า & การพิมพ์");
         Swal.fire(i18n[currentLang]['swal_save_success2'], i18n[currentLang]['swal_save_setting_success'], 'success'); loadActivityLogsData(); 
@@ -1041,9 +1072,9 @@
           else catFilter.style.removeProperty('display');
       }
 
-      // --- New logic for Sidebar Settings Tabs ---
+      // 🌟 ระบบควบคุม UI ใหม่สำหรับ SaaS Layout (ซ่อน/แสดง แท็บเมนูด้านซ้าย)
       const toggleTab = (tabId, key) => {
-          let tabBtn = document.querySelector(`button[onclick="switchSettingsTab('${tabId}')"]`);
+          let tabBtn = document.getElementById('tab-btn-' + tabId.replace('tab-', ''));
           if (tabBtn) {
               if (isON(key)) tabBtn.style.removeProperty('display');
               else tabBtn.style.setProperty('display', 'none', 'important');
@@ -1055,13 +1086,12 @@
       toggleTab('tab-log', 'ui_set_log');
       toggleTab('tab-staff', 'ui_set_users');
       
-      // Check if active tab is hidden, switch to a visible one
+      // ตรวจสอบว่าถ้าแท็บปัจจุบันโดนซ่อนไปแล้ว ให้กระโดดไปเปิดแท็บอื่นที่ยังแสดงอยู่แทน
       let activePanel = document.querySelector('.settings-panel.active');
       let activeTabId = activePanel ? activePanel.id : 'tab-profile';
-      let activeTabBtn = document.querySelector(`button[onclick="switchSettingsTab('${activeTabId}')"]`);
+      let activeTabBtn = document.getElementById('tab-btn-' + activeTabId.replace('tab-', ''));
       
       if(activeTabBtn && activeTabBtn.style.display === 'none') {
-          // Find first visible tab
           let firstVisibleBtn = Array.from(document.querySelectorAll('.settings-tab')).find(b => b.style.display !== 'none');
           if(firstVisibleBtn) {
              firstVisibleBtn.click();
