@@ -428,11 +428,11 @@ var i18n = {
     // ⚙️ ส่วน: ตั้งค่าระบบ (shop_settings.html)
     // --------------------------------
     set_header_title: "ตั้งค่าระบบ",
-    set_btn_ui: "ปรับหน้าจอ",
+    set_btn_ui: "ปรับแต่งหน้าจอ",
     set_btn_back: "กลับ",
     
     // แพ็กเกจร้านค้า
-    set_pkg_title: "แพ็กเกจร้านค้า",
+    set_pkg_title: "แพ็กเกจต่ออายุ",
     set_pkg_valid_until: "ใช้งานได้ถึง: ",
     set_pkg_remaining: "เหลือเวลา: ",
     set_pkg_days: "วัน",
@@ -443,7 +443,7 @@ var i18n = {
     set_renew_checking: "กำลังตรวจสอบการโอนเงิน",
     
     // ข้อมูลร้านค้า & พิมพ์
-    set_shop_info_title: "ข้อมูลร้านค้า & การพิมพ์",
+    set_shop_info_title: "ข้อมูลร้านค้า",
     set_auto_print: "เปิดระบบพิมพ์ใบเสร็จอัตโนมัติหลังจ่ายเงิน",
     set_placeholder_shop_name: "ระบุชื่อร้านค้า",
     set_label_shop_name: "ชื่อร้านค้า / ชื่อบริษัท",
@@ -465,7 +465,7 @@ var i18n = {
     set_excel_hint: "* โหลดฟอร์มออกมาแก้ไข (ตั้งค่าร้าน หรือ สินค้า) แล้วกด \"นำเข้าข้อมูล\" เพื่ออัปเดตทับได้ทันที ถ้ารหัสสินค้าตรงกันจะอัปเดต ถ้ารหัสใหม่จะเพิ่มสินค้าให้ครับ",
     
     // จัดการพนักงาน
-    set_user_title: "จัดการพนักงาน & สิทธิ์การใช้งาน",
+    set_user_title: "จัดการพนักงาน",
     set_btn_add_user: "เพิ่มพนักงาน",
     set_th_user_name: "ชื่อพนักงาน",
     set_th_pin: "รหัส PIN",
@@ -475,7 +475,7 @@ var i18n = {
     set_empty_users: "ยังไม่มีข้อมูลพนักงาน",
     
     // ประวัติการใช้งาน (Activity Log)
-    set_log_title: "ประวัติการใช้งานระบบ (Activity Log)",
+    set_log_title: "ประวัติการใช้งาน",
     set_filter_all_staff: "👤 พนักงานทั้งหมด",
     set_filter_all_cat: "📁 ทุกหมวดหมู่",
     set_log_login: "🔓 เข้าสู่ระบบ",
@@ -620,7 +620,9 @@ var i18n = {
     idx_alert_login_fail_title: "ล้มเหลว",
     idx_alert_conn_fail: "เชื่อมต่อเซิร์ฟเวอร์ไม่ได้",
 	set_sidebar_menu_title: "เมนูการตั้งค่า",
-	idx_alert_login_wrong_cred: "อีเมล/เบอร์โทร หรือรหัสผ่านไม่ถูกต้อง!"  
+	idx_alert_login_wrong_cred: "อีเมล/เบอร์โทร หรือรหัสผ่านไม่ถูกต้อง!",
+	set_sidebar_menu_title: "เมนูการตั้งค่า",
+    set_advanced_title: "ตั้งค่าขั้นสูง (Excel, UI, Auto-print)"
 	
   },
   en: {
@@ -1049,11 +1051,11 @@ var i18n = {
     // ⚙️ Section: Settings (shop_settings.html)
     // --------------------------------
     set_header_title: "System Settings",
-    set_btn_ui: "UI Layout",
+    set_btn_ui: "UI Layout Settings",
     set_btn_back: "Back",
     
     // Store Package
-    set_pkg_title: "Store Package",
+    set_pkg_title: "Subscription",
     set_pkg_valid_until: "Valid until: ",
     set_pkg_remaining: "Remaining: ",
     set_pkg_days: "Days",
@@ -1064,7 +1066,7 @@ var i18n = {
     set_renew_checking: "Verifying payment",
     
     // Store Info & Print
-    set_shop_info_title: "Store Info & Printing",
+    set_shop_info_title: "Store Profile",
     set_auto_print: "Auto-print receipt after payment",
     set_placeholder_shop_name: "Enter Store Name",
     set_label_shop_name: "Store/Company Name",
@@ -1086,7 +1088,7 @@ var i18n = {
     set_excel_hint: "* Download the template to edit (Settings or Products) then click \"Import Data\" to update immediately. Matching IDs will update, new IDs will be added.",
     
     // User Management
-    set_user_title: "Staff Management & Permissions",
+    set_user_title: "Staff & Roles",
     set_btn_add_user: "Add Staff",
     set_th_user_name: "Staff Name",
     set_th_pin: "PIN Code",
@@ -1096,7 +1098,7 @@ var i18n = {
     set_empty_users: "No staff data",
     
     // Activity Log
-    set_log_title: "System Activity Log",
+    set_log_title: "Activity Log",
     set_filter_all_staff: "👤 All Staff",
     set_filter_all_cat: "📁 All Categories",
     set_log_login: "🔓 Login",
@@ -1241,7 +1243,9 @@ var i18n = {
     idx_alert_login_fail_title: "Failed",
     idx_alert_conn_fail: "Could not connect to server",
 	set_sidebar_menu_title: "Settings Menu",
-	idx_alert_login_wrong_cred: "Invalid email/phone or password!"  
+	idx_alert_login_wrong_cred: "Invalid email/phone or password!",
+	set_sidebar_menu_title: "Settings Menu",
+    set_advanced_title: "Advanced Settings (Excel, UI, Auto-print)"
   }
 };
 
