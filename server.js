@@ -480,56 +480,7 @@ app.post(['/api/upload-slip-notify', '/api/upload-quick-renew-slip'], async (req
   }
 });
 
-let lastUpdateId = 0;
-async function pollTelegram() {
-  try {
-    const response = await axios.get(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getUpdates?offset=${lastUpdateId + 1}&timeout=30`);
-    if (response.data.ok && response.data.result.length > 0) {
-      for (const update of response.data.result) {
-        lastUpdateId = update.update_id;
-        if (update.callback_query) {
-          const callbackData = update.callback_query.data;
-          const chatId = update.callback_query.message.chat.id;
-          const messageId = update.callback_query.message.message_id;
-          const parts = callbackData.split('_');
-          
-          if (parts[0] === "APPROVE") {
-            const pkg = parts[1]; const email = parts[2];
-            let addMonths = 0;
-            if (pkg === "1M") addMonths = 1; else if (pkg === "3M") addMonths = 3; else if (pkg === "6M") addMonths = 6; else if (pkg === "12M") addMonths = 12;
-
-            db.get(`SELECT expire_date, shop_name FROM tenants WHERE LOWER(email) = LOWER(?)`, [email], (err, row) => {
-              if (row) {
-                const currentExp = new Date(row.expire_date); const today = new Date();
-                let baseDate = (currentExp < today) ? today : currentExp;
-                baseDate.setMonth(baseDate.getMonth() + addMonths);
-                const newExpStr = baseDate.toISOString().split('T')[0];
-
-                db.run(`UPDATE tenants SET expire_date = ?, renew_status = 'NONE', renew_notified = 0 WHERE LOWER(email) = LOWER(?)`, [newExpStr, email], async () => {
-                  const mailOptions = {
-                    from: transporter.options.auth.user,
-                    to: email,
-                    subject: `🎉 ยืนยันการต่ออายุระบบ POS สำเร็จ - ร้าน ${row.shop_name}`,
-                    text: `สวัสดีครับ คุณลูกค้า (ร้าน ${row.shop_name})\n\nระบบได้รับการยืนยันการชำระเงิน และดำเนินการต่ออายุการใช้งานระบบ POS ของคุณเรียบร้อยแล้วครับ\n\n⏰ วันหมดอายุใหม่ของคุณคือ: ${padStr(baseDate.getDate())}/${padStr(baseDate.getMonth()+1)}/${baseDate.getFullYear()}\n\nขอบคุณที่ใช้บริการครับ!`
-                  };
-                  transporter.sendMail(mailOptions).catch(err => console.error("Send Confirm Mail Error:", err));
-
-                  const newText = `✅ <b>อนุมัติการต่ออายุเรียบร้อยแล้ว</b>\nร้าน: ${row.shop_name}\nอัปเดตวันหมดอายุใหม่เป็น: ${padStr(baseDate.getDate())}/${padStr(baseDate.getMonth()+1)}/${baseDate.getFullYear()}`;
-                  await axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/editMessageText`, { chat_id: chatId, message_id: messageId, text: newText, parse_mode: "HTML" });
-                });
-              }
-            });
-          } else if (parts[0] === "REJECT") {
-            await axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/editMessageText`, { chat_id: chatId, message_id: messageId, text: "❌ <b>ปฏิเสธการต่ออายุ</b> (ข้อมูลสลิปไม่ถูกต้อง)", parse_mode: "HTML" });
-          }
-        }
-      }
-    }
-  } catch (e) { /* Ignore timeout errors */ }
-  setTimeout(pollTelegram, 2000);
-}
-pollTelegram();
-
+pollTelegram()
 app.post('/api/import-excel', (req, res) => {
   const { tenantId, payload } = req.body;
   if (!tenantId || !payload) return res.json({ status: "error", message: "ข้อมูลไม่ครบถ้วน" });
