@@ -850,7 +850,7 @@
           ["ชื่อบัญชีธนาคาร (shop_account_name)", document.getElementById('set-account-name').value],
           ["เบอร์โทรศัพท์ (shop_phone)", document.getElementById('set-phone').value],
           ["ที่อยู่ร้าน (shop_address)", document.getElementById('set-address').value],
-          ["พิมพ์บิลอัตโนมัติ (auto_print)", document.getElementById('set-auto-print').checked ? "true" : "false"],
+          ["พิมพ์บิลอัตโนมัติ (auto_print)", (document.getElementById('set-auto-print-advanced') && document.getElementById('set-auto-print-advanced').checked) ? "true" : "false"],
           ["ลิงก์โลโก้ร้าน (shop_logo)", document.getElementById('set-logo-url').value]
         ];
 
