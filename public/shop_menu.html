@@ -268,21 +268,23 @@ function startRenewPolling() {
       if (info && !info.error) {
         globalDaysRemaining = info.daysRemaining;
         
-        // อัปเดตข้อมูลบนหน้าจอตั้งค่าแบบสดๆ
+        // 🌟 แก้ไขจุดที่หาตัวอักษรไม่เจอ
         let expDateEl = document.getElementById('setting-exp-date');
-        let expDaysEl = document.getElementById('setting-exp-days');
         let renewBtn = document.getElementById('btn-open-renew');
 
-        if (expDateEl) expDateEl.innerText = info.expireDate;
-        if (expDaysEl) {
-           let parentP = expDaysEl.parentElement;
-           if (info.daysRemaining < 0) {
-              parentP.innerHTML = i18n[currentLang]['set_status_expired'] || 'หมดอายุแล้ว!';
-           } else if (info.daysRemaining === 0) {
-              parentP.innerHTML = i18n[currentLang]['set_status_expire_today'] || 'หมดอายุวันนี้!';
-           } else {
-              let colorClass = info.daysRemaining <= 7 ? 'text-danger' : 'text-warning';
-              parentP.innerHTML = (i18n[currentLang]['set_pkg_remaining']||'เหลือเวลา: ') + '<span id="setting-exp-days" class="fw-bold ' + colorClass + ' fs-5">' + info.daysRemaining + '</span><span class="ms-1 text-light">' + (i18n[currentLang]['set_pkg_days']||'วัน') + '</span>';
+        if (expDateEl) {
+           expDateEl.innerText = info.expireDate;
+           // ค้นหาตำแหน่งบรรทัดแบบใหม่ (หาบรรทัดถัดไปแทน ป้องกันการหาไม่เจอ)
+           let statusP = expDateEl.parentElement.nextElementSibling;
+           if (statusP) {
+              if (info.daysRemaining < 0) {
+                 statusP.innerHTML = i18n[currentLang]['set_status_expired'] || 'หมดอายุแล้ว!';
+              } else if (info.daysRemaining === 0) {
+                 statusP.innerHTML = i18n[currentLang]['set_status_expire_today'] || 'หมดอายุวันนี้!';
+              } else {
+                 let colorClass = info.daysRemaining <= 7 ? 'text-danger' : 'text-warning';
+                 statusP.innerHTML = (i18n[currentLang]['set_pkg_remaining']||'เหลือเวลา: ') + '<span id="setting-exp-days" class="fw-bold ' + colorClass + ' fs-5">' + info.daysRemaining + '</span><span class="ms-1 text-light">' + (i18n[currentLang]['set_pkg_days']||'วัน') + '</span>';
+              }
            }
         }
 

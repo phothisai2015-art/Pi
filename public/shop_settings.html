@@ -265,19 +265,24 @@
 
       google.script.run.withSuccessHandler(function(info) {
         if(info && !info.error) {
-          document.getElementById('setting-exp-date').innerText = info.expireDate;
-          let expElement = document.getElementById('setting-exp-days');
-          if (expElement) {
-            let parentP = expElement.parentElement;
-            if (info.daysRemaining < 0) {
-              parentP.innerHTML = i18n[currentLang]['set_status_expired'];
-            } else if (info.daysRemaining === 0) {
-              parentP.innerHTML = i18n[currentLang]['set_status_expire_today'];
-            } else {
-              let colorClass = info.daysRemaining <= 7 ? 'text-danger' : 'text-warning';
-              parentP.innerHTML = i18n[currentLang]['set_pkg_remaining'] + '<span id="setting-exp-days" class="fw-bold ' + colorClass + ' fs-5">' + info.daysRemaining + '</span><span class="ms-1 text-light">' + i18n[currentLang]['set_pkg_days'] + '</span>';
+          
+          // 🌟 แก้ไขจุดที่หาตัวอักษรไม่เจอ
+          let expDateEl = document.getElementById('setting-exp-date');
+          if (expDateEl) {
+            expDateEl.innerText = info.expireDate;
+            let statusP = expDateEl.parentElement.nextElementSibling;
+            if (statusP) {
+              if (info.daysRemaining < 0) {
+                statusP.innerHTML = i18n[currentLang]['set_status_expired'];
+              } else if (info.daysRemaining === 0) {
+                statusP.innerHTML = i18n[currentLang]['set_status_expire_today'];
+              } else {
+                let colorClass = info.daysRemaining <= 7 ? 'text-danger' : 'text-warning';
+                statusP.innerHTML = i18n[currentLang]['set_pkg_remaining'] + '<span id="setting-exp-days" class="fw-bold ' + colorClass + ' fs-5">' + info.daysRemaining + '</span><span class="ms-1 text-light">' + i18n[currentLang]['set_pkg_days'] + '</span>';
+              }
             }
           }
+          
           tenantEmailForRenew = info.email; tenantShopNameForRenew = info.shopName;
           document.getElementById('qr-email-show').innerText = info.email;
 
