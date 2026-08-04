@@ -54,6 +54,17 @@
     body.dark-theme #pos-search-bill-input::placeholder, 
     body.dark-theme #pos-cust-name::placeholder { color: #94a3b8 !important; }
     body.dark-theme #page-pos .input-group-text.bg-white { background-color: #1e293b !important; color: #94a3b8 !important; border-color: #334155 !important; }
+
+    /* 🔒 ล็อคความสูงหน้าจอไม่ให้ตกขอบใน Desktop */
+    @media (min-width: 992px) {
+      #page-pos { overflow-y: hidden !important; }
+      .pos-left-box { height: calc(100vh - 130px); overflow: hidden; }
+      .pos-right-summary { max-height: calc(100vh - 200px); overflow-y: auto; overflow-x: hidden; }
+    }
+    @media (max-width: 991px) {
+      #page-pos { overflow-y: auto !important; }
+      .pos-left-box { min-height: 60vh; }
+    }
   </style>
 
   <div class="d-flex justify-content-between align-items-center mb-4 mt-3 px-3 px-md-4 pos-mobile-header" style="background: transparent;">
@@ -71,7 +82,7 @@
   <div class="container-fluid p-3 p-md-4">
     <div class="row g-4 align-items-start">
       <div class="col-lg-8">
-        <div class="bg-white p-3 p-md-4 rounded-4 shadow-sm border-0 d-flex flex-column" style="min-height: 80vh;">
+        <div class="bg-white p-3 p-md-4 rounded-4 shadow-sm border-0 d-flex flex-column pos-left-box">
           <div class="d-flex flex-wrap flex-lg-nowrap align-items-center gap-3 mb-3 p-3 bg-light rounded-4 border">
             <div class="d-flex gap-2 flex-shrink-0 flex-wrap align-items-center">
               <button id="btn-mode-barcode" class="btn btn-primary fw-bold rounded-3 px-3 py-2" onclick="switchPOSMode('barcode')" data-i18n="pos_btn_scan"><i class="fa-solid fa-barcode"></i> สแกน</button>
@@ -128,7 +139,7 @@
           </div>
         </div>
 
-        <div class="bg-white p-4 rounded-4 shadow-sm border-0 d-flex flex-column">
+        <div class="bg-white p-4 rounded-4 shadow-sm border-0 d-flex flex-column pos-right-summary">
           <div class="d-flex justify-content-between align-items-center mb-4">
             <h5 class="fw-bold text-dark m-0" data-i18n="pos_summary_title"><i class="fa-solid fa-file-invoice-dollar me-2 text-primary"></i> สรุปยอดชำระ</h5>
             <button class="btn btn-sm btn-outline-danger fw-bold rounded-3 px-2 py-1 shadow-sm" onclick="clearCartManual()" title="ล้างรายการสินค้าทั้งหมด">
