@@ -619,6 +619,7 @@ var i18n = {
     idx_alert_no_data_desc: "กรุณากรอกข้อมูลให้ครบ",
     idx_alert_login_fail_title: "ล้มเหลว",
     idx_alert_conn_fail: "เชื่อมต่อเซิร์ฟเวอร์ไม่ได้",
+	set_sidebar_menu_title: "เมนูการตั้งค่า",
 	idx_alert_login_wrong_cred: "อีเมล/เบอร์โทร หรือรหัสผ่านไม่ถูกต้อง!"  
 	
   },
@@ -1239,6 +1240,7 @@ var i18n = {
     idx_alert_no_data_desc: "Please fill in all fields",
     idx_alert_login_fail_title: "Failed",
     idx_alert_conn_fail: "Could not connect to server",
+	set_sidebar_menu_title: "Settings Menu",
 	idx_alert_login_wrong_cred: "Invalid email/phone or password!"  
   }
 };
