@@ -23,7 +23,7 @@
       .dash-header-wrapper { position: sticky; top: -15px; z-index: 1045; background-color: #f8fafc; padding-top: 25px; margin-top: -15px; padding-bottom: 10px; margin-bottom: 10px !important; border-bottom: 1px solid #e2e8f0; }
       body.dark-theme .dash-header-wrapper { background-color: #0f172a !important; border-bottom-color: #334155 !important; }
       .dash-title-action { flex-direction: column; align-items: flex-start !important; gap: 10px; margin-bottom: 10px !important; display: flex; }
-      .dash-action-btns { display: flex; width: 100%; gap: 8px; justify-content: space-between; margin-bottom: 5px; }
+      .dash-action-btns { display: flex; width: 100%; gap: 8px; justify-content: flex-end; margin-bottom: 5px; }
       .dash-action-btns button { flex: 1; margin: 0 !important; font-size: 13px !important; padding: 8px 4px !important; text-align: center; }
       .dash-header-stack { display: flex !important; flex-wrap: wrap !important; gap: 8px !important; padding: 10px !important; flex-direction: row !important; }
       .dash-date-stack { display: contents !important; } .dash-date-stack > span { display: none !important; }
@@ -38,7 +38,6 @@
     <div class="d-flex justify-content-between align-items-center mb-3 dash-title-action">
       <h4 class="fw-bold text-dark m-0"><i class="fa-solid fa-chart-pie text-success me-2"></i> <span data-i18n="dash_header_title">แผงควบคุมสถิติ (Dashboard)</span></h4>
       <div class="dash-action-btns">
-        <button class="btn btn-danger fw-bold rounded-pill px-3 btn-sm shadow-sm" onclick="openClearTestModal()"><i class="fa-solid fa-trash-can me-1"></i> <span data-i18n="dash_btn_clear_test">ลบข้อมูลทดสอบ</span></button>
         <button class="btn btn-outline-danger fw-bold rounded-pill px-4 btn-sm shadow-sm" onclick="closeDashboardPage()"><i class="fa-solid fa-arrow-left me-2"></i> <span data-i18n="dash_btn_back">กลับหน้าหลัก</span></button>
       </div>
     </div>
@@ -367,73 +366,6 @@
        let staff = (typeof currentStaff !== 'undefined' && currentStaff.name) ? currentStaff.name : 'Unknown';
        google.script.run.logAction(currentTenantSheetId, staff, "พิมพ์บิลซ้ำ", "แดชบอร์ด: พิมพ์บิล " + receiptId);
        Swal.close(); setTimeout(() => { if (typeof openReceipt === "function") { openReceipt(receiptData, cachedShopSettings); setTimeout(() => { window.print(); }, 800); } }, 300);
-    }
-
-    let billsToDelete = [];
-    function openClearTestModal() {
-      const today = new Date().toISOString().split('T')[0]; 
-      Swal.fire({
-        title: `<i class="fa-solid fa-dumpster-fire text-danger"></i> ${i18n[currentLang]['dash_clear_test_title']}`,
-        html: `
-          <div class="text-start">
-            <div class="d-flex align-items-center mb-2 gap-2 w-100">
-              <input type="date" id="del-start" class="form-control form-control-sm" style="flex:1;" value="${today}">
-              <span class="text-muted fw-bold">-</span>
-              <input type="date" id="del-end" class="form-control form-control-sm" style="flex:1;" value="${today}">
-            </div>
-            <button class="btn btn-dark btn-sm fw-bold px-3 w-100 mb-3 shadow-sm" onclick="filterTestBills()"><i class="fa-solid fa-search"></i> ${i18n[currentLang]['dash_btn_fetch_bills']}</button>
-            <div class="alert alert-warning small fw-bold mb-2 py-2"><i class="fa-solid fa-triangle-exclamation"></i> ${i18n[currentLang]['dash_clear_test_warning']}</div>
-            <div id="del-test-container" class="border rounded-3 bg-light shadow-inner" style="height: 250px; overflow-y: auto; overflow-x: hidden;">
-              <table class="table table-hover small mb-0 bg-white w-100">
-                 <thead class="table-light sticky-top shadow-sm">
-                    <tr><th width="5%"><input type="checkbox" id="del-check-all" onchange="toggleAllDelChecks()"></th><th>${i18n[currentLang]['dash_th_datetime']}</th><th>${i18n[currentLang]['dash_th_receipt']}</th><th class="text-end">${i18n[currentLang]['dash_th_amount']}</th></tr>
-                 </thead>
-                 <tbody id="del-test-body"><tr><td colspan="4" class="text-center py-4 text-muted">${i18n[currentLang]['dash_clear_test_empty']}</td></tr></tbody>
-              </table>
-            </div>
-          </div>
-        `,
-        width: '600px', showCancelButton: true, confirmButtonColor: '#dc3545', confirmButtonText: `<i class="fa-solid fa-trash"></i> ${i18n[currentLang]['dash_btn_delete_permanent']}`, cancelButtonText: i18n[currentLang]['pos_btn_close'],
-        preConfirm: () => {
-           let checked = document.querySelectorAll('.del-cb:checked');
-           if(checked.length === 0) { Swal.showValidationMessage(i18n[currentLang]['dash_alert_select_bill']); return false; }
-           let targetIds = []; checked.forEach(cb => { let cleanId = cb.value.replace(/\(ยกเลิก\)/g, '').trim(); targetIds.push(cb.value); targetIds.push(cleanId); });
-           return [...new Set(targetIds)];
-        }
-      }).then((res) => { if(res.isConfirmed) confirmDeleteSelected(res.value); });
-    }
-
-    function filterTestBills() {
-      let startStr = document.getElementById('del-start').value; let endStr = document.getElementById('del-end').value;
-      if (!startStr || !endStr) return;
-      let startTime = new Date(startStr + "T00:00:00").getTime(); let endTime = new Date(endStr + "T23:59:59").getTime();
-      billsToDelete = rawSalesData.filter(sale => {
-        let parts = sale.dateStr.split(' '); let d = parts[0].split('/');
-        let jsDateStr = `${d[2]}-${d[1].padStart(2,'0')}-${d[0].padStart(2,'0')}T00:00:00`; 
-        let saleTime = new Date(jsDateStr).getTime(); return saleTime >= startTime && saleTime <= endTime;
-      });
-      const tbody = document.getElementById('del-test-body'); tbody.innerHTML = '';
-      if(billsToDelete.length === 0) { tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted py-4">${i18n[currentLang]['dash_clear_test_not_found']}</td></tr>`; return; }
-      billsToDelete.forEach(sale => {
-        tbody.innerHTML += `<tr><td><input type="checkbox" class="del-cb" value="${sale.receiptId}"></td><td class="text-muted">${sale.dateStr}</td><td class="fw-bold">${sale.receiptId}</td><td class="text-end fw-bold text-primary">฿${parseFloat(sale.total).toLocaleString()}</td></tr>`;
-      });
-    }
-
-    function toggleAllDelChecks() { let master = document.getElementById('del-check-all').checked; document.querySelectorAll('.del-cb').forEach(cb => cb.checked = master); }
-
-    function confirmDeleteSelected(receiptIds) {
-       Swal.fire({ title: i18n[currentLang]['dash_alert_final_warn_title'], text: i18n[currentLang]['dash_alert_final_warn_desc'], icon: 'warning', showCancelButton: true, confirmButtonColor: '#dc3545', confirmButtonText: i18n[currentLang]['dash_btn_delete_permanent'], cancelButtonText: i18n[currentLang]['pos_btn_cancel'] }).then(res => {
-          if(res.isConfirmed) {
-             Swal.fire({title: i18n[currentLang]['dash_alert_clearing'], allowOutsideClick:false, didOpen:() => Swal.showLoading()});
-             google.script.run.withSuccessHandler(response => {
-                if(response.status === 'success') {
-                   let staff = (typeof currentStaff !== 'undefined') ? currentStaff.name : 'Unknown';
-                   google.script.run.logAction(currentTenantSheetId, staff, "ลบข้อมูลทดสอบ", "กวาดล้างบิล " + response.count + " แถว");
-                   Swal.fire(i18n[currentLang]['bulk_success_title'], i18n[currentLang]['dash_alert_clear_success'] + ` (${response.count}${i18n[currentLang]['dash_alert_rows']})`, 'success'); loadDashboardDataFromServer(); 
-                } else Swal.fire(i18n[currentLang]['swal_error_occurred'], response.message, 'error'); 
-             }).deleteTestBills(currentTenantSheetId, receiptIds); 
-          }
-       });
     }
   </script>
 </div>
