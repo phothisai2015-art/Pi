@@ -574,15 +574,22 @@
 
       const fileInput = document.getElementById('set-logo-file');
       
-      if(fileInput.files.length > 0) {
-        document.getElementById('set-upload-status').innerText = i18n[currentLang]['swal_uploading_logo'];
-        const file = fileInput.files[0]; const reader = new FileReader();
+      if(fileInput && fileInput.files.length > 0) {
+        let uploadStatus = document.getElementById('set-upload-status');
+        if (uploadStatus) uploadStatus.innerText = i18n[currentLang]['swal_uploading_logo'];
+        
+        const file = fileInput.files[0]; 
+        const reader = new FileReader();
         reader.onload = function(e) {
           google.script.run.withSuccessHandler(function(url) {
-            document.getElementById('set-logo-url').value = url; submitSettingsData(btn, originalText);
+            document.getElementById('set-logo-url').value = url; 
+            submitSettingsData(btn, originalText);
           }).uploadImageToDrive(currentTenantSheetId, e.target.result, "Logo_" + file.name);
-        }; reader.readAsDataURL(file);
-      } else { submitSettingsData(btn, originalText); }
+        }; 
+        reader.readAsDataURL(file);
+      } else { 
+        submitSettingsData(btn, originalText); 
+      }
     }
 
     function submitSettingsData(btn, originalText) {
@@ -590,18 +597,36 @@
       if (uploadStatus) uploadStatus.innerText = i18n[currentLang]['swal_saving_data'];
       
       const newSettings = {
-        shop_name: document.getElementById('set-shop-name').value, shop_promptpay: document.getElementById('set-promptpay').value,
-        shop_account_name: document.getElementById('set-account-name').value, shop_phone: document.getElementById('set-phone').value,
-        shop_address: document.getElementById('set-address').value, auto_print: document.getElementById('set-auto-print').checked ? "true" : "false",
+        shop_name: document.getElementById('set-shop-name').value, 
+        shop_promptpay: document.getElementById('set-promptpay').value,
+        shop_account_name: document.getElementById('set-account-name').value, 
+        shop_phone: document.getElementById('set-phone').value,
+        shop_address: document.getElementById('set-address').value, 
+        auto_print: document.getElementById('set-auto-print').checked ? "true" : "false",
         shop_logo: document.getElementById('set-logo-url').value
       };
-      google.script.run.withSuccessHandler(() => { 
-        if (uploadStatus) uploadStatus.innerText = ''; 
-        if (btn) { btn.innerHTML = originalText; btn.disabled = false; }
-        let staff = (typeof currentStaff !== 'undefined' && currentStaff.name) ? currentStaff.name : 'Unknown';
-        google.script.run.logAction(currentTenantSheetId, staff, "ตั้งค่าระบบ", "อัปเดตข้อมูลร้านค้า & การพิมพ์");
-        Swal.fire(i18n[currentLang]['swal_save_success2'], i18n[currentLang]['swal_save_setting_success'], 'success'); loadActivityLogsData(); 
-      }).updateShopSettings(currentTenantSheetId, newSettings);
+      
+      google.script.run
+        .withSuccessHandler(() => { 
+          if (uploadStatus) uploadStatus.innerText = ''; 
+          if (btn) { 
+            btn.innerHTML = originalText; 
+            btn.disabled = false; 
+          }
+          let staff = (typeof currentStaff !== 'undefined' && currentStaff.name) ? currentStaff.name : 'Unknown';
+          google.script.run.logAction(currentTenantSheetId, staff, "ตั้งค่าระบบ", "อัปเดตข้อมูลร้านค้า & การพิมพ์");
+          Swal.fire(i18n[currentLang]['swal_save_success2'], i18n[currentLang]['swal_save_setting_success'], 'success'); 
+          loadActivityLogsData(); 
+        })
+        .withFailureHandler((err) => {
+          if (uploadStatus) uploadStatus.innerText = ''; 
+          if (btn) { 
+            btn.innerHTML = originalText; 
+            btn.disabled = false; 
+          }
+          Swal.fire(i18n[currentLang]['swal_error_title2'], err.message || 'บันทึกไม่สำเร็จ', 'error');
+        })
+        .updateShopSettings(currentTenantSheetId, newSettings);
     }
 
     function loadUsersData() {
