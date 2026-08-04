@@ -388,7 +388,28 @@
         let isChecked = document.getElementById('set-auto-print-advanced').checked;
         let originalPrint = document.getElementById('set-auto-print');
         if (originalPrint) originalPrint.checked = isChecked;
-        saveSettings();
+
+        // ดึงค่าตั้งค่าปัจจุบันแล้วอัปเดตเฉพาะ auto_print
+        const newSettings = {
+            shop_name: document.getElementById('set-shop-name').value, 
+            shop_promptpay: document.getElementById('set-promptpay').value,
+            shop_account_name: document.getElementById('set-account-name').value, 
+            shop_phone: document.getElementById('set-phone').value,
+            shop_address: document.getElementById('set-address').value, 
+            auto_print: isChecked ? "true" : "false",
+            shop_logo: document.getElementById('set-logo-url').value
+        };
+
+        google.script.run.withSuccessHandler(() => {
+            if (typeof cachedShopSettings !== 'undefined') {
+                cachedShopSettings.auto_print = isChecked ? "true" : "false";
+            }
+            let staff = (typeof currentStaff !== 'undefined' && currentStaff.name) ? currentStaff.name : 'Unknown';
+            google.script.run.logAction(currentTenantSheetId, staff, "ตั้งค่าระบบ", "เปลี่ยนสถานะการพิมพ์ใบเสร็จอัตโนมัติ");
+            
+            Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 1500 })
+                .fire({ icon: 'success', title: i18n[currentLang]['swal_save_setting_success'] || 'บันทึกการตั้งค่าแล้ว' });
+        }).updateShopSettings(currentTenantSheetId, newSettings);
     }
 
     let settingsUsers = []; let globalActivityLogs = []; let currentLogPage = 1; const logsPerPage = 10;
@@ -574,7 +595,7 @@
 
       const fileInput = document.getElementById('set-logo-file');
       
-      if(fileInput && fileInput.files.length > 0) {
+      if(fileInput && fileInput.files && fileInput.files.length > 0) {
         let uploadStatus = document.getElementById('set-upload-status');
         if (uploadStatus) uploadStatus.innerText = i18n[currentLang]['swal_uploading_logo'];
         
@@ -596,13 +617,15 @@
       let uploadStatus = document.getElementById('set-upload-status');
       if (uploadStatus) uploadStatus.innerText = i18n[currentLang]['swal_saving_data'];
       
+      let autoPrintCheck = document.getElementById('set-auto-print-advanced') || document.getElementById('set-auto-print');
+      
       const newSettings = {
         shop_name: document.getElementById('set-shop-name').value, 
         shop_promptpay: document.getElementById('set-promptpay').value,
         shop_account_name: document.getElementById('set-account-name').value, 
         shop_phone: document.getElementById('set-phone').value,
         shop_address: document.getElementById('set-address').value, 
-        auto_print: document.getElementById('set-auto-print').checked ? "true" : "false",
+        auto_print: (autoPrintCheck && autoPrintCheck.checked) ? "true" : "false",
         shop_logo: document.getElementById('set-logo-url').value
       };
       
