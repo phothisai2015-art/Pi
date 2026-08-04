@@ -46,7 +46,7 @@
 
   <div class="container-fluid px-3 px-lg-4 pb-5 settings-layout">
     
-    <!-- 🌟 Sidebar Menu (ปรับตามที่คุณขอเป๊ะๆ) -->
+    <!-- Sidebar Menu -->
     <div class="settings-sidebar bg-white p-2 p-lg-3 rounded-4 shadow-sm border">
       <h6 class="fw-bold text-muted px-3 mt-2 mb-3 d-none d-lg-block" data-i18n="set_sidebar_menu_title">เมนูการตั้งค่า</h6>
       
@@ -71,10 +71,10 @@
       </button>
     </div>
 
-    <!-- 🌟 Main Content Area -->
+    <!-- Main Content Area -->
     <div class="settings-content">
       
-      <!-- 🏢 TAB: ข้อมูลร้านค้า (สะอาดขึ้น ย้าย Auto-print ออก) -->
+      <!-- TAB: ข้อมูลร้านค้า -->
       <div id="tab-profile" class="settings-panel active bg-white p-3 p-lg-4 rounded-4 shadow-sm border h-100">
         <h5 class="fw-bold text-dark mb-4"><i class="fa-solid fa-store text-danger me-2"></i> <span data-i18n="set_shop_info_title">ข้อมูลร้านค้า (Store Profile)</span></h5>
         
@@ -99,7 +99,7 @@
         <button id="btn-save-settings" class="btn btn-danger w-100 fw-bold py-3 rounded-pill shadow-sm" onclick="saveSettings()"><i class="fa-solid fa-floppy-disk me-2"></i> <span data-i18n="set_btn_save_settings">บันทึกการตั้งค่าร้าน</span></button>
       </div>
 
-      <!-- 👑 TAB: แพ็กเกจร้านค้า -->
+      <!-- TAB: แพ็กเกจร้านค้า -->
       <div id="tab-package" class="settings-panel">
         <div class="p-4 rounded-4 shadow-sm border" style="background: linear-gradient(135deg, #1e293b, #0f172a);">
           <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
@@ -115,21 +115,21 @@
         </div>
       </div>
 
-      <!-- 👥 TAB: จัดการพนักงาน -->
+      <!-- TAB: จัดการพนักงาน -->
       <div id="tab-staff" class="settings-panel bg-white p-3 p-lg-4 rounded-4 shadow-sm border h-100">
         <div class="d-flex justify-content-between align-items-center mb-4 user-mgmt-header">
           <h5 class="fw-bold text-dark m-0"><i class="fa-solid fa-users-gear text-primary me-2"></i> <span data-i18n="set_user_title">จัดการพนักงาน (Staff & Roles)</span> </h5>
           <button class="btn btn-primary btn-sm fw-bold rounded-pill px-3 shadow-sm" onclick="openUserForm()"><i class="fa-solid fa-user-plus me-1"></i> <span data-i18n="set_btn_add_user">เพิ่มพนักงาน</span> </button>
         </div>
-        <div class="table-responsive user-table-wrapper" style="max-height: 60vh; overflow-y: auto;">
-          <table class="table table-hover align-middle" style="min-width: 500px;">
+        <div class="table-responsive user-table-wrapper" style="max-height: 60vh; overflow-y: auto; overflow-x: hidden;">
+          <table class="table table-hover align-middle" style="width: 100%;">
             <thead class="table-light sticky-top"><tr><th data-i18n="set_th_user_name"> ชื่อพนักงาน </th><th class="text-center" data-i18n="set_th_pin"> รหัส PIN </th><th data-i18n="set_th_permission"> สิทธิ์การเข้าถึง </th><th class="text-end" data-i18n="set_th_manage"> จัดการ </th></tr></thead>
             <tbody id="users-table-body"><tr><td colspan="4" class="text-center text-muted py-4" data-i18n="set_loading_users"> กำลังโหลดข้อมูลพนักงาน... </td></tr></tbody>
           </table>
         </div>
       </div>
 
-      <!-- 📊 TAB: ประวัติการใช้งาน -->
+      <!-- TAB: ประวัติการใช้งาน -->
       <div id="tab-log" class="settings-panel bg-white p-3 p-lg-4 rounded-4 shadow-sm border h-100">
         <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
           <h5 class="fw-bold text-dark m-0"><i class="fa-solid fa-list-check text-warning me-2"></i> <span data-i18n="set_log_title">ประวัติการใช้งาน (Activity Log)</span></h5>
@@ -157,8 +157,8 @@
             <button class="btn btn-sm btn-outline-secondary rounded-3 fw-bold shadow-sm" onclick="loadActivityLogsData()"><i class="fa-solid fa-rotate-right"></i> <span data-i18n="set_btn_refresh">รีเฟรช</span></button>
           </div>
         </div>
-        <div class="table-responsive border rounded-3 bg-light log-table-wrapper" style="max-height: 480px; overflow-y: auto;">
-          <table class="table table-hover align-middle mb-0 text-nowrap small bg-white">
+        <div class="table-responsive border rounded-3 bg-light log-table-wrapper" style="max-height: 480px; overflow-y: auto; overflow-x: hidden;">
+          <table class="table table-hover align-middle mb-0 small bg-white" style="width: 100%;">
             <thead class="table-light sticky-top shadow-sm"><tr><th class="py-2 px-3 text-muted" data-i18n="set_th_datetime">วัน-เวลา</th><th class="py-2 text-muted" data-i18n="set_th_staff">พนักงาน</th><th class="py-2 text-muted" data-i18n="set_th_category">หมวดหมู่</th><th class="py-2 text-muted" data-i18n="set_th_detail">รายละเอียด</th></tr></thead>
             <tbody id="activity-log-body"><tr><td colspan="4" class="text-center py-4 text-muted" data-i18n="set_loading_logs">กำลังโหลดข้อมูลประวัติ...</td></tr></tbody>
           </table>
@@ -166,14 +166,13 @@
         <div id="log-pagination" class="d-flex justify-content-between align-items-center mt-3 gap-2 bg-white p-2 rounded-3 border shadow-sm"></div>
       </div>
 
-      <!-- ⚙️ TAB: ตั้งค่าขั้นสูง (Excel, UI, Auto-print) -->
+      <!-- TAB: ตั้งค่าขั้นสูง -->
       <div id="tab-advanced" class="settings-panel bg-white p-3 p-lg-4 rounded-4 shadow-sm border h-100">
         <h5 class="fw-bold text-secondary mb-4"><i class="fa-solid fa-gear me-2"></i> <span data-i18n="set_advanced_title">ตั้งค่าขั้นสูง (Excel, UI, Auto-print)</span></h5>
         
         <!-- ระบบพิมพ์บิล -->
         <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-print text-primary me-2"></i> ระบบการพิมพ์</h6>
         <div class="form-check form-switch fs-6 mb-4 p-3 bg-light rounded-3 border">
-          <!-- ย้าย onchange="saveSettings()" มาไว้ตรงนี้ เพื่อให้เซฟทันทีเมื่อเปิดปิด -->
           <input class="form-check-input ms-0 me-3" type="checkbox" id="set-auto-print-advanced" style="width: 40px; height: 20px;" onchange="syncAutoPrintAndSave()">
           <label class="form-check-label fw-bold text-dark" for="set-auto-print-advanced" data-i18n="set_auto_print"> เปิดระบบพิมพ์ใบเสร็จอัตโนมัติหลังจ่ายเงิน </label>
         </div>
@@ -221,7 +220,7 @@
     </div>
   </div>
 
-  <!-- 🌟 Modal ต่ออายุแพ็กเกจด่วน -->
+  <!-- Modal ต่ออายุแพ็กเกจด่วน -->
   <div id="quick-renew-modal" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(5px); z-index: 1060; justify-content: center; align-items: center; padding: 15px;">
     <div class="bg-white p-4 rounded-4 shadow-lg text-center" style="width: 100%; max-width: 480px; position: relative; max-height: 95vh; overflow-y: auto;">
       <button type="button" class="btn-close position-absolute top-0 end-0 m-3" onclick="closeQuickRenewModal()"></button>
@@ -318,7 +317,24 @@
     </div>
   </div>
 
-  <!-- 🌟 Modal ปรับแต่งหน้าจอ UI -->
+  <!-- Modal สำหรับสแกนเชื่อมต่อจอลูกค้า (CFD) -->
+  <div id="cfd-connect-modal" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(5px); z-index: 1060; justify-content: center; align-items: center; padding: 15px;">
+    <div class="bg-white p-4 p-md-5 rounded-4 shadow-lg text-center" style="width: 100%; max-width: 450px;">
+      <h4 class="fw-bold text-primary mb-3" data-i18n="cfd_title"><i class="fa-solid fa-mobile-screen-button me-2"></i>เชื่อมต่อจอลูกค้า (CFD)</h4>
+      <p class="text-muted small mb-4" data-i18n="cfd_desc">ใช้ iPad หรือมือถือเครื่องใดก็ได้ สแกน QR Code ด้านล่างนี้<br>ระบบจอลูกค้าจะซิงค์แบบเรียลไทม์ทันที</p>
+      <div id="cfd-qr-generate" class="d-flex justify-content-center p-3 bg-light rounded-4 border mb-3" style="min-height: 250px;"></div>
+      <div class="input-group mb-4 shadow-sm">
+        <input type="text" id="cfd-link-input" class="form-control text-center text-muted small bg-light" readonly>
+        <button class="btn btn-outline-secondary bg-white" onclick="copyCfdLink()"><i class="fa-solid fa-copy"></i></button>
+      </div>
+      <div class="d-flex gap-2">
+        <button class="btn btn-light flex-fill fw-bold py-3 rounded-3 shadow-sm border" onclick="document.getElementById('cfd-connect-modal').style.display='none'" data-i18n="cfd_btn_close">ปิดหน้าต่าง</button>
+        <button class="btn btn-primary flex-fill fw-bold py-3 rounded-3 shadow-sm" onclick="window.open(document.getElementById('cfd-link-input').value, '_blank')" data-i18n="cfd_btn_open_this">เปิดในเครื่องนี้</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal ปรับแต่งหน้าจอ UI -->
   <div id="ui-settings-modal" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(5px); z-index: 999999; justify-content: center; align-items: center; padding: 15px;">
     <div class="bg-white p-4 rounded-4 shadow-lg d-flex flex-column" style="width: 100%; max-width: 450px; max-height: 90vh;">
       <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-3">
@@ -371,7 +387,7 @@
   </div>
 
   <script>
-    // 🌟 ระบบเปลี่ยน Tab ของ SaaS Style
+    // สลับ Tab เมนูตั้งค่า
     function switchSettingsTab(tabId) {
        document.querySelectorAll('.settings-tab').forEach(t => t.classList.remove('active'));
        document.querySelectorAll('.settings-panel').forEach(p => p.classList.remove('active'));
@@ -383,13 +399,12 @@
        if(targetPanel) targetPanel.classList.add('active');
     }
 
-    // ฟังก์ชันซิงค์การทำงานของปุ่ม Auto Print เพื่อให้สามารถกดบันทึกได้เนียนๆ
+    // ซิงค์ปุ่ม Auto Print
     function syncAutoPrintAndSave() {
         let isChecked = document.getElementById('set-auto-print-advanced').checked;
         let originalPrint = document.getElementById('set-auto-print');
         if (originalPrint) originalPrint.checked = isChecked;
 
-        // ดึงค่าตั้งค่าปัจจุบันแล้วอัปเดตเฉพาะ auto_print
         const newSettings = {
             shop_name: document.getElementById('set-shop-name').value, 
             shop_promptpay: document.getElementById('set-promptpay').value,
@@ -418,7 +433,7 @@
 
     function openSettingsPage() {
       document.getElementById('page-settings').style.display = 'block';
-      switchSettingsTab('tab-profile'); // เริ่มต้นหน้าแรกเสมอ
+      switchSettingsTab('tab-profile');
       if (typeof changeLanguage === 'function') changeLanguage(currentLang);
       loadSettingsData(); loadUsersData(); loadActivityLogsData(); loadTenantInfoSafely();
     }
@@ -1013,188 +1028,117 @@
       
       reader.readAsArrayBuffer(file);
     }
+
+    // UI Layout Management
+    function applyUISettings() {
+        let s = cachedShopSettings || {};
+        const isON = (key) => s[key] !== "false" && s[key] !== false;
+
+        document.querySelectorAll('button[onclick="openCFD()"]').forEach(b => {
+            if (isON('ui_pos_cfd')) b.style.removeProperty('display');
+            else b.style.setProperty('display', 'none', 'important');
+        });
+        
+        let btnBarcode = document.getElementById('btn-mode-barcode');
+        let btnGrid = document.getElementById('btn-mode-grid');
+        let scanInput = document.getElementById('pos-barcode-input');
+        if (btnBarcode && btnGrid && scanInput) {
+            if (!isON('ui_pos_scan')) {
+                btnBarcode.style.setProperty('display', 'none', 'important');
+                btnGrid.style.setProperty('display', 'none', 'important');
+                scanInput.parentElement.style.setProperty('display', 'none', 'important');
+                if (currentPOSMode === 'barcode') switchPOSMode('grid');
+            } else {
+                btnBarcode.style.removeProperty('display');
+                btnGrid.style.removeProperty('display');
+                scanInput.parentElement.style.removeProperty('display');
+            }
+        }
+
+        let searchInput = document.getElementById('pos-search-bill-input');
+        if (searchInput) {
+            let historyBox = searchInput.closest('.bg-white');
+            if (historyBox) {
+                if (isON('ui_pos_history')) historyBox.style.removeProperty('display');
+                else historyBox.style.setProperty('display', 'none', 'important');
+            }
+        }
+
+        let catFilter = document.getElementById('pos-category-filter');
+        if (catFilter) {
+            if (!isON('ui_pos_category')) catFilter.style.setProperty('display', 'none', 'important');
+            else catFilter.style.removeProperty('display');
+        }
+
+        const toggleTab = (tabId, key) => {
+            let tabBtn = document.getElementById('tab-btn-' + tabId.replace('tab-', ''));
+            if (tabBtn) {
+                if (isON(key)) tabBtn.style.removeProperty('display');
+                else tabBtn.style.setProperty('display', 'none', 'important');
+            }
+        };
+        
+        toggleTab('tab-profile', 'ui_set_shopinfo');
+        toggleTab('tab-advanced', 'ui_set_excel');
+        toggleTab('tab-log', 'ui_set_log');
+        toggleTab('tab-staff', 'ui_set_users');
+        
+        let activePanel = document.querySelector('.settings-panel.active');
+        let activeTabId = activePanel ? activePanel.id : 'tab-profile';
+        let activeTabBtn = document.getElementById('tab-btn-' + activeTabId.replace('tab-', ''));
+        
+        if(activeTabBtn && activeTabBtn.style.display === 'none') {
+            let firstVisibleBtn = Array.from(document.querySelectorAll('.settings-tab')).find(b => b.style.display !== 'none');
+            if(firstVisibleBtn) {
+               firstVisibleBtn.click();
+            }
+        }
+    }
+
+    function openUISettingsModal() {
+        let s = cachedShopSettings || {};
+        const setToggle = (id, key) => { document.getElementById(id).checked = (s[key] !== "false" && s[key] !== false); };
+        setToggle('ui-pos-cfd', 'ui_pos_cfd'); setToggle('ui-pos-scan', 'ui_pos_scan');
+        setToggle('ui-pos-history', 'ui_pos_history'); setToggle('ui-pos-category', 'ui_pos_category');
+        setToggle('ui-set-shopinfo', 'ui_set_shopinfo'); setToggle('ui-set-excel', 'ui_set_excel');
+        setToggle('ui-set-log', 'ui_set_log'); setToggle('ui-set-users', 'ui_set_users');
+        document.getElementById('ui-settings-modal').style.display = 'flex';
+    }
+
+    function saveUISettings() {
+        let btn = document.getElementById('btn-save-ui-settings');
+        btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ${i18n[currentLang]['swal_saving_btn']}`; btn.disabled = true;
+        const getToggle = (id) => document.getElementById(id).checked ? "true" : "false";
+        
+        let newSettings = {
+            ui_pos_cfd: getToggle('ui-pos-cfd'), ui_pos_scan: getToggle('ui-pos-scan'),
+            ui_pos_history: getToggle('ui-pos-history'), ui_pos_category: getToggle('ui-pos-category'),
+            ui_set_shopinfo: getToggle('ui-set-shopinfo'), ui_set_excel: getToggle('ui-set-excel'),
+            ui_set_log: getToggle('ui-set-log'), ui_set_users: getToggle('ui-set-users')
+        };
+
+        google.script.run.withSuccessHandler(() => {
+            Object.assign(cachedShopSettings, newSettings); applyUISettings();
+            document.getElementById('ui-settings-modal').style.display = 'none';
+            btn.innerHTML = `<i class="fa-solid fa-floppy-disk me-2"></i> ${i18n[currentLang]['ui_btn_save']}`; btn.disabled = false;
+            let staff = (typeof currentStaff !== 'undefined' && currentStaff.name) ? currentStaff.name : 'Unknown';
+            google.script.run.logAction(currentTenantSheetId, staff, "ตั้งค่าระบบ", "อัปเดตการแสดงผลหน้าจอ (UI)");
+            Swal.fire({icon: 'success', title: i18n[currentLang]['swal_save_success2'], timer: 1000, showConfirmButton: false});
+            loadActivityLogsData();
+        }).updateShopSettings(currentTenantSheetId, newSettings);
+    }
+
+    const originalLoadShopData = loadShopData;
+    loadShopData = function(tenantId) {
+        originalLoadShopData(tenantId);
+        google.script.run.withSuccessHandler(s => { cachedShopSettings = s || {}; applyUISettings(); }).getShopSettings(tenantId);
+    };
+
+    const originalOpenPOSPage = openPOSPage;
+    openPOSPage = function() {
+        originalOpenPOSPage();
+        applyUISettings(); 
+    };
   </script>
 </div>
 
-<!-- 🌟 Modal สำหรับสแกนเชื่อมต่อจอลูกค้า (CFD) -->
-<div id="cfd-connect-modal" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(5px); z-index: 1060; justify-content: center; align-items: center; padding: 15px;">
-  <div class="bg-white p-4 p-md-5 rounded-4 shadow-lg text-center" style="width: 100%; max-width: 450px;">
-    <h4 class="fw-bold text-primary mb-3" data-i18n="cfd_title"><i class="fa-solid fa-mobile-screen-button me-2"></i>เชื่อมต่อจอลูกค้า (CFD)</h4>
-    <p class="text-muted small mb-4" data-i18n="cfd_desc">ใช้ iPad หรือมือถือเครื่องใดก็ได้ สแกน QR Code ด้านล่างนี้<br>ระบบจอลูกค้าจะซิงค์แบบเรียลไทม์ทันที</p>
-    <div id="cfd-qr-generate" class="d-flex justify-content-center p-3 bg-light rounded-4 border mb-3" style="min-height: 250px;"></div>
-    <div class="input-group mb-4 shadow-sm">
-      <input type="text" id="cfd-link-input" class="form-control text-center text-muted small bg-light" readonly>
-      <button class="btn btn-outline-secondary bg-white" onclick="copyCfdLink()"><i class="fa-solid fa-copy"></i></button>
-    </div>
-    <div class="d-flex gap-2">
-      <button class="btn btn-light flex-fill fw-bold py-3 rounded-3 shadow-sm border" onclick="document.getElementById('cfd-connect-modal').style.display='none'" data-i18n="cfd_btn_close">ปิดหน้าต่าง</button>
-      <button class="btn btn-primary flex-fill fw-bold py-3 rounded-3 shadow-sm" onclick="window.open(document.getElementById('cfd-link-input').value, '_blank')" data-i18n="cfd_btn_open_this">เปิดในเครื่องนี้</button>
-    </div>
-  </div>
-</div>
-
-<!-- 🌟 Modal ปรับแต่งหน้าจอ UI -->
-<div id="ui-settings-modal" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(5px); z-index: 999999; justify-content: center; align-items: center; padding: 15px;">
-  <div class="bg-white p-4 rounded-4 shadow-lg d-flex flex-column" style="width: 100%; max-width: 450px; max-height: 90vh;">
-    <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-3">
-      <h5 class="fw-bold text-primary m-0" data-i18n="ui_title"><i class="fa-solid fa-sliders me-2"></i> ปรับแต่งการแสดงผล</h5>
-      <button class="btn-close" onclick="document.getElementById('ui-settings-modal').style.display='none'"></button>
-    </div>
-    
-    <div style="overflow-y: auto; overflow-x: hidden; padding-right: 5px;">
-        <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-cash-register text-success me-2"></i> <span data-i18n="ui_cat_pos">หมวดขายของ (POS)</span></h6>
-        <div class="form-check form-switch fs-6 mb-3 p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center">
-          <label class="form-check-label fw-bold text-secondary m-0" for="ui-pos-cfd" data-i18n="ui_pos_1">1. ปุ่มจอลูกค้า (CFD)</label>
-          <input class="form-check-input m-0" type="checkbox" id="ui-pos-cfd" style="width: 40px; height: 20px;">
-        </div>
-        <div class="form-check form-switch fs-6 mb-3 p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center">
-          <label class="form-check-label fw-bold text-secondary m-0" for="ui-pos-scan" data-i18n="ui_pos_2">2. โหมดสแกนบาร์โค้ด</label>
-          <input class="form-check-input m-0" type="checkbox" id="ui-pos-scan" style="width: 40px; height: 20px;">
-        </div>
-        <div class="form-check form-switch fs-6 mb-3 p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center">
-          <label class="form-check-label fw-bold text-secondary m-0" for="ui-pos-history" data-i18n="ui_pos_3">3. ค้นหาบิล & บิลย้อนหลัง</label>
-          <input class="form-check-input m-0" type="checkbox" id="ui-pos-history" style="width: 40px; height: 20px;">
-        </div>
-        <div class="form-check form-switch fs-6 mb-4 p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center">
-          <label class="form-check-label fw-bold text-secondary m-0" for="ui-pos-category" data-i18n="ui_pos_4">4. แถบตัวกรองหมวดหมู่</label>
-          <input class="form-check-input m-0" type="checkbox" id="ui-pos-category" style="width: 40px; height: 20px;">
-        </div>
-
-        <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-gear text-danger me-2"></i> <span data-i18n="ui_cat_set">หมวดตั้งค่า (Settings)</span></h6>
-        <div class="form-check form-switch fs-6 mb-3 p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center">
-          <label class="form-check-label fw-bold text-secondary m-0" for="ui-set-shopinfo" data-i18n="ui_set_1">1. ข้อมูลร้านค้า & การพิมพ์</label>
-          <input class="form-check-input m-0" type="checkbox" id="ui-set-shopinfo" style="width: 40px; height: 20px;">
-        </div>
-        <div class="form-check form-switch fs-6 mb-3 p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center">
-          <label class="form-check-label fw-bold text-secondary m-0" for="ui-set-excel" data-i18n="ui_set_2">2. จัดการข้อมูลด้วย Excel</label>
-          <input class="form-check-input m-0" type="checkbox" id="ui-set-excel" style="width: 40px; height: 20px;">
-        </div>
-        <div class="form-check form-switch fs-6 mb-3 p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center">
-          <label class="form-check-label fw-bold text-secondary m-0" for="ui-set-log" data-i18n="ui_set_3">3. ประวัติการใช้งาน (Log)</label>
-          <input class="form-check-input m-0" type="checkbox" id="ui-set-log" style="width: 40px; height: 20px;">
-        </div>
-        <div class="form-check form-switch fs-6 mb-2 p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center">
-          <label class="form-check-label fw-bold text-secondary m-0" for="ui-set-users" data-i18n="ui_set_4">4. จัดการพนักงาน & สิทธิ์</label>
-          <input class="form-check-input m-0" type="checkbox" id="ui-set-users" style="width: 40px; height: 20px;">
-        </div>
-    </div>
-
-    <div class="mt-3 pt-3 border-top">
-      <button class="btn btn-primary w-100 fw-bold py-3 shadow-sm rounded-pill" id="btn-save-ui-settings" onclick="saveUISettings()"><i class="fa-solid fa-floppy-disk me-2"></i> <span data-i18n="ui_btn_save">บันทึกการตั้งค่าหน้าจอ</span></button>
-    </div>
-  </div>
-</div>
-
-<script>
-  function applyUISettings() {
-      let s = cachedShopSettings || {};
-      const isON = (key) => s[key] !== "false" && s[key] !== false;
-
-      document.querySelectorAll('button[onclick="openCFD()"]').forEach(b => {
-          if (isON('ui_pos_cfd')) b.style.removeProperty('display');
-          else b.style.setProperty('display', 'none', 'important');
-      });
-      
-      let btnBarcode = document.getElementById('btn-mode-barcode');
-      let btnGrid = document.getElementById('btn-mode-grid');
-      let scanInput = document.getElementById('pos-barcode-input');
-      if (btnBarcode && btnGrid && scanInput) {
-          if (!isON('ui_pos_scan')) {
-              btnBarcode.style.setProperty('display', 'none', 'important');
-              btnGrid.style.setProperty('display', 'none', 'important');
-              scanInput.parentElement.style.setProperty('display', 'none', 'important');
-              if (currentPOSMode === 'barcode') switchPOSMode('grid');
-          } else {
-              btnBarcode.style.removeProperty('display');
-              btnGrid.style.removeProperty('display');
-              scanInput.parentElement.style.removeProperty('display');
-          }
-      }
-
-      let searchInput = document.getElementById('pos-search-bill-input');
-      if (searchInput) {
-          let historyBox = searchInput.closest('.bg-white');
-          if (historyBox) {
-              if (isON('ui_pos_history')) historyBox.style.removeProperty('display');
-              else historyBox.style.setProperty('display', 'none', 'important');
-          }
-      }
-
-      let catFilter = document.getElementById('pos-category-filter');
-      if (catFilter) {
-          if (!isON('ui_pos_category')) catFilter.style.setProperty('display', 'none', 'important');
-          else catFilter.style.removeProperty('display');
-      }
-
-      // 🌟 ระบบควบคุม UI ใหม่สำหรับ SaaS Layout (ซ่อน/แสดง แท็บเมนูด้านซ้าย)
-      const toggleTab = (tabId, key) => {
-          let tabBtn = document.getElementById('tab-btn-' + tabId.replace('tab-', ''));
-          if (tabBtn) {
-              if (isON(key)) tabBtn.style.removeProperty('display');
-              else tabBtn.style.setProperty('display', 'none', 'important');
-          }
-      };
-      
-      toggleTab('tab-profile', 'ui_set_shopinfo');
-      toggleTab('tab-advanced', 'ui_set_excel');
-      toggleTab('tab-log', 'ui_set_log');
-      toggleTab('tab-staff', 'ui_set_users');
-      
-      // ตรวจสอบว่าถ้าแท็บปัจจุบันโดนซ่อนไปแล้ว ให้กระโดดไปเปิดแท็บอื่นที่ยังแสดงอยู่แทน
-      let activePanel = document.querySelector('.settings-panel.active');
-      let activeTabId = activePanel ? activePanel.id : 'tab-profile';
-      let activeTabBtn = document.getElementById('tab-btn-' + activeTabId.replace('tab-', ''));
-      
-      if(activeTabBtn && activeTabBtn.style.display === 'none') {
-          let firstVisibleBtn = Array.from(document.querySelectorAll('.settings-tab')).find(b => b.style.display !== 'none');
-          if(firstVisibleBtn) {
-             firstVisibleBtn.click();
-          }
-      }
-  }
-
-  function openUISettingsModal() {
-      let s = cachedShopSettings || {};
-      const setToggle = (id, key) => { document.getElementById(id).checked = (s[key] !== "false" && s[key] !== false); };
-      setToggle('ui-pos-cfd', 'ui_pos_cfd'); setToggle('ui-pos-scan', 'ui_pos_scan');
-      setToggle('ui-pos-history', 'ui_pos_history'); setToggle('ui-pos-category', 'ui_pos_category');
-      setToggle('ui-set-shopinfo', 'ui_set_shopinfo'); setToggle('ui-set-excel', 'ui_set_excel');
-      setToggle('ui-set-log', 'ui_set_log'); setToggle('ui-set-users', 'ui_set_users');
-      document.getElementById('ui-settings-modal').style.display = 'flex';
-  }
-
-  function saveUISettings() {
-      let btn = document.getElementById('btn-save-ui-settings');
-      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ${i18n[currentLang]['swal_saving_btn']}`; btn.disabled = true;
-      const getToggle = (id) => document.getElementById(id).checked ? "true" : "false";
-      
-      let newSettings = {
-          ui_pos_cfd: getToggle('ui-pos-cfd'), ui_pos_scan: getToggle('ui-pos-scan'),
-          ui_pos_history: getToggle('ui-pos-history'), ui_pos_category: getToggle('ui-pos-category'),
-          ui_set_shopinfo: getToggle('ui-set-shopinfo'), ui_set_excel: getToggle('ui-set-excel'),
-          ui_set_log: getToggle('ui-set-log'), ui_set_users: getToggle('ui-set-users')
-      };
-
-      google.script.run.withSuccessHandler(() => {
-          Object.assign(cachedShopSettings, newSettings); applyUISettings();
-          document.getElementById('ui-settings-modal').style.display = 'none';
-          btn.innerHTML = `<i class="fa-solid fa-floppy-disk me-2"></i> ${i18n[currentLang]['ui_btn_save']}`; btn.disabled = false;
-          let staff = (typeof currentStaff !== 'undefined' && currentStaff.name) ? currentStaff.name : 'Unknown';
-          google.script.run.logAction(currentTenantSheetId, staff, "ตั้งค่าระบบ", "อัปเดตการแสดงผลหน้าจอ (UI)");
-          Swal.fire({icon: 'success', title: i18n[currentLang]['swal_save_success2'], timer: 1000, showConfirmButton: false});
-          loadActivityLogsData();
-      }).updateShopSettings(currentTenantSheetId, newSettings);
-  }
-
-  const originalLoadShopData = loadShopData;
-  loadShopData = function(tenantId) {
-      originalLoadShopData(tenantId);
-      google.script.run.withSuccessHandler(s => { cachedShopSettings = s || {}; applyUISettings(); }).getShopSettings(tenantId);
-  };
-
-  const originalOpenPOSPage = openPOSPage;
-  openPOSPage = function() {
-      originalOpenPOSPage();
-      applyUISettings(); 
-  };
-</script>
