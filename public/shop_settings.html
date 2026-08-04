@@ -737,100 +737,106 @@
     function changeLogPage(p) { currentLogPage = p; renderActivityLogs(); }
 
     function renderActivityLogs() {
-      const tbody = document.getElementById('activity-log-body');
-      const paginationContainer = document.getElementById('log-pagination');
-      let actionFilterVal = document.getElementById('log-filter').value;
-      let staffFilterVal = document.getElementById('log-staff-filter').value;
-      
-      let filteredLogs = globalActivityLogs;
-      if (actionFilterVal !== "all") filteredLogs = filteredLogs.filter(log => log.action === actionFilterVal);
-      if (staffFilterVal !== "all") filteredLogs = filteredLogs.filter(log => log.staff === staffFilterVal);
+  const tbody = document.getElementById('activity-log-body');
+  const paginationContainer = document.getElementById('log-pagination');
+  let actionFilterVal = document.getElementById('log-filter').value;
+  let staffFilterVal = document.getElementById('log-staff-filter').value;
+  
+  let filteredLogs = globalActivityLogs;
+  if (actionFilterVal !== "all") filteredLogs = filteredLogs.filter(log => log.action === actionFilterVal);
+  if (staffFilterVal !== "all") filteredLogs = filteredLogs.filter(log => log.staff === staffFilterVal);
 
-      const totalPages = Math.ceil(filteredLogs.length / logsPerPage) || 1;
-      const startIndex = (currentLogPage - 1) * logsPerPage;
-      const paginatedLogs = filteredLogs.slice(startIndex, startIndex + logsPerPage);
+  const totalPages = Math.ceil(filteredLogs.length / logsPerPage) || 1;
+  const startIndex = (currentLogPage - 1) * logsPerPage;
+  const paginatedLogs = filteredLogs.slice(startIndex, startIndex + logsPerPage);
 
-      tbody.innerHTML = '';
-      if (paginatedLogs.length === 0) { 
-          tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-muted">${i18n[currentLang]['set_empty_logs']}</td></tr>`; 
-          paginationContainer.innerHTML = ''; 
-          return; 
-      }
-      
-      const actionMap = {
-        "เริ่มต้นระบบ": "set_log_action_init",
-        "เข้าสู่ระบบ": "set_log_login",
-        "ออกจากระบบ": "set_log_logout",
-        "ขายสินค้า": "set_log_sell",
-        "ยกเลิกบิล": "set_log_void",
-        "คืนสินค้า": "set_log_return",
-        "พิมพ์บิลซ้ำ": "set_log_reprint",
-        "เพิ่มสินค้า": "set_log_add_prod",
-        "แก้ไขสินค้า": "set_log_edit_prod",
-        "ลบสินค้า": "set_log_del_prod",
-        "รับสินค้าเข้า": "set_log_recv_stock",
-        "ลบข้อมูลทดสอบ": "set_log_clear_test",
-        "จัดการพนักงาน": "set_log_action_manage_staff",
-        "ตั้งค่าระบบ": "set_log_action_system_setting",
-        "นำเข้า Excel": "set_log_action_import",
-        "ดาวน์โหลด Excel": "set_log_action_export",
-        "System Init": "set_log_action_init",
-        "Login": "set_log_login",
-        "Logout": "set_log_logout",
-        "Sell": "set_log_sell",
-        "Void Bill": "set_log_void",
-        "Return Item": "set_log_return",
-        "Reprint Bill": "set_log_reprint",
-        "Add Product": "set_log_add_prod",
-        "Edit Product": "set_log_edit_prod",
-        "Delete Product": "set_log_del_prod",
-        "Receive Stock": "set_log_recv_stock",
-        "Clear Test Data": "set_log_clear_test",
-        "Manage Staff": "set_log_action_manage_staff",
-        "System Setting": "set_log_action_system_setting",
-        "Import Excel": "set_log_action_import",
-        "Export Excel": "set_log_action_export"
-      };
+  tbody.innerHTML = '';
+  if (paginatedLogs.length === 0) { 
+      tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-muted">${i18n[currentLang]['set_empty_logs']}</td></tr>`; 
+      paginationContainer.innerHTML = ''; 
+      return; 
+  }
+  
+  const actionMap = {
+    "เริ่มต้นระบบ": "set_log_action_init",
+    "เข้าสู่ระบบ": "set_log_login",
+    "ออกจากระบบ": "set_log_logout",
+    "ขายสินค้า": "set_log_sell",
+    "ยกเลิกบิล": "set_log_void",
+    "คืนสินค้า": "set_log_return",
+    "พิมพ์บิลซ้ำ": "set_log_reprint",
+    "เพิ่มสินค้า": "set_log_add_prod",
+    "แก้ไขสินค้า": "set_log_edit_prod",
+    "ลบสินค้า": "set_log_del_prod",
+    "รับสินค้าเข้า": "set_log_recv_stock",
+    "ลบข้อมูลทดสอบ": "set_log_clear_test",
+    "จัดการพนักงาน": "set_log_action_manage_staff",
+    "ตั้งค่าระบบ": "set_log_action_system_setting",
+    "นำเข้า Excel": "set_log_action_import",
+    "ดาวน์โหลด Excel": "set_log_action_export",
+    "System Init": "set_log_action_init",
+    "Login": "set_log_login",
+    "Logout": "set_log_logout",
+    "Sell": "set_log_sell",
+    "Void Bill": "set_log_void",
+    "Return Item": "set_log_return",
+    "Reprint Bill": "set_log_reprint",
+    "Add Product": "set_log_add_prod",
+    "Edit Product": "set_log_edit_prod",
+    "Delete Product": "set_log_del_prod",
+    "Receive Stock": "set_log_recv_stock",
+    "Clear Test Data": "set_log_clear_test",
+    "Manage Staff": "set_log_action_manage_staff",
+    "System Setting": "set_log_action_system_setting",
+    "Import Excel": "set_log_action_import",
+    "Export Excel": "set_log_action_export"
+  };
 
-      paginatedLogs.forEach(log => {
-        let displayAction = log.action;
-        if(actionMap[log.action] && i18n[currentLang][actionMap[log.action]]) {
-           displayAction = i18n[currentLang][actionMap[log.action]];
-        }
-        
-        let displayDetail = log.detail;
-        if (log.detail === "ตั้งค่า Admin คนแรกสำเร็จ" || log.detail === "First Admin setup successful") displayDetail = i18n[currentLang]['set_log_detail_init_success'];
-        else if (log.detail === "อัปเดตข้อมูลร้านค้า & การพิมพ์" || log.detail === "Updated store info & printing") displayDetail = i18n[currentLang]['set_log_detail_update_shop'];
-        else if (log.detail === "อัปเดตการแสดงผลหน้าจอ (UI)") displayDetail = i18n[currentLang]['set_log_detail_ui_update'];
-        else if (log.detail === "ดาวน์โหลดฟอร์มข้อมูลร้านค้าและสินค้า") displayDetail = i18n[currentLang]['set_log_detail_export'];
-        else if (log.detail === "ล็อกอินสำเร็จ" || log.detail === "Login successful") displayDetail = i18n[currentLang]['set_log_detail_login_success'];
-        else if (log.detail === "ผู้ใช้กดล็อกหน้าจอ (Manual)" || log.detail === "User locked screen (Manual)") displayDetail = i18n[currentLang]['set_log_detail_logout_manual'];
-        else if (log.detail === "ระบบล็อกหน้าจออัตโนมัติ (Idle)" || log.detail === "System auto-locked screen (Idle)") displayDetail = i18n[currentLang]['set_log_detail_logout_auto'];
-        else if (log.detail && (log.detail.startsWith("ลบพนักงาน PIN: ") || log.detail.startsWith("Deleted staff PIN: "))) {
-           let pinPart = log.detail.replace("ลบพนักงาน PIN: ", "").replace("Deleted staff PIN: ", "");
-           displayDetail = i18n[currentLang]['set_log_detail_del_staff'] + pinPart;
-        }
-        else if (log.detail && (log.detail.startsWith("เพิ่ม/แก้ไขพนักงาน PIN: ") || log.detail.startsWith("Add/Edit staff PIN: "))) {
-           let pinPart = log.detail.replace("เพิ่ม/แก้ไขพนักงาน PIN: ", "").replace("Add/Edit staff PIN: ", "");
-           displayDetail = i18n[currentLang]['set_log_detail_add_staff'] + pinPart;
-        }
-
-        tbody.innerHTML += `<tr><td class="text-muted px-3">${log.timestamp}</td><td><span class="badge bg-secondary">${log.staff}</span></td><td><b>${displayAction}</b></td><td class="text-muted">${displayDetail}</td></tr>`;
-      });
-
-      let prevDisabled = currentLogPage <= 1 ? 'disabled' : '';
-      let nextDisabled = currentLogPage >= totalPages ? 'disabled' : '';
-
-      paginationContainer.innerHTML = `
-        <button class="btn btn-sm btn-outline-secondary fw-bold" onclick="changeLogPage(${currentLogPage - 1})" ${prevDisabled}>
-          <i class="fa-solid fa-chevron-left"></i> <span data-i18n="set_btn_prev">${i18n[currentLang]['set_btn_prev'] || 'ก่อนหน้า'}</span>
-        </button>
-        <span class="text-muted small mx-3 fw-bold">${i18n[currentLang]['set_log_page']}${currentLogPage} / ${totalPages}</span>
-        <button class="btn btn-sm btn-outline-secondary fw-bold" onclick="changeLogPage(${currentLogPage + 1})" ${nextDisabled}>
-          <span data-i18n="set_btn_next">${i18n[currentLang]['set_btn_next'] || 'ถัดไป'}</span> <i class="fa-solid fa-chevron-right"></i>
-        </button>
-      `;
+  paginatedLogs.forEach(log => {
+    let displayAction = log.action;
+    if(actionMap[log.action] && i18n[currentLang][actionMap[log.action]]) {
+       displayAction = i18n[currentLang][actionMap[log.action]];
     }
+    
+    // 🌟 ระบบแปลรายละเอียด (Detail) ครบถ้วน 100%
+    let displayDetail = log.detail;
+    if (log.detail === "ตั้งค่า Admin คนแรกสำเร็จ" || log.detail === "First Admin setup successful") displayDetail = i18n[currentLang]['set_log_detail_init_success'];
+    else if (log.detail === "อัปเดตข้อมูลร้านค้า & การพิมพ์" || log.detail === "Updated store info & printing") displayDetail = i18n[currentLang]['set_log_detail_update_shop'];
+    else if (log.detail === "อัปเดตการแสดงผลหน้าจอ (UI)") displayDetail = i18n[currentLang]['set_log_detail_ui_update'];
+    else if (log.detail === "ดาวน์โหลดฟอร์มข้อมูลร้านค้าและสินค้า") displayDetail = i18n[currentLang]['set_log_detail_export'];
+    else if (log.detail === "เปลี่ยนสถานะการพิมพ์ใบเสร็จอัตโนมัติ") displayDetail = i18n[currentLang]['set_log_detail_auto_print'];
+    else if (log.detail === "ล็อกอินสำเร็จ" || log.detail === "Login successful") displayDetail = i18n[currentLang]['set_log_detail_login_success'];
+    else if (log.detail === "ผู้ใช้กดล็อกหน้าจอ (Manual)" || log.detail === "User locked screen (Manual)") displayDetail = i18n[currentLang]['set_log_detail_logout_manual'];
+    else if (log.detail === "ระบบล็อกหน้าจออัตโนมัติ (Idle)" || log.detail === "System auto-locked screen (Idle)") displayDetail = i18n[currentLang]['set_log_detail_logout_auto'];
+    else if (log.detail && (log.detail.startsWith("ลบพนักงาน PIN: ") || log.detail.startsWith("Deleted staff PIN: "))) {
+       let pinPart = log.detail.replace("ลบพนักงาน PIN: ", "").replace("Deleted staff PIN: ", "");
+       displayDetail = i18n[currentLang]['set_log_detail_del_staff'] + pinPart;
+    }
+    else if (log.detail && (log.detail.startsWith("เพิ่ม/แก้ไขพนักงาน PIN: ") || log.detail.startsWith("Add/Edit staff PIN: "))) {
+       let pinPart = log.detail.replace("เพิ่ม/แก้ไขพนักงาน PIN: ", "").replace("Add/Edit staff PIN: ", "");
+       displayDetail = i18n[currentLang]['set_log_detail_add_staff'] + pinPart;
+    }
+    else if (log.detail && log.detail.startsWith("อัปเดตระบบและสินค้า ")) {
+       let countPart = log.detail.replace("อัปเดตระบบและสินค้า ", "").replace(" รายการ", "");
+       displayDetail = i18n[currentLang]['set_log_detail_import_excel_prefix'] + countPart + i18n[currentLang]['set_log_detail_import_excel_suffix'];
+    }
+
+    tbody.innerHTML += `<tr><td class="text-muted px-3">${log.timestamp}</td><td><span class="badge bg-secondary">${log.staff}</span></td><td><b>${displayAction}</b></td><td class="text-muted">${displayDetail}</td></tr>`;
+  });
+
+  let prevDisabled = currentLogPage <= 1 ? 'disabled' : '';
+  let nextDisabled = currentLogPage >= totalPages ? 'disabled' : '';
+
+  paginationContainer.innerHTML = `
+    <button class="btn btn-sm btn-outline-secondary fw-bold" onclick="changeLogPage(${currentLogPage - 1})" ${prevDisabled}>
+      <i class="fa-solid fa-chevron-left"></i> <span data-i18n="set_btn_prev">${i18n[currentLang]['set_btn_prev'] || 'ก่อนหน้า'}</span>
+    </button>
+    <span class="text-muted small mx-3 fw-bold">${i18n[currentLang]['set_log_page']}${currentLogPage} / ${totalPages}</span>
+    <button class="btn btn-sm btn-outline-secondary fw-bold" onclick="changeLogPage(${currentLogPage + 1})" ${nextDisabled}>
+      <span data-i18n="set_btn_next">${i18n[currentLang]['set_btn_next'] || 'ถัดไป'}</span> <i class="fa-solid fa-chevron-right"></i>
+    </button>
+  `;
+}
 
     // ==========================================
     // 📊 ระบบ Export / Import ข้อมูลผ่าน Excel
