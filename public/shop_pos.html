@@ -1,7 +1,7 @@
 <!-- ========================================================= -->
 <!-- 🛒 ส่วนที่ 2: ระบบขายสินค้า (POS)                           -->
 <!-- ========================================================= -->
-<div id="page-pos" style="display: none; background: #f8fafc; height: 100vh; position: absolute; top: 0; left: 0; width: 100%; z-index: 1040; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch;">
+<div id="page-pos" style="display: none; background: #f8fafc; height: 100vh; position: absolute; top: 0; left: 0; width: 100%; z-index: 1040; overflow: hidden; -webkit-overflow-scrolling: touch;">
   <style>
     @media (max-width: 991px) and (orientation: portrait) {
       .pos-mobile-header { flex-direction: column; align-items: flex-start !important; gap: 10px; }
@@ -44,6 +44,16 @@
     .btn-success.btn-lg, .btn-info.btn-lg { transition: all 0.2s ease !important; }
     .btn-success.btn-lg:hover, .btn-info.btn-lg:hover { transform: translateY(-3px); filter: brightness(1.05); }
     .btn-success.btn-lg:active, .btn-info.btn-lg:active { transform: translateY(2px); }
+
+    /* 🌙 แก้ไขสีตัวอักษรกล่องค้นหา/สแกนบาร์โค้ดและกล่องข้อมูลในโหมดมืด */
+    body.dark-theme #pos-barcode-input, 
+    body.dark-theme #pos-search-bill-input, 
+    body.dark-theme #pos-cust-name { background-color: #1e293b !important; color: #f8fafc !important; }
+    body.dark-theme #pos-discount { background-color: #1e293b !important; }
+    body.dark-theme #pos-barcode-input::placeholder, 
+    body.dark-theme #pos-search-bill-input::placeholder, 
+    body.dark-theme #pos-cust-name::placeholder { color: #94a3b8 !important; }
+    body.dark-theme #page-pos .input-group-text.bg-white { background-color: #1e293b !important; color: #94a3b8 !important; border-color: #334155 !important; }
   </style>
 
   <div class="d-flex justify-content-between align-items-center mb-4 mt-3 px-3 px-md-4 pos-mobile-header" style="background: transparent;">
