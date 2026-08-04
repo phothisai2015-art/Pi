@@ -171,24 +171,33 @@
         <h5 class="fw-bold text-secondary mb-4"><i class="fa-solid fa-gear me-2"></i> <span data-i18n="set_advanced_title">ตั้งค่าขั้นสูง (Excel, UI, Auto-print)</span></h5>
         
         <!-- ระบบพิมพ์บิล -->
-        <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-print text-primary me-2"></i> ระบบการพิมพ์</h6>
+        <h6 class="fw-bold text-dark mb-3">
+          <i class="fa-solid fa-print text-primary me-2"></i> 
+          <span class="custom-translate" data-i18n-th="ระบบการพิมพ์" data-i18n-en="Printing System">ระบบการพิมพ์</span>
+        </h6>
         <div class="form-check form-switch fs-6 mb-4 p-3 bg-light rounded-3 border">
           <input class="form-check-input ms-0 me-3" type="checkbox" id="set-auto-print-advanced" style="width: 40px; height: 20px;" onchange="syncAutoPrintAndSave()">
           <label class="form-check-label fw-bold text-dark" for="set-auto-print-advanced" data-i18n="set_auto_print"> เปิดระบบพิมพ์ใบเสร็จอัตโนมัติหลังจ่ายเงิน </label>
         </div>
 
         <!-- เพิ่มปุ่มลบข้อมูลทดสอบที่นี่ -->
-        <h6 class="fw-bold text-danger mb-3"><i class="fa-solid fa-trash-can me-2"></i> การจัดการข้อมูล</h6>
+        <h6 class="fw-bold text-danger mb-3">
+          <i class="fa-solid fa-trash-can me-2"></i> 
+          <span class="custom-translate" data-i18n-th="การจัดการข้อมูล" data-i18n-en="Data Management">การจัดการข้อมูล</span>
+        </h6>
         <div class="mb-4 p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center">
-          <span class="fw-bold text-dark" data-i18n="dash_btn_clear_test">ลบข้อมูลทดสอบ (เคลียร์บิล)</span>
-          <button class="btn btn-danger btn-sm fw-bold rounded-pill shadow-sm px-3" onclick="openClearTestModal()"><i class="fa-solid fa-trash-can me-1"></i> <span data-i18n="dash_btn_clear_test">ลบข้อมูล</span></button>
+          <span class="fw-bold text-dark custom-translate" data-i18n-th="ลบข้อมูลทดสอบ (เคลียร์บิล)" data-i18n-en="Clear Test Data (Bills)">ลบข้อมูลทดสอบ (เคลียร์บิล)</span>
+          <button class="btn btn-danger btn-sm fw-bold rounded-pill shadow-sm px-3" onclick="openClearTestModal()"><i class="fa-solid fa-trash-can me-1"></i> <span class="custom-translate" data-i18n-th="ลบข้อมูล" data-i18n-en="Delete Data">ลบข้อมูล</span></button>
         </div>
 
         <!-- ระบบ UI Layout -->
-        <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-desktop text-info me-2"></i> การแสดงผล</h6>
+        <h6 class="fw-bold text-dark mb-3">
+          <i class="fa-solid fa-desktop text-info me-2"></i> 
+          <span class="custom-translate" data-i18n-th="การแสดงผล" data-i18n-en="Display">การแสดงผล</span>
+        </h6>
         <div class="mb-4 p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center">
           <span class="fw-bold text-dark" data-i18n="set_btn_ui">ปรับแต่งการแสดงผล (UI Layout)</span>
-          <button class="btn btn-primary btn-sm fw-bold rounded-pill shadow-sm px-3" onclick="openUISettingsModal()"><i class="fa-solid fa-sliders me-1"></i> <span data-i18n="set_btn_ui">ปรับหน้าจอ</span></button>
+          <button class="btn btn-primary btn-sm fw-bold rounded-pill shadow-sm px-3" onclick="openUISettingsModal()"><i class="fa-solid fa-sliders me-1"></i> <span class="custom-translate" data-i18n-th="ปรับหน้าจอ" data-i18n-en="UI Setting">ปรับหน้าจอ</span></button>
         </div>
 
         <!-- Excel Data -->
@@ -441,9 +450,16 @@
     function openSettingsPage() {
       document.getElementById('page-settings').style.display = 'block';
       switchSettingsTab('tab-profile');
-      if (typeof changeLanguage === 'function') changeLanguage(currentLang);
+      if (typeof changeLanguage === 'function') {
+        changeLanguage(currentLang);
+        // ดักแปลข้อความ Custom ทันทีที่เปิดหน้า
+        document.querySelectorAll('.custom-translate').forEach(el => {
+           el.innerHTML = el.getAttribute('data-i18n-' + currentLang);
+        });
+      }
       loadSettingsData(); loadUsersData(); loadActivityLogsData(); loadTenantInfoSafely();
     }
+
     function closeSettingsPage() { document.getElementById('page-settings').style.display = 'none'; }
 
     function loadTenantInfoSafely() {
