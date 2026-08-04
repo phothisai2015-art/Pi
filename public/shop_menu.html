@@ -476,20 +476,19 @@ function loadShopData(tenantId) {
     if(globalUsers.length === 0) {
       document.getElementById('first-time-setup-modal').style.display = 'flex';
     } else {
-      // 🌟 [ระบบจำ Session F5] ตรวจสอบว่าเคยล็อกอิน PIN ในรอบการเปิดแท็บนี้ไหม
       const savedStaff = sessionStorage.getItem('pos_active_staff');
       if (savedStaff) {
         try {
           let user = JSON.parse(savedStaff);
           let validUser = globalUsers.find(u => u.pin === user.pin);
           if (validUser) {
-            currentStaff = validUser;
-            document.getElementById('display-staff-name').innerText = validUser.name;
+            currentStaff = validUser; 
+            document.getElementById('display-staff-name').innerText = validUser.name; 
+            document.getElementById('display-staff-name').removeAttribute('data-i18n'); // 🌟 จุดแก้ที่ 1
             applyPermissions(validUser.permissions);
             document.getElementById('lock-screen').style.display = 'none';
             resetIdleTimer();
 
-            // ไม่ต้องแจ้งเตือนอะไรเลย ปล่อยให้มันเนียนเข้าหน้าเดิม
             setTimeout(() => {
                 let lastPage = sessionStorage.getItem('pos_current_page');
                 if(lastPage === 'page-pos' && validUser.permissions.includes('POS') && typeof openPOSPage === 'function') openPOSPage();
@@ -514,7 +513,10 @@ function saveFirstAdmin() {
     if (res === "duplicate") { Swal.fire(i18n[currentLang]['swal_error_occurred'], i18n[currentLang]['swal_pin_used'], 'error'); btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-check-circle me-2"></i> ' + i18n[currentLang]['btn_save_start']; return; }
     Swal.fire({ icon: 'success', title: i18n[currentLang]['swal_setup_success'], text: i18n[currentLang]['swal_redirecting'], timer: 1500, showConfirmButton: false });
     document.getElementById('first-time-setup-modal').style.display = 'none';
-    globalUsers.push(userData); currentStaff = userData; document.getElementById('display-staff-name').innerText = userData.name; applyPermissions(userData.permissions);
+    globalUsers.push(userData); currentStaff = userData; 
+    document.getElementById('display-staff-name').innerText = userData.name; 
+    document.getElementById('display-staff-name').removeAttribute('data-i18n'); // 🌟 จุดแก้ที่ 2
+    applyPermissions(userData.permissions);
     
     sessionStorage.setItem('pos_active_staff', JSON.stringify(userData));
 
@@ -539,14 +541,16 @@ function updatePinDisplay() {
 function checkPinCode(pin) {
   let user = globalUsers.find(u => u.pin === pin);
   if(user) {
-    currentStaff = user; document.getElementById('display-staff-name').innerText = user.name; applyPermissions(user.permissions);
+    currentStaff = user; 
+    document.getElementById('display-staff-name').innerText = user.name; 
+    document.getElementById('display-staff-name').removeAttribute('data-i18n'); // 🌟 จุดแก้ที่ 3
+    applyPermissions(user.permissions);
     
     sessionStorage.setItem('pos_active_staff', JSON.stringify(user));
 
     document.getElementById('lock-screen').style.opacity = '0';
     setTimeout(() => { document.getElementById('lock-screen').style.display = 'none'; document.getElementById('numpad-box').style.animation = 'none'; }, 400);
     
-    // 🌟 พนักงานใส่ PIN ให้มีแค่ Toast ต้อนรับพอ ไม่ต้องเตือนวันหมดอายุอีกแล้ว
     Swal.fire({ icon: 'success', title: i18n[currentLang]['swal_welcome'] + user.name, toast: true, position: 'top-end', showConfirmButton: false, timer: 1500 });
 
     google.script.run.logAction(currentTenantSheetId, user.name, "เข้าสู่ระบบ", "ล็อกอินสำเร็จ");
@@ -570,11 +574,16 @@ function lockScreenManual(isAuto = false) {
     google.script.run.logAction(currentTenantSheetId, currentStaff.name, "ออกจากระบบ", isAuto ? "ระบบล็อกหน้าจออัตโนมัติ (Idle)" : "ผู้ใช้กดล็อกหน้าจอ (Manual)");
   }
   
-  // ล้าง Session เมื่อกดล็อกจอ
   sessionStorage.removeItem('pos_active_staff');
   sessionStorage.setItem('pos_current_page', 'main-menu');
 
   currentStaff = { name: "Locked", permissions: "" }; currentPin = ""; updatePinDisplay();
+  
+  // 🌟 จุดแก้ที่ 4: คืนค่าแปลภาษา
+  let staffNameEl = document.getElementById('display-staff-name');
+  staffNameEl.setAttribute('data-i18n', 'menu_loading');
+  staffNameEl.innerText = i18n[currentLang]['menu_loading'] || "กำลังโหลด..."; 
+  
   let numpad = document.getElementById('numpad-box'); numpad.style.animation = 'none'; void numpad.offsetWidth; 
   numpad.style.animation = 'popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards';
   document.getElementById('lock-screen').style.display = 'flex'; setTimeout(() => { document.getElementById('lock-screen').style.opacity = '1'; }, 10);
