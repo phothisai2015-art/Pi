@@ -251,6 +251,84 @@ let currentTenantSheetId = "";
 let globalUsers = []; let currentStaff = { name: "Unknown", permissions: "" }; let currentPin = "";
 let globalDaysRemaining = null; 
 
+// ========================================================
+// 🌟 ระบบ Real-time: เช็คการอนุมัติแพ็กเกจอัตโนมัติ
+// ========================================================
+let renewPollingInterval = null;
+
+function startRenewPolling() {
+  if (renewPollingInterval) clearInterval(renewPollingInterval);
+  
+  renewPollingInterval = setInterval(() => {
+    if (!currentTenantSheetId) {
+      clearInterval(renewPollingInterval);
+      return;
+    }
+    google.script.run.withSuccessHandler(function(info) {
+      if (info && !info.error) {
+        globalDaysRemaining = info.daysRemaining;
+        
+        // อัปเดตข้อมูลบนหน้าจอตั้งค่าแบบสดๆ
+        let expDateEl = document.getElementById('setting-exp-date');
+        let expDaysEl = document.getElementById('setting-exp-days');
+        let renewBtn = document.getElementById('btn-open-renew');
+
+        if (expDateEl) expDateEl.innerText = info.expireDate;
+        if (expDaysEl) {
+           let parentP = expDaysEl.parentElement;
+           if (info.daysRemaining < 0) {
+              parentP.innerHTML = i18n[currentLang]['set_status_expired'] || 'หมดอายุแล้ว!';
+           } else if (info.daysRemaining === 0) {
+              parentP.innerHTML = i18n[currentLang]['set_status_expire_today'] || 'หมดอายุวันนี้!';
+           } else {
+              let colorClass = info.daysRemaining <= 7 ? 'text-danger' : 'text-warning';
+              parentP.innerHTML = (i18n[currentLang]['set_pkg_remaining']||'เหลือเวลา: ') + '<span id="setting-exp-days" class="fw-bold ' + colorClass + ' fs-5">' + info.daysRemaining + '</span><span class="ms-1 text-light">' + (i18n[currentLang]['set_pkg_days']||'วัน') + '</span>';
+           }
+        }
+
+        if (renewBtn) {
+           if (info.renewStatus === 'PENDING') {
+              renewBtn.disabled = true;
+              renewBtn.innerHTML = `<i class="fa-solid fa-hourglass-half text-warning me-1 fa-spin"></i> <span>${i18n[currentLang]['set_renew_checking']||'กำลังตรวจสอบ...'}</span>`;
+              renewBtn.className = "btn btn-outline-warning fw-bold rounded-pill shadow px-4 py-2";
+           } else {
+              renewBtn.disabled = false;
+              renewBtn.innerHTML = `<i class="fa-solid fa-bolt text-danger me-1"></i> <span>${i18n[currentLang]['set_btn_renew_now']||'ต่ออายุทันที'}</span>`;
+              renewBtn.className = "btn btn-warning fw-bold rounded-pill shadow px-4 py-2";
+           }
+        }
+
+        // 🌟 ถ้าระบบไม่ได้เป็น PENDING แล้ว (แปลว่าแอดมินกดอนุมัติแล้ว)
+        if (info.renewStatus !== 'PENDING') {
+          clearInterval(renewPollingInterval); // หยุดเช็ค
+          renewPollingInterval = null;
+
+          // เด้ง Popup แจ้งเตือนทันที!
+          if (info.renewNotified === 0) {
+             Swal.fire({
+                icon: 'success',
+                title: i18n[currentLang]['swal_renew_success_title'] || '🎉 ต่ออายุระบบสำเร็จแล้ว!',
+                html: `<div class="text-center">
+                         <p class="fs-6 text-secondary mb-2">${i18n[currentLang]['swal_renew_success_desc1']||'แอดมินได้ทำการอนุมัติการชำระเงินเรียบร้อยแล้วครับ'}</p>
+                         <div class="bg-light p-3 rounded-4 border my-3">
+                           <div class="text-muted small">${i18n[currentLang]['swal_renew_success_desc2']||'วันหมดอายุใหม่ของคุณคือ'}</div>
+                           <div class="fs-3 fw-bold text-success mt-1">${info.expireDate}</div>
+                           <div class="badge bg-success rounded-pill px-3 py-1 mt-2">${i18n[currentLang]['swal_renew_success_desc3']||'ใช้งานได้อีก'} ${info.daysRemaining} วัน</div>
+                         </div>
+                       </div>`,
+                confirmButtonColor: '#10b981',
+                confirmButtonText: 'รับทราบ',
+                allowOutsideClick: false
+             }).then(() => {
+                google.script.run.clearRenewNotify(currentTenantSheetId); // เคลียร์สถานะการแจ้งเตือน
+             });
+          }
+        }
+      }
+    }).getTenantInfoBySheetId(currentTenantSheetId);
+  }, 3000); // ⏱️ แอบเช็คทุกๆ 3 วินาที
+}
+
 function toggleThemeMode() {
   const body = document.body; const icon = document.getElementById('theme-icon');
   body.classList.toggle('dark-theme');
@@ -331,9 +409,17 @@ function initShopMenuScripts() {
   }
 
   // 🌟 ดึงข้อมูลและจัดการสถานะ (ลบป๊อปอัพโหลดดิ้งผีหลอกแล้ว ให้เนียนกริบ)
+  // 🌟 ดึงข้อมูลและจัดการสถานะแพ็กเกจ (เพิ่มระบบ Auto Polling)
   google.script.run.withSuccessHandler(function(info) {
         if (info && !info.error) {
           globalDaysRemaining = info.daysRemaining; 
+
+          // 🌟 ถ้าระบบรออนุมัติ ให้หมุนเช็คเลย! (เผื่อลูกค้ากด F5)
+          if (info.renewStatus === 'PENDING') {
+              startRenewPolling();
+          } else if (info.renewNotified === 0) {
+              startRenewPolling();
+          }
 
           if (info.daysRemaining < 0) {
             localStorage.removeItem('saas_tenant_id'); localStorage.removeItem('saas_shop_name');
@@ -346,15 +432,14 @@ function initShopMenuScripts() {
             
             loadShopData(currentTenantSheetId);
 
-            // 🌟 แจ้งเตือนเจ้าของร้านทันทีที่เข้าสู่ระบบร้านค้า (ก่อนใส่ PIN)
-            // จะเด้งขึ้นมาก็ต่อเมื่อ "เจ้าของ" ล็อกอินเข้าหน้านี้ และยังไม่เคยถูกเตือนใน session นี้
+            // แจ้งเตือนเจ้าของร้านใกล้หมดอายุ
             const hasOwnerWarned = sessionStorage.getItem('shop_owner_warned');
-            if (info.daysRemaining <= 7 && !hasOwnerWarned) {
+            if (info.daysRemaining <= 7 && !hasOwnerWarned && info.renewStatus !== 'PENDING') {
               sessionStorage.setItem('shop_owner_warned', 'true');
               
               let warnText = info.daysRemaining === 0 
                 ? i18n[currentLang]['swal_warn_expire_today'] 
-                : i18n[currentLang]['swal_warn_expire_days1'] + info.daysRemaining + i18n[currentLang]['swal_warn_expire_days2'];
+                : (i18n[currentLang]['swal_warn_expire_days1']||'เหลือเวลา ') + info.daysRemaining + (i18n[currentLang]['swal_warn_expire_days2']||' วัน');
                 
               Swal.fire({
                   icon: info.daysRemaining === 0 ? 'error' : 'warning',
@@ -365,7 +450,7 @@ function initShopMenuScripts() {
                   allowOutsideClick: false
               });
             } else {
-              Swal.close(); // ปิดโหลดดิ้งถ้ามีค้างอยู่
+              Swal.close(); 
             }
           }
         } else { 

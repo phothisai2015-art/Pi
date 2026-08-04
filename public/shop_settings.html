@@ -370,7 +370,16 @@
           .withSuccessHandler(function(res) {
             Swal.close();
             if(res.status === 'error') Swal.fire(i18n[currentLang]['swal_error_title'], res.message, 'error');
-            else { Swal.fire(i18n[currentLang]['renew_success_title'], i18n[currentLang]['swal_send_slip_success'], 'success'); closeQuickRenewModal(); loadTenantInfoSafely(); }
+            else { 
+              Swal.fire(i18n[currentLang]['renew_success_title'], i18n[currentLang]['swal_send_slip_success'], 'success'); 
+              closeQuickRenewModal(); 
+              loadTenantInfoSafely(); 
+              
+              // 🌟 สั่งให้ระบบเริ่มหมุนรอจับสถานะอัปเดตทันทีที่ส่งสลิปเสร็จ!
+              if (typeof startRenewPolling === 'function') {
+                  startRenewPolling();
+              }
+            }
           })
           .withFailureHandler(function(err) {
             Swal.close();
