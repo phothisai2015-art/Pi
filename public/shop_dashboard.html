@@ -91,8 +91,8 @@
     <div class="col-lg-6">
       <div class="bg-white p-3 rounded-4 shadow-sm border dash-table-box">
         <h6 class="fw-bold text-muted mb-2"><i class="fa-solid fa-clock-rotate-left"></i> <span data-i18n="dash_table_history_title">ประวัติการขาย (ตามช่วงเวลา)</span></h6>
-        <div class="dash-box-content mt-2 border rounded-3">
-          <table class="table table-hover align-middle mb-0 text-nowrap small">
+        <div class="dash-box-content mt-2 border rounded-3" style="overflow-x: hidden;">
+          <table class="table table-hover align-middle mb-0 small" style="width: 100%;">
             <thead class="table-light sticky-top"><tr><th class="px-2" data-i18n="dash_th_datetime">วันที่-เวลา</th><th data-i18n="dash_th_receipt">เลขที่บิล</th><th class="text-end" data-i18n="dash_th_amount">ยอด</th><th class="text-center px-2" data-i18n="dash_th_method">วิธีชำระ</th></tr></thead>
             <tbody id="dash-table-body"></tbody>
           </table>
@@ -102,8 +102,8 @@
     <div class="col-lg-6">
       <div class="bg-white p-3 rounded-4 shadow-sm border dash-table-box">
         <h6 class="fw-bold text-muted mb-2"><i class="fa-solid fa-boxes-packing text-warning"></i> <span data-i18n="dash_table_item_title">สรุปยอดขายแยกตามสินค้า</span></h6>
-        <div class="dash-box-content mt-2 border rounded-3">
-          <table class="table table-hover align-middle mb-0 text-nowrap small">
+        <div class="dash-box-content mt-2 border rounded-3" style="overflow-x: hidden;">
+          <table class="table table-hover align-middle mb-0 small" style="width: 100%;">
             <thead class="table-light sticky-top"><tr><th class="text-center" data-i18n="dash_th_rank">อันดับ</th><th data-i18n="dash_th_item_name">ชื่อสินค้า</th><th class="text-center" data-i18n="dash_th_sold">ขายแล้ว</th><th class="text-end pe-3" data-i18n="dash_th_revenue">รายได้รวม</th></tr></thead>
             <tbody id="dash-item-summary-body"></tbody>
           </table>
@@ -383,8 +383,8 @@
             </div>
             <button class="btn btn-dark btn-sm fw-bold px-3 w-100 mb-3 shadow-sm" onclick="filterTestBills()"><i class="fa-solid fa-search"></i> ${i18n[currentLang]['dash_btn_fetch_bills']}</button>
             <div class="alert alert-warning small fw-bold mb-2 py-2"><i class="fa-solid fa-triangle-exclamation"></i> ${i18n[currentLang]['dash_clear_test_warning']}</div>
-            <div id="del-test-container" class="border rounded-3 bg-light shadow-inner" style="height: 250px; overflow-y: auto;">
-              <table class="table table-hover small text-nowrap mb-0 bg-white w-100">
+            <div id="del-test-container" class="border rounded-3 bg-light shadow-inner" style="height: 250px; overflow-y: auto; overflow-x: hidden;">
+              <table class="table table-hover small mb-0 bg-white w-100">
                  <thead class="table-light sticky-top shadow-sm">
                     <tr><th width="5%"><input type="checkbox" id="del-check-all" onchange="toggleAllDelChecks()"></th><th>${i18n[currentLang]['dash_th_datetime']}</th><th>${i18n[currentLang]['dash_th_receipt']}</th><th class="text-end">${i18n[currentLang]['dash_th_amount']}</th></tr>
                  </thead>
@@ -437,3 +437,4 @@
     }
   </script>
 </div>
+
