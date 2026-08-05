@@ -1301,6 +1301,11 @@ function changeLanguage(lang) {
       }
     }
   });
+
+  // 🌟 [เพิ่มตรงนี้] ยิงคำสั่งบอกจอลูกค้าให้เปลี่ยนภาษาตาม
+  if (typeof syncLanguageToCFD === 'function') {
+    syncLanguageToCFD(lang);
+  }
 }
 
 function toggleLanguage() {
