@@ -284,17 +284,24 @@
         const characteristics = await service.getCharacteristics();
         window.printerCharacteristic = characteristics[0];
         
-        // อัปเดตสถานะในหน้า Settings
+        // อัปเดตสถานะในหน้า Settings ให้แปลภาษาด้วย
         let statusEl = document.getElementById('bt-printer-status');
         if(statusEl) {
-           statusEl.innerText = 'เชื่อมต่อแล้ว';
+           statusEl.innerText = i18n[currentLang]['set_printer_connected'] || 'เชื่อมต่อแล้ว';
            statusEl.className = 'text-success fw-bold';
+           // อย่าลืมลบ data-i18n ออกเพื่อไม่ให้ตอนสลับภาษามันเด้งกลับไปเป็นคำว่า "ยังไม่เชื่อมต่อ"
+           statusEl.removeAttribute('data-i18n'); 
         }
         
-        Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2000 }).fire({ icon: 'success', title: 'เชื่อมต่อปริ้นเตอร์ Bluetooth สำเร็จ!' });
+        Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2000 })
+            .fire({ icon: 'success', title: i18n[currentLang]['swal_bt_connect_success'] || 'เชื่อมต่อปริ้นเตอร์ Bluetooth สำเร็จ!' });
       } catch (error) {
         console.error('Bluetooth Error:', error);
-        Swal.fire('การเชื่อมต่อล้มเหลว', 'ไม่สามารถเชื่อมต่อปริ้นเตอร์ได้: ' + error.message, 'error');
+        Swal.fire(
+            i18n[currentLang]['swal_bt_connect_fail_title'] || 'การเชื่อมต่อล้มเหลว', 
+            (i18n[currentLang]['swal_bt_connect_fail_desc'] || 'ไม่สามารถเชื่อมต่อปริ้นเตอร์ได้:') + ' ' + error.message, 
+            'error'
+        );
       }
     }
 

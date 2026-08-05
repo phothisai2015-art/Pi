@@ -622,7 +622,21 @@ var i18n = {
 	set_sidebar_menu_title: "เมนูการตั้งค่า",
 	idx_alert_login_wrong_cred: "อีเมล/เบอร์โทร หรือรหัสผ่านไม่ถูกต้อง!",
 	set_sidebar_menu_title: "เมนูการตั้งค่า",
-    set_advanced_title: "ตั้งค่าขั้นสูง (Excel, UI, Auto-print)"
+    set_advanced_title: "ตั้งค่าขั้นสูง (Excel, UI, Auto-print)",
+	// Printer Settings (ใหม่)
+    set_tab_printer: "🖨️ ตั้งค่าปริ้นเตอร์ (Printer)",
+    set_printer_title: "ตั้งค่าเครื่องพิมพ์ (Printer Settings)",
+    set_printer_auto_title: "ระบบการพิมพ์อัตโนมัติ (ผ่านระบบ)",
+    set_printer_bt_title: "ปริ้นเตอร์บลูทูธ (พิมพ์ตรงไร้หน้าต่าง)",
+    set_printer_status_label: "สถานะ:",
+    set_printer_not_connected: "ยังไม่เชื่อมต่อ",
+    set_printer_connected: "เชื่อมต่อแล้ว",
+    set_printer_bt_note: "รองรับเฉพาะ Chrome/Edge (Windows, Mac, Android)",
+    set_btn_connect_bt: "เชื่อมต่อปริ้นเตอร์",
+    set_printer_hint: "คำแนะนำ: หากคุณเชื่อมต่อปริ้นเตอร์ Bluetooth สำเร็จ ระบบจะข้ามการเด้งหน้าต่างพิมพ์ของเบราว์เซอร์ และพิมพ์ใบเสร็จพร้อมเด้งลิ้นชักให้อัตโนมัติทันที",
+    swal_bt_connect_success: "เชื่อมต่อปริ้นเตอร์ Bluetooth สำเร็จ!",
+    swal_bt_connect_fail_title: "การเชื่อมต่อล้มเหลว",
+    swal_bt_connect_fail_desc: "ไม่สามารถเชื่อมต่อปริ้นเตอร์ได้:"
 	
   },
   en: {
@@ -1245,7 +1259,21 @@ var i18n = {
 	set_sidebar_menu_title: "Settings Menu",
 	idx_alert_login_wrong_cred: "Invalid email/phone or password!",
 	set_sidebar_menu_title: "Settings Menu",
-    set_advanced_title: "Advanced Settings (Excel, UI, Auto-print)"
+    set_advanced_title: "Advanced Settings (Excel, UI, Auto-print)",
+	// Printer Settings (New)
+    set_tab_printer: "🖨️ Printer Settings",
+    set_printer_title: "Printer Settings",
+    set_printer_auto_title: "Auto-Print System (Browser Print)",
+    set_printer_bt_title: "Bluetooth Printer (Direct Print)",
+    set_printer_status_label: "Status:",
+    set_printer_not_connected: "Not Connected",
+    set_printer_connected: "Connected",
+    set_printer_bt_note: "Supported only on Chrome/Edge (Windows, Mac, Android)",
+    set_btn_connect_bt: "Connect Printer",
+    set_printer_hint: "Hint: If a Bluetooth printer is successfully connected, the system will bypass the browser's print dialog and print the receipt (along with opening the cash drawer) automatically.",
+    swal_bt_connect_success: "Bluetooth Printer connected successfully!",
+    swal_bt_connect_fail_title: "Connection Failed",
+    swal_bt_connect_fail_desc: "Could not connect to the printer:"
   }
 };
 
