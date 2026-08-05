@@ -607,20 +607,49 @@ function renderMenuGrid() {
     function posExecuteBulkReturnSequential(receiptId, items, currentIndex) {
        if (currentIndex >= items.length) {
           Swal.fire({icon:'success', title: i18n[currentLang]['pos_alert_return_success'], timer: 1000, showConfirmButton:false});
+          // ✅ เพิ่มคำสั่งบันทึก Log คืนสินค้า
+          let staff = (typeof currentStaff !== 'undefined' && currentStaff.name) ? currentStaff.name : 'Unknown';
+          google.script.run.logAction(currentTenantSheetId, staff, "คืนสินค้า", "คืนบางส่วนบิล " + receiptId);
+          
           refreshProductsData(); google.script.run.withSuccessHandler(function(data) { posRawSalesData = data; renderPosRecentBills(); Swal.close(); }).getDashboardData(currentTenantSheetId); return;
        }
        let currentItem = items[currentIndex];
-       google.script.run.withSuccessHandler(res => { if (res === 'success') posExecuteBulkReturnSequential(receiptId, items, currentIndex + 1); }).voidPartialItem(currentTenantSheetId, receiptId, currentItem.index, currentItem.qty);
+       
+       // ✅ เพิ่มตัวดัก Error กันหน้าจอหมุนค้าง
+       google.script.run
+         .withSuccessHandler(res => { 
+            if (res === 'success') {
+                posExecuteBulkReturnSequential(receiptId, items, currentIndex + 1);
+            } else {
+                Swal.fire(i18n[currentLang]['swal_error_title2'] || 'Error', res, 'error');
+            }
+         })
+         .withFailureHandler(err => {
+            Swal.fire(i18n[currentLang]['swal_error_title2'] || 'Error', err.message, 'error');
+         })
+         .voidPartialItem(currentTenantSheetId, receiptId, currentItem.index, currentItem.qty);
     }
 
-    function posConfirmVoidBill(receiptId) {
+
+     function posConfirmVoidBill(receiptId) {
       Swal.fire({ title: i18n[currentLang]['pos_alert_confirm_void_title'], text: i18n[currentLang]['pos_alert_confirm_void_desc1'] + receiptId + i18n[currentLang]['pos_alert_confirm_void_desc2'], icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', confirmButtonText: i18n[currentLang]['pos_btn_confirm_void'], cancelButtonText: i18n[currentLang]['pos_btn_close']
       }).then((result) => {
         if (result.isConfirmed) {
-          google.script.run.withSuccessHandler(res => { refreshProductsData(); google.script.run.withSuccessHandler(function(data) { posRawSalesData = data; renderPosRecentBills(); Swal.fire({ icon: 'success', title: i18n[currentLang]['pos_alert_void_success'], timer: 1500, showConfirmButton: false}); }).getDashboardData(currentTenantSheetId); }).voidOrder(currentTenantSheetId, receiptId); 
+          google.script.run.withSuccessHandler(res => { 
+             // ✅ เพิ่มคำสั่งบันทึก Log ยกเลิกบิล
+             let staff = (typeof currentStaff !== 'undefined' && currentStaff.name) ? currentStaff.name : 'Unknown';
+             google.script.run.logAction(currentTenantSheetId, staff, "ยกเลิกบิล", "ยกเลิกบิล " + receiptId);
+             
+             refreshProductsData(); 
+             google.script.run.withSuccessHandler(function(data) { 
+                posRawSalesData = data; renderPosRecentBills(); 
+                Swal.fire({ icon: 'success', title: i18n[currentLang]['pos_alert_void_success'], timer: 1500, showConfirmButton: false}); 
+             }).getDashboardData(currentTenantSheetId); 
+          }).voidOrder(currentTenantSheetId, receiptId); 
         }
       });
     }
+
 
     function posReprintBill(receiptId) {
        let found = posRawSalesData.find(sale => sale.receiptId === receiptId); if(!found) return;
@@ -640,8 +669,14 @@ function renderMenuGrid() {
        else if (found.method === 'โอนเงิน') displayMethod = i18n[currentLang]['pos_text_transfer'];
 
        let receiptData = { receiptId: displayReceiptId + i18n[currentLang]['pos_text_reprint_suffix'], date: found.dateStr, seller: "Reprint", customer: "-", items: reconstructedItems, subtotal: parseFloat(found.total) + discount, discount: discount, netTotal: parseFloat(found.total), payment: displayMethod };
+       
+       // ✅ เพิ่มคำสั่งบันทึก Log พิมพ์บิลซ้ำ
+       let staff = (typeof currentStaff !== 'undefined' && currentStaff.name) ? currentStaff.name : 'Unknown';
+       google.script.run.logAction(currentTenantSheetId, staff, "พิมพ์บิลซ้ำ", "พิมพ์บิล " + receiptId);
+       
        Swal.close(); setTimeout(() => { if (typeof openReceipt === "function") openReceipt(receiptData, cachedShopSettings); }, 300);
     }
+
   </script>
 </div>
 
