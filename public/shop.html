@@ -216,6 +216,7 @@ body.dark-theme .menu-card-btn:hover:not(:disabled) { border-color: #475569; box
 // ==========================================
 // 🚀 ระบบโหลดหน้าเว็บย่อย (Modular Loader) 
 // ==========================================
+// 🚀 ระบบโหลดหน้าเว็บย่อย (Modular Loader) แบบโหลดพร้อมกัน
 async function loadShopComponents() {
   const components = [
     '/shop/menu',
@@ -227,21 +228,18 @@ async function loadShopComponents() {
   ];
 
   const container = document.getElementById('app-container');
-  let combinedHTML = "";
 
-  // ดึง HTML ของแต่ละไฟล์มาต่อกัน
-  for (const url of components) {
-    try {
-      const response = await fetch(url);
-      const html = await response.text();
-      combinedHTML += html;
-    } catch (error) {
-      console.error("Error loading component:", url, error);
-    }
+  try {
+    // 🌟 เปลี่ยนมาใช้ Promise.all เพื่อยิง Request โหลดไฟล์ทั้ง 6 ตัวพร้อมกัน
+    const fetchPromises = components.map(url => fetch(url).then(res => res.text()));
+    const htmlResults = await Promise.all(fetchPromises);
+
+    // นำ HTML ที่โหลดเสร็จแล้วทั้งหมดมาต่อกัน และนำไปใส่ใน container
+    container.innerHTML = htmlResults.join('');
+    
+  } catch (error) {
+    console.error("Error loading components:", error);
   }
-
-  // นำ HTML ทั้งหมดใส่ใน container
-  container.innerHTML = combinedHTML;
 
   // 🌟 [สำคัญมาก] สั่งให้ Javascript ที่อยู่ใน HTML ที่ดึงมา ทำงานได้จริง
   executeScripts(container);
