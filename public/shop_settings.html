@@ -12,11 +12,48 @@
 
     /* 🌟 New SaaS Layout Styles */
     .settings-layout { display: flex; flex-direction: column; gap: 20px; }
-    @media (min-width: 992px) { .settings-layout { flex-direction: row; align-items: flex-start; } }
+    /* ========================================================= */
+    /* 🛠️ แก้ไข Layout หน้า Settings ให้ชิดซ้ายและขยายเต็มพื้นที่ 100%  */
+    /* ========================================================= */
+    @media (min-width: 992px) {
+      .settings-layout {
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: flex-start !important;
+        align-items: flex-start !important;
+        gap: 24px !important;
+        width: 100% !important;
+      }
+
+      .settings-sidebar {
+        width: 280px !important;
+        flex: 0 0 280px !important;
+        max-width: 280px !important;
+        margin: 0 !important;
+      }
+
+      .settings-content {
+        flex: 1 1 0% !important;
+        width: calc(100% - 304px) !important;
+        min-width: 0 !important;
+        margin: 0 !important;
+      }
+    }
+
+    /* บังคับให้การ์ดเนื้อหาทุกแท็บขยายเต็ม 100% เสมอ */
+    .settings-panel {
+      width: 100% !important;
+      margin: 0 !important;
+    }
+
+    .settings-panel.active {
+      display: block !important;
+      width: 100% !important;
+    }
     
-    .settings-sidebar { width: 100%; display: flex; overflow-x: auto; gap: 8px; padding-bottom: 5px; scrollbar-width: none; }
+    
     .settings-sidebar::-webkit-scrollbar { display: none; }
-    @media (min-width: 992px) { .settings-sidebar { width: 300px; flex-direction: column; flex-shrink: 0; padding-bottom: 0; position: sticky; top: 20px; } }
+   
     
     .settings-tab { background: transparent; border: none; padding: 14px 20px; text-align: left; border-radius: 12px; font-weight: 600; color: #64748b; transition: all 0.2s; white-space: nowrap; display: flex; align-items: center; gap: 12px; font-size: 15px; }
     .settings-tab i { width: 22px; text-align: center; font-size: 18px; }
@@ -172,7 +209,7 @@
           </div>
         </div>
       </div>
-	  </div>
+	  
 
       <!-- TAB: แพ็กเกจร้านค้า -->
       <div id="tab-package" class="settings-panel">
