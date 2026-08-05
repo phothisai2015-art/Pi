@@ -9,12 +9,28 @@
       .pos-mobile-btns button { flex: 1; margin: 0 !important; padding: 8px !important; font-size: 13px; }
       .pos-mobile-unsticky { position: static !important; }
       #pos-cart-container { max-height: 40vh !important; min-height: 200px !important; }
-      #pos-grid-view { max-height: 45vh !important; min-height: 200px !important; }
+      
+      /* 🌟 บังคับแสดงหน้าต่างจิ้มรูปเสมอในแนวตั้ง */
+      #pos-grid-view { 
+          max-height: 45vh !important; 
+          min-height: 200px !important; 
+          display: block !important; 
+      }
+      
       #page-pos .gap-3 { gap: 10px !important; padding: 12px !important; }
       #page-pos .flex-shrink-0, #page-pos .input-group.flex-grow-1 { flex: 1 1 100% !important; width: 100% !important; min-width: 100% !important; justify-content: space-between; margin-bottom: 5px; }
-      #btn-mode-barcode, #btn-mode-grid { flex: 1; text-align: center; }
-      #pos-category-filter { flex: 1 1 100% !important; min-width: 100% !important; margin-top: 5px; font-size: 14px; } 
+      
+      /* 🌟 ขยายปุ่มจิ้มรูปให้เต็มจอ 100% และซ่อนปุ่มสแกน */
+      #btn-mode-grid { flex: 1 1 100% !important; width: 100% !important; text-align: center; }
+      #btn-mode-barcode { display: none !important; }
+      
+      /* 🌟 บังคับแสดงหมวดหมู่ */
+      #pos-category-filter { flex: 1 1 100% !important; min-width: 100% !important; margin-top: 5px; font-size: 14px; display: block !important; } 
       #grid-size-controller { justify-content: space-between; margin-top: 5px; padding: 0 5px; }
+
+      /* 🌟 ซ่อนกล่องค้นหาและบาร์โค้ด */
+      #mobile-hide-barcode, 
+      #mobile-hide-search-bill { display: none !important; }
     }
     .return-item-row-pos { display: flex; align-items: center; gap: 10px; padding: 10px; border-bottom: 1px solid #e2e8f0; }
     .return-item-row-pos:last-child { border-bottom: none; }
@@ -95,8 +111,9 @@
                 <option value="all" data-i18n="pos_filter_all">📁 ทุกหมวดหมู่</option>
               </select>
             </div>
-
-            <div class="input-group flex-grow-1 shadow-sm" style="border-radius: 8px; overflow: hidden; min-width: 200px;">
+			
+			<div id="mobile-hide-barcode" class="input-group flex-grow-1 shadow-sm" style="border-radius: 8px; overflow: hidden; min-width: 200px;">
+			
               <span class="input-group-text bg-primary text-white border-0 px-3"><i class="fa-solid fa-barcode"></i></span>
               <input type="text" id="pos-barcode-input" class="form-control border-0 bg-white fw-bold" placeholder="ยิงบาร์โค้ด หรือ พิมพ์รหัสแล้วกด Enter..." data-i18n="pos_barcode_placeholder">
             </div>
@@ -131,17 +148,17 @@
       </div>
 
       <div class="col-lg-4 pos-mobile-unsticky" style="position: sticky; top: 90px; z-index: 1020;">
-        <div class="bg-white p-3 rounded-4 shadow-sm border-0 mb-3 text-center">
-          <div class="d-flex gap-2">
-            <div class="input-group shadow-sm" style="border-radius: 10px; overflow: hidden;">
-              <input type="text" id="pos-search-bill-input" class="form-control border-0 bg-light fw-bold px-3" placeholder="พิมพ์เลขบิล..." data-i18n="pos_search_bill_placeholder" onkeypress="if(event.key==='Enter') posSearchBillManual()">
-              <button class="btn btn-primary fw-bold px-3 border-0" onclick="posSearchBillManual()" data-i18n="pos_btn_search"><i class="fa-solid fa-magnifying-glass"></i> ค้นหา</button>
-            </div>
-            <button class="btn btn-outline-secondary fw-bold rounded-3 shadow-sm px-3 border-0 bg-light" onclick="openRecentBillsModal()" title="ดู 10 บิลล่าสุด">
-              <i class="fa-solid fa-clock-rotate-left"></i>
-            </button>
-          </div>
-        </div>
+	  <div id="mobile-hide-search-bill" class="bg-white p-3 rounded-4 shadow-sm border-0 mb-3 text-center">
+    <div class="d-flex gap-2">
+      <div class="input-group shadow-sm" style="border-radius: 10px; overflow: hidden;">
+        <input type="text" id="pos-search-bill-input" class="form-control border-0 bg-light fw-bold px-3" placeholder="พิมพ์เลขบิล..." data-i18n="pos_search_bill_placeholder" onkeypress="if(event.key==='Enter') posSearchBillManual()">
+        <button class="btn btn-primary fw-bold px-3 border-0" onclick="posSearchBillManual()" data-i18n="pos_btn_search"><i class="fa-solid fa-magnifying-glass"></i> ค้นหา</button>
+      </div>
+      <button class="btn btn-outline-secondary fw-bold rounded-3 shadow-sm px-3 border-0 bg-light" onclick="openRecentBillsModal()" title="ดู 10 บิลล่าสุด">
+        <i class="fa-solid fa-clock-rotate-left"></i>
+      </button>
+    </div>
+  </div>
 
         <div class="bg-white p-4 rounded-4 shadow-sm border-0 d-flex flex-column pos-right-summary">
           <div class="d-flex justify-content-between align-items-center mb-4">
