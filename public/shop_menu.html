@@ -652,7 +652,6 @@ function initCats() {
     isDragging = true; 
     currentCat = cat;
     
-    // เคลียร์การเดิน/นอนเดิมเมื่อถูกจับดึง
     if (currentCat.walkInterval) clearInterval(currentCat.walkInterval);
     if (currentCat.actionTimeout) clearTimeout(currentCat.actionTimeout);
     currentCat.classList.remove('cat-resting');
@@ -690,25 +689,23 @@ function initCats() {
     isDragging = false; 
     currentCat = null;
     
-    // เริ่มระบบวงจรชีวิตแมว (เดินบ้าง หยุดนอนบ้าง)
     startCatBehavior(cat);
   }
 
- // 🌟 ระบบสลับพฤติกรรม (เดิน ↔ นอนลงพื้น)
+  // 🌟 ระบบสลับพฤติกรรม (สุ่มระยะเวลาเดิน & สุ่มระยะเวลานอน)
   function startCatBehavior(cat) {
     if (cat.walkInterval) clearInterval(cat.walkInterval);
     if (cat.actionTimeout) clearTimeout(cat.actionTimeout);
 
-    // ถอดคลาส Route เดิมออก ป้องกัน CSS Animation สไลด์แมวไปมา
+    // ปิดคลาสอนิเมชั่นเก่าเพื่อไม่ให้สไลด์
     cat.classList.remove('route-cat-black', 'route-cat-white', 'route-cat-orange');
 
     let direction = cat.dataset.dir ? parseInt(cat.dataset.dir) : 1; 
     cat.style.transform = `scaleX(${direction})`;
 
-    // สุ่มระยะเวลาเดิน (เดินประมาณ 4 - 8 วินาที)
-    let walkDuration = Math.floor(Math.random() * 4000) + 4000;
+    // 🎲 1. สุ่มระยะเวลาเดิน: ตั้งแต่ 2 ถึง 10 วินาที (2000ms - 10000ms)
+    let walkDuration = Math.floor(Math.random() * 8000) + 2000;
 
-    // เริ่มการเดิน
     cat.classList.remove('cat-resting');
     cat.walkInterval = setInterval(() => {
       if (document.getElementById('lock-screen') && document.getElementById('lock-screen').style.display === 'none') return;
@@ -731,27 +728,42 @@ function initCats() {
       }
     }, 30);
 
-    // เมื่อครบกำหนดเวลาเดิน ให้ "หยุดนอนลงพื้น"
+    // เมื่อครบกำหนดเวลาเดิน ให้หยุดนอนลงพื้น
     cat.actionTimeout = setTimeout(() => {
-      clearInterval(cat.walkInterval); // หยุดการเคลื่อนที่
-      cat.classList.add('cat-resting'); // หมอนตัวลงนอนหยุดนิ่งอยู่กับที่
+      clearInterval(cat.walkInterval);
+      cat.classList.add('cat-resting');
 
-      // สลับเวลานอนพัก (นอนประมาณ 3 - 7 วินาที) แล้วค่อยลุกขึ้นมาเดินใหม่
-      let sleepDuration = Math.floor(Math.random() * 4000) + 3000;
+      // 🎲 2. สุ่มระยะเวลานอนพัก: ตั้งแต่ 2 ถึง 12 วินาที (2000ms - 12000ms)
+      let sleepDuration = Math.floor(Math.random() * 10000) + 2000;
+
       cat.actionTimeout = setTimeout(() => {
-        startCatBehavior(cat); // ตื่นมาเดินต่อ
+        // เมื่อนอนครบเวลาแล้ว จะสุ่มกลับมาลุกเดินต่อ
+        startCatBehavior(cat);
       }, sleepDuration);
 
     }, walkDuration);
   }
 
-  cats.forEach(cat => { 
+  cats.forEach((cat, index) => { 
     cat.ondragstart = function() { return false; }; 
     cat.addEventListener('mousedown', (e) => startDrag(e, cat)); 
     cat.addEventListener('touchstart', (e) => startDrag(e, cat), {passive: false}); 
     
-    // เริ่มต้นพฤติกรรมให้แมวทุกตัว
-    startCatBehavior(cat);
+    // สุ่มตำแหน่งเริ่มต้นให้อยู่นอกขอบจอ (ซ้าย หรือ ขวา) + สุ่มความสูง (Top)
+    let startFromLeft = Math.random() > 0.5;
+    let initialLeft = startFromLeft ? -120 : window.innerWidth + 20;
+    let initialTop = Math.floor(Math.random() * (window.innerHeight * 0.6)) + (window.innerHeight * 0.15);
+    
+    let initialDir = startFromLeft ? 1 : -1;
+    cat.dataset.dir = initialDir;
+    
+    cat.style.left = initialLeft + 'px';
+    cat.style.top = initialTop + 'px';
+
+    // สุ่มดีเลย์เวลาก่อนเริ่มทยอยเดินเข้าจอ
+    setTimeout(() => {
+      startCatBehavior(cat);
+    }, index * 1500 + Math.random() * 1000);
   });
 
   document.addEventListener('mousemove', drag); 
