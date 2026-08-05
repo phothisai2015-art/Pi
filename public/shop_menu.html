@@ -111,6 +111,36 @@ body.dark-theme .menu-card-btn:hover:not(:disabled) { border-color: #475569; box
 .pcat-paw::after { content: ''; position: absolute; width: 9px; height: 5px; background: #fda4af; border-radius: 50% 50% 2px 2px; top: 2px; left: 2px; }
 .pcat-paw.paw-l { left: 10px; } .pcat-paw.paw-r { right: 10px; }
 @keyframes catPanelPeekLook { 0% { transform: translateY(0) rotate(0deg); } 35% { transform: translateY(-4px) rotate(3deg); } 70% { transform: translateY(1px) rotate(-3deg); } 100% { transform: translateY(-1px) rotate(1deg); } }
+
+/* 🐾 CSS ท่าทางแมวหยุดนอนพัก */
+.detailed-cat.cat-resting .cat-wrapper {
+  animation: catSleeping 1.5s ease-in-out infinite alternate !important;
+}
+
+/* ย่อตัวลงนอน + พับขา */
+.detailed-cat.cat-resting .cat-body-main {
+  transform: translateY(6px) scaleY(0.85);
+  transition: transform 0.5s ease;
+}
+
+.detailed-cat.cat-resting .cat-head-main {
+  transform: translateY(8px) translateX(-3px);
+  transition: transform 0.5s ease;
+}
+
+/* ซ่อนขาตอนนอนลงพื้น */
+.detailed-cat.cat-resting .cat-leg-detailed {
+  height: 6px !important;
+  top: 42px !important;
+  animation: none !important;
+  transition: all 0.5s ease;
+}
+
+/* จังหวะหายใจตอนหลับ */
+@keyframes catSleeping {
+  0% { transform: translateY(0) scale(1); }
+  100% { transform: translateY(2px) scale(0.98, 1.02); }
+}
 </style>
 
 <!-- 🌟 หน้าจอล็อกพนักงาน (Numpad & Cats) -->
@@ -608,38 +638,116 @@ function shopLogout() {
 }
 
 function initCats() {
-  const cats = document.querySelectorAll('.detailed-cat'); let isDragging = false; let currentCat = null; let offsetX = 0, offsetY = 0;
+  const cats = document.querySelectorAll('.detailed-cat'); 
+  let isDragging = false; 
+  let currentCat = null; 
+  let offsetX = 0, offsetY = 0;
+
   function startDrag(e, cat) {
     if (e.type === 'mousedown') e.preventDefault();
-    isDragging = true; currentCat = cat;
+    isDragging = true; 
+    currentCat = cat;
+    
+    // เคลียร์การเดิน/นอนเดิมเมื่อถูกจับดึง
     if (currentCat.walkInterval) clearInterval(currentCat.walkInterval);
-    const computed = window.getComputedStyle(currentCat); const startLeft = parseFloat(computed.left); const startTop = parseFloat(computed.top);
-    currentCat.style.left = startLeft + 'px'; currentCat.style.top = startTop + 'px';
+    if (currentCat.actionTimeout) clearTimeout(currentCat.actionTimeout);
+    currentCat.classList.remove('cat-resting');
+
+    const computed = window.getComputedStyle(currentCat); 
+    const startLeft = parseFloat(computed.left); 
+    const startTop = parseFloat(computed.top);
+    
+    currentCat.style.left = startLeft + 'px'; 
+    currentCat.style.top = startTop + 'px';
     currentCat.classList.remove('route-cat-black', 'route-cat-white', 'route-cat-orange');
-    currentCat.style.animation = 'none'; currentCat.style.transition = 'none'; currentCat.style.zIndex = '1000';
-    let clientX = e.clientX !== undefined ? e.clientX : e.touches[0].clientX; let clientY = e.clientY !== undefined ? e.clientY : e.touches[0].clientY;
-    offsetX = clientX - startLeft; offsetY = clientY - startTop;
+    currentCat.style.animation = 'none'; 
+    currentCat.style.transition = 'none'; 
+    currentCat.style.zIndex = '1000';
+
+    let clientX = e.clientX !== undefined ? e.clientX : e.touches[0].clientX; 
+    let clientY = e.clientY !== undefined ? e.clientY : e.touches[0].clientY;
+    offsetX = clientX - startLeft; 
+    offsetY = clientY - startTop;
   }
+
   function drag(e) {
-    if (!isDragging || !currentCat) return; e.preventDefault(); 
-    let clientX = e.clientX !== undefined ? e.clientX : (e.touches.length > 0 ? e.touches[0].clientX : 0); let clientY = e.clientY !== undefined ? e.clientY : (e.touches.length > 0 ? e.touches[0].clientY : 0);
-    currentCat.style.left = (clientX - offsetX) + 'px'; currentCat.style.top = (clientY - offsetY) + 'px';
+    if (!isDragging || !currentCat) return; 
+    e.preventDefault(); 
+    let clientX = e.clientX !== undefined ? e.clientX : (e.touches.length > 0 ? e.touches[0].clientX : 0); 
+    let clientY = e.clientY !== undefined ? e.clientY : (e.touches.length > 0 ? e.touches[0].clientY : 0);
+    currentCat.style.left = (clientX - offsetX) + 'px'; 
+    currentCat.style.top = (clientY - offsetY) + 'px';
   }
+
   function endDrag() {
     if (!currentCat) return;
-    let cat = currentCat; cat.style.zIndex = '1';
-    let direction = cat.dataset.dir ? parseInt(cat.dataset.dir) : 1; cat.style.transform = `scaleX(${direction})`;
+    let cat = currentCat; 
+    cat.style.zIndex = '1';
+    isDragging = false; 
+    currentCat = null;
+    
+    // เริ่มระบบวงจรชีวิตแมว (เดินบ้าง หยุดนอนบ้าง)
+    startCatBehavior(cat);
+  }
+
+  // 🌟 ระบบสลับพฤติกรรม (เดิน ↔ นอนลงพื้น)
+  function startCatBehavior(cat) {
+    if (cat.walkInterval) clearInterval(cat.walkInterval);
+    if (cat.actionTimeout) clearTimeout(cat.actionTimeout);
+
+    let direction = cat.dataset.dir ? parseInt(cat.dataset.dir) : 1; 
+    cat.style.transform = `scaleX(${direction})`;
+
+    // สุ่มระยะเวลาเดิน (เดินประมาณ 4 - 8 วินาที)
+    let walkDuration = Math.floor(Math.random() * 4000) + 4000;
+
+    // เริ่มการเดิน
+    cat.classList.remove('cat-resting');
     cat.walkInterval = setInterval(() => {
       if (document.getElementById('lock-screen') && document.getElementById('lock-screen').style.display === 'none') return;
-      let currentLeft = parseFloat(cat.style.left); if (isNaN(currentLeft)) currentLeft = 0;
-      currentLeft += direction * 1.5; cat.style.left = currentLeft + 'px';
-      if (currentLeft > window.innerWidth - 95) { direction = -1; cat.dataset.dir = direction; cat.style.transform = `scaleX(${direction})`; }
-      if (currentLeft < 0) { direction = 1; cat.dataset.dir = direction; cat.style.transform = `scaleX(${direction})`; }
+      
+      let currentLeft = parseFloat(cat.style.left); 
+      if (isNaN(currentLeft)) currentLeft = 0;
+      
+      currentLeft += direction * 1.5; 
+      cat.style.left = currentLeft + 'px';
+
+      // ชนขอบจอให้หันกลับ
+      if (currentLeft > window.innerWidth - 95) { 
+        direction = -1; cat.dataset.dir = direction; cat.style.transform = `scaleX(${direction})`; 
+      }
+      if (currentLeft < 0) { 
+        direction = 1; cat.dataset.dir = direction; cat.style.transform = `scaleX(${direction})`; 
+      }
     }, 30);
-    isDragging = false; currentCat = null;
+
+    // เมื่อครบกำหนดเวลาเดิน ให้ "หยุดนอนลงพื้น"
+    cat.actionTimeout = setTimeout(() => {
+      clearInterval(cat.walkInterval); // หยุดเดิน
+      cat.classList.add('cat-resting'); // หมอนตัวลงนอน
+
+      // สลับเวลานอนพัก (นอนประมาณ 3 - 7 วินาที) แล้วค่อยลุกขึ้นมาเดินใหม่
+      let sleepDuration = Math.floor(Math.random() * 4000) + 3000;
+      cat.actionTimeout = setTimeout(() => {
+        startCatBehavior(cat); // ตื่นมาเดินต่อ
+      }, sleepDuration);
+
+    }, walkDuration);
   }
-  cats.forEach(cat => { cat.ondragstart = function() { return false; }; cat.addEventListener('mousedown', (e) => startDrag(e, cat)); cat.addEventListener('touchstart', (e) => startDrag(e, cat), {passive: false}); });
-  document.addEventListener('mousemove', drag); document.addEventListener('touchmove', drag, {passive: false});
-  document.addEventListener('mouseup', endDrag); document.addEventListener('touchend', endDrag); document.addEventListener('mouseleave', endDrag);
+
+  cats.forEach(cat => { 
+    cat.ondragstart = function() { return false; }; 
+    cat.addEventListener('mousedown', (e) => startDrag(e, cat)); 
+    cat.addEventListener('touchstart', (e) => startDrag(e, cat), {passive: false}); 
+    
+    // เริ่มต้นพฤติกรรมให้แมวทุกตัว
+    startCatBehavior(cat);
+  });
+
+  document.addEventListener('mousemove', drag); 
+  document.addEventListener('touchmove', drag, {passive: false});
+  document.addEventListener('mouseup', endDrag); 
+  document.addEventListener('touchend', endDrag); 
+  document.addEventListener('mouseleave', endDrag);
 }
 </script>
