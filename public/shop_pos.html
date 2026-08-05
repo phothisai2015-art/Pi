@@ -229,6 +229,22 @@
       </div>
     </div>
   </div>
+  <!-- Modal สำหรับสแกนเชื่อมต่อจอลูกค้า (CFD) -->
+  <div id="cfd-connect-modal" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(5px); z-index: 1060; justify-content: center; align-items: center; padding: 15px;">
+    <div class="bg-white p-4 p-md-5 rounded-4 shadow-lg text-center" style="width: 100%; max-width: 450px;">
+      <h4 class="fw-bold text-primary mb-3" data-i18n="cfd_title"><i class="fa-solid fa-mobile-screen-button me-2"></i>เชื่อมต่อจอลูกค้า (CFD)</h4>
+      <p class="text-muted small mb-4" data-i18n="cfd_desc">ใช้ iPad หรือมือถือเครื่องใดก็ได้ สแกน QR Code ด้านล่างนี้<br>ระบบจอลูกค้าจะซิงค์แบบเรียลไทม์ทันที</p>
+      <div id="cfd-qr-generate" class="d-flex justify-content-center p-3 bg-light rounded-4 border mb-3" style="min-height: 250px;"></div>
+      <div class="input-group mb-4 shadow-sm">
+        <input type="text" id="cfd-link-input" class="form-control text-center text-muted small bg-light" readonly>
+        <button class="btn btn-outline-secondary bg-white" onclick="copyCfdLink()"><i class="fa-solid fa-copy"></i></button>
+      </div>
+      <div class="d-flex gap-2">
+        <button class="btn btn-light flex-fill fw-bold py-3 rounded-3 shadow-sm border" onclick="document.getElementById('cfd-connect-modal').style.display='none'" data-i18n="cfd_btn_close">ปิดหน้าต่าง</button>
+        <button class="btn btn-primary flex-fill fw-bold py-3 rounded-3 shadow-sm" onclick="window.open(document.getElementById('cfd-link-input').value, '_blank')" data-i18n="cfd_btn_open_this">เปิดในเครื่องนี้</button>
+      </div>
+    </div>
+  </div>
 
   <script>
     let posCart = []; let shopPromptPayNo = ""; let shopName = ""; let currentPOSMode = "barcode"; let isAutoPrintEnabled = false; let cachedShopSettings = {}; 
