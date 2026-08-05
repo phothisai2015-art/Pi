@@ -56,7 +56,7 @@
 	  
 	  <!-- 🌟 เพิ่มปุ่มเมนูเครื่องพิมพ์ -->
       <button class="settings-tab" onclick="switchSettingsTab('tab-printer')" id="tab-btn-printer">
-         <i class="fa-solid fa-print text-success"></i> <span>🖨️ ตั้งค่าปริ้นเตอร์ (Printer)</span>
+         <i class="fa-solid fa-print text-success"></i> <span data-i18n="set_tab_printer">🖨️ ตั้งค่าปริ้นเตอร์ (Printer)</span>
       </button>
       
       <button class="settings-tab" onclick="switchSettingsTab('tab-package')" id="tab-btn-package">
@@ -104,13 +104,13 @@
         <button id="btn-save-settings" class="btn btn-danger w-100 fw-bold py-3 rounded-pill shadow-sm" onclick="saveSettings()"><i class="fa-solid fa-floppy-disk me-2"></i> <span data-i18n="set_btn_save_settings">บันทึกการตั้งค่าร้าน</span></button>
       </div>
 	  
-	  <!-- 🌟 TAB: ตั้งค่าปริ้นเตอร์ (ย้าย Auto-print และปุ่ม Bluetooth มารวมกัน) -->
+	  <!-- 🌟 TAB: ตั้งค่าปริ้นเตอร์ -->
       <div id="tab-printer" class="settings-panel bg-white p-3 p-lg-4 rounded-4 shadow-sm border h-100">
-        <h5 class="fw-bold text-dark mb-4"><i class="fa-solid fa-print text-success me-2"></i> <span>ตั้งค่าเครื่องพิมพ์ (Printer Settings)</span></h5>
+        <h5 class="fw-bold text-dark mb-4"><i class="fa-solid fa-print text-success me-2"></i> <span data-i18n="set_printer_title">ตั้งค่าเครื่องพิมพ์ (Printer Settings)</span></h5>
 
         <!-- ระบบพิมพ์อัตโนมัติ (AirPrint/เบราว์เซอร์) -->
         <h6 class="fw-bold text-dark mb-3">
-          <i class="fa-solid fa-receipt text-primary me-2"></i> <span>ระบบการพิมพ์อัตโนมัติ (ผ่านระบบ)</span>
+          <i class="fa-solid fa-receipt text-primary me-2"></i> <span data-i18n="set_printer_auto_title">ระบบการพิมพ์อัตโนมัติ (ผ่านระบบ)</span>
         </h6>
         <div class="form-check form-switch fs-6 mb-4 p-3 bg-light rounded-3 border d-flex align-items-center">
           <input class="form-check-input ms-0 me-3" type="checkbox" id="set-auto-print-advanced" style="width: 40px; height: 20px;" onchange="syncAutoPrintAndSave()">
@@ -119,20 +119,20 @@
 
         <!-- การเชื่อมต่อ Bluetooth -->
         <h6 class="fw-bold text-dark mb-3">
-          <i class="fa-brands fa-bluetooth text-info me-2"></i> <span>ปริ้นเตอร์บลูทูธ (พิมพ์ตรงไร้หน้าต่าง)</span>
+          <i class="fa-brands fa-bluetooth text-info me-2"></i> <span data-i18n="set_printer_bt_title">ปริ้นเตอร์บลูทูธ (พิมพ์ตรงไร้หน้าต่าง)</span>
         </h6>
         <div class="mb-4 p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center flex-wrap gap-3">
           <div>
-            <span class="fw-bold text-dark d-block mb-1">สถานะ: <span id="bt-printer-status" class="text-danger fw-bold">ยังไม่เชื่อมต่อ</span></span>
-            <span class="small text-muted"><i class="fa-solid fa-circle-info"></i> รองรับเฉพาะ Chrome/Edge (Windows, Mac, Android)</span>
+            <span class="fw-bold text-dark d-block mb-1"><span data-i18n="set_printer_status_label">สถานะ:</span> <span id="bt-printer-status" class="text-danger fw-bold" data-i18n="set_printer_not_connected">ยังไม่เชื่อมต่อ</span></span>
+            <span class="small text-muted"><i class="fa-solid fa-circle-info"></i> <span data-i18n="set_printer_bt_note">รองรับเฉพาะ Chrome/Edge (Windows, Mac, Android)</span></span>
           </div>
           <button class="btn btn-secondary text-white fw-bold rounded-pill shadow-sm px-4 py-2" onclick="window.connectBluetoothPrinter()">
-             <i class="fa-brands fa-bluetooth me-1"></i> เชื่อมต่อปริ้นเตอร์
+             <i class="fa-brands fa-bluetooth me-1"></i> <span data-i18n="set_btn_connect_bt">เชื่อมต่อปริ้นเตอร์</span>
           </button>
         </div>
         
         <div class="alert alert-info small fw-bold mt-2">
-           <i class="fa-solid fa-lightbulb me-1"></i> คำแนะนำ: หากคุณเชื่อมต่อปริ้นเตอร์ Bluetooth สำเร็จ ระบบจะข้ามการเด้งหน้าต่างพิมพ์ของเบราว์เซอร์ และพิมพ์ใบเสร็จพร้อมเด้งลิ้นชักให้อัตโนมัติทันที
+           <i class="fa-solid fa-lightbulb me-1"></i> <span data-i18n="set_printer_hint">คำแนะนำ: หากคุณเชื่อมต่อปริ้นเตอร์ Bluetooth สำเร็จ ระบบจะข้ามการเด้งหน้าต่างพิมพ์ของเบราว์เซอร์ และพิมพ์ใบเสร็จพร้อมเด้งลิ้นชักให้อัตโนมัติทันที</span>
         </div>
       </div>
 
