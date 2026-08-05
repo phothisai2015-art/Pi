@@ -1285,6 +1285,11 @@ function changeLanguage(lang) {
   
   const langSelector = document.getElementById('lang-selector');
   if (langSelector) langSelector.value = lang;
+  
+  // สั่งให้ปุ่มเปลี่ยนภาษาทุกปุ่มในระบบซิงค์ค่าตรงกัน
+document.querySelectorAll('.lang-selector-sync, #lang-selector').forEach(select => {
+  select.value = lang;
+});
 
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
