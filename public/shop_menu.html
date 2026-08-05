@@ -157,13 +157,13 @@ body.dark-theme .menu-card-btn:hover:not(:disabled) { border-color: #475569; box
   </div>
   <button class="btn logout-shop-btn" onclick="shopLogout()" data-i18n="btn_logout_shop"><i class="fa-solid fa-right-from-bracket me-2"></i>ออกจากสาขา</button>
 
-  <div class="detailed-cat route-cat-black cat-black-coat">
+  <div class="detailed-cat cat-black-coat">
     <div class="cat-wrapper"><div class="cat-tail-soft"></div><div class="cat-body-main"></div><div class="cat-head-main"><div class="cat-ear ear-l"></div><div class="cat-ear ear-r"></div><div class="cat-eye eye-l"></div><div class="cat-eye eye-r"></div><div class="cat-nose"></div><div class="cat-whiskers whisker-l"></div><div class="cat-whiskers whisker-r"></div></div><div class="cat-collar-line"></div><div class="cat-gold-bell"></div><div class="cat-leg-detailed leg-front-left"></div><div class="cat-leg-detailed leg-front-right"></div><div class="cat-leg-detailed leg-back-left"></div><div class="cat-leg-detailed leg-back-right"></div></div>
   </div>
-  <div class="detailed-cat route-cat-white cat-white-coat">
+  <div class="detailed-cat cat-white-coat">
     <div class="cat-wrapper"><div class="cat-tail-soft"></div><div class="cat-body-main"></div><div class="cat-head-main"><div class="cat-ear ear-l"></div><div class="cat-ear ear-r"></div><div class="cat-eye eye-l"></div><div class="cat-eye eye-r"></div><div class="cat-nose"></div><div class="cat-whiskers whisker-l"></div><div class="cat-whiskers whisker-r"></div></div><div class="cat-collar-line"></div><div class="cat-gold-bell"></div><div class="cat-leg-detailed leg-front-left"></div><div class="cat-leg-detailed leg-front-right"></div><div class="cat-leg-detailed leg-back-left"></div><div class="cat-leg-detailed leg-back-right"></div></div>
   </div>
-  <div class="detailed-cat route-cat-orange cat-orange-coat">
+  <div class="detailed-cat cat-orange-coat">
     <div class="cat-wrapper"><div class="cat-tail-soft"></div><div class="cat-body-main"></div><div class="cat-head-main"><div class="cat-ear ear-l"></div><div class="cat-ear ear-r"></div><div class="cat-eye eye-l"></div><div class="cat-eye eye-r"></div><div class="cat-nose"></div><div class="cat-whiskers whisker-l"></div><div class="cat-whiskers whisker-r"></div></div><div class="cat-collar-line"></div><div class="cat-gold-bell"></div><div class="cat-leg-detailed leg-front-left"></div><div class="cat-leg-detailed leg-front-right"></div><div class="cat-leg-detailed leg-back-left"></div><div class="cat-leg-detailed leg-back-right"></div></div>
   </div>
   
@@ -697,14 +697,11 @@ function initCats() {
     if (cat.walkInterval) clearInterval(cat.walkInterval);
     if (cat.actionTimeout) clearTimeout(cat.actionTimeout);
 
-    // ปิดคลาสอนิเมชั่นเก่าเพื่อไม่ให้สไลด์
-    cat.classList.remove('route-cat-black', 'route-cat-white', 'route-cat-orange');
-
     let direction = cat.dataset.dir ? parseInt(cat.dataset.dir) : 1; 
     cat.style.transform = `scaleX(${direction})`;
 
-    // 🎲 1. สุ่มระยะเวลาเดิน: ตั้งแต่ 2 ถึง 10 วินาที (2000ms - 10000ms)
-    let walkDuration = Math.floor(Math.random() * 8000) + 2000;
+    // 🎲 1. สุ่มระยะเวลาเดิน: ตั้งแต่ 10 ถึง 20 วินาที
+    let walkDuration = Math.floor(Math.random() * 10000) + 10000;
 
     cat.classList.remove('cat-resting');
     cat.walkInterval = setInterval(() => {
@@ -733,18 +730,20 @@ function initCats() {
       clearInterval(cat.walkInterval);
       cat.classList.add('cat-resting');
 
-      // 🎲 2. สุ่มระยะเวลานอนพัก: ตั้งแต่ 2 ถึง 12 วินาที (2000ms - 12000ms)
-      let sleepDuration = Math.floor(Math.random() * 10000) + 2000;
+      // 🎲 2. สุ่มระยะเวลานอนพัก: ตั้งแต่ 5 ถึง 20 วินาที
+      let sleepDuration = Math.floor(Math.random() * 15000) + 5000;
 
       cat.actionTimeout = setTimeout(() => {
-        // เมื่อนอนครบเวลาแล้ว จะสุ่มกลับมาลุกเดินต่อ
-        startCatBehavior(cat);
+        startCatBehavior(cat); // เมื่อนอนครบเวลาจะกลับมาลุกเดินต่อ
       }, sleepDuration);
 
     }, walkDuration);
   }
 
   cats.forEach((cat, index) => { 
+    // 🛑 เคลียร์คลาสอนิเมชั่นตั้งต้นของ CSS ออกทันที ป้องกันแมวเด้งโผล่วับๆ แวมๆ
+    cat.classList.remove('route-cat-black', 'route-cat-white', 'route-cat-orange');
+
     cat.ondragstart = function() { return false; }; 
     cat.addEventListener('mousedown', (e) => startDrag(e, cat)); 
     cat.addEventListener('touchstart', (e) => startDrag(e, cat), {passive: false}); 
@@ -760,7 +759,7 @@ function initCats() {
     cat.style.left = initialLeft + 'px';
     cat.style.top = initialTop + 'px';
 
-    // สุ่มดีเลย์เวลาก่อนเริ่มทยอยเดินเข้าจอ
+    // ทยอยสุ่มเดินเข้าจอทีละตัว
     setTimeout(() => {
       startCatBehavior(cat);
     }, index * 1500 + Math.random() * 1000);
