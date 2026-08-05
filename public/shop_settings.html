@@ -630,7 +630,14 @@
         const reader = new FileReader();
         reader.onload = function(e) {
           google.script.run.withSuccessHandler(function(url) {
+            
             document.getElementById('set-logo-url').value = url; 
+            
+            // 🌟 [เพิ่มใหม่] อัปเดตรูปโชว์ทันที และล้างช่องเลือกไฟล์เพื่อกันการอัปโหลดซ้ำ
+            document.getElementById('set-logo-preview').src = url;
+            document.getElementById('set-logo-preview').style.display = 'block';
+            fileInput.value = ''; 
+            
             submitSettingsData(btn, originalText);
           }).uploadImageToDrive(currentTenantSheetId, e.target.result, "Logo_" + file.name);
         }; 
@@ -639,6 +646,7 @@
         submitSettingsData(btn, originalText); 
       }
     }
+
 
     function submitSettingsData(btn, originalText) {
       let uploadStatus = document.getElementById('set-upload-status');
