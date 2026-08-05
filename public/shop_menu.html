@@ -691,13 +691,16 @@ function initCats() {
     startCatBehavior(cat);
   }
 
-  // 🌟 ระบบสลับพฤติกรรม (เดินทะลุจอ ↔ นอนลงพื้น)
+  // 🌟 ระบบสลับพฤติกรรม (เดินทะแยงสุ่มขึ้น-ลง ↔ นอนลงพื้น)
   function startCatBehavior(cat) {
     if (cat.walkInterval) clearInterval(cat.walkInterval);
     if (cat.actionTimeout) clearTimeout(cat.actionTimeout);
 
-    let direction = cat.dataset.dir ? parseInt(cat.dataset.dir) : 1; 
-    cat.style.transform = `scaleX(${direction})`;
+    let directionX = cat.dataset.dir ? parseInt(cat.dataset.dir) : 1; 
+    // 🎲 สุ่มทิศทางขึ้น-ลง (ความเร็วขึ้นลงสุ่มสลับระหว่าง -0.8 ถึง 0.8)
+    let directionY = (Math.random() * 1.6 - 0.8); 
+    
+    cat.style.transform = `scaleX(${directionX})`;
 
     // 🎲 สุ่มระยะเวลาเดิน: 10 ถึง 20 วินาที
     let walkDuration = Math.floor(Math.random() * 10000) + 10000;
@@ -707,28 +710,44 @@ function initCats() {
       if (document.getElementById('lock-screen') && document.getElementById('lock-screen').style.display === 'none') return;
       
       let currentLeft = parseFloat(cat.style.left); 
+      let currentTop = parseFloat(cat.style.top);
+      
       if (isNaN(currentLeft)) {
         const computed = window.getComputedStyle(cat);
         currentLeft = parseFloat(computed.left) || 0;
+        currentTop = parseFloat(computed.top) || 0;
       }
       
-      currentLeft += direction * 1.5; 
-      cat.style.left = currentLeft + 'px';
+      // ขยับแนวนอนและแนวตั้ง
+      currentLeft += directionX * 1.5; 
+      currentTop += directionY;
 
-      // 🌟 ถ้าเดิน "หลุดออกนอกขอบจอขวา" ให้สุ่มวาร์ปไปแอบฝั่งซ้ายแล้วเดินเข้าใหม่
-      if (direction === 1 && currentLeft > window.innerWidth + 100) { 
+      // 🛑 คุมไม่ให้เดินหลุดขอบบน-ขอบล่างของหน้าจอเกินไป (ถ้าชนขอบบน/ล่าง ให้ชิ่งกลับ)
+      let minTop = window.innerHeight * 0.08;
+      let maxTop = window.innerHeight * 0.75;
+      if (currentTop < minTop || currentTop > maxTop) {
+        directionY = -directionY; // เด้งสลับทิศทางขึ้นลง
+      }
+
+      cat.style.left = currentLeft + 'px';
+      cat.style.top = currentTop + 'px';
+
+      // 🌟 เดินทะลุขอบจอขวา -> วาร์ปไปแอบฝั่งซ้าย + สุ่มความสูง/สุ่มทิศทางขึ้นลงใหม่
+      if (directionX === 1 && currentLeft > window.innerWidth + 100) { 
         cat.style.left = '-120px';
-        cat.style.top = (Math.floor(Math.random() * (window.innerHeight * 0.6)) + (window.innerHeight * 0.15)) + 'px';
+        cat.style.top = (Math.floor(Math.random() * (window.innerHeight * 0.6)) + (window.innerHeight * 0.12)) + 'px';
+        directionY = (Math.random() * 1.6 - 0.8);
       }
       
-      // 🌟 ถ้าเดิน "หลุดออกนอกขอบจอซ้าย" ให้สุ่มวาร์ปไปแอบฝั่งขวาแล้วเดินเข้าใหม่
-      if (direction === -1 && currentLeft < -150) { 
+      // 🌟 เดินทะลุขอบจอซ้าย -> วาร์ปไปแอบฝั่งขวา + สุ่มความสูง/สุ่มทิศทางขึ้นลงใหม่
+      if (directionX === -1 && currentLeft < -150) { 
         cat.style.left = (window.innerWidth + 50) + 'px';
-        cat.style.top = (Math.floor(Math.random() * (window.innerHeight * 0.6)) + (window.innerHeight * 0.15)) + 'px';
+        cat.style.top = (Math.floor(Math.random() * (window.innerHeight * 0.6)) + (window.innerHeight * 0.12)) + 'px';
+        directionY = (Math.random() * 1.6 - 0.8);
       }
     }, 30);
 
-    // เมื่อครบกำหนดเวลาเดิน ให้หยุดนอนลงพื้น (ถ้านอนอยู่กลางจอ)
+    // เมื่อครบกำหนดเวลาเดิน ให้หยุดนอนลงพื้น
     cat.actionTimeout = setTimeout(() => {
       clearInterval(cat.walkInterval);
       cat.classList.add('cat-resting');
@@ -737,10 +756,10 @@ function initCats() {
       let sleepDuration = Math.floor(Math.random() * 15000) + 5000;
 
       cat.actionTimeout = setTimeout(() => {
-        // เมื่อตื่นมา อาจสุ่มหันหน้าสลับทิศทางด้วยเพื่อความสมจริง
+        // เมื่อตื่นมา สุ่มสลับทิศทางหันหน้า
         if (Math.random() > 0.5) {
-          direction = direction * -1;
-          cat.dataset.dir = direction;
+          directionX = directionX * -1;
+          cat.dataset.dir = directionX;
         }
         startCatBehavior(cat);
       }, sleepDuration);
@@ -753,7 +772,7 @@ function initCats() {
     cat.addEventListener('mousedown', (e) => startDrag(e, cat)); 
     cat.addEventListener('touchstart', (e) => startDrag(e, cat), {passive: false}); 
     
-    // สุ่มตำแหน่งเริ่มต้นให้อยู่นอกขอบจอ (ซ้าย หรือ ขวา) + สุ่มความสูง (Top)
+    // สุ่มตำแหน่งเริ่มต้นให้อยู่นอกขอบจอ (ซ้าย หรือ ขวา)
     let startFromLeft = Math.random() > 0.5;
     let initialLeft = startFromLeft ? -120 : window.innerWidth + 20;
     let initialTop = Math.floor(Math.random() * (window.innerHeight * 0.6)) + (window.innerHeight * 0.15);
