@@ -603,7 +603,11 @@
         let advancedAutoPrint = document.getElementById('set-auto-print-advanced');
         if (advancedAutoPrint) advancedAutoPrint.checked = (s.auto_print === "true" || s.auto_print === true);
 
-        if(s.shop_logo) { document.getElementById('set-logo-preview').src = s.shop_logo; document.getElementById('set-logo-preview').style.display = 'block'; }
+        if(s.shop_logo) { 
+        document.getElementById('set-logo-preview').src = s.shop_logo; 
+        document.getElementById('set-logo-preview').style.display = 'block'; 
+        document.getElementById('set-logo-url').value = s.shop_logo; // เพิ่มบรรทัดนี้เพื่อจำ URL เดิม
+        }  
       }).getShopSettings(currentTenantSheetId);
     }
 
