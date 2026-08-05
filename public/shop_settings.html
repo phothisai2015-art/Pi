@@ -598,10 +598,12 @@
         document.getElementById('set-account-name').value = s.shop_account_name || '';
         document.getElementById('set-phone').value = s.shop_phone || '';
         document.getElementById('set-address').value = s.shop_address || '';
-        document.getElementById('set-auto-print').checked = (s.auto_print === "true" || s.auto_print === true);
-        
-        let advancedAutoPrint = document.getElementById('set-auto-print-advanced');
-        if (advancedAutoPrint) advancedAutoPrint.checked = (s.auto_print === "true" || s.auto_print === true);
+        let basicAutoPrint = document.getElementById('set-auto-print');
+    if (basicAutoPrint) basicAutoPrint.checked = (s.auto_print === "true" || s.auto_print === true);
+
+    let advancedAutoPrint = document.getElementById('set-auto-print-advanced');
+    if (advancedAutoPrint) advancedAutoPrint.checked = (s.auto_print === "true" || s.auto_print === true);
+
 
         if(s.shop_logo) { 
         document.getElementById('set-logo-preview').src = s.shop_logo; 
