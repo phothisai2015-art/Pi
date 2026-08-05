@@ -437,48 +437,46 @@ window.onload = function() {
 };
 
 // ฟังก์ชันสลับหน้า
+// ฟังก์ชันสลับหน้า (แบบไม่มีการโหลดดิ้ง)
 function switchSaaSPage(targetId) {
-  Swal.fire({
-    title: i18n[currentLang]['alert_loading'] || 'กำลังโหลด...', allowOutsideClick: false, showConfirmButton: false,
-    didOpen: () => { Swal.showLoading(); }
-  });
+  // ซ่อนทุกหน้าจอ
+  document.getElementById('saas-login-screen').style.display = 'none';
+  document.getElementById('page-register').style.display = 'none';
+  document.getElementById('page-renew').style.display = 'none';
+  document.getElementById('page-reset').style.display = 'none';
   
-  setTimeout(() => {
-    document.getElementById('saas-login-screen').style.display = 'none';
-    document.getElementById('page-register').style.display = 'none';
-    document.getElementById('page-renew').style.display = 'none';
-    document.getElementById('page-reset').style.display = 'none';
-    
-    const target = document.getElementById(targetId);
-    target.style.display = 'flex';
-    target.style.opacity = '0';
-    
-    if (targetId === 'page-register') {
-      document.getElementById('reg-step-1').style.display = 'block';
-      document.getElementById('reg-step-success').style.display = 'none';
-      document.getElementById('reg-pass').value = '';
-      document.getElementById('reg-shop').value = ''; document.getElementById('reg-email').value = '';
-      document.getElementById('reg-phone').value = '';
-    }
-    if (targetId === 'page-renew') {
-      document.getElementById('renew-step-search').style.display = 'block';
-      document.getElementById('renew-step-pay').style.display = 'none';
-      document.getElementById('renew-step-success').style.display = 'none';
-      document.getElementById('renew-email-input').value = '';
-      let firstCard = document.querySelector('#page-renew .renew-pkg-card');
-      renewSelectPkg('1M|150', firstCard);
-    }
-    if (targetId === 'page-reset') {
-      document.getElementById('reset-step-1').style.display = 'block';
-      document.getElementById('reset-step-success').style.display = 'none';
-      document.getElementById('reset-email').value = '';
-      document.getElementById('reset-phone').value = '';
-      document.getElementById('reset-new-pass').value = '';
-    }
+  // แสดงหน้าจอเป้าหมาย
+  const target = document.getElementById(targetId);
+  target.style.display = 'flex';
+  target.style.opacity = '0';
+  
+  // รีเซ็ตค่าฟอร์มตามหน้าที่กดไป
+  if (targetId === 'page-register') {
+    document.getElementById('reg-step-1').style.display = 'block';
+    document.getElementById('reg-step-success').style.display = 'none';
+    document.getElementById('reg-pass').value = '';
+    document.getElementById('reg-shop').value = ''; 
+    document.getElementById('reg-email').value = '';
+    document.getElementById('reg-phone').value = '';
+  }
+  if (targetId === 'page-renew') {
+    document.getElementById('renew-step-search').style.display = 'block';
+    document.getElementById('renew-step-pay').style.display = 'none';
+    document.getElementById('renew-step-success').style.display = 'none';
+    document.getElementById('renew-email-input').value = '';
+    let firstCard = document.querySelector('#page-renew .renew-pkg-card');
+    renewSelectPkg('1M|150', firstCard);
+  }
+  if (targetId === 'page-reset') {
+    document.getElementById('reset-step-1').style.display = 'block';
+    document.getElementById('reset-step-success').style.display = 'none';
+    document.getElementById('reset-email').value = '';
+    document.getElementById('reset-phone').value = '';
+    document.getElementById('reset-new-pass').value = '';
+  }
 
-    setTimeout(() => target.style.opacity = '1', 50);
-    Swal.close();
-  }, 400);
+  // ปรับความสว่างให้ค่อยๆ เฟดมาเล็กน้อยเพื่อความนุ่มนวล
+  setTimeout(() => target.style.opacity = '1', 50);
 }
 
 // 1. ฟังก์ชัน Login
