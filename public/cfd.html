@@ -126,23 +126,23 @@
   <!-- Overlay: Welcome -->
   <div id="screen-welcome" class="screen-overlay">
     <i class="fa-solid fa-store fa-6x text-primary icon-float"></i>
-    <div class="welcome-title">ยินดีต้อนรับ / WELCOME</div>
-    <div class="welcome-sub mt-4">กรุณารอสักครู่... ระบบกำลังเตรียมทำรายการ</div>
+    <div class="welcome-title" data-i18n="welcome_title">ยินดีต้อนรับ / WELCOME</div>
+    <div class="welcome-sub mt-4" data-i18n="welcome_sub">กรุณารอสักครู่... ระบบกำลังเตรียมทำรายการ</div>
   </div>
 
   <!-- Overlay: Success -->
   <div id="screen-success" class="screen-overlay screen-success" style="opacity: 0; pointer-events: none;">
     <i class="fa-solid fa-circle-check fa-7x text-white mb-3"></i>
-    <div class="success-title">ชำระเงินสำเร็จ</div>
-    <div class="success-sub mt-4">ขอบคุณที่ใช้บริการ โอกาสหน้าเชิญใหม่ครับ/ค่ะ</div>
+    <div class="success-title" data-i18n="success_title">ชำระเงินสำเร็จ</div>
+    <div class="success-sub mt-4" data-i18n="success_sub">ขอบคุณที่ใช้บริการ โอกาสหน้าเชิญใหม่ครับ/ค่ะ</div>
   </div>
 
   <div class="pos-cfd-wrapper">
     <!-- Panel ซ้าย: รายการสินค้า -->
     <div class="cart-panel">
       <div class="cart-header">
-        <h2 class="cart-title"><i class="fa-solid fa-basket-shopping text-primary me-2"></i>รายการสินค้า</h2>
-        <div class="cart-qty-badge" id="cfd-qty-header">0 ชิ้น</div>
+        <h2 class="cart-title" data-i18n="cart_title"><i class="fa-solid fa-basket-shopping text-primary me-2"></i>รายการสินค้า</h2>
+        <div class="cart-qty-badge" id="cfd-qty-header">0</div>
       </div>
       <div class="cart-body" id="cfd-cart-body"></div>
     </div>
@@ -150,31 +150,31 @@
     <!-- Panel ขวา: สรุปยอดและชำระเงิน -->
     <div class="pay-panel">
       <div id="view-summary" style="display: flex; flex-direction: column; gap: 0; height: 100%;">
-        <h3 class="fw-bold text-dark mb-4"><i class="fa-solid fa-chart-pie text-primary me-2"></i> สรุปรายการ</h3>
+        <h3 class="fw-bold text-dark mb-4" data-i18n="summary_title"><i class="fa-solid fa-chart-pie text-primary me-2"></i> สรุปรายการ</h3>
         
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
           <div class="stat-card bg-orange">
             <i class="fa-solid fa-box-open"></i>
-            <div class="stat-title">จำนวนสินค้า</div>
-            <div class="stat-value" id="cfd-total-qty">0 ชิ้น</div>
+            <div class="stat-title" data-i18n="total_items">จำนวนสินค้า</div>
+            <div class="stat-value" id="cfd-total-qty">0</div>
           </div>
           <div class="stat-card bg-blue">
             <i class="fa-solid fa-money-bill-wave"></i>
-            <div class="stat-title">รวมเป็นเงิน</div>
+            <div class="stat-title" data-i18n="subtotal">รวมเป็นเงิน</div>
             <div class="stat-value" id="cfd-subtotal">฿0.00</div>
           </div>
         </div>
 
         <div class="stat-card bg-red d-none mt-3" id="cfd-discount-card">
           <i class="fa-solid fa-tags"></i>
-          <div class="stat-title">หักส่วนลดแล้ว</div>
+          <div class="stat-title" data-i18n="discount">หักส่วนลดแล้ว</div>
           <div class="stat-value" id="cfd-discount">-฿0.00</div>
         </div>
 
         <div class="latest-item-card" id="cfd-latest-card">
           <div id="cfd-latest-empty" class="text-center text-muted">
             <i class="fa-solid fa-camera-retro fa-4x mb-3" style="opacity: 0.15;"></i>
-            <div class="fw-bold fs-5">รูปล่าสุดจะแสดงที่นี่</div>
+            <div class="fw-bold fs-5" data-i18n="empty_latest">รูปล่าสุดจะแสดงที่นี่</div>
           </div>
           <div id="cfd-latest-content" class="text-center w-100 h-100" style="display: none; flex-direction: column; justify-content: center; align-items: center;">
             <img id="cfd-latest-img" src="" class="latest-item-img">
@@ -184,7 +184,7 @@
         </div>
 
         <div class="stat-card net-total-card">
-          <div class="net-total-title">ยอดสุทธิ (NET TOTAL)</div>
+          <div class="net-total-title" data-i18n="net_total">ยอดสุทธิ (NET TOTAL)</div>
           <div class="net-total-value" id="cfd-net-total">฿0.00</div>
         </div>
       </div>
@@ -192,13 +192,13 @@
       <!-- หน้าจอ Qr Code -->
       <div id="view-qr" style="display: none; flex-direction: column; height: 100%; justify-content: center; align-items: center;">
         <div class="qr-container">
-          <h4 class="fw-bold text-primary mb-4" style="font-size: 1.3rem;"><i class="fa-solid fa-qrcode me-2"></i>สแกนเพื่อชำระเงิน</h4>
+          <h4 class="fw-bold text-primary mb-4" style="font-size: 1.3rem;" data-i18n="scan_to_pay"><i class="fa-solid fa-qrcode me-2"></i>สแกนเพื่อชำระเงิน</h4>
           <div id="cfd-qrcode" class="d-flex justify-content-center p-3 bg-light rounded-4 border"></div>
-          <div class="qr-acc-title">ชื่อบัญชีรับเงิน</div>
+          <div class="qr-acc-title" data-i18n="acc_name">ชื่อบัญชีรับเงิน</div>
           <div class="qr-acc-name" id="cfd-qr-name">กำลังโหลด...</div>
         </div>
         <div class="stat-card bg-green w-100 mt-4 text-center" style="padding: 2rem; background: linear-gradient(135deg, #10b981, #047857);">
-          <div class="net-total-title" style="font-size: 1.3rem; margin-bottom: 0;">ยอดที่ต้องชำระ</div>
+          <div class="net-total-title" style="font-size: 1.3rem; margin-bottom: 0;" data-i18n="amount_to_pay">ยอดที่ต้องชำระ</div>
           <div class="net-total-value" style="font-size: 3rem;" id="cfd-qr-amount">฿0.00</div>
         </div>
       </div>
@@ -207,11 +207,11 @@
       <div id="view-cash" style="display: none; flex-direction: column; height: 100%; justify-content: center; align-items: center;">
         <div class="qr-container" style="border-color: #10b981;">
           <i class="fa-solid fa-money-bill-wave fa-5x text-success mb-4 icon-float"></i>
-          <h4 class="fw-bold text-success mb-2" style="font-size: 2rem;">ชำระด้วยเงินสด</h4>
-          <div class="qr-acc-title mt-3" style="font-size: 1.1rem;">กรุณาชำระเงินกับพนักงาน</div>
+          <h4 class="fw-bold text-success mb-2" style="font-size: 2rem;" data-i18n="pay_cash">ชำระด้วยเงินสด</h4>
+          <div class="qr-acc-title mt-3" style="font-size: 1.1rem;" data-i18n="pay_cash_sub">กรุณาชำระเงินกับพนักงาน</div>
         </div>
         <div class="stat-card bg-green w-100 mt-4 text-center" style="padding: 2rem; background: linear-gradient(135deg, #10b981, #047857);">
-          <div class="net-total-title" style="font-size: 1.3rem; margin-bottom: 0;">ยอดที่ต้องชำระ</div>
+          <div class="net-total-title" style="font-size: 1.3rem; margin-bottom: 0;" data-i18n="amount_to_pay">ยอดที่ต้องชำระ</div>
           <div class="net-total-value" style="font-size: 3rem;" id="cfd-cash-amount">฿0.00</div>
         </div>
       </div>
@@ -219,6 +219,62 @@
   </div>
 
   <script>
+    // 1. พจนานุกรมคำศัพท์สำหรับจอลูกค้า (อัปเดตให้ครบทุกหน้าจอ)
+    const cfdI18n = {
+      th: {
+        cart_title: "รายการสินค้า",
+        summary_title: "สรุปรายการ",
+        total_items: "จำนวนสินค้า",
+        subtotal: "รวมเป็นเงิน",
+        discount: "หักส่วนลดแล้ว",
+        net_total: "ยอดสุทธิ (NET TOTAL)",
+        welcome_title: "ยินดีต้อนรับ / WELCOME",
+        welcome_sub: "กรุณารอสักครู่... ระบบกำลังเตรียมทำรายการ",
+        success_title: "ชำระเงินสำเร็จ",
+        success_sub: "ขอบคุณที่ใช้บริการ โอกาสหน้าเชิญใหม่ครับ/ค่ะ",
+        empty_latest: "รูปล่าสุดจะแสดงที่นี่",
+        scan_to_pay: "สแกนเพื่อชำระเงิน",
+        acc_name: "ชื่อบัญชีรับเงิน",
+        amount_to_pay: "ยอดที่ต้องชำระ",
+        pay_cash: "ชำระด้วยเงินสด",
+        pay_cash_sub: "กรุณาชำระเงินกับพนักงาน"
+      },
+      en: {
+        cart_title: "Cart Items",
+        summary_title: "Summary",
+        total_items: "Total Items",
+        subtotal: "Subtotal",
+        discount: "Discount",
+        net_total: "NET TOTAL",
+        welcome_title: "WELCOME",
+        welcome_sub: "Please wait... Preparing your transaction",
+        success_title: "Payment Successful",
+        success_sub: "Thank you for using our service. See you again!",
+        empty_latest: "Latest item will appear here",
+        scan_to_pay: "Scan to Pay",
+        acc_name: "Account Name",
+        amount_to_pay: "Amount to Pay",
+        pay_cash: "Pay by Cash",
+        pay_cash_sub: "Please pay the cashier"
+      }
+    };
+
+    let cfdLang = 'th';
+
+    function applyCfdLanguage() {
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (cfdI18n[cfdLang][key]) {
+          const icon = el.querySelector('i');
+          if (icon) {
+            el.innerHTML = icon.outerHTML + " " + cfdI18n[cfdLang][key];
+          } else {
+            el.innerHTML = cfdI18n[cfdLang][key];
+          }
+        }
+      });
+    }
+
     function applyCustomerTheme(theme) {
       if (theme === 'dark') document.body.classList.add('dark-theme');
       else document.body.classList.remove('dark-theme');
@@ -231,6 +287,15 @@
     
     function handleSyncData(data) {
       if (!data) return;
+
+      // 🌟 ดักรับคำสั่ง SYNC_LANG จาก POS แบบ Real-time
+      if (data.action === 'SYNC_LANG') {
+        if (data.lang) {
+          cfdLang = data.lang;
+          applyCfdLanguage();
+        }
+        return;
+      }
 
       if (data.action === 'UPDATE_CART') {
         renderCart(data.cart || []);
@@ -260,7 +325,11 @@
             }
             document.getElementById('cfd-latest-name').innerText = lastItem.name;
             let itemTotal = lastItem.price * lastItem.qty;
-            document.getElementById('cfd-latest-detail').innerText = `${lastItem.qty} ${lastItem.unit || 'ชิ้น'} | ฿${itemTotal.toLocaleString()}`;
+            
+            // 🌟 ปรับคำว่า "ชิ้น" ให้เปลี่ยนเป็น "pcs" ตามภาษาอังกฤษ
+            let displayUnit = lastItem.unit || 'ชิ้น';
+            if (cfdLang === 'en' && displayUnit === 'ชิ้น') displayUnit = 'pcs';
+            document.getElementById('cfd-latest-detail').innerText = `${lastItem.qty} ${displayUnit} | ฿${itemTotal.toLocaleString()}`;
           } else {
             document.getElementById('cfd-latest-empty').style.display = 'block'; document.getElementById('cfd-latest-content').style.display = 'none';
             lastDisplayedItemId = "";
@@ -287,8 +356,8 @@
       else if (data.action === 'CHECKOUT_SUCCESS') {
         document.getElementById('screen-success').style.opacity = '1'; document.getElementById('screen-success').style.pointerEvents = 'all';
         setTimeout(() => {
-          document.getElementById('cfd-cart-body').innerHTML = ''; document.getElementById('cfd-qty-header').innerText = '0 ชิ้น';
-          document.getElementById('cfd-total-qty').innerText = '0 ชิ้น'; document.getElementById('cfd-subtotal').innerText = '฿0.00'; document.getElementById('cfd-net-total').innerText = '฿0.00';
+          document.getElementById('cfd-cart-body').innerHTML = ''; document.getElementById('cfd-qty-header').innerText = '0';
+          document.getElementById('cfd-total-qty').innerText = '0'; document.getElementById('cfd-subtotal').innerText = '฿0.00'; document.getElementById('cfd-net-total').innerText = '฿0.00';
           document.getElementById('cfd-discount-card').classList.add('d-none'); document.getElementById('cfd-latest-empty').style.display = 'block'; document.getElementById('cfd-latest-content').style.display = 'none';
           document.getElementById('view-summary').style.display = 'flex'; document.getElementById('view-qr').style.display = 'none'; document.getElementById('view-cash').style.display = 'none';
           lastDisplayedItemId = ""; 
@@ -298,8 +367,8 @@
       else if (data.action === 'CLEAR_CART') {
         clearTimeout(successTimer);
         document.getElementById('screen-welcome').style.opacity = '1'; document.getElementById('screen-welcome').style.pointerEvents = 'all';
-        document.getElementById('cfd-cart-body').innerHTML = ''; document.getElementById('cfd-qty-header').innerText = '0 ชิ้น';
-        document.getElementById('cfd-total-qty').innerText = '0 ชิ้น'; document.getElementById('cfd-subtotal').innerText = '฿0.00'; document.getElementById('cfd-net-total').innerText = '฿0.00';
+        document.getElementById('cfd-cart-body').innerHTML = ''; document.getElementById('cfd-qty-header').innerText = '0';
+        document.getElementById('cfd-total-qty').innerText = '0'; document.getElementById('cfd-subtotal').innerText = '฿0.00'; document.getElementById('cfd-net-total').innerText = '฿0.00';
         document.getElementById('cfd-latest-empty').style.display = 'block'; document.getElementById('cfd-latest-content').style.display = 'none';
         document.getElementById('view-summary').style.display = 'flex'; document.getElementById('view-qr').style.display = 'none'; document.getElementById('view-cash').style.display = 'none';
         lastDisplayedItemId = ""; 
@@ -310,7 +379,10 @@
       const tbody = document.getElementById('cfd-cart-body'); tbody.innerHTML = '';
       cartItems.forEach(item => {
         let total = item.price * item.qty;
-        tbody.innerHTML += `<div class="c-item"><div><div class="c-name">${item.name}</div><div class="c-calc">@ ฿${item.price.toLocaleString()} x ${item.qty} ${item.unit || 'ชิ้น'}</div></div><div class="c-price">฿${total.toLocaleString()}</div></div>`;
+        // 🌟 ปรับคำว่า "ชิ้น" ในตะกร้าให้เปลี่ยนเป็น "pcs" ตามภาษาอังกฤษ
+        let displayUnit = item.unit || 'ชิ้น';
+        if (cfdLang === 'en' && displayUnit === 'ชิ้น') displayUnit = 'pcs';
+        tbody.innerHTML += `<div class="c-item"><div><div class="c-name">${item.name}</div><div class="c-calc">@ ฿${item.price.toLocaleString()} x ${item.qty} ${displayUnit}</div></div><div class="c-price">฿${total.toLocaleString()}</div></div>`;
       });
       tbody.scrollTop = tbody.scrollHeight;
     }
@@ -334,46 +406,15 @@
       socket.on('cfd_data_sync', function(data) {
         handleSyncData(data);
       });
+      
+      // ดักจับ sync_lang ด้วยเผื่อไว้ในกรณีที่ Server ยิงตรงมา
+      socket.on('sync_lang', function(data) {
+        if (data && data.lang) {
+          cfdLang = data.lang;
+          applyCfdLanguage();
+        }
+      });
     }
-	// 1. พจนานุกรมคำศัพท์สำหรับจอลูกค้า
-const cfdI18n = {
-  th: {
-    cart_title: "รายการสินค้า",
-    total_items: "จำนวนสินค้า",
-    subtotal: "รวมเป็นเงิน",
-    net_total: "ยอดสุทธิ (NET TOTAL)"
-  },
-  en: {
-    cart_title: "Cart Items",
-    total_items: "Total Items",
-    subtotal: "Subtotal",
-    net_total: "NET TOTAL"
-  }
-};
-
-let cfdLang = 'th';
-
-function applyCfdLanguage() {
-  document.querySelectorAll('[data-i18n]').forEach(el => {
-    const key = el.getAttribute('data-i18n');
-    if (cfdI18n[cfdLang][key]) {
-      const icon = el.querySelector('i');
-      if (icon) {
-        el.innerHTML = icon.outerHTML + " " + cfdI18n[cfdLang][key];
-      } else {
-        el.innerHTML = cfdI18n[cfdLang][key];
-      }
-    }
-  });
-}
-
-// 2. รับคำสั่งเปลี่ยนภาษาจากเซิร์ฟเวอร์
-socket.on('sync_lang', function(data) {
-  if (data && data.lang) {
-    cfdLang = data.lang;
-    applyCfdLanguage();
-  }
-});
   </script>
 </body>
 </html>
