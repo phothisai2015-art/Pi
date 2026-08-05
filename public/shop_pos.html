@@ -8,29 +8,37 @@
       .pos-mobile-btns { width: 100%; justify-content: space-between; gap: 5px; }
       .pos-mobile-btns button { flex: 1; margin: 0 !important; padding: 8px !important; font-size: 13px; }
       .pos-mobile-unsticky { position: static !important; }
-      #pos-cart-container { max-height: 40vh !important; min-height: 200px !important; }
       
-      /* 🌟 บังคับแสดงหน้าต่างจิ้มรูปเสมอในแนวตั้ง */
+      /* 🌟 2. ซ่อนหัวตาราง (รายการ ราคา จำนวน รวม) */
+      #pos-cart-container thead { display: none !important; }
+      
+      /* 🌟 4. เพิ่มความยาวกล่องรูปภาพ (และลดขนาดตะกร้าลงนิดหน่อยเพื่อแบ่งพื้นที่) */
+      #pos-cart-container { max-height: 25vh !important; min-height: 150px !important; }
       #pos-grid-view { 
-          max-height: 45vh !important; 
-          min-height: 200px !important; 
+          max-height: 60vh !important; 
+          height: 60vh !important;
+          min-height: 250px !important; 
           display: block !important; 
       }
       
       #page-pos .gap-3 { gap: 10px !important; padding: 12px !important; }
       #page-pos .flex-shrink-0, #page-pos .input-group.flex-grow-1 { flex: 1 1 100% !important; width: 100% !important; min-width: 100% !important; justify-content: space-between; margin-bottom: 5px; }
       
-      /* 🌟 ขยายปุ่มจิ้มรูปให้เต็มจอ 100% และซ่อนปุ่มสแกน */
-      #btn-mode-grid { flex: 1 1 100% !important; width: 100% !important; text-align: center; }
-      #btn-mode-barcode { display: none !important; }
+      /* 🌟 1. ซ่อนปุ่มสแกน และ ปุ่มจิ้มรูปภาพ */
+      #btn-mode-barcode, #btn-mode-grid { display: none !important; }
       
-      /* 🌟 บังคับแสดงหมวดหมู่ */
+      /* 🌟 3. ซ่อนตัวปรับขนาด และบังคับรูปให้แสดง 3 คอลัมน์ (3 แถวแนวตั้ง) */
+      #grid-size-controller { display: none !important; }
+      #pos-menu-grid { grid-template-columns: repeat(3, 1fr) !important; }
+      
+      /* 🌟 บังคับแสดงหมวดหมู่ให้เต็มจอ */
       #pos-category-filter { flex: 1 1 100% !important; min-width: 100% !important; margin-top: 5px; font-size: 14px; display: block !important; } 
-      #grid-size-controller { justify-content: space-between; margin-top: 5px; padding: 0 5px; }
 
-      /* 🌟 ซ่อนกล่องค้นหาและบาร์โค้ด */
+      /* 🌟 5. & 6. รวมคลาสซ่อนข้อมูลต่างๆ ในหน้าแนวตั้ง */
       #mobile-hide-barcode, 
-      #mobile-hide-search-bill { display: none !important; }
+      #mobile-hide-search-bill,
+      #mobile-hide-customer,
+      #mobile-hide-discount { display: none !important; }
     }
     .return-item-row-pos { display: flex; align-items: center; gap: 10px; padding: 10px; border-bottom: 1px solid #e2e8f0; }
     .return-item-row-pos:last-child { border-bottom: none; }
@@ -168,7 +176,8 @@
             </button>
           </div>
 
-          <div class="form-floating mb-4">
+         
+		  <div id="mobile-hide-customer" class="form-floating mb-4">
             <input type="text" id="pos-cust-name" class="form-control fw-bold bg-light border-0" placeholder="ชื่อลูกค้า" data-i18n="pos_cust_name_placeholder">
             <label data-i18n="pos_cust_name_label">ชื่อลูกค้า (ถ้ามี)</label>
           </div>
@@ -181,7 +190,8 @@
             <span class="fs-6 text-muted fw-bold" data-i18n="pos_subtotal_label">รวมเป็นเงิน</span>
             <span class="fs-6 fw-bold text-dark" id="pos-subtotal">฿0.00</span>
           </div>
-          <div class="d-flex justify-content-between mb-4 align-items-center">
+          
+		  <div id="mobile-hide-discount" class="d-flex justify-content-between mb-4 align-items-center">
             <span class="fs-6 text-muted fw-bold" data-i18n="pos_discount_label">ส่วนลด</span>
             <div class="input-group w-50">
               <span class="input-group-text bg-white border-end-0">฿</span>
