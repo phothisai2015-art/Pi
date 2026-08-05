@@ -836,7 +836,7 @@
     }
     
     // 🌟 ระบบแปลรายละเอียด (Detail) ครบถ้วน 100%
-        paginatedLogs.forEach(log => {
+         paginatedLogs.forEach(log => {
     let displayAction = log.action;
     if(actionMap[log.action] && i18n[currentLang][actionMap[log.action]]) {
        displayAction = i18n[currentLang][actionMap[log.action]];
@@ -898,6 +898,7 @@
 
     tbody.innerHTML += `<tr><td class="text-muted px-3">${log.timestamp}</td><td><span class="badge bg-secondary">${log.staff}</span></td><td><b>${displayAction}</b></td><td class="text-muted">${displayDetail}</td></tr>`;
   });
+
 
 
 
