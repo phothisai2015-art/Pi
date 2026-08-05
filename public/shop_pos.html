@@ -71,8 +71,12 @@
     <div class="d-flex align-items-center gap-4">
       <h3 class="fw-bold text-primary m-0" data-i18n="pos_header_title"><i class="fa-solid fa-cash-register me-2"></i> ระบบจุดขาย (POS)</h3>
       <button class="btn btn-info text-white fw-bold rounded-pill px-3 px-md-4 shadow-sm d-none d-sm-block" onclick="openCFD()" data-i18n="pos_btn_customer_screen"><i class="fa-solid fa-desktop me-1"></i> จอลูกค้า</button>
+      <!-- 🌟 ปุ่ม Bluetooth (Desktop) -->
+      <button class="btn btn-secondary text-white fw-bold rounded-pill px-3 px-md-4 shadow-sm d-none d-sm-block" onclick="connectBluetoothPrinter()" title="เชื่อมต่อปริ้นเตอร์ Bluetooth"><i class="fa-brands fa-bluetooth me-1"></i> ปริ้นเตอร์</button>
     </div>
     <div class="d-flex align-items-center pos-mobile-btns">
+      <!-- 🌟 ปุ่ม Bluetooth (Mobile) -->
+      <button class="btn btn-secondary text-white fw-bold rounded-pill px-3 shadow-sm d-block d-sm-none me-2" onclick="connectBluetoothPrinter()"><i class="fa-brands fa-bluetooth"></i></button>
       <button class="btn btn-info text-white fw-bold rounded-pill px-3 shadow-sm d-block d-sm-none me-2" onclick="openCFD()"><i class="fa-solid fa-desktop"></i></button>
       <button class="btn btn-outline-secondary fw-bold rounded-pill px-3 px-md-4 me-2" onclick="lockScreenManual()"><i class="fa-solid fa-lock"></i><span class="d-none d-md-inline ms-1" data-i18n="pos_btn_lock"> ล็อกเครื่อง</span></button>
       <button class="btn btn-outline-danger fw-bold rounded-pill px-4" onclick="closePOSPage()"><i class="fa-solid fa-arrow-left me-2"></i> <span data-i18n="dash_btn_back">กลับ</span> </button>
@@ -250,6 +254,75 @@
     let posCart = []; let shopPromptPayNo = ""; let shopName = ""; let currentPOSMode = "barcode"; let isAutoPrintEnabled = false; let cachedShopSettings = {}; 
     let isProcessingOrder = false; let lastScannedItem = null; let posRawSalesData = []; 
     
+    // 🌟 1. ฟังก์ชันซิงค์ภาษาไปยังจอลูกค้า (CFD)
+    function syncLanguageToCFD(lang) {
+      if (!socket || !currentTenantSheetId) return;
+      socket.emit('update_cfd', {
+        shopId: currentTenantSheetId,
+        action: 'SYNC_LANG',
+        lang: lang
+      });
+    }
+
+    // 🌟 2. ตัวแปรและฟังก์ชันสำหรับพิมพ์ผ่าน Bluetooth (ESC/POS)
+    let bluetoothDevice = null;
+    let printerCharacteristic = null;
+
+    async function connectBluetoothPrinter() {
+      try {
+        bluetoothDevice = await navigator.bluetooth.requestDevice({
+          filters: [{ services: ['00001101-0000-1000-8000-00805f9b34fb'] }],
+          optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb']
+        });
+        const server = await bluetoothDevice.gatt.connect();
+        let service;
+        try {
+          service = await server.getPrimaryService('00001101-0000-1000-8000-00805f9b34fb');
+        } catch(e) {
+          service = await server.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb');
+        }
+        const characteristics = await service.getCharacteristics();
+        printerCharacteristic = characteristics[0];
+        Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2000 }).fire({ icon: 'success', title: 'เชื่อมต่อปริ้นเตอร์ Bluetooth สำเร็จ!' });
+      } catch (error) {
+        console.error('Bluetooth Error:', error);
+        Swal.fire('การเชื่อมต่อล้มเหลว', 'ไม่สามารถเชื่อมต่อปริ้นเตอร์ได้: ' + error.message, 'error');
+      }
+    }
+
+    async function printReceiptDirect(receiptData) {
+      if (!printerCharacteristic) return false;
+      try {
+        let encoder = new TextEncoder(); 
+        let bytes = [];
+        bytes.push(0x1B, 0x40); // Initialize
+        bytes.push(0x1B, 0x61, 0x01); // Center Align
+        bytes.push(...encoder.encode(`\n${receiptData.shopName || 'POS STORE'}\n`));
+        bytes.push(0x1B, 0x61, 0x00); // Left Align
+        bytes.push(...encoder.encode(`เลขที่บิล: ${receiptData.receiptId}\n`));
+        bytes.push(...encoder.encode(`--------------------------------\n`));
+        receiptData.items.forEach(item => {
+          bytes.push(...encoder.encode(`${item.name} x${item.qty} = ${item.price * item.qty} บ.\n`));
+        });
+        bytes.push(...encoder.encode(`--------------------------------\n`));
+        bytes.push(0x1B, 0x45, 0x01); // Bold On
+        bytes.push(...encoder.encode(`ยอดสุทธิ: ${receiptData.netTotal.toLocaleString()} บาท\n\n\n\n`));
+        bytes.push(0x1B, 0x45, 0x00); // Bold Off
+        bytes.push(0x1B, 0x70, 0x00, 0x19, 0xFF); // Open Drawer
+        bytes.push(0x1D, 0x56, 0x41, 0x03); // Full Cut
+        
+        const dataBuffer = new Uint8Array(bytes);
+        const chunkSize = 512;
+        for (let i = 0; i < dataBuffer.length; i += chunkSize) {
+          await printerCharacteristic.writeValue(dataBuffer.slice(i, i + chunkSize));
+        }
+        return true;
+      } catch (e) {
+        console.error('Print Error:', e);
+        return false;
+      }
+    }
+
     // ห่อการทำงานของ Socket ไว้ใน Try Catch ป้องกัน Error ทำให้บราวเซอร์หยุดประมวลผล
     let socket = null;
     try {
@@ -306,6 +379,21 @@
       // แปลภาษาในหน้า POS
       if (typeof changeLanguage === 'function') {
         changeLanguage(currentLang);
+        syncLanguageToCFD(currentLang); // 🌟 ยิงซิงค์ภาษาให้ CFD ด้วย
+      }
+
+      // แนบ Event Listener สำหรับ Infinite Scroll (ถ้ายังไม่ได้แนบ)
+      const gridView = document.getElementById('pos-grid-view');
+      if (gridView && !gridView.hasAttribute('data-scroll-attached')) {
+        gridView.setAttribute('data-scroll-attached', 'true');
+        gridView.addEventListener('scroll', () => {
+          if (gridView.scrollTop + gridView.clientHeight >= gridView.scrollHeight - 100) {
+            if (currentGridPage * GRID_PAGE_SIZE < currentFilteredProducts.length) {
+              currentGridPage++;
+              renderMenuGrid(true); 
+            }
+          }
+        });
       }
     }
 
@@ -334,37 +422,58 @@
       }
     }
 
-function renderMenuGrid() {
-      const gridContainer = document.getElementById('pos-menu-grid'); gridContainer.innerHTML = '';
-      if (!globalProducts || globalProducts.length === 0) { gridContainer.innerHTML = `<div class="text-center text-muted p-5 w-100">${i18n[currentLang]['pos_empty_stock']}</div>`; return; }
-      
-      let currentSize = document.getElementById('image-size-slider').value; 
-      let selectedCat = document.getElementById('pos-category-filter').value; 
-      gridContainer.style.gridTemplateColumns = `repeat(auto-fill, minmax(${currentSize}px, 1fr))`;
+    // 🌟 3. ระบบ Infinite Scroll สำหรับ POS Grid
+    let currentGridPage = 1;
+    const GRID_PAGE_SIZE = 24; 
+    let currentFilteredProducts = []; 
 
-      let filteredProducts = globalProducts.filter(p => selectedCat === "all" || p.category === selectedCat);
+    function renderMenuGrid(isLoadMore = false) {
+      const gridContainer = document.getElementById('pos-menu-grid');
       
-      filteredProducts.sort((a, b) => {
-        const getStockStatus = (p) => {
-          if (p.stock === "ไม่จำกัด" || isNaN(parseInt(p.stock))) return 4; 
-          let stock = parseInt(p.stock); let minStock = parseInt(p.minStock) || 5;
-          if (stock <= 0) return 1; if (stock <= minStock) return 2; return 3; 
-        };
-        let statusA = getStockStatus(a); let statusB = getStockStatus(b);
-        if (statusA !== statusB) return statusA - statusB; 
-        return a.name.localeCompare(b.name); 
-      });
+      if (!isLoadMore) {
+          gridContainer.innerHTML = '';
+          currentGridPage = 1;
+          
+          if (!globalProducts || globalProducts.length === 0) { 
+              gridContainer.innerHTML = `<div class="text-center text-muted p-5 w-100">${i18n[currentLang]['pos_empty_stock'] || 'ไม่มีข้อมูลสินค้าในคลัง...'}</div>`; 
+              return; 
+          }
+          
+          let currentSize = document.getElementById('image-size-slider').value; 
+          let selectedCat = document.getElementById('pos-category-filter').value; 
+          gridContainer.style.gridTemplateColumns = `repeat(auto-fill, minmax(${currentSize}px, 1fr))`;
 
-      if (filteredProducts.length === 0) { gridContainer.innerHTML = `<div class="text-center text-muted p-5 w-100">${i18n[currentLang]['pos_empty_category']}</div>`; return; }
+          currentFilteredProducts = globalProducts.filter(p => selectedCat === "all" || p.category === selectedCat);
+          
+          currentFilteredProducts.sort((a, b) => {
+            const getStockStatus = (p) => {
+              if (p.stock === "ไม่จำกัด" || isNaN(parseInt(p.stock))) return 4; 
+              let stock = parseInt(p.stock); let minStock = parseInt(p.minStock) || 5;
+              if (stock <= 0) return 1; if (stock <= minStock) return 2; return 3; 
+            };
+            let statusA = getStockStatus(a); let statusB = getStockStatus(b);
+            if (statusA !== statusB) return statusA - statusB; 
+            return a.name.localeCompare(b.name); 
+          });
+      }
+
+      if (currentFilteredProducts.length === 0) { 
+          gridContainer.innerHTML = `<div class="text-center text-muted p-5 w-100">${i18n[currentLang]['pos_empty_category'] || 'ไม่พบสินค้าในหมวดหมู่นี้...'}</div>`; 
+          return; 
+      }
+
+      let startIndex = (currentGridPage - 1) * GRID_PAGE_SIZE;
+      let endIndex = startIndex + GRID_PAGE_SIZE;
+      let productsToRender = currentFilteredProducts.slice(startIndex, endIndex);
       
-      filteredProducts.forEach(p => {
-        let imgHtml = p.image ? `<img src="${p.image}" class="pos-card-img">` : `<div class="pos-card-noimg"><i class="fa-solid fa-image mb-1 fs-4 opacity-50"></i>${i18n[currentLang]['pos_no_image']}</div>`;
+      productsToRender.forEach(p => {
+        let imgHtml = p.image ? `<img src="${p.image}" class="pos-card-img">` : `<div class="pos-card-noimg"><i class="fa-solid fa-image mb-1 fs-4 opacity-50"></i>${i18n[currentLang]['pos_no_image'] || 'ไม่มีรูป'}</div>`;
         
         let stockNum = parseInt(p.stock); let currentMin = parseInt(p.minStock) || 5; let badgeHtml = ""; let isOut = false;
         if (p.stock !== "ไม่จำกัด" && !isNaN(stockNum)) {
-          if (stockNum <= 0) { badgeHtml = `<span class="pos-card-badge bg-danger">${i18n[currentLang]['pos_badge_out_of_stock']}</span>`; isOut = true; } 
-          else if (stockNum <= currentMin) { badgeHtml = `<span class="pos-card-badge bg-warning text-dark">${i18n[currentLang]['pos_badge_low_stock']}${stockNum}</span>`; } 
-          else { badgeHtml = `<span class="pos-card-badge bg-success">${i18n[currentLang]['pos_badge_in_stock']}${stockNum}</span>`; }
+          if (stockNum <= 0) { badgeHtml = `<span class="pos-card-badge bg-danger">${i18n[currentLang]['pos_badge_out_of_stock'] || 'หมด'}</span>`; isOut = true; } 
+          else if (stockNum <= currentMin) { badgeHtml = `<span class="pos-card-badge bg-warning text-dark">${(i18n[currentLang]['pos_badge_low_stock'] || 'เหลือ ') + stockNum}</span>`; } 
+          else { badgeHtml = `<span class="pos-card-badge bg-success">${(i18n[currentLang]['pos_badge_in_stock'] || 'มี ') + stockNum}</span>`; }
         }
         
         let card = document.createElement('div'); card.className = 'pos-product-card';
@@ -490,11 +599,25 @@ function renderMenuGrid() {
         posCart = []; lastScannedItem = null; document.getElementById('pos-cust-name').value = ''; document.getElementById('pos-discount').value = '0'; renderCart(); syncCFD('CHECKOUT_SUCCESS'); 
         google.script.run.logAction(currentTenantSheetId, currentStaff.name, "ขายสินค้า", "เปิดบิล " + res.receiptId + " ยอด " + netTotal + " บ.");
 
-        refreshProductsData(function() {
+        refreshProductsData(async function() {
           if (isAutoPrintEnabled) {
             Swal.fire({ title: i18n[currentLang]['pos_alert_printing_bill'], timer: 1200, showConfirmButton: false, didOpen: () => { Swal.showLoading(); } });
-            setTimeout(() => { if (typeof openReceipt === "function") { openReceipt(receiptData, cachedShopSettings); setTimeout(() => { window.print(); }, 800); } }, 1000);
-          } else { Swal.fire({ icon: 'success', title: i18n[currentLang]['pos_alert_save_success'], timer: 1200, showConfirmButton: false }); if (currentPOSMode === 'barcode') { setTimeout(() => { document.getElementById('pos-barcode-input').focus(); }, 200); } }
+            receiptData.shopName = cachedShopSettings ? cachedShopSettings.shop_name : 'POS STORE';
+            
+            // 🌟 ลองพิมพ์ผ่าน Bluetooth ก่อน
+            let printedDirectly = false;
+            if (printerCharacteristic) {
+                printedDirectly = await printReceiptDirect(receiptData);
+            }
+            
+            // ถ้าไม่ได้ต่อ Bluetooth ค่อยเด้งหน้าต่างพิมพ์ของเบราว์เซอร์
+            if (!printedDirectly) {
+                setTimeout(() => { if (typeof openReceipt === "function") { openReceipt(receiptData, cachedShopSettings); setTimeout(() => { window.print(); }, 800); } }, 1000);
+            }
+          } else { 
+            Swal.fire({ icon: 'success', title: i18n[currentLang]['pos_alert_save_success'], timer: 1200, showConfirmButton: false }); 
+            if (currentPOSMode === 'barcode') { setTimeout(() => { document.getElementById('pos-barcode-input').focus(); }, 200); } 
+          }
         });
       }).saveOrder(currentTenantSheetId, JSON.stringify(orderData)); 
     }
@@ -607,7 +730,6 @@ function renderMenuGrid() {
     function posExecuteBulkReturnSequential(receiptId, items, currentIndex) {
        if (currentIndex >= items.length) {
           Swal.fire({icon:'success', title: i18n[currentLang]['pos_alert_return_success'], timer: 1000, showConfirmButton:false});
-          // ✅ เพิ่มคำสั่งบันทึก Log คืนสินค้า
           let staff = (typeof currentStaff !== 'undefined' && currentStaff.name) ? currentStaff.name : 'Unknown';
           google.script.run.logAction(currentTenantSheetId, staff, "คืนสินค้า", "คืนบางส่วนบิล " + receiptId);
           
@@ -615,7 +737,6 @@ function renderMenuGrid() {
        }
        let currentItem = items[currentIndex];
        
-       // ✅ เพิ่มตัวดัก Error กันหน้าจอหมุนค้าง
        google.script.run
          .withSuccessHandler(res => { 
             if (res === 'success') {
@@ -636,7 +757,6 @@ function renderMenuGrid() {
       }).then((result) => {
         if (result.isConfirmed) {
           google.script.run.withSuccessHandler(res => { 
-             // ✅ เพิ่มคำสั่งบันทึก Log ยกเลิกบิล
              let staff = (typeof currentStaff !== 'undefined' && currentStaff.name) ? currentStaff.name : 'Unknown';
              google.script.run.logAction(currentTenantSheetId, staff, "ยกเลิกบิล", "ยกเลิกบิล " + receiptId);
              
@@ -649,7 +769,6 @@ function renderMenuGrid() {
         }
       });
     }
-
 
     function posReprintBill(receiptId) {
        let found = posRawSalesData.find(sale => sale.receiptId === receiptId); if(!found) return;
@@ -670,13 +789,21 @@ function renderMenuGrid() {
 
        let receiptData = { receiptId: displayReceiptId + i18n[currentLang]['pos_text_reprint_suffix'], date: found.dateStr, seller: "Reprint", customer: "-", items: reconstructedItems, subtotal: parseFloat(found.total) + discount, discount: discount, netTotal: parseFloat(found.total), payment: displayMethod };
        
-       // ✅ เพิ่มคำสั่งบันทึก Log พิมพ์บิลซ้ำ
        let staff = (typeof currentStaff !== 'undefined' && currentStaff.name) ? currentStaff.name : 'Unknown';
        google.script.run.logAction(currentTenantSheetId, staff, "พิมพ์บิลซ้ำ", "พิมพ์บิล " + receiptId);
        
-       Swal.close(); setTimeout(() => { if (typeof openReceipt === "function") openReceipt(receiptData, cachedShopSettings); }, 300);
+       Swal.close(); 
+       receiptData.shopName = cachedShopSettings ? cachedShopSettings.shop_name : 'POS STORE';
+       setTimeout(async () => { 
+           let printedDirectly = false;
+           if (printerCharacteristic) {
+               printedDirectly = await printReceiptDirect(receiptData);
+           }
+           if (!printedDirectly && typeof openReceipt === "function") {
+               openReceipt(receiptData, cachedShopSettings); 
+           }
+       }, 300);
     }
 
   </script>
 </div>
-
