@@ -72,11 +72,11 @@
       <h3 class="fw-bold text-primary m-0" data-i18n="pos_header_title"><i class="fa-solid fa-cash-register me-2"></i> ระบบจุดขาย (POS)</h3>
       <button class="btn btn-info text-white fw-bold rounded-pill px-3 px-md-4 shadow-sm d-none d-sm-block" onclick="openCFD()" data-i18n="pos_btn_customer_screen"><i class="fa-solid fa-desktop me-1"></i> จอลูกค้า</button>
       <!-- 🌟 ปุ่ม Bluetooth (Desktop) -->
-      <button class="btn btn-secondary text-white fw-bold rounded-pill px-3 px-md-4 shadow-sm d-none d-sm-block" onclick="connectBluetoothPrinter()" title="เชื่อมต่อปริ้นเตอร์ Bluetooth"><i class="fa-brands fa-bluetooth me-1"></i> ปริ้นเตอร์</button>
+      
     </div>
     <div class="d-flex align-items-center pos-mobile-btns">
       <!-- 🌟 ปุ่ม Bluetooth (Mobile) -->
-      <button class="btn btn-secondary text-white fw-bold rounded-pill px-3 shadow-sm d-block d-sm-none me-2" onclick="connectBluetoothPrinter()"><i class="fa-brands fa-bluetooth"></i></button>
+
       <button class="btn btn-info text-white fw-bold rounded-pill px-3 shadow-sm d-block d-sm-none me-2" onclick="openCFD()"><i class="fa-solid fa-desktop"></i></button>
       <button class="btn btn-outline-secondary fw-bold rounded-pill px-3 px-md-4 me-2" onclick="lockScreenManual()"><i class="fa-solid fa-lock"></i><span class="d-none d-md-inline ms-1" data-i18n="pos_btn_lock"> ล็อกเครื่อง</span></button>
       <button class="btn btn-outline-danger fw-bold rounded-pill px-4" onclick="closePOSPage()"><i class="fa-solid fa-arrow-left me-2"></i> <span data-i18n="dash_btn_back">กลับ</span> </button>
@@ -802,8 +802,46 @@
            if (!printedDirectly && typeof openReceipt === "function") {
                openReceipt(receiptData, cachedShopSettings); 
            }
-       }, 300);
+       }, 500);
     }
+	
+	// 🌟 2. ตัวแปรและฟังก์ชันสำหรับพิมพ์ผ่าน Bluetooth (ESC/POS)
+    window.bluetoothDevice = null;
+    window.printerCharacteristic = null;
+
+    window.connectBluetoothPrinter = async function() {
+      try {
+        window.bluetoothDevice = await navigator.bluetooth.requestDevice({
+          filters: [{ services: ['00001101-0000-1000-8000-00805f9b34fb'] }],
+          optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb']
+        });
+        const server = await window.bluetoothDevice.gatt.connect();
+        let service;
+        try {
+          service = await server.getPrimaryService('00001101-0000-1000-8000-00805f9b34fb');
+        } catch(e) {
+          service = await server.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb');
+        }
+        const characteristics = await service.getCharacteristics();
+        window.printerCharacteristic = characteristics[0];
+        
+        // อัปเดตสถานะในหน้า Settings
+        let statusEl = document.getElementById('bt-printer-status');
+        if(statusEl) {
+           statusEl.innerText = 'เชื่อมต่อแล้ว';
+           statusEl.className = 'text-success fw-bold';
+        }
+        
+        Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2000 }).fire({ icon: 'success', title: 'เชื่อมต่อปริ้นเตอร์ Bluetooth สำเร็จ!' });
+      } catch (error) {
+        console.error('Bluetooth Error:', error);
+        Swal.fire('การเชื่อมต่อล้มเหลว', 'ไม่สามารถเชื่อมต่อปริ้นเตอร์ได้: ' + error.message, 'error');
+      }
+    }
+
+    async function printReceiptDirect(receiptData) {
+      if (!window.printerCharacteristic) return false;
+      // ... (โค้ดด้านใน printReceiptDirect เหมือนเดิม ไม่ต้องแก้) ...
 
   </script>
 </div>
