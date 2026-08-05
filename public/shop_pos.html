@@ -265,16 +265,16 @@
     }
 
     // 🌟 2. ตัวแปรและฟังก์ชันสำหรับพิมพ์ผ่าน Bluetooth (ESC/POS)
-    let bluetoothDevice = null;
-    let printerCharacteristic = null;
+    window.bluetoothDevice = null;
+    window.printerCharacteristic = null;
 
-    async function connectBluetoothPrinter() {
+    window.connectBluetoothPrinter = async function() {
       try {
-        bluetoothDevice = await navigator.bluetooth.requestDevice({
+        window.bluetoothDevice = await navigator.bluetooth.requestDevice({
           filters: [{ services: ['00001101-0000-1000-8000-00805f9b34fb'] }],
           optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb']
         });
-        const server = await bluetoothDevice.gatt.connect();
+        const server = await window.bluetoothDevice.gatt.connect();
         let service;
         try {
           service = await server.getPrimaryService('00001101-0000-1000-8000-00805f9b34fb');
@@ -282,7 +282,15 @@
           service = await server.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb');
         }
         const characteristics = await service.getCharacteristics();
-        printerCharacteristic = characteristics[0];
+        window.printerCharacteristic = characteristics[0];
+        
+        // อัปเดตสถานะในหน้า Settings
+        let statusEl = document.getElementById('bt-printer-status');
+        if(statusEl) {
+           statusEl.innerText = 'เชื่อมต่อแล้ว';
+           statusEl.className = 'text-success fw-bold';
+        }
+        
         Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2000 }).fire({ icon: 'success', title: 'เชื่อมต่อปริ้นเตอร์ Bluetooth สำเร็จ!' });
       } catch (error) {
         console.error('Bluetooth Error:', error);
@@ -291,7 +299,7 @@
     }
 
     async function printReceiptDirect(receiptData) {
-      if (!printerCharacteristic) return false;
+      if (!window.printerCharacteristic) return false;
       try {
         let encoder = new TextEncoder(); 
         let bytes = [];
@@ -314,7 +322,7 @@
         const dataBuffer = new Uint8Array(bytes);
         const chunkSize = 512;
         for (let i = 0; i < dataBuffer.length; i += chunkSize) {
-          await printerCharacteristic.writeValue(dataBuffer.slice(i, i + chunkSize));
+          await window.printerCharacteristic.writeValue(dataBuffer.slice(i, i + chunkSize));
         }
         return true;
       } catch (e) {
@@ -805,43 +813,6 @@
        }, 500);
     }
 	
-	// 🌟 2. ตัวแปรและฟังก์ชันสำหรับพิมพ์ผ่าน Bluetooth (ESC/POS)
-    window.bluetoothDevice = null;
-    window.printerCharacteristic = null;
-
-    window.connectBluetoothPrinter = async function() {
-      try {
-        window.bluetoothDevice = await navigator.bluetooth.requestDevice({
-          filters: [{ services: ['00001101-0000-1000-8000-00805f9b34fb'] }],
-          optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb']
-        });
-        const server = await window.bluetoothDevice.gatt.connect();
-        let service;
-        try {
-          service = await server.getPrimaryService('00001101-0000-1000-8000-00805f9b34fb');
-        } catch(e) {
-          service = await server.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb');
-        }
-        const characteristics = await service.getCharacteristics();
-        window.printerCharacteristic = characteristics[0];
-        
-        // อัปเดตสถานะในหน้า Settings
-        let statusEl = document.getElementById('bt-printer-status');
-        if(statusEl) {
-           statusEl.innerText = 'เชื่อมต่อแล้ว';
-           statusEl.className = 'text-success fw-bold';
-        }
-        
-        Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2000 }).fire({ icon: 'success', title: 'เชื่อมต่อปริ้นเตอร์ Bluetooth สำเร็จ!' });
-      } catch (error) {
-        console.error('Bluetooth Error:', error);
-        Swal.fire('การเชื่อมต่อล้มเหลว', 'ไม่สามารถเชื่อมต่อปริ้นเตอร์ได้: ' + error.message, 'error');
-      }
-    }
-
-    async function printReceiptDirect(receiptData) {
-      if (!window.printerCharacteristic) return false;
-      // ... (โค้ดด้านใน printReceiptDirect เหมือนเดิม ไม่ต้องแก้) ...
 
   </script>
 </div>
