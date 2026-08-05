@@ -321,15 +321,27 @@
        if (currentIndex >= items.length) {
           Swal.fire({icon:'success', title: i18n[currentLang]['pos_alert_return_success'], timer: 1000, showConfirmButton:false});
           let staff = (typeof currentStaff !== 'undefined' && currentStaff.name) ? currentStaff.name : 'Unknown';
-          google.script.run.logAction(currentTenantSheetId, staff, "คืนสินค้า", "แดชบอร์ด: บิล " + receiptId);
+          google.script.run.logAction(currentTenantSheetId, staff, "คืนสินค้า", "แดชบอร์ด: คืนบางส่วนบิล " + receiptId);
           if (typeof refreshProductsData === 'function') refreshProductsData(); 
           loadDashboardDataFromServer(); return;
        }
        let currentItem = items[currentIndex];
-       google.script.run.withSuccessHandler(res => {
-          if (res === 'success') dashExecuteBulkReturnSequential(receiptId, items, currentIndex + 1);
-       }).voidPartialItem(currentTenantSheetId, receiptId, currentItem.index, currentItem.qty);
+       
+       // ✅ เพิ่มตัวดัก Error กันหน้าจอหมุนติ้ว
+       google.script.run
+         .withSuccessHandler(res => { 
+            if (res === 'success') {
+                dashExecuteBulkReturnSequential(receiptId, items, currentIndex + 1);
+            } else {
+                Swal.fire(i18n[currentLang]['swal_error_title2'] || 'Error', res, 'error');
+            }
+         })
+         .withFailureHandler(err => {
+            Swal.fire(i18n[currentLang]['swal_error_title2'] || 'Error', err.message, 'error');
+         })
+         .voidPartialItem(currentTenantSheetId, receiptId, currentItem.index, currentItem.qty);
     }
+
 
     function dashConfirmVoidBill(receiptId) {
       Swal.fire({
