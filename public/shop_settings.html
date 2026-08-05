@@ -836,71 +836,30 @@
     }
     
     // 🌟 ระบบแปลรายละเอียด (Detail) ครบถ้วน 100%
-         paginatedLogs.forEach(log => {
-    let displayAction = log.action;
-    if(actionMap[log.action] && i18n[currentLang][actionMap[log.action]]) {
-       displayAction = i18n[currentLang][actionMap[log.action]];
-    }
-    
-    // 🌟 ระบบแปลรายละเอียด (Detail) ครบถ้วน 100% (รองรับการดึงเลขบิลมาใส่ใน Eng อัตโนมัติ)
     let displayDetail = log.detail;
-    if (log.detail === "ตั้งค่า Admin คนแรกสำเร็จ" || log.detail === "First Admin setup successful") displayDetail = i18n[currentLang]['set_log_detail_init_success'] || "First Admin setup successful";
-    else if (log.detail === "อัปเดตข้อมูลร้านค้า & การพิมพ์" || log.detail === "Updated store info & printing") displayDetail = i18n[currentLang]['set_log_detail_update_shop'] || "Updated store info & printing";
-    else if (log.detail === "อัปเดตการแสดงผลหน้าจอ (UI)") displayDetail = i18n[currentLang]['set_log_detail_ui_update'] || "Updated display layout (UI)";
-    else if (log.detail === "ดาวน์โหลดฟอร์มข้อมูลร้านค้าและสินค้า") displayDetail = i18n[currentLang]['set_log_detail_export'] || "Downloaded store and product data form";
-    else if (log.detail === "เปลี่ยนสถานะการพิมพ์ใบเสร็จอัตโนมัติ") displayDetail = currentLang === 'en' ? 'Changed auto-print receipt status' : log.detail;
-    else if (log.detail === "ล็อกอินสำเร็จ" || log.detail === "Login successful") displayDetail = i18n[currentLang]['set_log_detail_login_success'] || "Login successful";
-    else if (log.detail === "ผู้ใช้กดล็อกหน้าจอ (Manual)" || log.detail === "User locked screen (Manual)") displayDetail = i18n[currentLang]['set_log_detail_logout_manual'] || "User locked screen (Manual)";
-    else if (log.detail === "ระบบล็อกหน้าจออัตโนมัติ (Idle)" || log.detail === "System auto-locked screen (Idle)") displayDetail = i18n[currentLang]['set_log_detail_logout_auto'] || "System auto-locked screen (Idle)";
-    
-    // จัดการแปล: ลบพนักงาน
+    if (log.detail === "ตั้งค่า Admin คนแรกสำเร็จ" || log.detail === "First Admin setup successful") displayDetail = i18n[currentLang]['set_log_detail_init_success'];
+    else if (log.detail === "อัปเดตข้อมูลร้านค้า & การพิมพ์" || log.detail === "Updated store info & printing") displayDetail = i18n[currentLang]['set_log_detail_update_shop'];
+    else if (log.detail === "อัปเดตการแสดงผลหน้าจอ (UI)") displayDetail = i18n[currentLang]['set_log_detail_ui_update'];
+    else if (log.detail === "ดาวน์โหลดฟอร์มข้อมูลร้านค้าและสินค้า") displayDetail = i18n[currentLang]['set_log_detail_export'];
+    else if (log.detail === "เปลี่ยนสถานะการพิมพ์ใบเสร็จอัตโนมัติ") displayDetail = i18n[currentLang]['set_log_detail_auto_print'];
+    else if (log.detail === "ล็อกอินสำเร็จ" || log.detail === "Login successful") displayDetail = i18n[currentLang]['set_log_detail_login_success'];
+    else if (log.detail === "ผู้ใช้กดล็อกหน้าจอ (Manual)" || log.detail === "User locked screen (Manual)") displayDetail = i18n[currentLang]['set_log_detail_logout_manual'];
+    else if (log.detail === "ระบบล็อกหน้าจออัตโนมัติ (Idle)" || log.detail === "System auto-locked screen (Idle)") displayDetail = i18n[currentLang]['set_log_detail_logout_auto'];
     else if (log.detail && (log.detail.startsWith("ลบพนักงาน PIN: ") || log.detail.startsWith("Deleted staff PIN: "))) {
        let pinPart = log.detail.replace("ลบพนักงาน PIN: ", "").replace("Deleted staff PIN: ", "");
-       displayDetail = (i18n[currentLang]['set_log_detail_del_staff'] || "Deleted staff PIN: ") + pinPart;
+       displayDetail = i18n[currentLang]['set_log_detail_del_staff'] + pinPart;
     }
-    // จัดการแปล: เพิ่ม/แก้พนักงาน
     else if (log.detail && (log.detail.startsWith("เพิ่ม/แก้ไขพนักงาน PIN: ") || log.detail.startsWith("Add/Edit staff PIN: "))) {
        let pinPart = log.detail.replace("เพิ่ม/แก้ไขพนักงาน PIN: ", "").replace("Add/Edit staff PIN: ", "");
-       displayDetail = (i18n[currentLang]['set_log_detail_add_staff'] || "Add/Edit staff PIN: ") + pinPart;
+       displayDetail = i18n[currentLang]['set_log_detail_add_staff'] + pinPart;
     }
-    // จัดการแปล: นำเข้า Excel
     else if (log.detail && log.detail.startsWith("อัปเดตระบบและสินค้า ")) {
        let countPart = log.detail.replace("อัปเดตระบบและสินค้า ", "").replace(" รายการ", "");
-       let prefix = i18n[currentLang]['set_log_detail_import_excel_prefix'] || (currentLang === 'en' ? 'Imported ' : 'อัปเดตระบบและสินค้า ');
-       let suffix = i18n[currentLang]['set_log_detail_import_excel_suffix'] || (currentLang === 'en' ? ' items' : ' รายการ');
-       displayDetail = prefix + countPart + suffix;
-    }
-    // จัดการแปล: เปิดบิลใหม่ (POS)
-    else if (log.detail && log.detail.startsWith("เปิดบิล ")) {
-       let m = log.detail.match(/เปิดบิล\s+(.*?)\s+ยอด\s+(.*?)\s+บ\./);
-       if(m) displayDetail = currentLang === 'en' ? `Opened bill ${m[1]} total ${m[2]} ฿` : log.detail;
-    }
-    // จัดการแปล: ยกเลิกบิล
-    else if (log.detail && log.detail.includes("ยกเลิกบิล ")) {
-       let m = log.detail.match(/ยกเลิกบิล\s+(.*)/);
-       if(m) displayDetail = currentLang === 'en' ? `${log.detail.includes('แดชบอร์ด') ? 'Dashboard: ' : ''}Voided bill ${m[1]}` : log.detail;
-    }
-    // จัดการแปล: คืนสินค้า (รองรับ Log เก่าที่เขียนว่า แดชบอร์ด: บิล...)
-    else if (log.detail && (log.detail.includes("คืนบางส่วนบิล ") || log.detail.includes("แดชบอร์ด: บิล "))) {
-       let m = log.detail.match(/(?:คืนบางส่วนบิล|แดชบอร์ด:\s*บิล)\s+(.*)/);
-       if(m) displayDetail = currentLang === 'en' ? `${log.detail.includes('แดชบอร์ด') ? 'Dashboard: ' : ''}Partial return bill ${m[1]}` : log.detail;
-    }
-    // จัดการแปล: พิมพ์บิลซ้ำ
-    else if (log.detail && log.detail.includes("พิมพ์บิล ")) {
-       let m = log.detail.match(/พิมพ์บิล\s+(.*)/);
-       if(m) displayDetail = currentLang === 'en' ? `${log.detail.includes('แดชบอร์ด') ? 'Dashboard: ' : ''}Reprinted bill ${m[1]}` : log.detail;
-    }
-    // จัดการแปล: ลบข้อมูลทดสอบ
-    else if (log.detail && log.detail.startsWith("กวาดล้างบิล ")) {
-       let m = log.detail.match(/กวาดล้างบิล\s+(\d+)\s+แถว/);
-       if(m) displayDetail = currentLang === 'en' ? `Cleared ${m[1]} test bills` : log.detail;
+       displayDetail = i18n[currentLang]['set_log_detail_import_excel_prefix'] + countPart + i18n[currentLang]['set_log_detail_import_excel_suffix'];
     }
 
     tbody.innerHTML += `<tr><td class="text-muted px-3">${log.timestamp}</td><td><span class="badge bg-secondary">${log.staff}</span></td><td><b>${displayAction}</b></td><td class="text-muted">${displayDetail}</td></tr>`;
   });
-
-
-
 
   let prevDisabled = currentLogPage <= 1 ? 'disabled' : '';
   let nextDisabled = currentLogPage >= totalPages ? 'disabled' : '';
