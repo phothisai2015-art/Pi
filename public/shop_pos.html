@@ -10,16 +10,19 @@
       .pos-mobile-unsticky { position: static !important; }
       
       /* 🌟 2. ซ่อนหัวตาราง (รายการ ราคา จำนวน รวม) */
-      #pos-cart-container thead { display: none !important; }
-      
-      /* 🌟 4. เพิ่มความยาวกล่องรูปภาพ (และลดขนาดตะกร้าลงนิดหน่อยเพื่อแบ่งพื้นที่) */
-      #pos-cart-container { max-height: 25vh !important; min-height: 150px !important; }
-      #pos-grid-view { 
-          max-height: 60vh !important; 
-          height: 60vh !important;
-          min-height: 250px !important; 
-          display: block !important; 
-      }
+      /* 🌟 4. ซ่อนกล่องรายการสินค้าในตะกร้า (ตามที่วงแดงไว้) */
+      /* 🌟 2. และ 4. ซ่อนตะกร้าสินค้าทั้งหมด */
+    #pos-cart-container { 
+        display: none !important; 
+    }
+    
+    /* 🌟 4. ยืดกล่องจิ้มรูปให้ยาวขึ้น 80vh */
+    #pos-grid-view { 
+        max-height: 80vh !important; 
+        height: 80vh !important;
+        min-height: 250px !important; 
+        display: block !important; 
+    }
       
       #page-pos .gap-3 { gap: 10px !important; padding: 12px !important; }
       #page-pos .flex-shrink-0, #page-pos .input-group.flex-grow-1 { flex: 1 1 100% !important; width: 100% !important; min-width: 100% !important; justify-content: space-between; margin-bottom: 5px; }
