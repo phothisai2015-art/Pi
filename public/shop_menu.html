@@ -112,7 +112,11 @@ body.dark-theme .menu-card-btn:hover:not(:disabled) { border-color: #475569; box
 .pcat-paw.paw-l { left: 10px; } .pcat-paw.paw-r { right: 10px; }
 @keyframes catPanelPeekLook { 0% { transform: translateY(0) rotate(0deg); } 35% { transform: translateY(-4px) rotate(3deg); } 70% { transform: translateY(1px) rotate(-3deg); } 100% { transform: translateY(-1px) rotate(1deg); } }
 
-/* 🐾 CSS ท่าทางแมวหยุดนอนพัก */
+/* 🐾 CSS ท่าทางแมวหยุดนอนพัก (ปิด Animation สไลด์หน้าจอทั้งหมด) */
+.detailed-cat.cat-resting {
+  animation: none !important; /* สั่งปิด Route-Cat Animation ไม่ให้สไลด์ไปมา */
+}
+
 .detailed-cat.cat-resting .cat-wrapper {
   animation: catSleeping 1.5s ease-in-out infinite alternate !important;
 }
@@ -690,10 +694,13 @@ function initCats() {
     startCatBehavior(cat);
   }
 
-  // 🌟 ระบบสลับพฤติกรรม (เดิน ↔ นอนลงพื้น)
+ // 🌟 ระบบสลับพฤติกรรม (เดิน ↔ นอนลงพื้น)
   function startCatBehavior(cat) {
     if (cat.walkInterval) clearInterval(cat.walkInterval);
     if (cat.actionTimeout) clearTimeout(cat.actionTimeout);
+
+    // ถอดคลาส Route เดิมออก ป้องกัน CSS Animation สไลด์แมวไปมา
+    cat.classList.remove('route-cat-black', 'route-cat-white', 'route-cat-orange');
 
     let direction = cat.dataset.dir ? parseInt(cat.dataset.dir) : 1; 
     cat.style.transform = `scaleX(${direction})`;
@@ -707,7 +714,10 @@ function initCats() {
       if (document.getElementById('lock-screen') && document.getElementById('lock-screen').style.display === 'none') return;
       
       let currentLeft = parseFloat(cat.style.left); 
-      if (isNaN(currentLeft)) currentLeft = 0;
+      if (isNaN(currentLeft)) {
+        const computed = window.getComputedStyle(cat);
+        currentLeft = parseFloat(computed.left) || 0;
+      }
       
       currentLeft += direction * 1.5; 
       cat.style.left = currentLeft + 'px';
@@ -723,8 +733,8 @@ function initCats() {
 
     // เมื่อครบกำหนดเวลาเดิน ให้ "หยุดนอนลงพื้น"
     cat.actionTimeout = setTimeout(() => {
-      clearInterval(cat.walkInterval); // หยุดเดิน
-      cat.classList.add('cat-resting'); // หมอนตัวลงนอน
+      clearInterval(cat.walkInterval); // หยุดการเคลื่อนที่
+      cat.classList.add('cat-resting'); // หมอนตัวลงนอนหยุดนิ่งอยู่กับที่
 
       // สลับเวลานอนพัก (นอนประมาณ 3 - 7 วินาที) แล้วค่อยลุกขึ้นมาเดินใหม่
       let sleepDuration = Math.floor(Math.random() * 4000) + 3000;
