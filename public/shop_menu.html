@@ -662,7 +662,6 @@ function initCats() {
     
     currentCat.style.left = startLeft + 'px'; 
     currentCat.style.top = startTop + 'px';
-    currentCat.classList.remove('route-cat-black', 'route-cat-white', 'route-cat-orange');
     currentCat.style.animation = 'none'; 
     currentCat.style.transition = 'none'; 
     currentCat.style.zIndex = '1000';
@@ -692,7 +691,7 @@ function initCats() {
     startCatBehavior(cat);
   }
 
-  // 🌟 ระบบสลับพฤติกรรม (สุ่มระยะเวลาเดิน & สุ่มระยะเวลานอน)
+  // 🌟 ระบบสลับพฤติกรรม (เดินทะลุจอ ↔ นอนลงพื้น)
   function startCatBehavior(cat) {
     if (cat.walkInterval) clearInterval(cat.walkInterval);
     if (cat.actionTimeout) clearTimeout(cat.actionTimeout);
@@ -700,7 +699,7 @@ function initCats() {
     let direction = cat.dataset.dir ? parseInt(cat.dataset.dir) : 1; 
     cat.style.transform = `scaleX(${direction})`;
 
-    // 🎲 1. สุ่มระยะเวลาเดิน: ตั้งแต่ 10 ถึง 20 วินาที
+    // 🎲 สุ่มระยะเวลาเดิน: 10 ถึง 20 วินาที
     let walkDuration = Math.floor(Math.random() * 10000) + 10000;
 
     cat.classList.remove('cat-resting');
@@ -716,34 +715,40 @@ function initCats() {
       currentLeft += direction * 1.5; 
       cat.style.left = currentLeft + 'px';
 
-      // ชนขอบจอให้หันกลับ
-      if (currentLeft > window.innerWidth - 95) { 
-        direction = -1; cat.dataset.dir = direction; cat.style.transform = `scaleX(${direction})`; 
+      // 🌟 ถ้าเดิน "หลุดออกนอกขอบจอขวา" ให้สุ่มวาร์ปไปแอบฝั่งซ้ายแล้วเดินเข้าใหม่
+      if (direction === 1 && currentLeft > window.innerWidth + 100) { 
+        cat.style.left = '-120px';
+        cat.style.top = (Math.floor(Math.random() * (window.innerHeight * 0.6)) + (window.innerHeight * 0.15)) + 'px';
       }
-      if (currentLeft < 0) { 
-        direction = 1; cat.dataset.dir = direction; cat.style.transform = `scaleX(${direction})`; 
+      
+      // 🌟 ถ้าเดิน "หลุดออกนอกขอบจอซ้าย" ให้สุ่มวาร์ปไปแอบฝั่งขวาแล้วเดินเข้าใหม่
+      if (direction === -1 && currentLeft < -150) { 
+        cat.style.left = (window.innerWidth + 50) + 'px';
+        cat.style.top = (Math.floor(Math.random() * (window.innerHeight * 0.6)) + (window.innerHeight * 0.15)) + 'px';
       }
     }, 30);
 
-    // เมื่อครบกำหนดเวลาเดิน ให้หยุดนอนลงพื้น
+    // เมื่อครบกำหนดเวลาเดิน ให้หยุดนอนลงพื้น (ถ้านอนอยู่กลางจอ)
     cat.actionTimeout = setTimeout(() => {
       clearInterval(cat.walkInterval);
       cat.classList.add('cat-resting');
 
-      // 🎲 2. สุ่มระยะเวลานอนพัก: ตั้งแต่ 5 ถึง 20 วินาที
+      // 🎲 สุ่มระยะเวลานอนพัก: 5 ถึง 20 วินาที
       let sleepDuration = Math.floor(Math.random() * 15000) + 5000;
 
       cat.actionTimeout = setTimeout(() => {
-        startCatBehavior(cat); // เมื่อนอนครบเวลาจะกลับมาลุกเดินต่อ
+        // เมื่อตื่นมา อาจสุ่มหันหน้าสลับทิศทางด้วยเพื่อความสมจริง
+        if (Math.random() > 0.5) {
+          direction = direction * -1;
+          cat.dataset.dir = direction;
+        }
+        startCatBehavior(cat);
       }, sleepDuration);
 
     }, walkDuration);
   }
 
   cats.forEach((cat, index) => { 
-    // 🛑 เคลียร์คลาสอนิเมชั่นตั้งต้นของ CSS ออกทันที ป้องกันแมวเด้งโผล่วับๆ แวมๆ
-    cat.classList.remove('route-cat-black', 'route-cat-white', 'route-cat-orange');
-
     cat.ondragstart = function() { return false; }; 
     cat.addEventListener('mousedown', (e) => startDrag(e, cat)); 
     cat.addEventListener('touchstart', (e) => startDrag(e, cat), {passive: false}); 
