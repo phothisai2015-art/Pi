@@ -189,12 +189,12 @@
     <span class="small badge bg-secondary"><i class="fa-solid fa-user me-1"></i><span data-i18n="pos_cashier_label">แคชเชียร์:</span> <span id="pos-staff-badge">...</span></span>
   </h6>
 
-  <!-- ปุ่มจ่ายเงิน -->
-  <div class="d-grid gap-2">
-    <button class="btn btn-success fw-bold p-2 rounded-4 shadow-sm" onclick="processCheckout('เงินสด')" data-i18n="pos_btn_pay_cash">
+  <!-- ปุ่มจ่ายเงิน (อัปเดตให้ใหญ่ขึ้นแล้ว) -->
+  <div class="d-grid gap-3">
+    <button class="btn btn-success btn-lg fw-bold py-2 rounded-4 shadow-sm" onclick="processCheckout('เงินสด')" data-i18n="pos_btn_pay_cash">
       <i class="fa-solid fa-money-bill-wave me-2"></i> รับเงินสด
     </button>
-    <button class="btn btn-info text-white fw-bold p-2 rounded-4 shadow-sm" onclick="showPromptPay()" style="background: #0ea5e9; border: none;" data-i18n="pos_btn_pay_qr">
+    <button class="btn btn-info btn-lg text-white fw-bold py-2 rounded-4 shadow-sm" onclick="showPromptPay()" style="background: #0ea5e9; border: none;" data-i18n="pos_btn_pay_qr">
       <i class="fa-solid fa-qrcode me-2"></i> สแกนจ่าย (PromptPay)
     </button>
   </div>
