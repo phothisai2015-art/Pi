@@ -40,20 +40,15 @@
     /* 📱 ปรับเมนูหน้า Settings เป็นไอคอนล้วน (เฉพาะมือถือแนวตั้ง)  */
     /* ========================================================= */
     @media (max-width: 991px) and (orientation: portrait) {
-      /* ซ่อนข้อความในเมนู */
       .settings-sidebar .settings-tab span {
         display: none !important;
       }
-      
-      /* ปรับให้ปุ่มแบ่งสัดส่วนเท่าๆ กัน และจัดไอคอนไว้ตรงกลาง */
       .settings-sidebar .settings-tab {
         padding: 15px !important;
         justify-content: center !important;
         flex: 1 !important; 
         min-width: unset !important;
       }
-      
-      /* ขยายขนาดไอคอนให้ใหญ่ขึ้นนิดนึงเพื่อความสวยงาม และให้กดง่าย */
       .settings-sidebar .settings-tab i {
         font-size: 24px !important;
         margin: 0 !important;
@@ -79,7 +74,6 @@
          <i class="fa-solid fa-store text-danger"></i> <span data-i18n="set_shop_info_title">🏢 ข้อมูลร้านค้า (Store Profile)</span>
       </button>
 	  
-	  <!-- 🌟 เพิ่มปุ่มเมนูเครื่องพิมพ์ -->
       <button class="settings-tab" onclick="switchSettingsTab('tab-printer')" id="tab-btn-printer">
          <i class="fa-solid fa-print text-success"></i> <span data-i18n="set_tab_printer">🖨️ ตั้งค่าปริ้นเตอร์ (Printer)</span>
       </button>
@@ -97,7 +91,7 @@
       </button>
       
       <button class="settings-tab" onclick="switchSettingsTab('tab-advanced')" id="tab-btn-advanced">
-         <i class="fa-solid fa-gear text-secondary"></i> <span data-i18n="set_advanced_title">⚙️ ตั้งค่าขั้นสูง (Excel, UI, Auto-print)</span>
+         <i class="fa-solid fa-gear text-secondary"></i> <span data-i18n="set_advanced_title">⚙️ ตั้งค่าขั้นสูง (Excel, UI)</span>
       </button>
     </div>
 
@@ -129,7 +123,7 @@
         <button id="btn-save-settings" class="btn btn-danger w-100 fw-bold py-3 rounded-pill shadow-sm" onclick="saveSettings()"><i class="fa-solid fa-floppy-disk me-2"></i> <span data-i18n="set_btn_save_settings">บันทึกการตั้งค่าร้าน</span></button>
       </div>
 	  
-	  <!-- 🌟 TAB: ตั้งค่าปริ้นเตอร์ -->
+	  <!-- TAB: ตั้งค่าปริ้นเตอร์ -->
       <div id="tab-printer" class="settings-panel bg-white p-3 p-lg-4 rounded-4 shadow-sm border h-100">
         <h5 class="fw-bold text-dark mb-4"><i class="fa-solid fa-print text-success me-2"></i> <span data-i18n="set_printer_title">ตั้งค่าเครื่องพิมพ์ (Printer Settings)</span></h5>
 
@@ -228,42 +222,53 @@
         <div id="log-pagination" class="d-flex justify-content-between align-items-center mt-3 gap-2 bg-white p-2 rounded-3 border shadow-sm"></div>
       </div>
 
-      <!-- TAB: ตั้งค่าขั้นสูง -->
+      <!-- TAB: ตั้งค่าขั้นสูง (จัดระเบียบใหม่ทั้งหมด) -->
       <div id="tab-advanced" class="settings-panel bg-white p-3 p-lg-4 rounded-4 shadow-sm border h-100">
-        <h5 class="fw-bold text-secondary mb-4"><i class="fa-solid fa-gear me-2"></i> <span data-i18n="set_advanced_title">ตั้งค่าขั้นสูง (Excel, UI, Auto-print)</span></h5>
-        
+        <h5 class="fw-bold text-secondary mb-4"><i class="fa-solid fa-sliders me-2"></i> <span data-i18n="set_advanced_title">ตั้งค่าขั้นสูง (Advanced Settings)</span></h5>
 
-        <!-- เพิ่มปุ่มลบข้อมูลทดสอบที่นี่ -->
-        <h6 class="fw-bold text-danger mb-3">
-          <i class="fa-solid fa-trash-can me-2"></i> 
-          <span class="custom-translate" data-i18n-th="การจัดการข้อมูล" data-i18n-en="Data Management">การจัดการข้อมูล</span>
-        </h6>
-        <div class="mb-4 p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center">
-          <span class="fw-bold text-dark custom-translate" data-i18n-th="ลบข้อมูลทดสอบ (เคลียร์บิล)" data-i18n-en="Clear Test Data (Bills)">ลบข้อมูลทดสอบ (เคลียร์บิล)</span>
-          <button class="btn btn-danger btn-sm fw-bold rounded-pill shadow-sm px-3" onclick="openClearTestModal()"><i class="fa-solid fa-trash-can me-1"></i> <span class="custom-translate" data-i18n-th="ลบข้อมูล" data-i18n-en="Delete Data">ลบข้อมูล</span></button>
-        </div>
-
-        <!-- ระบบ UI Layout -->
-        <h6 class="fw-bold text-dark mb-3">
+        <!-- 1. ระบบ UI Layout -->
+        <h6 class="fw-bold text-dark mb-2">
           <i class="fa-solid fa-desktop text-info me-2"></i> 
           <span class="custom-translate" data-i18n-th="การแสดงผล" data-i18n-en="Display">การแสดงผล</span>
         </h6>
         <div class="mb-4 p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center">
-          <span class="fw-bold text-dark" data-i18n="set_btn_ui">ปรับแต่งการแสดงผล (UI Layout)</span>
-          <button class="btn btn-primary btn-sm fw-bold rounded-pill shadow-sm px-3" onclick="openUISettingsModal()"><i class="fa-solid fa-sliders me-1"></i> <span class="custom-translate" data-i18n-th="ปรับหน้าจอ" data-i18n-en="UI Setting">ปรับหน้าจอ</span></button>
+          <div>
+            <span class="fw-bold text-dark d-block" data-i18n="set_btn_ui">ปรับแต่งการแสดงผล (UI Layout)</span>
+            <span class="small text-muted">ซ่อน/แสดงปุ่มและเมนูการทำงานตามความเหมาะสม</span>
+          </div>
+          <button class="btn btn-primary btn-sm fw-bold rounded-pill shadow-sm px-3 py-2" onclick="openUISettingsModal()"><i class="fa-solid fa-sliders me-1"></i> <span class="custom-translate" data-i18n-th="ปรับหน้าจอ" data-i18n-en="UI Setting">ปรับหน้าจอ</span></button>
         </div>
 
-        <!-- Excel Data -->
-        <h6 class="fw-bold text-success mb-3"><i class="fa-solid fa-file-excel me-2"></i> <span data-i18n="set_excel_title">จัดการข้อมูลด้วย Excel</span></h6>
-        <div class="d-flex gap-3 flex-column flex-md-row">
-          <button class="btn btn-outline-success flex-fill fw-bold py-3 shadow-sm rounded-pill" onclick="exportDataToExcel()"><i class="fa-solid fa-download me-1"></i> <span data-i18n="set_btn_export">โหลดฟอร์ม</span></button>
-          <button class="btn btn-success flex-fill fw-bold py-3 shadow-sm rounded-pill" onclick="document.getElementById('import-excel-input').value=''; document.getElementById('import-excel-input').click()"><i class="fa-solid fa-upload me-1"></i> <span data-i18n="set_btn_import">นำเข้าข้อมูล</span></button>
-          <input type="file" id="import-excel-input" class="d-none" accept=".xlsx, .xls" onchange="importDataFromExcel(this)">
+        <!-- 2. จัดการข้อมูล Excel (ปรับให้ขนาดกะทัดรัด) -->
+        <h6 class="fw-bold text-success mb-2"><i class="fa-solid fa-file-excel me-2"></i> <span data-i18n="set_excel_title">จัดการข้อมูลด้วย Excel</span></h6>
+        <div class="mb-4 p-3 bg-light rounded-3 border">
+          <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+            <span class="fw-bold text-dark">นำเข้า / ส่งออก ข้อมูลร้านและคลังสินค้า</span>
+            <div class="d-flex gap-2">
+              <button class="btn btn-outline-success btn-sm fw-bold rounded-pill px-3 py-2 shadow-sm" onclick="exportDataToExcel()"><i class="fa-solid fa-download me-1"></i> <span data-i18n="set_btn_export">โหลดฟอร์ม</span></button>
+              <button class="btn btn-success btn-sm fw-bold rounded-pill px-3 py-2 shadow-sm" onclick="document.getElementById('import-excel-input').value=''; document.getElementById('import-excel-input').click()"><i class="fa-solid fa-upload me-1"></i> <span data-i18n="set_btn_import">นำเข้าข้อมูล</span></button>
+              <input type="file" id="import-excel-input" class="d-none" accept=".xlsx, .xls" onchange="importDataFromExcel(this)">
+            </div>
+          </div>
+          <div class="text-muted small fw-bold mt-1 pt-2 border-top">
+            <i class="fa-solid fa-circle-info text-info me-1"></i>
+            <span data-i18n="set_excel_hint">* โหลดฟอร์มออกมาแก้ไข (ตั้งค่าร้าน หรือ สินค้า) แล้วกด "นำเข้าข้อมูล" เพื่ออัปเดตทับได้ทันที ถ้ารหัสสินค้าตรงกันจะอัปเดต ถ้ารหัสใหม่จะเพิ่มสินค้าให้ครับ</span>
+          </div>
         </div>
-        <div class="alert alert-info mt-4 small fw-bold">
-          <i class="fa-solid fa-circle-info me-1"></i>
-          <span data-i18n="set_excel_hint">* โหลดฟอร์มออกมาแก้ไข (ตั้งค่าร้าน หรือ สินค้า) แล้วกด "นำเข้าข้อมูล" เพื่ออัปเดตทับได้ทันที ถ้ารหัสสินค้าตรงกันจะอัปเดต ถ้ารหัสใหม่จะเพิ่มสินค้าให้ครับ</span>
+
+        <!-- 3. การจัดการข้อมูลทดสอบ -->
+        <h6 class="fw-bold text-danger mb-2">
+          <i class="fa-solid fa-trash-can me-2"></i> 
+          <span class="custom-translate" data-i18n-th="การจัดการข้อมูล" data-i18n-en="Data Management">การจัดการข้อมูล</span>
+        </h6>
+        <div class="p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center">
+          <div>
+            <span class="fw-bold text-dark d-block custom-translate" data-i18n-th="ลบข้อมูลทดสอบ (เคลียร์บิล)" data-i18n-en="Clear Test Data (Bills)">ลบข้อมูลทดสอบ (เคลียร์บิล)</span>
+            <span class="small text-muted">ลบบิลทดสอบเพื่อเริ่มต้นการใช้งานจริง</span>
+          </div>
+          <button class="btn btn-danger btn-sm fw-bold rounded-pill shadow-sm px-3 py-2" onclick="openClearTestModal()"><i class="fa-solid fa-trash-can me-1"></i> <span class="custom-translate" data-i18n-th="ลบข้อมูล" data-i18n-en="Delete Data">ลบข้อมูล</span></button>
         </div>
+
       </div>
 
     </div>
@@ -386,8 +391,6 @@
     </div>
   </div>
 
-  
-
   <!-- Modal ปรับแต่งหน้าจอ UI -->
   <div id="ui-settings-modal" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(5px); z-index: 999999; justify-content: center; align-items: center; padding: 15px;">
     <div class="bg-white p-4 rounded-4 shadow-lg d-flex flex-column" style="width: 100%; max-width: 450px; max-height: 90vh;">
@@ -490,7 +493,6 @@
       switchSettingsTab('tab-profile');
       if (typeof changeLanguage === 'function') {
         changeLanguage(currentLang);
-        // ดักแปลข้อความ Custom ทันทีที่เปิดหน้า
         document.querySelectorAll('.custom-translate').forEach(el => {
            el.innerHTML = el.getAttribute('data-i18n-' + currentLang);
         });
@@ -652,16 +654,15 @@
         document.getElementById('set-phone').value = s.shop_phone || '';
         document.getElementById('set-address').value = s.shop_address || '';
         let basicAutoPrint = document.getElementById('set-auto-print');
-    if (basicAutoPrint) basicAutoPrint.checked = (s.auto_print === "true" || s.auto_print === true);
+        if (basicAutoPrint) basicAutoPrint.checked = (s.auto_print === "true" || s.auto_print === true);
 
-    let advancedAutoPrint = document.getElementById('set-auto-print-advanced');
-    if (advancedAutoPrint) advancedAutoPrint.checked = (s.auto_print === "true" || s.auto_print === true);
-
+        let advancedAutoPrint = document.getElementById('set-auto-print-advanced');
+        if (advancedAutoPrint) advancedAutoPrint.checked = (s.auto_print === "true" || s.auto_print === true);
 
         if(s.shop_logo) { 
-        document.getElementById('set-logo-preview').src = s.shop_logo; 
-        document.getElementById('set-logo-preview').style.display = 'block'; 
-        document.getElementById('set-logo-url').value = s.shop_logo; // เพิ่มบรรทัดนี้เพื่อจำ URL เดิม
+          document.getElementById('set-logo-preview').src = s.shop_logo; 
+          document.getElementById('set-logo-preview').style.display = 'block'; 
+          document.getElementById('set-logo-url').value = s.shop_logo;
         }  
       }).getShopSettings(currentTenantSheetId);
     }
@@ -685,10 +686,7 @@
         const reader = new FileReader();
         reader.onload = function(e) {
           google.script.run.withSuccessHandler(function(url) {
-            
             document.getElementById('set-logo-url').value = url; 
-            
-            // 🌟 [เพิ่มใหม่] อัปเดตรูปโชว์ทันที และล้างช่องเลือกไฟล์เพื่อกันการอัปโหลดซ้ำ
             document.getElementById('set-logo-preview').src = url;
             document.getElementById('set-logo-preview').style.display = 'block';
             fileInput.value = ''; 
@@ -701,7 +699,6 @@
         submitSettingsData(btn, originalText); 
       }
     }
-
 
     function submitSettingsData(btn, originalText) {
       let uploadStatus = document.getElementById('set-upload-status');
@@ -827,106 +824,105 @@
     function changeLogPage(p) { currentLogPage = p; renderActivityLogs(); }
 
     function renderActivityLogs() {
-  const tbody = document.getElementById('activity-log-body');
-  const paginationContainer = document.getElementById('log-pagination');
-  let actionFilterVal = document.getElementById('log-filter').value;
-  let staffFilterVal = document.getElementById('log-staff-filter').value;
-  
-  let filteredLogs = globalActivityLogs;
-  if (actionFilterVal !== "all") filteredLogs = filteredLogs.filter(log => log.action === actionFilterVal);
-  if (staffFilterVal !== "all") filteredLogs = filteredLogs.filter(log => log.staff === staffFilterVal);
+      const tbody = document.getElementById('activity-log-body');
+      const paginationContainer = document.getElementById('log-pagination');
+      let actionFilterVal = document.getElementById('log-filter').value;
+      let staffFilterVal = document.getElementById('log-staff-filter').value;
+      
+      let filteredLogs = globalActivityLogs;
+      if (actionFilterVal !== "all") filteredLogs = filteredLogs.filter(log => log.action === actionFilterVal);
+      if (staffFilterVal !== "all") filteredLogs = filteredLogs.filter(log => log.staff === staffFilterVal);
 
-  const totalPages = Math.ceil(filteredLogs.length / logsPerPage) || 1;
-  const startIndex = (currentLogPage - 1) * logsPerPage;
-  const paginatedLogs = filteredLogs.slice(startIndex, startIndex + logsPerPage);
+      const totalPages = Math.ceil(filteredLogs.length / logsPerPage) || 1;
+      const startIndex = (currentLogPage - 1) * logsPerPage;
+      const paginatedLogs = filteredLogs.slice(startIndex, startIndex + logsPerPage);
 
-  tbody.innerHTML = '';
-  if (paginatedLogs.length === 0) { 
-      tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-muted">${i18n[currentLang]['set_empty_logs']}</td></tr>`; 
-      paginationContainer.innerHTML = ''; 
-      return; 
-  }
-  
-  const actionMap = {
-    "เริ่มต้นระบบ": "set_log_action_init",
-    "เข้าสู่ระบบ": "set_log_login",
-    "ออกจากระบบ": "set_log_logout",
-    "ขายสินค้า": "set_log_sell",
-    "ยกเลิกบิล": "set_log_void",
-    "คืนสินค้า": "set_log_return",
-    "พิมพ์บิลซ้ำ": "set_log_reprint",
-    "เพิ่มสินค้า": "set_log_add_prod",
-    "แก้ไขสินค้า": "set_log_edit_prod",
-    "ลบสินค้า": "set_log_del_prod",
-    "รับสินค้าเข้า": "set_log_recv_stock",
-    "ลบข้อมูลทดสอบ": "set_log_clear_test",
-    "จัดการพนักงาน": "set_log_action_manage_staff",
-    "ตั้งค่าระบบ": "set_log_action_system_setting",
-    "นำเข้า Excel": "set_log_action_import",
-    "ดาวน์โหลด Excel": "set_log_action_export",
-    "System Init": "set_log_action_init",
-    "Login": "set_log_login",
-    "Logout": "set_log_logout",
-    "Sell": "set_log_sell",
-    "Void Bill": "set_log_void",
-    "Return Item": "set_log_return",
-    "Reprint Bill": "set_log_reprint",
-    "Add Product": "set_log_add_prod",
-    "Edit Product": "set_log_edit_prod",
-    "Delete Product": "set_log_del_prod",
-    "Receive Stock": "set_log_recv_stock",
-    "Clear Test Data": "set_log_clear_test",
-    "Manage Staff": "set_log_action_manage_staff",
-    "System Setting": "set_log_action_system_setting",
-    "Import Excel": "set_log_action_import",
-    "Export Excel": "set_log_action_export"
-  };
+      tbody.innerHTML = '';
+      if (paginatedLogs.length === 0) { 
+          tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-muted">${i18n[currentLang]['set_empty_logs']}</td></tr>`; 
+          paginationContainer.innerHTML = ''; 
+          return; 
+      }
+      
+      const actionMap = {
+        "เริ่มต้นระบบ": "set_log_action_init",
+        "เข้าสู่ระบบ": "set_log_login",
+        "ออกจากระบบ": "set_log_logout",
+        "ขายสินค้า": "set_log_sell",
+        "ยกเลิกบิล": "set_log_void",
+        "คืนสินค้า": "set_log_return",
+        "พิมพ์บิลซ้ำ": "set_log_reprint",
+        "เพิ่มสินค้า": "set_log_add_prod",
+        "แก้ไขสินค้า": "set_log_edit_prod",
+        "ลบสินค้า": "set_log_del_prod",
+        "รับสินค้าเข้า": "set_log_recv_stock",
+        "ลบข้อมูลทดสอบ": "set_log_clear_test",
+        "จัดการพนักงาน": "set_log_action_manage_staff",
+        "ตั้งค่าระบบ": "set_log_action_system_setting",
+        "นำเข้า Excel": "set_log_action_import",
+        "ดาวน์โหลด Excel": "set_log_action_export",
+        "System Init": "set_log_action_init",
+        "Login": "set_log_login",
+        "Logout": "set_log_logout",
+        "Sell": "set_log_sell",
+        "Void Bill": "set_log_void",
+        "Return Item": "set_log_return",
+        "Reprint Bill": "set_log_reprint",
+        "Add Product": "set_log_add_prod",
+        "Edit Product": "set_log_edit_prod",
+        "Delete Product": "set_log_del_prod",
+        "Receive Stock": "set_log_recv_stock",
+        "Clear Test Data": "set_log_clear_test",
+        "Manage Staff": "set_log_action_manage_staff",
+        "System Setting": "set_log_action_system_setting",
+        "Import Excel": "set_log_action_import",
+        "Export Excel": "set_log_action_export"
+      };
 
-  paginatedLogs.forEach(log => {
-    let displayAction = log.action;
-    if(actionMap[log.action] && i18n[currentLang][actionMap[log.action]]) {
-       displayAction = i18n[currentLang][actionMap[log.action]];
+      paginatedLogs.forEach(log => {
+        let displayAction = log.action;
+        if(actionMap[log.action] && i18n[currentLang][actionMap[log.action]]) {
+           displayAction = i18n[currentLang][actionMap[log.action]];
+        }
+        
+        let displayDetail = log.detail;
+        if (log.detail === "ตั้งค่า Admin คนแรกสำเร็จ" || log.detail === "First Admin setup successful") displayDetail = i18n[currentLang]['set_log_detail_init_success'];
+        else if (log.detail === "อัปเดตข้อมูลร้านค้า & การพิมพ์" || log.detail === "Updated store info & printing") displayDetail = i18n[currentLang]['set_log_detail_update_shop'];
+        else if (log.detail === "อัปเดตการแสดงผลหน้าจอ (UI)") displayDetail = i18n[currentLang]['set_log_detail_ui_update'];
+        else if (log.detail === "ดาวน์โหลดฟอร์มข้อมูลร้านค้าและสินค้า") displayDetail = i18n[currentLang]['set_log_detail_export'];
+        else if (log.detail === "เปลี่ยนสถานะการพิมพ์ใบเสร็จอัตโนมัติ") displayDetail = i18n[currentLang]['set_log_detail_auto_print'];
+        else if (log.detail === "ล็อกอินสำเร็จ" || log.detail === "Login successful") displayDetail = i18n[currentLang]['set_log_detail_login_success'];
+        else if (log.detail === "ผู้ใช้กดล็อกหน้าจอ (Manual)" || log.detail === "User locked screen (Manual)") displayDetail = i18n[currentLang]['set_log_detail_logout_manual'];
+        else if (log.detail === "ระบบล็อกหน้าจออัตโนมัติ (Idle)" || log.detail === "System auto-locked screen (Idle)") displayDetail = i18n[currentLang]['set_log_detail_logout_auto'];
+        else if (log.detail && (log.detail.startsWith("ลบพนักงาน PIN: ") || log.detail.startsWith("Deleted staff PIN: "))) {
+           let pinPart = log.detail.replace("ลบพนักงาน PIN: ", "").replace("Deleted staff PIN: ", "");
+           displayDetail = i18n[currentLang]['set_log_detail_del_staff'] + pinPart;
+        }
+        else if (log.detail && (log.detail.startsWith("เพิ่ม/แก้ไขพนักงาน PIN: ") || log.detail.startsWith("Add/Edit staff PIN: "))) {
+           let pinPart = log.detail.replace("เพิ่ม/แก้ไขพนักงาน PIN: ", "").replace("Add/Edit staff PIN: ", "");
+           displayDetail = i18n[currentLang]['set_log_detail_add_staff'] + pinPart;
+        }
+        else if (log.detail && log.detail.startsWith("อัปเดตระบบและสินค้า ")) {
+           let countPart = log.detail.replace("อัปเดตระบบและสินค้า ", "").replace(" รายการ", "");
+           displayDetail = i18n[currentLang]['set_log_detail_import_excel_prefix'] + countPart + i18n[currentLang]['set_log_detail_import_excel_suffix'];
+        }
+
+        tbody.innerHTML += `<tr><td class="text-muted px-3">${log.timestamp}</td><td><span class="badge bg-secondary">${log.staff}</span></td><td><b>${displayAction}</b></td><td class="text-muted">${displayDetail}</td></tr>`;
+      });
+
+      let prevDisabled = currentLogPage <= 1 ? 'disabled' : '';
+      let nextDisabled = currentLogPage >= totalPages ? 'disabled' : '';
+
+      paginationContainer.innerHTML = `
+        <button class="btn btn-sm btn-outline-secondary fw-bold" onclick="changeLogPage(${currentLogPage - 1})" ${prevDisabled}>
+          <i class="fa-solid fa-chevron-left"></i> <span data-i18n="set_btn_prev">${i18n[currentLang]['set_btn_prev'] || 'ก่อนหน้า'}</span>
+        </button>
+        <span class="text-muted small mx-3 fw-bold">${i18n[currentLang]['set_log_page']}${currentLogPage} / ${totalPages}</span>
+        <button class="btn btn-sm btn-outline-secondary fw-bold" onclick="changeLogPage(${currentLogPage + 1})" ${nextDisabled}>
+          <span data-i18n="set_btn_next">${i18n[currentLang]['set_btn_next'] || 'ถัดไป'}</span> <i class="fa-solid fa-chevron-right"></i>
+        </button>
+      `;
     }
-    
-    // 🌟 ระบบแปลรายละเอียด (Detail) ครบถ้วน 100%
-    let displayDetail = log.detail;
-    if (log.detail === "ตั้งค่า Admin คนแรกสำเร็จ" || log.detail === "First Admin setup successful") displayDetail = i18n[currentLang]['set_log_detail_init_success'];
-    else if (log.detail === "อัปเดตข้อมูลร้านค้า & การพิมพ์" || log.detail === "Updated store info & printing") displayDetail = i18n[currentLang]['set_log_detail_update_shop'];
-    else if (log.detail === "อัปเดตการแสดงผลหน้าจอ (UI)") displayDetail = i18n[currentLang]['set_log_detail_ui_update'];
-    else if (log.detail === "ดาวน์โหลดฟอร์มข้อมูลร้านค้าและสินค้า") displayDetail = i18n[currentLang]['set_log_detail_export'];
-    else if (log.detail === "เปลี่ยนสถานะการพิมพ์ใบเสร็จอัตโนมัติ") displayDetail = i18n[currentLang]['set_log_detail_auto_print'];
-    else if (log.detail === "ล็อกอินสำเร็จ" || log.detail === "Login successful") displayDetail = i18n[currentLang]['set_log_detail_login_success'];
-    else if (log.detail === "ผู้ใช้กดล็อกหน้าจอ (Manual)" || log.detail === "User locked screen (Manual)") displayDetail = i18n[currentLang]['set_log_detail_logout_manual'];
-    else if (log.detail === "ระบบล็อกหน้าจออัตโนมัติ (Idle)" || log.detail === "System auto-locked screen (Idle)") displayDetail = i18n[currentLang]['set_log_detail_logout_auto'];
-    else if (log.detail && (log.detail.startsWith("ลบพนักงาน PIN: ") || log.detail.startsWith("Deleted staff PIN: "))) {
-       let pinPart = log.detail.replace("ลบพนักงาน PIN: ", "").replace("Deleted staff PIN: ", "");
-       displayDetail = i18n[currentLang]['set_log_detail_del_staff'] + pinPart;
-    }
-    else if (log.detail && (log.detail.startsWith("เพิ่ม/แก้ไขพนักงาน PIN: ") || log.detail.startsWith("Add/Edit staff PIN: "))) {
-       let pinPart = log.detail.replace("เพิ่ม/แก้ไขพนักงาน PIN: ", "").replace("Add/Edit staff PIN: ", "");
-       displayDetail = i18n[currentLang]['set_log_detail_add_staff'] + pinPart;
-    }
-    else if (log.detail && log.detail.startsWith("อัปเดตระบบและสินค้า ")) {
-       let countPart = log.detail.replace("อัปเดตระบบและสินค้า ", "").replace(" รายการ", "");
-       displayDetail = i18n[currentLang]['set_log_detail_import_excel_prefix'] + countPart + i18n[currentLang]['set_log_detail_import_excel_suffix'];
-    }
-
-    tbody.innerHTML += `<tr><td class="text-muted px-3">${log.timestamp}</td><td><span class="badge bg-secondary">${log.staff}</span></td><td><b>${displayAction}</b></td><td class="text-muted">${displayDetail}</td></tr>`;
-  });
-
-  let prevDisabled = currentLogPage <= 1 ? 'disabled' : '';
-  let nextDisabled = currentLogPage >= totalPages ? 'disabled' : '';
-
-  paginationContainer.innerHTML = `
-    <button class="btn btn-sm btn-outline-secondary fw-bold" onclick="changeLogPage(${currentLogPage - 1})" ${prevDisabled}>
-      <i class="fa-solid fa-chevron-left"></i> <span data-i18n="set_btn_prev">${i18n[currentLang]['set_btn_prev'] || 'ก่อนหน้า'}</span>
-    </button>
-    <span class="text-muted small mx-3 fw-bold">${i18n[currentLang]['set_log_page']}${currentLogPage} / ${totalPages}</span>
-    <button class="btn btn-sm btn-outline-secondary fw-bold" onclick="changeLogPage(${currentLogPage + 1})" ${nextDisabled}>
-      <span data-i18n="set_btn_next">${i18n[currentLang]['set_btn_next'] || 'ถัดไป'}</span> <i class="fa-solid fa-chevron-right"></i>
-    </button>
-  `;
-}
 
     // Export / Import Excel
     function exportDataToExcel() {
@@ -1214,7 +1210,7 @@
     };
 
     // ---------------------------------------------------------
-    // ฟังก์ชันจัดการ การลบข้อมูลทดสอบ (ย้ายมาจากหน้า Dashboard)
+    // ฟังก์ชันจัดการ การลบข้อมูลทดสอบ
     // ---------------------------------------------------------
     let billsToDelete = [];
     
@@ -1255,7 +1251,6 @@
       let startStr = document.getElementById('del-start').value; let endStr = document.getElementById('del-end').value;
       if (!startStr || !endStr) return;
       
-      // ดึงข้อมูล Dashboard ใหม่ล่าสุดเพื่อนำมาใช้กรอง
       google.script.run.withSuccessHandler(function(rawSalesData) {
           let startTime = new Date(startStr + "T00:00:00").getTime(); let endTime = new Date(endStr + "T23:59:59").getTime();
           billsToDelete = rawSalesData.filter(sale => {
@@ -1291,4 +1286,3 @@
 
   </script>
 </div>
-
