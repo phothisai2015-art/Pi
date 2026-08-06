@@ -140,58 +140,65 @@
           </div>
 	  
 
-        <div class="bg-white p-4 rounded-4 shadow-sm border-0 d-flex flex-column pos-right-summary" style="flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden;">
-          <div class="d-flex justify-content-between align-items-center mb-4">
-            <h5 class="fw-bold text-dark m-0" data-i18n="pos_summary_title"><i class="fa-solid fa-file-invoice-dollar me-2 text-primary"></i> สรุปยอดชำระ</h5>
-            <button class="btn btn-sm btn-outline-danger fw-bold rounded-3 px-2 py-1 shadow-sm" onclick="clearCartManual()" title="ล้างรายการสินค้าทั้งหมด">
-              <i class="fa-solid fa-trash-can me-1"></i> <span data-i18n="pos_btn_clear_cart">ล้างบิล</span>
-            </button>
-          </div>
+        <div class="bg-white p-3 rounded-4 shadow-sm border-0 d-flex flex-column pos-right-summary" style="flex-shrink: 0;">
+  
+  <!-- หัวข้อสรุปยอด -->
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h6 class="fw-bold text-dark m-0" data-i18n="pos_summary_title"><i class="fa-solid fa-file-invoice-dollar me-2 text-primary"></i> สรุปยอดชำระ</h6>
+    <button class="btn btn-sm btn-outline-danger fw-bold rounded-3 px-2 py-1 shadow-sm" onclick="clearCartManual()" title="ล้างรายการสินค้าทั้งหมด">
+      <i class="fa-solid fa-trash-can me-1"></i> <span data-i18n="pos_btn_clear_cart">ล้างบิล</span>
+    </button>
+  </div>
 
-         
-		  <div id="mobile-hide-customer" class="form-floating mb-4">
-            <input type="text" id="pos-cust-name" class="form-control fw-bold bg-light border-0" placeholder="ชื่อลูกค้า" data-i18n="pos_cust_name_placeholder">
-            <label data-i18n="pos_cust_name_label">ชื่อลูกค้า (ถ้ามี)</label>
-          </div>
+  <!-- ชื่อลูกค้า -->
+  <div id="mobile-hide-customer" class="form-floating mb-2">
+    <input type="text" id="pos-cust-name" class="form-control fw-bold bg-light border-0" placeholder="ชื่อลูกค้า" data-i18n="pos_cust_name_placeholder" style="height: 3rem; min-height: 3rem; padding-top: 1rem; padding-bottom: 0;">
+    <label data-i18n="pos_cust_name_label" style="padding: 0.5rem 0.75rem;">ชื่อลูกค้า (ถ้ามี)</label>
+  </div>
 
-          <div class="d-flex justify-content-between mb-2">
-            <span class="fs-6 text-muted fw-bold" data-i18n="pos_total_items_label">จำนวนสินค้าทั้งหมด</span>
-            <span class="fs-6 fw-bold text-primary" id="pos-total-qty">0 ชิ้น</span>
-          </div>
-          <div class="d-flex justify-content-between mb-2">
-            <span class="fs-6 text-muted fw-bold" data-i18n="pos_subtotal_label">รวมเป็นเงิน</span>
-            <span class="fs-6 fw-bold text-dark" id="pos-subtotal">฿0.00</span>
-          </div>
-          
-		  <div id="mobile-hide-discount" class="d-flex justify-content-between mb-4 align-items-center">
-            <span class="fs-6 text-muted fw-bold" data-i18n="pos_discount_label">ส่วนลด</span>
-            <div class="input-group w-50">
-              <span class="input-group-text bg-white border-end-0">฿</span>
-              <input type="number" id="pos-discount" class="form-control border-start-0 text-end fw-bold text-danger" value="0" min="0" onchange="updateCartTotal()">
-            </div>
-          </div>
+  <!-- ยอดรวม -->
+  <div class="d-flex justify-content-between mb-1">
+    <span class="fs-6 text-muted fw-bold" data-i18n="pos_total_items_label">จำนวนสินค้าทั้งหมด</span>
+    <span class="fs-6 fw-bold text-primary" id="pos-total-qty">0 ชิ้น</span>
+  </div>
+  <div class="d-flex justify-content-between mb-1">
+    <span class="fs-6 text-muted fw-bold" data-i18n="pos_subtotal_label">รวมเป็นเงิน</span>
+    <span class="fs-6 fw-bold text-dark" id="pos-subtotal">฿0.00</span>
+  </div>
+  
+  <!-- ส่วนลด -->
+  <div id="mobile-hide-discount" class="d-flex justify-content-between mb-2 align-items-center">
+    <span class="fs-6 text-muted fw-bold" data-i18n="pos_discount_label">ส่วนลด</span>
+    <div class="input-group input-group-sm w-50">
+      <span class="input-group-text bg-white border-end-0">฿</span>
+      <input type="number" id="pos-discount" class="form-control border-start-0 text-end fw-bold text-danger" value="0" min="0" onchange="updateCartTotal()">
+    </div>
+  </div>
 
-          <div class="p-4 rounded-4 mb-4 shadow-sm" style="background: linear-gradient(135deg, #1e40af, #3b82f6); color: white;">
-            <div class="d-flex justify-content-between align-items-center">
-              <span class="fs-5 fw-bold" data-i18n="pos_net_total_label">ยอดสุทธิ</span>
-              <span class="display-6 fw-bold m-0" id="pos-net-total">฿0.00</span>
-            </div>
-          </div>
+  <!-- ยอดสุทธิ (กล่องสีน้ำเงิน) -->
+  <div class="p-3 rounded-4 mb-2 shadow-sm" style="background: linear-gradient(135deg, #1e40af, #3b82f6); color: white;">
+    <div class="d-flex justify-content-between align-items-center">
+      <span class="fs-6 fw-bold" data-i18n="pos_net_total_label">ยอดสุทธิ</span>
+      <span class="fs-3 fw-bold m-0" id="pos-net-total">฿0.00</span>
+    </div>
+  </div>
 
-          <h6 class="fw-bold mb-3 text-muted d-flex justify-content-between">
-            <span data-i18n="pos_select_payment_label">เลือกวิธีชำระเงิน</span>
-            <span class="small badge bg-secondary"><i class="fa-solid fa-user me-1"></i><span data-i18n="pos_cashier_label">แคชเชียร์:</span> <span id="pos-staff-badge">...</span></span>
-          </h6>
+  <!-- วิธีชำระเงิน -->
+  <h6 class="fw-bold mb-2 text-muted d-flex justify-content-between" style="font-size: 0.85rem;">
+    <span data-i18n="pos_select_payment_label">เลือกวิธีชำระเงิน</span>
+    <span class="small badge bg-secondary"><i class="fa-solid fa-user me-1"></i><span data-i18n="pos_cashier_label">แคชเชียร์:</span> <span id="pos-staff-badge">...</span></span>
+  </h6>
 
-          <div class="d-grid gap-3">
-            <button class="btn btn-success btn-lg fw-bold p-3 rounded-4 shadow-sm" onclick="processCheckout('เงินสด')" data-i18n="pos_btn_pay_cash">
-              <i class="fa-solid fa-money-bill-wave me-2"></i> รับเงินสด
-            </button>
-            <button class="btn btn-info btn-lg text-white fw-bold p-3 rounded-4 shadow-sm" onclick="showPromptPay()" style="background: #0ea5e9; border: none;" data-i18n="pos_btn_pay_qr">
-              <i class="fa-solid fa-qrcode me-2"></i> สแกนจ่าย (PromptPay)
-            </button>
-          </div>
-        </div>
+  <!-- ปุ่มจ่ายเงิน -->
+  <div class="d-grid gap-2">
+    <button class="btn btn-success fw-bold p-2 rounded-4 shadow-sm" onclick="processCheckout('เงินสด')" data-i18n="pos_btn_pay_cash">
+      <i class="fa-solid fa-money-bill-wave me-2"></i> รับเงินสด
+    </button>
+    <button class="btn btn-info text-white fw-bold p-2 rounded-4 shadow-sm" onclick="showPromptPay()" style="background: #0ea5e9; border: none;" data-i18n="pos_btn_pay_qr">
+      <i class="fa-solid fa-qrcode me-2"></i> สแกนจ่าย (PromptPay)
+    </button>
+  </div>
+</div>
       </div>
     </div>
   </div>
