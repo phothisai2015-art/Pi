@@ -750,19 +750,20 @@
       });
     }
 
-    if (currentIndex >= items.length) {
-   let staff = (typeof currentStaff !== 'undefined' && currentStaff.name) ? currentStaff.name : 'Unknown';
-   google.script.run.logAction(currentTenantSheetId, staff, "คืนสินค้า", "คืนบางส่วนบิล " + receiptId);
-   
-   refreshProductsData(); 
-   google.script.run.withSuccessHandler(function(data) { 
-      posRawSalesData = data; 
-      renderPosRecentBills(); 
-      // ✅ ย้ายมาแสดงป๊อปอัพหลังจากดึงข้อมูลเสร็จเรียบร้อยแล้ว และเอา Swal.close() ออก
-      Swal.fire({icon:'success', title: i18n[currentLang]['pos_alert_return_success'], timer: 1000, showConfirmButton:false});
-   }).getDashboardData(currentTenantSheetId); 
-   return;
-}
+    function posExecuteBulkReturnSequential(receiptId, items, currentIndex) {
+       if (currentIndex >= items.length) {
+      let staff = (typeof currentStaff !== 'undefined' && currentStaff.name) ? currentStaff.name : 'Unknown';
+      google.script.run.logAction(currentTenantSheetId, staff, "คืนสินค้า", "คืนบางส่วนบิล " + receiptId);
+      
+      refreshProductsData(); 
+      google.script.run.withSuccessHandler(function(data) { 
+         posRawSalesData = data; 
+         renderPosRecentBills(); 
+         // ย้ายมาแสดงป๊อปอัพหลังจากดึงข้อมูลเสร็จเรียบร้อยแล้ว
+         Swal.fire({icon:'success', title: i18n[currentLang]['pos_alert_return_success'], timer: 1000, showConfirmButton:false});
+      }).getDashboardData(currentTenantSheetId); 
+      return;
+   }
        let currentItem = items[currentIndex];
        
        google.script.run
