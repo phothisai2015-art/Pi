@@ -123,67 +123,6 @@
         <button id="btn-save-settings" class="btn btn-danger w-100 fw-bold py-3 rounded-pill shadow-sm" onclick="saveSettings()"><i class="fa-solid fa-floppy-disk me-2"></i> <span data-i18n="set_btn_save_settings">บันทึกการตั้งค่าร้าน</span></button>
       </div>
 	  
-	  <!-- 🔊 ส่วนตั้งค่าเสียงตอนจ่ายเงิน -->
-        <div class="mb-4 p-3 bg-light rounded-3 border">
-          <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <label class="form-check-label fw-bold text-dark m-0 d-block">
-                <i class="fa-solid fa-volume-high text-primary me-2"></i> เสียงเตือนตอนรับเงินสำเร็จ
-              </label>
-              <span class="small text-muted">เล่นเสียงอัตโนมัติเมื่อกดรับเงินในระบบ POS</span>
-            </div>
-            <div class="form-check form-switch fs-5 m-0">
-              <input class="form-check-input" type="checkbox" id="set-payment-sound-toggle" style="width: 42px; height: 22px; cursor: pointer;" onchange="togglePaymentSoundUI()">
-            </div>
-          </div>
-
-          <div id="payment-sound-options-box" class="mt-3 pt-3 border-top" style="display: none;">
-            <label class="form-label fw-bold small text-muted mb-2">เลือกรูปแบบเสียง</label>
-            <div class="input-group">
-              <select id="set-payment-sound-type" class="form-select fw-bold bg-white">
-                <optgroup label="💰 คลาสสิก / ร้านค้า">
-                  <option value="cash_register">💰 เครื่องคิดเงิน (Ka-ching)</option>
-                  <option value="bell">🔔 กระดิ่งหน้าร้าน (Chime)</option>
-                  <option value="coin">🪙 เสียงเหรียญ (Coin)</option>
-                  <option value="success_tone">🎵 โน้ตสำเร็จ (Success Tone)</option>
-                </optgroup>
-                <optgroup label="🎮 เรโทร / 8-Bit เกม">
-                  <option value="retro_1up">🍄 ได้ชีวิตเพิ่ม (Mario 1-Up)</option>
-                  <option value="laser_powerup">⚡ ชาร์จพลัง (Power Up)</option>
-                  <option value="arcade_jump">🕹️ ตู้เกมอาเขต (Arcade Jump)</option>
-                </optgroup>
-                <optgroup label="🤪 แฟนตาซี / ตลก">
-                  <option value="magic_wand">🪄 เสกคาถา (Magic Wand)</option>
-                  <option value="pop_bubble">🫧 ฟองน้ำป๊อป (Pop Bubble)</option>
-                  <option value="boing">🌀 เด้งดึ๋ง (Spring Boing)</option>
-                </optgroup>
-                <optgroup label="📱 โมเดิร์น UI / หรูหรา">
-                  <option value="glass_ping">💎 ปิ๊งแก้วใส (iOS Glass Ping)</option>
-                  <option value="marimba">🪵 ไม้มาริมบา (Marimba)</option>
-                  <option value="sci_fi_confirm">🚀 ไซไฟอนาคต (Sci-Fi Confirm)</option>
-                </optgroup>
-                <optgroup label="🎺 ดนตรี / แฟนแฟร์">
-                  <option value="tada_fanfare">🎉 ฉลองชนะ (Ta-Da! Fanfare)</option>
-                  <option value="piano_arpeggio">🎹 เปียโนกรีดสาย (Piano Arpeggio)</option>
-                </optgroup>
-                <optgroup label="🗣️ เสียงพูดภาษาไทย">
-                  <option value="voice_th">🗣️ "ขอบคุณที่อุดหนุนค่ะ"</option>
-                  <option value="voice_th_polite">🗣️ "ขอบคุณที่ใช้บริการ โอกาสหน้าเชิญใหม่นะคะ"</option>
-                  <option value="voice_th_short">🗣️ "ชำระเงินเรียบร้อยค่ะ"</option>
-                  <option value="voice_th_cute">🗣️ "เย้! จ่ายเงินสำเร็จแล้วค่ะ ขอบคุณนะคะ"</option>
-                </optgroup>
-                <optgroup label="🗣️ Voice Speech (English)">
-                  <option value="voice_en">🗣️ "Thank you very much!"</option>
-                  <option value="voice_en_payday">🗣️ "Payment received! Thank you!"</option>
-                </optgroup>
-              </select>
-              <button class="btn btn-outline-primary fw-bold px-3" type="button" onclick="testPaymentSound()">
-                <i class="fa-solid fa-play me-1"></i> ฟัง
-              </button>
-            </div>
-          </div>
-        </div>
-	  
 	  <!-- TAB: ตั้งค่าปริ้นเตอร์ -->
       <div id="tab-printer" class="settings-panel bg-white p-3 p-lg-4 rounded-4 shadow-sm border h-100">
         <h5 class="fw-bold text-dark mb-4"><i class="fa-solid fa-print text-success me-2"></i> <span data-i18n="set_printer_title">ตั้งค่าเครื่องพิมพ์ (Printer Settings)</span></h5>
@@ -517,16 +456,6 @@
        const targetPanel = document.getElementById(tabId);
        if(targetPanel) targetPanel.classList.add('active');
     }
-	
-	function togglePaymentSoundUI() {
-      const isChecked = document.getElementById('set-payment-sound-toggle').checked;
-      const optionsBox = document.getElementById('payment-sound-options-box');
-      if (optionsBox) optionsBox.style.display = isChecked ? 'block' : 'none';
-    }
-    function testPaymentSound() {
-      const soundType = document.getElementById('set-payment-sound-type').value;
-      if (typeof playPaymentSound === 'function') playPaymentSound(soundType);
-    }
 
     // ซิงค์ปุ่ม Auto Print
     function syncAutoPrintAndSave() {
@@ -725,9 +654,9 @@
         document.getElementById('set-account-name').value = s.shop_account_name || '';
         document.getElementById('set-phone').value = s.shop_phone || '';
         document.getElementById('set-address').value = s.shop_address || '';
-        
         let basicAutoPrint = document.getElementById('set-auto-print');
         if (basicAutoPrint) basicAutoPrint.checked = (s.auto_print === "true" || s.auto_print === true);
+
         let advancedAutoPrint = document.getElementById('set-auto-print-advanced');
         if (advancedAutoPrint) advancedAutoPrint.checked = (s.auto_print === "true" || s.auto_print === true);
 
@@ -735,15 +664,7 @@
           document.getElementById('set-logo-preview').src = s.shop_logo; 
           document.getElementById('set-logo-preview').style.display = 'block'; 
           document.getElementById('set-logo-url').value = s.shop_logo;
-        }
-
-        // 🔊 ดึงค่าระบบเสียงมาแสดง
-        let soundToggle = document.getElementById('set-payment-sound-toggle');
-        let soundTypeSelect = document.getElementById('set-payment-sound-type');
-        if (soundToggle) soundToggle.checked = (s.enable_payment_sound === "true" || s.enable_payment_sound === true);
-        if (soundTypeSelect && s.payment_sound_type) soundTypeSelect.value = s.payment_sound_type;
-        togglePaymentSoundUI();
-        
+        }  
       }).getShopSettings(currentTenantSheetId);
     }
 
@@ -793,10 +714,7 @@
         shop_phone: document.getElementById('set-phone').value,
         shop_address: document.getElementById('set-address').value, 
         auto_print: (autoPrintCheck && autoPrintCheck.checked) ? "true" : "false",
-        shop_logo: document.getElementById('set-logo-url').value,
-        // 🔊 บันทึกค่าระบบเสียงส่งไป Google Sheet
-        enable_payment_sound: document.getElementById('set-payment-sound-toggle').checked ? "true" : "false",
-        payment_sound_type: document.getElementById('set-payment-sound-type').value
+        shop_logo: document.getElementById('set-logo-url').value
       };
       
       google.script.run
