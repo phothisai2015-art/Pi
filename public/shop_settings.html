@@ -244,33 +244,22 @@
             <label class="form-label fw-bold small text-muted">เลือกเสียงที่คุณต้องการ (กดฟังได้)</label>
             <div class="input-group shadow-sm" style="border-radius: 8px; overflow: hidden;">
               
-              <!-- รวมมิตรเสียงทุกแนวบนโลก (ลิงก์ใหม่ อัปเดตแล้ว) -->
-<select class="form-select border-0 bg-light fw-bold" id="set-sound-file">
-  <optgroup label="💰 สายร้านค้า / คลาสสิค">
-    <option value="https://assets.mixkit.com/sfx/preview/mixkit-cash-register-purchase-87.mp3">เสียงเครื่องคิดเงิน (Ka-Ching!)</option>
-    <option value="https://assets.mixkit.com/sfx/preview/mixkit-software-interface-back-2575.mp3">เสียงกระดิ่งใสๆ (Success Chime)</option>
-  </optgroup>
-
-  <optgroup label="🎮 สายเกมเมอร์ / 8-Bit">
-    <option value="https://assets.mixkit.com/sfx/preview/mixkit-arcade-game-jump-coin-216.mp3">เก็บเหรียญ (Coin Pickup)</option>
-    <option value="https://assets.mixkit.com/sfx/preview/mixkit-unlock-new-item-game-notification-254.mp3">ปลดล็อกไอเทม (Item Unlock)</option>
-  </optgroup>
-
-  <optgroup label="🚀 สายล้ำยุค / Sci-Fi">
-    <option value="https://assets.mixkit.com/sfx/preview/mixkit-digital-quick-tone-2866.mp3">บี๊บสั้นๆ (Digital Beep)</option>
-    <option value="https://assets.mixkit.com/sfx/preview/mixkit-sci-fi-confirmation-914.mp3">ยืนยันแบบล้ำๆ (Sci-Fi Confirm)</option>
-  </optgroup>
-
-  <optgroup label="🦄 สายการ์ตูน / น่ารัก">
-    <option value="https://assets.mixkit.com/sfx/preview/mixkit-happy-bells-notification-937.mp3">เสียงวิ้งๆ (Twinkle)</option>
-    <option value="https://assets.mixkit.com/sfx/preview/mixkit-bubble-pop-up-alert-notification-2357.mp3">เสียงป๊อป (Pop)</option>
-  </optgroup>
-
-  <optgroup label="🌿 สายธรรมชาติ / สัตว์โลก">
-    <option value="https://assets.mixkit.com/sfx/preview/mixkit-water-drop-blop-300.mp3">หยดน้ำ (Water Drop)</option>
-    <option value="https://assets.mixkit.com/sfx/preview/mixkit-little-bird-calling-chirp-23.mp3">นกร้อง (Bird Chirp)</option>
-  </optgroup>
-</select>
+              <select class="form-select border-0 bg-light fw-bold" id="set-sound-file">
+                <optgroup label="🔔 หมวดเสียงแจ้งเตือน (Notifications)">
+                  <option value="https://cdn.jsdelivr.net/gh/IonDen/ion.sound@master/sounds/bell_ring.mp3">เสียงกระดิ่ง (Bell Ring)</option>
+                  <option value="https://cdn.jsdelivr.net/gh/IonDen/ion.sound@master/sounds/glass_bell.mp3">เสียงเคาะแก้ว (Glass Bell)</option>
+                  <option value="https://cdn.jsdelivr.net/gh/IonDen/ion.sound@master/sounds/magic_wand.mp3">เสียงคฑาเวทมนตร์ (Magic Wand)</option>
+                </optgroup>
+                <optgroup label="🎮 หมวดเกมน่ารักๆ (Gaming)">
+                  <option value="https://cdn.jsdelivr.net/gh/IonDen/ion.sound@master/sounds/coin_blink.mp3">เก็บเหรียญ (Coin Blink)</option>
+                  <option value="https://cdn.jsdelivr.net/gh/IonDen/ion.sound@master/sounds/button_tiny.mp3">เสียงป๊อปจิ๋ว (Tiny Pop)</option>
+                  <option value="https://cdn.jsdelivr.net/gh/IonDen/ion.sound@master/sounds/tap.mp3">เสียงแท็ป (Tap)</option>
+                </optgroup>
+                <optgroup label="🌿 หมวดธรรมชาติ (Nature)">
+                  <option value="https://cdn.jsdelivr.net/gh/IonDen/ion.sound@master/sounds/water_droplet.mp3">หยดน้ำ (Water Droplet)</option>
+                  <option value="https://cdn.jsdelivr.net/gh/IonDen/ion.sound@master/sounds/branch_break.mp3">กิ่งไม้หัก (Branch Break)</option>
+                </optgroup>
+              </select>
               
               <!-- ปุ่มกดฟังเสียง -->
               <button class="btn btn-primary fw-bold" type="button" onclick="previewPaymentSound()">
@@ -527,7 +516,7 @@
             auto_print: isChecked ? "true" : "false",
             shop_logo: document.getElementById('set-logo-url').value,
             pay_sound_enable: document.getElementById('set-sound-enable') ? document.getElementById('set-sound-enable').checked.toString() : "false",
-            pay_sound_url: document.getElementById('set-sound-file') ? document.getElementById('set-sound-file').value : "https://assets.mixkit.com/sfx/preview/mixkit-cash-register-purchase-87.mp3"
+            pay_sound_url: document.getElementById('set-sound-file') ? document.getElementById('set-sound-file').value : "https://cdn.jsdelivr.net/gh/IonDen/ion.sound@master/sounds/bell_ring.mp3"
         };
 
         google.script.run.withSuccessHandler(() => {
@@ -785,7 +774,7 @@
         auto_print: (autoPrintCheck && autoPrintCheck.checked) ? "true" : "false",
         shop_logo: document.getElementById('set-logo-url').value,
         pay_sound_enable: document.getElementById('set-sound-enable') ? document.getElementById('set-sound-enable').checked.toString() : "false",
-        pay_sound_url: document.getElementById('set-sound-file') ? document.getElementById('set-sound-file').value : "https://assets.mixkit.com/sfx/preview/mixkit-cash-register-purchase-87.mp3"
+        pay_sound_url: document.getElementById('set-sound-file') ? document.getElementById('set-sound-file').value : "https://cdn.jsdelivr.net/gh/IonDen/ion.sound@master/sounds/bell_ring.mp3"
       };
       
       google.script.run
@@ -1365,6 +1354,8 @@
     function previewPaymentSound() {
         const soundUrl = document.getElementById('set-sound-file').value;
         const audio = new Audio(soundUrl);
+        // ใช้ crossorigin เพื่อความเข้ากันได้กับบางเบราว์เซอร์
+        audio.crossOrigin = "anonymous";
         audio.play().catch(err => {
             console.error("เล่นเสียงไม่ได้:", err);
             Swal.fire({icon: 'error', title: 'ไม่สามารถเล่นเสียงได้', text: 'เบราว์เซอร์ของคุณอาจบล็อกการเล่นเสียงอัตโนมัติ'});
