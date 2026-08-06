@@ -70,39 +70,101 @@
       .pos-left-box { min-height: 60vh; }
     }
 	
-	/* 📱 สไตล์เฉพาะโหมดมือถือตาม Design ใหม่ */
+	/* 📱 สไตล์โหมดมือถือ (ฉบับปรับปรุงเป๊ะตามแบบร่าง) */
     @media (max-width: 991px) {
-      /* ปรับ Grid สินค้าเป็น 2 คอลัมน์ */
-      #pos-menu-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; }
-      .pos-product-card { min-height: 140px !important; padding: 8px !important; border-radius: 12px !important; }
-      .pos-card-name { font-size: 12px !important; }
-      
-      /* ซ่อน Dropdown เดิม */
+      /* 1. จัด Layout หน้าจอหลักแบบ Flexbox ไม่ให้หมวดหมู่หลุดลงล่าง */
+      .pos-left-box { 
+        padding: 0 !important; 
+        background: transparent !important; 
+        height: calc(100vh - 65px) !important; 
+        display: flex !important; 
+        flex-direction: column !important; 
+      }
+
+      /* 2. บังคับส่วนแสดงสินค้าและ Sidebar ซ้ายให้ขนานกัน */
+      .pos-left-box > .d-flex.flex-row {
+        display: flex !important;
+        flex-direction: row !important;
+        flex: 1 !important;
+        min-height: 0 !important;
+        overflow: hidden !important;
+      }
+
+      /* Sidebar หมวดหมู่แนวตั้งด้านซ้าย */
+      #mobile-category-sidebar { 
+        display: block !important; 
+        width: 100px !important; 
+        min-width: 100px !important; 
+        background: #f1f5f9 !important; 
+        overflow-y: auto !important; 
+        border-right: 1px solid #e2e8f0 !important;
+      }
+      .cat-side-item { 
+        padding: 20px 8px !important; 
+        text-align: center !important; 
+        font-size: 13px !important; 
+        font-weight: 700 !important; 
+        color: #0ea5e9 !important; 
+        border-bottom: 1px solid #e2e8f0 !important; 
+        cursor: pointer !important; 
+        word-break: break-word !important; 
+        transition: 0.2s !important; 
+      }
+      .cat-side-item.active { 
+        background: #0ea5e9 !important; 
+        color: white !important; 
+      }
+
+      /* 3. ปรับ Grid สินค้าด้านขวา */
+      #pos-grid-view {
+        background: #ffffff !important;
+        padding: 10px !important;
+        overflow-y: auto !important;
+        flex: 1 !important;
+      }
+      #pos-menu-grid { 
+        grid-template-columns: repeat(2, 1fr) !important; 
+        gap: 10px !important; 
+      }
+
+      /* 4. หลบปุ่มดวงจันทร์ (Dark Mode) ขึ้นไปด้านบน ไม่ให้ทับแถบสีฟ้า */
+      .theme-toggle-btn {
+        bottom: 85px !important;
+        right: 15px !important;
+        width: 44px !important;
+        height: 44px !important;
+        font-size: 16px !important;
+        z-index: 1040 !important;
+      }
+
+      /* 5. ย่อขนาด Header ด้านบนบนมือถือ */
+      .pos-mobile-header { padding: 5px 10px !important; }
+      .pos-mobile-header h3 { font-size: 1rem !important; }
+      .pos-mobile-header .btn { padding: 4px 10px !important; font-size: 11px !important; }
+
+      /* ซ่อนองค์ประกอบที่ไม่จำเป็นบนมือถือ */
       #pos-category-filter, #grid-size-controller { display: none !important; }
-      
-      /* ปรับ Layout กล่องซ้ายให้เต็มจอและยืดหยุ่น */
-      .pos-left-box { padding: 0 !important; background: transparent !important; height: calc(100vh - 70px) !important; display: flex; flex-direction: column; }
-      .pos-left-box > .d-flex.bg-light { background: white !important; border: none !important; border-bottom: 2px solid #e2e8f0 !important; border-radius: 0 !important; padding: 10px 15px !important; margin-bottom: 0 !important; }
-      
-      /* แถบเมนูหมวดหมู่แนวตั้งด้านซ้าย (Sidebar) */
-      #mobile-category-sidebar { display: block !important; width: 90px; min-width: 90px; background: #f1f5f9; overflow-y: auto; }
-      .cat-side-item { padding: 18px 5px; text-align: center; font-size: 12px; font-weight: 700; color: #0ea5e9; border-bottom: 1px solid #e2e8f0; cursor: pointer; word-wrap: break-word; transition: 0.2s; }
-      .cat-side-item.active { background: #0ea5e9; color: white; }
-      
-      /* เปลี่ยนกล่องตะกร้าฝั่งขวา ให้กลายเป็น Popup Bottom Sheet เด้งจากขอบล่าง */
-      .pos-mobile-unsticky { position: fixed !important; top: 100% !important; left: 0 !important; width: 100% !important; height: 100dvh !important; background: #f8fafc !important; z-index: 1055 !important; transition: top 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important; padding: 15px !important; padding-top: 70px !important; padding-bottom: 90px !important; border-radius: 24px 24px 0 0 !important; box-shadow: 0 -10px 40px rgba(0,0,0,0.15) !important; }
+
+      /* ตะกร้าสินค้าเด้ง Bottom Sheet */
+      .pos-mobile-unsticky { 
+        position: fixed !important; 
+        top: 100% !important; 
+        left: 0 !important; 
+        width: 100% !important; 
+        height: 100dvh !important; 
+        background: #f8fafc !important; 
+        z-index: 1055 !important; 
+        transition: top 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important; 
+        padding: 15px !important; 
+        padding-top: 60px !important; 
+        padding-bottom: 90px !important; 
+        border-radius: 24px 24px 0 0 !important; 
+        box-shadow: 0 -10px 40px rgba(0,0,0,0.15) !important; 
+      }
       .pos-mobile-unsticky.open { top: 0 !important; }
-      
-      /* ปุ่มย่อตะกร้าบนมือถือ */
-      #mobile-close-cart-btn { display: flex !important; position: absolute; top: 15px; left: 15px; z-index: 1060; }
-      
-      /* ดัน Z-index ของ Modal PromptPay ให้สูงกว่าตะกร้า */
+      #mobile-close-cart-btn { display: flex !important; position: absolute; top: 12px; left: 15px; z-index: 1060; }
       #modal-promptpay { z-index: 1065 !important; }
     }
-    
-    /* 🛒 แถบสรุปยอดและปุ่มดูตะกร้า (โชว์เฉพาะมือถือ) */
-    #mobile-cart-bar { position: fixed; bottom: 0; left: 0; width: 100%; z-index: 1045; background: white; padding: 15px; border-top: 1px solid #e2e8f0; box-shadow: 0 -5px 15px rgba(0,0,0,0.05); transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; gap: 10px; }
-    #mobile-cart-bar.show { transform: translateY(0); }
 	
   </style>
 
@@ -150,20 +212,20 @@
 
           <div id="pos-grid-view" class="flex-fill" style="display: none; min-height: 300px; max-height: 100%; overflow-y: auto; padding: 5px; padding-top: 15px;">
             <div id="pos-menu-grid" class="d-flex flex-wrap gap-3 justify-content-start"></div>
-			<!-- 🌟 เพิ่ม Wrapper แบ่งซ้ายขวาตรงนี้ -->
+			<!-- 🌟 Wrapper แบ่งซ้าย-ขวาสำหรับมือถือ -->
           <div class="d-flex flex-row flex-grow-1" style="min-height: 0; overflow: hidden;">
             
-            <!-- แถบหมวดหมู่มือถือ (ซ่อนในคอมพิวเตอร์) -->
+            <!-- แถบหมวดหมู่แนวตั้งด้านซ้ายมือ -->
             <div id="mobile-category-sidebar" class="d-none d-lg-none">
-                <!-- ข้อมูลจะถูกดึงมาใส่ผ่าน Javascript -->
+              <!-- JS จะสร้างปุ่มหมวดหมู่ตรงนี้ -->
             </div>
 
-            <!-- กล่องตารางสินค้าเดิม -->
+            <!-- กล่องแสดงรายการสินค้าด้านขวา -->
             <div id="pos-grid-view" class="flex-fill" style="display: none; min-height: 300px; max-height: 100%; overflow-y: auto; padding: 10px; background: #ffffff;">
               <div id="pos-menu-grid" class="d-flex flex-wrap gap-2 justify-content-start"></div>
             </div>
 
-          </div> 
+          </div>
 		  
           </div>
         </div>
