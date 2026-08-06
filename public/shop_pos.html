@@ -94,9 +94,8 @@
         <div class="bg-white p-3 p-md-4 rounded-4 shadow-sm border-0 d-flex flex-column pos-left-box">
           <div class="d-flex flex-wrap flex-lg-nowrap align-items-center gap-3 mb-3 p-3 bg-light rounded-4 border">
             <div class="d-flex gap-2 flex-shrink-0 flex-wrap align-items-center">
-              <button id="btn-mode-barcode" class="btn btn-primary fw-bold rounded-3 px-3 py-2" onclick="switchPOSMode('barcode')" data-i18n="pos_btn_scan"><i class="fa-solid fa-barcode"></i> สแกน</button>
-              <button id="btn-mode-grid" class="btn btn-outline-primary fw-bold rounded-3 px-3 py-2" onclick="switchPOSMode('grid')" data-i18n="pos_btn_grid"><i class="fa-solid fa-table-cells text-warning"></i> จิ้มรูป</button>
-              <select id="pos-category-filter" class="form-select fw-bold border-primary text-primary d-none" style="width: auto; min-width: 150px; cursor: pointer;" onchange="renderMenuGrid()">
+              
+              <select id="pos-category-filter" class="form-select fw-bold border-primary text-primary" style="width: auto; min-width: 150px; cursor: pointer;" onchange="renderMenuGrid()">
                 <option value="all" data-i18n="pos_filter_all">📁 ทุกหมวดหมู่</option>
               </select>
             </div>
@@ -107,7 +106,7 @@
               <input type="text" id="pos-barcode-input" class="form-control border-0 bg-white fw-bold" placeholder="ยิงบาร์โค้ด หรือ พิมพ์รหัสแล้วกด Enter..." data-i18n="pos_barcode_placeholder">
             </div>
 
-            <div id="grid-size-controller" class="d-none align-items-center gap-2 flex-shrink-0">
+            <div id="grid-size-controller" class="d-flex align-items-center gap-2 flex-shrink-0">
               <span class="fw-bold text-muted small" data-i18n="pos_grid_size"><i class="fa-solid fa-magnifying-glass-plus"></i> ขนาด:</span>
               <input type="range" id="image-size-slider" min="75" max="235" step="40" value="115" class="custom-colorful-slider" oninput="changeGridSize(this.value)">
             </div>
@@ -259,7 +258,7 @@
   </div>
 
   <script>
-    let posCart = []; let shopPromptPayNo = ""; let shopName = ""; let currentPOSMode = "barcode"; let isAutoPrintEnabled = false; let cachedShopSettings = {}; 
+    let posCart = []; let shopPromptPayNo = ""; let shopName = ""; let currentPOSMode = "grid"; let isAutoPrintEnabled = false; let cachedShopSettings = {};
     let isProcessingOrder = false; let lastScannedItem = null; let posRawSalesData = []; 
     
     // 🌟 1. ฟังก์ชันซิงค์ภาษาไปยังจอลูกค้า (CFD)
@@ -392,7 +391,7 @@
     }
 
     function openPOSPage() {
-      document.getElementById('page-pos').style.display = 'block'; document.getElementById('pos-staff-badge').innerText = currentStaff.name || "-"; switchPOSMode('barcode');
+      document.getElementById('page-pos').style.display = 'block'; document.getElementById('pos-staff-badge').innerText = currentStaff.name || "-"; switchPOSMode('grid');
       if (!window.globalProducts || globalProducts.length === 0) { google.script.run.withSuccessHandler(function(data) { globalProducts = data; window.globalProducts = data; populatePOSCategory(); renderMenuGrid(); }).getProducts(currentTenantSheetId); } else { populatePOSCategory(); renderMenuGrid(); }
       google.script.run.withSuccessHandler(function(settings) {
         cachedShopSettings = settings; shopPromptPayNo = settings.shop_promptpay; shopName = settings.shop_name; let accName = settings.shop_account_name || settings.shop_name;
