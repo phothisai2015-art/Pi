@@ -3,22 +3,37 @@
 <!-- ========================================================= -->
 <div id="page-pos" style="display: none; background: #f8fafc; height: 100vh; position: absolute; top: 0; left: 0; width: 100%; z-index: 1040; overflow: hidden; -webkit-overflow-scrolling: touch;">
   <style>
-    @media (max-width: 991px) {
+    /* 🔒 ปรับกล่องให้ยืดเต็มความสูง 100% ชนขอบล่างพอดีทุกจอ */
+@media (min-width: 992px) {
   #page-pos { 
-    overflow-y: auto !important; 
+    overflow-y: hidden !important; 
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  #page-pos > .container-fluid {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  #page-pos > .container-fluid > .row {
+    flex: 1 !important;
+    height: 100% !important;
+  }
+  #page-pos .col-lg-9, 
+  #page-pos .col-lg-3 {
+    height: 100% !important;
   }
   .pos-left-box { 
-    min-height: auto; 
+    height: 100% !important; 
+    overflow: hidden !important; 
   }
-  .pos-mobile-unsticky { 
-    position: static !important; 
+  .pos-mobile-unsticky {
+    height: 100% !important;
+    top: 0 !important;
   }
-  #pos-cart-container { 
-    max-height: 300px !important; 
-    display: block !important; 
-  }
-  #pos-grid-view { 
-    max-height: 400px !important; 
+  .pos-right-summary { 
+    overflow-y: auto !important; 
+    overflow-x: hidden !important; 
   }
 }
     .return-item-row-pos { display: flex; align-items: center; gap: 10px; padding: 10px; border-bottom: 1px solid #e2e8f0; }
@@ -427,17 +442,14 @@ function autoFitPOSLayout() {
   const posPage = document.getElementById('page-pos');
   if (!posPage) return;
 
-  // ทำงานเฉพาะจอ Desktop / แท็บเล็ตแนวนอน (กว้างเกิน 991px)
   if (window.innerWidth >= 992) {
-    const baseHeight = 900; // ความสูงอ้างอิงมาตรฐาน
+    const baseHeight = 900; 
     const currentHeight = window.innerHeight;
 
     if (currentHeight < baseHeight) {
       const scaleRatio = currentHeight / baseHeight;
       posPage.style.zoom = scaleRatio;
-      
-      // 🛠️ เพิ่มบรรทัดนี้: คำนวณขยายความสูงชดเชย เพื่อปิดทับเมนูหลักด้านล่างให้มิด 100%
-      posPage.style.height = (100 / scaleRatio) + 'vh';
+      posPage.style.height = (100 / scaleRatio) + 'vh'; // 👈 ยืดความสูงหน้าเพจชดเชยตามสเกลที่ย่อ
     } else {
       posPage.style.zoom = '1';
       posPage.style.height = '100vh';
