@@ -227,6 +227,37 @@
       <div id="tab-advanced" class="settings-panel bg-white p-3 p-lg-4 rounded-4 shadow-sm border h-100">
         <h5 class="fw-bold text-secondary mb-4"><i class="fa-solid fa-sliders me-2"></i> <span data-i18n="set_advanced_title">ตั้งค่าขั้นสูง (Advanced Settings)</span></h5>
 
+        <!-- ระบบเสียงแจ้งเตือน (ย้ายออกมาจาก Modal) -->
+        <h6 class="fw-bold text-primary mb-2">
+          <i class="fa-solid fa-volume-high me-2"></i> 
+          <span class="custom-translate" data-i18n-th="เสียงแจ้งเตือน (Sound)" data-i18n-en="Sound Settings">เสียงแจ้งเตือน (Sound)</span>
+        </h6>
+        <div class="mb-4 p-3 bg-light rounded-3 border">
+          <div class="form-check form-switch fs-6 d-flex justify-content-between align-items-center ps-0 mb-3 border-bottom pb-3">
+            <label class="form-check-label fw-bold text-dark m-0" for="ui-sound-payment">เปิดเสียงเมื่อชำระเงินสำเร็จ</label>
+            <input class="form-check-input m-0" type="checkbox" id="ui-sound-payment" style="width: 40px; height: 20px;" onchange="saveSoundSettings()">
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <select id="ui-sound-type" class="form-select fw-bold border-secondary text-dark" style="flex: 1;" onchange="saveSoundSettings()">
+              <option value="chaching">🔔 เครื่องคิดเงิน (Cha-Ching)</option>
+              <option value="ping">✨ ปิ๊งน่ารัก (Cute Ping)</option>
+              <option value="success">🎉 สำเร็จสดใส (Upbeat Success)</option>
+              <option value="retro">🎮 เกมย้อนยุค (Retro Coin)</option>
+              <option value="digital">💻 ดิจิทัล บี๊บ (Digital Beep)</option>
+              <option value="magic">🪄 เวทมนตร์ (Magic Sparkle)</option>
+              <option value="level_up">🍄 เลเวลอัป (Level Up!)</option>
+              <option value="bell">🛎️ กระดิ่งเคาน์เตอร์ (Desk Bell)</option>
+              <option value="mellow">🎵 เมลโลว์ นุ่มนวล (Mellow Chords)</option>
+              <option value="arcade_win">🏆 อาร์เคด ชนะ (Arcade Win)</option>
+              <option value="gentle_chime">🎐 กระดิ่งลม (Gentle Chime)</option>
+              <option value="coin_drop">🪙 เหรียญตก (Coin Drop)</option>
+            </select>
+            <button class="btn btn-primary fw-bold text-nowrap rounded-3 shadow-sm" type="button" onclick="testPlaySound()">
+              <i class="fa-solid fa-play me-1"></i> ฟังเสียง
+            </button>
+          </div>
+        </div>
+
         <!-- 1. ระบบ UI Layout -->
         <h6 class="fw-bold text-dark mb-2">
           <i class="fa-solid fa-desktop text-info me-2"></i> 
@@ -401,26 +432,6 @@
       </div>
       
       <div style="overflow-y: auto; overflow-x: hidden; padding-right: 5px;">
-          
-          <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-volume-high text-info me-2"></i> <span data-i18n="ui_cat_sound">หมวดเสียงแจ้งเตือน (Sound)</span></h6>
-          <div class="p-3 bg-light rounded-3 border mb-4">
-            <div class="form-check form-switch fs-6 d-flex justify-content-between align-items-center ps-0 mb-2">
-              <label class="form-check-label fw-bold text-secondary m-0" for="ui-sound-payment">เปิดเสียงเมื่อชำระเงินสำเร็จ</label>
-              <input class="form-check-input m-0" type="checkbox" id="ui-sound-payment" style="width: 40px; height: 20px;" checked>
-            </div>
-            <div class="d-flex align-items-center gap-2 mt-2">
-              <select id="ui-sound-type" class="form-select form-select-sm fw-bold border-secondary text-dark" style="flex: 1;">
-                <option value="chaching">🔔 เครื่องคิดเงิน (Cha-Ching)</option>
-                <option value="ping">✨ ปิ๊งน่ารัก (Cute Ping)</option>
-                <option value="success">🎉 สำเร็จสดใส (Upbeat Success)</option>
-                <option value="retro">🎮 เกมย้อนยุค (Retro Coin)</option>
-                <option value="digital">💻 ดิจิทัล บี๊บ (Digital Beep)</option>
-              </select>
-              <button class="btn btn-sm btn-outline-primary fw-bold text-nowrap rounded-3" type="button" onclick="testPlaySound()">
-                <i class="fa-solid fa-play me-1"></i> ฟังเสียง
-              </button>
-            </div>
-          </div>
 
           <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-cash-register text-success me-2"></i> <span data-i18n="ui_cat_pos">หมวดขายของ (POS)</span></h6>
           <div class="form-check form-switch fs-6 mb-3 p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center">
@@ -466,7 +477,6 @@
   </div>
 
   <script>
-    // 🔊 ฟังก์ชันสร้างเสียงเอฟเฟกต์ตามรูปแบบที่เลือก
     function playToneSound(soundType) {
       try {
         const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -509,6 +519,41 @@
             createNote(1760.00, 0, 0.05, 'sine', 0.15);
             createNote(2637.02, 0.06, 0.12, 'sine', 0.15);
             break;
+          case 'magic':
+            createNote(1046.50, 0, 0.05, 'sine', 0.1);
+            createNote(1318.51, 0.05, 0.05, 'sine', 0.1);
+            createNote(1567.98, 0.1, 0.05, 'sine', 0.1);
+            createNote(2093.00, 0.15, 0.3, 'sine', 0.15);
+            break;
+          case 'level_up':
+            createNote(659.25, 0, 0.1, 'square', 0.1);
+            createNote(783.99, 0.1, 0.1, 'square', 0.1);
+            createNote(1046.50, 0.2, 0.1, 'square', 0.1);
+            createNote(1318.51, 0.3, 0.3, 'square', 0.15);
+            break;
+          case 'bell':
+            createNote(1500, 0, 0.5, 'sine', 0.2);
+            createNote(2000, 0, 0.5, 'sine', 0.1);
+            break;
+          case 'mellow':
+            createNote(440.00, 0, 0.4, 'triangle', 0.15);
+            createNote(554.37, 0, 0.4, 'triangle', 0.15);
+            createNote(659.25, 0, 0.4, 'triangle', 0.15);
+            break;
+          case 'arcade_win':
+            createNote(523.25, 0, 0.1, 'square', 0.1);
+            createNote(523.25, 0.1, 0.1, 'square', 0.1);
+            createNote(523.25, 0.2, 0.1, 'square', 0.1);
+            createNote(659.25, 0.3, 0.4, 'square', 0.15);
+            break;
+          case 'gentle_chime':
+            createNote(880.00, 0, 0.4, 'sine', 0.15);
+            createNote(1108.73, 0.1, 0.4, 'sine', 0.15);
+            break;
+          case 'coin_drop':
+            createNote(987.77, 0, 0.1, 'square', 0.1);
+            createNote(1318.51, 0.05, 0.3, 'square', 0.15);
+            break;
           default:
             createNote(1046.50, 0, 0.15);
             createNote(1567.98, 0.1, 0.35);
@@ -522,6 +567,23 @@
     function testPlaySound() {
       const selectedSound = document.getElementById('ui-sound-type').value;
       playToneSound(selectedSound);
+    }
+
+    function saveSoundSettings() {
+      let sToggle = document.getElementById('ui-sound-payment');
+      let sType = document.getElementById('ui-sound-type');
+      let newSettings = {
+          ui_sound_payment: sToggle ? (sToggle.checked ? "true" : "false") : "true",
+          ui_sound_type: sType ? sType.value : "chaching"
+      };
+      
+      if(typeof cachedShopSettings !== 'undefined') {
+          Object.assign(cachedShopSettings, newSettings);
+      }
+      
+      google.script.run.withSuccessHandler(() => {
+          // บันทึกเสียงเรียบร้อยแบบเงียบๆ (Auto-save)
+      }).updateShopSettings(currentTenantSheetId, newSettings);
     }
 
     // สลับ Tab เมนูตั้งค่า
@@ -1183,6 +1245,12 @@
         let s = cachedShopSettings || {};
         const isON = (key) => s[key] !== "false" && s[key] !== false;
 
+        let soundToggle = document.getElementById('ui-sound-payment');
+        if(soundToggle) soundToggle.checked = isON('ui_sound_payment');
+        
+        let soundType = document.getElementById('ui-sound-type');
+        if(soundType) soundType.value = s.ui_sound_type || 'chaching';
+
         document.querySelectorAll('button[onclick="openCFD()"]').forEach(b => {
             if (isON('ui_pos_cfd')) b.style.removeProperty('display');
             else b.style.setProperty('display', 'none', 'important');
@@ -1248,11 +1316,6 @@
         let s = cachedShopSettings || {};
         const setToggle = (id, key) => { document.getElementById(id).checked = (s[key] !== "false" && s[key] !== false); };
         
-        setToggle('ui-sound-payment', 'ui_sound_payment');
-        if (document.getElementById('ui-sound-type')) {
-            document.getElementById('ui-sound-type').value = s.ui_sound_type || 'chaching';
-        }
-        
         setToggle('ui-pos-cfd', 'ui_pos_cfd'); setToggle('ui-pos-scan', 'ui_pos_scan');
         setToggle('ui-pos-history', 'ui_pos_history'); setToggle('ui-pos-category', 'ui_pos_category');
         setToggle('ui-set-shopinfo', 'ui_set_shopinfo'); setToggle('ui-set-excel', 'ui_set_excel');
@@ -1266,8 +1329,6 @@
         const getToggle = (id) => document.getElementById(id).checked ? "true" : "false";
         
         let newSettings = {
-            ui_sound_payment: getToggle('ui-sound-payment'),
-            ui_sound_type: document.getElementById('ui-sound-type') ? document.getElementById('ui-sound-type').value : 'chaching',
             ui_pos_cfd: getToggle('ui-pos-cfd'), ui_pos_scan: getToggle('ui-pos-scan'),
             ui_pos_history: getToggle('ui-pos-history'), ui_pos_category: getToggle('ui-pos-category'),
             ui_set_shopinfo: getToggle('ui-set-shopinfo'), ui_set_excel: getToggle('ui-set-excel'),
@@ -1279,7 +1340,7 @@
             document.getElementById('ui-settings-modal').style.display = 'none';
             btn.innerHTML = `<i class="fa-solid fa-floppy-disk me-2"></i> ${i18n[currentLang]['ui_btn_save']}`; btn.disabled = false;
             let staff = (typeof currentStaff !== 'undefined' && currentStaff.name) ? currentStaff.name : 'Unknown';
-            google.script.run.logAction(currentTenantSheetId, staff, "ตั้งค่าระบบ", "อัปเดตการแสดงผลหน้าจอ (UI) และเสียง");
+            google.script.run.logAction(currentTenantSheetId, staff, "ตั้งค่าระบบ", "อัปเดตการแสดงผลหน้าจอ (UI)");
             Swal.fire({icon: 'success', title: i18n[currentLang]['swal_save_success2'], timer: 1000, showConfirmButton: false});
             loadActivityLogsData();
         }).updateShopSettings(currentTenantSheetId, newSettings);
