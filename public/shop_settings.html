@@ -238,20 +238,15 @@
             <input class="form-check-input m-0" type="checkbox" id="ui-sound-payment" style="width: 40px; height: 20px;" onchange="saveSoundSettings()">
           </div>
           <div class="d-flex align-items-center gap-2">
-            <select id="ui-sound-type" class="form-select fw-bold border-secondary text-dark" style="flex: 1;" onchange="saveSoundSettings()">
-              <option value="youtuber_chaching">💸 ชิ้ง! แคชเชียร์ยูทูปเบอร์ (Meme Ka-Ching)</option>
-              <option value="chaching">🔔 เครื่องคิดเงิน (Cha-Ching)</option>
-              <option value="ping">✨ ปิ๊งน่ารัก (Cute Ping)</option>
-              <option value="success">🎉 สำเร็จสดใส (Upbeat Success)</option>
-              <option value="retro">🎮 เกมย้อนยุค (Retro Coin)</option>
-              <option value="digital">💻 ดิจิทัล บี๊บ (Digital Beep)</option>
-              <option value="magic">🪄 เวทมนตร์ (Magic Sparkle)</option>
-              <option value="level_up">🍄 เลเวลอัป (Level Up!)</option>
-              <option value="bell">🛎️ กระดิ่งเคาน์เตอร์ (Desk Bell)</option>
-              <option value="mellow">🎵 เมลโลว์ นุ่มนวล (Mellow Chords)</option>
-              <option value="arcade_win">🏆 อาร์เคด ชนะ (Arcade Win)</option>
-              <option value="gentle_chime">🎐 กระดิ่งลม (Gentle Chime)</option>
-              <option value="coin_drop">🪙 เหรียญตก (Coin Drop)</option>
+            <select id="ui-sound-type" class="form-select form-select-sm fw-bold border-secondary text-dark" style="flex: 1;" onchange="saveSoundSettings()">
+              <option value="kaching_dragon">💸 ยูทูปเบอร์ แคชเชียร์ (Dragon Studio)</option>
+              <option value="kaching_modestas">💰 ชิ้ง! แคชเชียร์ (Modestas)</option>
+              <option value="kaching_modestas_2">💰 ชิ้ง! แคชเชียร์ V2 (Modestas 2)</option>
+              <option value="purchase">🔔 เครื่องคิดเงิน 1 (Purchase)</option>
+              <option value="register_1">🛎️ เครื่องคิดเงิน 2 (Ksjsbwui1)</option>
+              <option value="drawer_ding">🛎️ เปิดลิ้นชัก + ปิ๊ง (Open Ding)</option>
+              <option value="drawer_open">💸 เปิดลิ้นชัก (Open Drawer)</option>
+              <option value="game_button">✨ ปุ่มเกม (Game Button)</option>
             </select>
             <button class="btn btn-primary fw-bold text-nowrap rounded-3 shadow-sm" type="button" onclick="testPlaySound()">
               <i class="fa-solid fa-play me-1"></i> ฟังเสียง
@@ -480,103 +475,29 @@
   <script>
     function playToneSound(soundType) {
       try {
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-        if (!AudioContext) return;
-        const ctx = new AudioContext();
-
-        const createNote = (freqStart, start, duration, type = 'sine', gainVal = 0.15, freqEnd = null) => {
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.type = type;
-          
-          osc.frequency.setValueAtTime(freqStart, ctx.currentTime + start);
-          if (freqEnd) {
-            osc.frequency.exponentialRampToValueAtTime(freqEnd, ctx.currentTime + start + duration);
-          }
-
-          gain.gain.setValueAtTime(0, ctx.currentTime + start); 
-          gain.gain.linearRampToValueAtTime(gainVal, ctx.currentTime + start + 0.01); 
-          gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + start + duration);
-          
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          osc.start(ctx.currentTime + start);
-          osc.stop(ctx.currentTime + start + duration);
+        const soundUrls = {
+          'kaching_dragon': '/sould/dragon-studio-cash-register-kaching-376867.mp3',
+          'purchase': '/sould/freesound_community-cash-register-purchase-87313.mp3',
+          'game_button': '/sould/freesound_gamestudio-button-394464.mp3',
+          'register_1': '/sould/ksjsbwui1-cash-register-1-513922.mp3',
+          'kaching_modestas': '/sould/modestas123123-cash-register-kaching-sound-effect-125042.mp3',
+          'kaching_modestas_2': '/sould/modestas123123-cash-register-kaching-sound-effect-125042 (1).mp3',
+          'drawer_open': '/sould/universfield-cash-register-open-567194.mp3',
+          'drawer_ding': '/sould/universfield-cash-register-open-ding-559401.mp3'
         };
 
-        switch (soundType) {
-          case 'youtuber_chaching':
-            // เสียง "แค๊ก" (กลไกสปริง)
-            createNote(400, 0, 0.08, 'square', 0.15, 100);
-            // เสียง "ชิ้ง!" (กระดิ่งกระทบ กังวานและใสแบบมีมิติ)
-            createNote(1400, 0.08, 0.5, 'sine', 0.25);
-            createNote(2100, 0.08, 0.4, 'sine', 0.15);
-            createNote(2800, 0.08, 0.3, 'sine', 0.05);
-            break;
-          case 'chaching':
-            createNote(1046.50, 0, 0.12, 'sine', 0.2);
-            createNote(1567.98, 0.08, 0.35, 'sine', 0.25);
-            break;
-          case 'ping':
-            createNote(1318.51, 0, 0.1, 'sine', 0.15);
-            createNote(1975.53, 0.06, 0.25, 'sine', 0.18);
-            break;
-          case 'success':
-            createNote(523.25, 0, 0.1, 'triangle', 0.15);
-            createNote(659.25, 0.06, 0.1, 'triangle', 0.15);
-            createNote(783.99, 0.12, 0.1, 'triangle', 0.15);
-            createNote(1046.50, 0.18, 0.3, 'triangle', 0.2);
-            break;
-          case 'retro':
-            createNote(987.77, 0, 0.08, 'square', 0.1);
-            createNote(1318.51, 0.08, 0.25, 'square', 0.12);
-            break;
-          case 'digital':
-            createNote(1760.00, 0, 0.05, 'sine', 0.15);
-            createNote(2637.02, 0.06, 0.12, 'sine', 0.15);
-            break;
-          case 'magic':
-            createNote(1046.50, 0, 0.05, 'sine', 0.1);
-            createNote(1318.51, 0.05, 0.05, 'sine', 0.1);
-            createNote(1567.98, 0.1, 0.05, 'sine', 0.1);
-            createNote(2093.00, 0.15, 0.3, 'sine', 0.15);
-            break;
-          case 'level_up':
-            createNote(659.25, 0, 0.1, 'square', 0.1);
-            createNote(783.99, 0.1, 0.1, 'square', 0.1);
-            createNote(1046.50, 0.2, 0.1, 'square', 0.1);
-            createNote(1318.51, 0.3, 0.3, 'square', 0.15);
-            break;
-          case 'bell':
-            createNote(1500, 0, 0.5, 'sine', 0.2);
-            createNote(2000, 0, 0.5, 'sine', 0.1);
-            break;
-          case 'mellow':
-            createNote(440.00, 0, 0.4, 'triangle', 0.15);
-            createNote(554.37, 0, 0.4, 'triangle', 0.15);
-            createNote(659.25, 0, 0.4, 'triangle', 0.15);
-            break;
-          case 'arcade_win':
-            createNote(523.25, 0, 0.1, 'square', 0.1);
-            createNote(523.25, 0.1, 0.1, 'square', 0.1);
-            createNote(523.25, 0.2, 0.1, 'square', 0.1);
-            createNote(659.25, 0.3, 0.4, 'square', 0.15);
-            break;
-          case 'gentle_chime':
-            createNote(880.00, 0, 0.4, 'sine', 0.15);
-            createNote(1108.73, 0.1, 0.4, 'sine', 0.15);
-            break;
-          case 'coin_drop':
-            createNote(987.77, 0, 0.1, 'square', 0.1);
-            createNote(1318.51, 0.05, 0.3, 'square', 0.15);
-            break;
-          default:
-            createNote(1046.50, 0, 0.15, 'sine', 0.2);
-            createNote(1567.98, 0.1, 0.35, 'sine', 0.25);
-            break;
+        if (soundUrls[soundType]) {
+          const audio = new Audio(soundUrls[soundType]);
+          audio.volume = 1.0;
+          audio.play().catch(e => console.warn("Audio play blocked by browser:", e));
+        } else {
+          // Fallback
+          const audio = new Audio('/sould/modestas123123-cash-register-kaching-sound-effect-125042.mp3');
+          audio.volume = 1.0;
+          audio.play().catch(e => console.warn("Audio play blocked by browser:", e));
         }
       } catch (e) {
-        console.warn("Audio Context error:", e);
+        console.warn("Audio Error:", e);
       }
     }
 
@@ -590,7 +511,7 @@
       let sType = document.getElementById('ui-sound-type');
       let newSettings = {
           ui_sound_payment: sToggle ? (sToggle.checked ? "true" : "false") : "true",
-          ui_sound_type: sType ? sType.value : "chaching"
+          ui_sound_type: sType ? sType.value : "kaching_modestas"
       };
       
       if(typeof cachedShopSettings !== 'undefined') {
@@ -1265,7 +1186,7 @@
         if(soundToggle) soundToggle.checked = isON('ui_sound_payment');
         
         let soundType = document.getElementById('ui-sound-type');
-        if(soundType) soundType.value = s.ui_sound_type || 'chaching';
+        if(soundType) soundType.value = s.ui_sound_type || 'kaching_dragon';
 
         document.querySelectorAll('button[onclick="openCFD()"]').forEach(b => {
             if (isON('ui_pos_cfd')) b.style.removeProperty('display');
@@ -1332,6 +1253,11 @@
         let s = cachedShopSettings || {};
         const setToggle = (id, key) => { document.getElementById(id).checked = (s[key] !== "false" && s[key] !== false); };
         
+        setToggle('ui-sound-payment', 'ui_sound_payment');
+        if (document.getElementById('ui-sound-type')) {
+            document.getElementById('ui-sound-type').value = s.ui_sound_type || 'kaching_dragon';
+        }
+        
         setToggle('ui-pos-cfd', 'ui_pos_cfd'); setToggle('ui-pos-scan', 'ui_pos_scan');
         setToggle('ui-pos-history', 'ui_pos_history'); setToggle('ui-pos-category', 'ui_pos_category');
         setToggle('ui-set-shopinfo', 'ui_set_shopinfo'); setToggle('ui-set-excel', 'ui_set_excel');
@@ -1345,6 +1271,8 @@
         const getToggle = (id) => document.getElementById(id).checked ? "true" : "false";
         
         let newSettings = {
+            ui_sound_payment: getToggle('ui-sound-payment'),
+            ui_sound_type: document.getElementById('ui-sound-type') ? document.getElementById('ui-sound-type').value : 'kaching_dragon',
             ui_pos_cfd: getToggle('ui-pos-cfd'), ui_pos_scan: getToggle('ui-pos-scan'),
             ui_pos_history: getToggle('ui-pos-history'), ui_pos_category: getToggle('ui-pos-category'),
             ui_set_shopinfo: getToggle('ui-set-shopinfo'), ui_set_excel: getToggle('ui-set-excel'),
@@ -1356,7 +1284,7 @@
             document.getElementById('ui-settings-modal').style.display = 'none';
             btn.innerHTML = `<i class="fa-solid fa-floppy-disk me-2"></i> ${i18n[currentLang]['ui_btn_save']}`; btn.disabled = false;
             let staff = (typeof currentStaff !== 'undefined' && currentStaff.name) ? currentStaff.name : 'Unknown';
-            google.script.run.logAction(currentTenantSheetId, staff, "ตั้งค่าระบบ", "อัปเดตการแสดงผลหน้าจอ (UI)");
+            google.script.run.logAction(currentTenantSheetId, staff, "ตั้งค่าระบบ", "อัปเดตการแสดงผลหน้าจอ (UI) และเสียง");
             Swal.fire({icon: 'success', title: i18n[currentLang]['swal_save_success2'], timer: 1000, showConfirmButton: false});
             loadActivityLogsData();
         }).updateShopSettings(currentTenantSheetId, newSettings);
