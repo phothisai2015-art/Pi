@@ -124,13 +124,13 @@
 	  
 	  <div id="pos-cart-container" class="flex-fill mb-3 shadow-sm" style="min-height: 250px; max-height: 35vh; overflow-y: auto; overflow-x: hidden; border: 1px solid #e2e8f0; border-radius: 12px; transition: max-height 0.3s ease;">
             <table class="table table-hover align-middle mb-0" style="width: 100%;">
-              <thead class="table-light sticky-top" style="z-index: 10;">
+              <thead class="table-light sticky-top" style="z-index: 10; font-size: 0.85rem;">
                 <tr>
-                  <th width="45%" class="py-3 px-4" data-i18n="pos_table_item">รายการสินค้า</th>
-                  <th width="15%" class="text-center py-3" data-i18n="pos_table_price">ราคา</th>
-                  <th width="20%" class="text-center py-3" data-i18n="pos_table_qty">จำนวน</th>
-                  <th width="15%" class="text-end py-3" data-i18n="pos_table_total">รวม</th>
-                  <th width="5%" class="py-3"></th>
+                  <th width="40%" class="py-2 px-2" data-i18n="pos_table_item">รายการสินค้า</th>
+                  <th width="15%" class="text-center py-2 px-1" data-i18n="pos_table_price">ราคา</th>
+                  <th width="25%" class="text-center py-2 px-1" data-i18n="pos_table_qty">จำนวน</th>
+                  <th width="15%" class="text-end py-2 px-1" data-i18n="pos_table_total">รวม</th>
+                  <th width="5%" class="py-2"></th>
                 </tr>
               </thead>
               <tbody id="pos-cart-body">
@@ -569,7 +569,7 @@
       if(posCart.length === 0) { tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-5"><i class="fa-solid fa-cart-arrow-down fa-3x mb-3 text-light"></i><br>${i18n[currentLang]['pos_empty_cart']}</td></tr>`; updateCartTotal(); return; }
       posCart.forEach(item => {
         let lineTotal = item.price * item.qty;
-        tbody.innerHTML += `<tr><td class="fw-bold px-4">${item.name}</td><td class="text-center text-muted">฿${item.price.toLocaleString()}</td><td class="text-center"><div class="input-group input-group-sm w-100 justify-content-center"><button class="btn btn-outline-secondary" onclick="updateCartQty('${item.id}', -1)"><i class="fa-solid fa-minus"></i></button><input type="text" class="form-control text-center fw-bold bg-white" value="${item.qty}" style="max-width: 50px;" readonly><button class="btn btn-outline-secondary" onclick="updateCartQty('${item.id}', 1)"><i class="fa-solid fa-plus"></i></button></div></td><td class="text-end fw-bold text-primary">฿${lineTotal.toLocaleString()}</td><td class="text-end pe-4"><button class="btn btn-sm btn-outline-danger border-0" onclick="updateCartQty('${item.id}', -999)"><i class="fa-solid fa-trash-can"></i></button></td></tr>`;
+        tbody.innerHTML += `<tr style="font-size: 0.85rem;"><td class="fw-bold px-2">${item.name}</td><td class="text-center text-muted px-1">฿${item.price.toLocaleString()}</td><td class="text-center px-1"><div class="input-group input-group-sm justify-content-center flex-nowrap"><button class="btn btn-outline-secondary px-2" onclick="updateCartQty('${item.id}', -1)"><i class="fa-solid fa-minus"></i></button><input type="text" class="form-control text-center fw-bold bg-white px-1" value="${item.qty}" style="max-width: 35px;" readonly><button class="btn btn-outline-secondary px-2" onclick="updateCartQty('${item.id}', 1)"><i class="fa-solid fa-plus"></i></button></div></td><td class="text-end fw-bold text-primary px-1">฿${lineTotal.toLocaleString()}</td><td class="text-end px-2"><button class="btn btn-sm btn-outline-danger border-0" onclick="updateCartQty('${item.id}', -999)"><i class="fa-solid fa-trash-can"></i></button></td></tr>`;
       });
       updateCartTotal(); setTimeout(() => { let cc = document.getElementById('pos-cart-container'); if (cc) { cc.scrollTop = cc.scrollHeight; } }, 50);
     }
