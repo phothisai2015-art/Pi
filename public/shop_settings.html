@@ -401,6 +401,27 @@
       </div>
       
       <div style="overflow-y: auto; overflow-x: hidden; padding-right: 5px;">
+          
+          <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-volume-high text-info me-2"></i> <span data-i18n="ui_cat_sound">หมวดเสียงแจ้งเตือน (Sound)</span></h6>
+          <div class="p-3 bg-light rounded-3 border mb-4">
+            <div class="form-check form-switch fs-6 d-flex justify-content-between align-items-center ps-0 mb-2">
+              <label class="form-check-label fw-bold text-secondary m-0" for="ui-sound-payment">เปิดเสียงเมื่อชำระเงินสำเร็จ</label>
+              <input class="form-check-input m-0" type="checkbox" id="ui-sound-payment" style="width: 40px; height: 20px;" checked>
+            </div>
+            <div class="d-flex align-items-center gap-2 mt-2">
+              <select id="ui-sound-type" class="form-select form-select-sm fw-bold border-secondary text-dark" style="flex: 1;">
+                <option value="chaching">🔔 เครื่องคิดเงิน (Cha-Ching)</option>
+                <option value="ping">✨ ปิ๊งน่ารัก (Cute Ping)</option>
+                <option value="success">🎉 สำเร็จสดใส (Upbeat Success)</option>
+                <option value="retro">🎮 เกมย้อนยุค (Retro Coin)</option>
+                <option value="digital">💻 ดิจิทัล บี๊บ (Digital Beep)</option>
+              </select>
+              <button class="btn btn-sm btn-outline-primary fw-bold text-nowrap rounded-3" type="button" onclick="testPlaySound()">
+                <i class="fa-solid fa-play me-1"></i> ฟังเสียง
+              </button>
+            </div>
+          </div>
+
           <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-cash-register text-success me-2"></i> <span data-i18n="ui_cat_pos">หมวดขายของ (POS)</span></h6>
           <div class="form-check form-switch fs-6 mb-3 p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center">
             <label class="form-check-label fw-bold text-secondary m-0" for="ui-pos-cfd" data-i18n="ui_pos_1">1. ปุ่มจอลูกค้า (CFD)</label>
@@ -445,6 +466,64 @@
   </div>
 
   <script>
+    // 🔊 ฟังก์ชันสร้างเสียงเอฟเฟกต์ตามรูปแบบที่เลือก
+    function playToneSound(soundType) {
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        const ctx = new AudioContext();
+
+        const createNote = (freq, start, duration, type = 'sine', gainVal = 0.15) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, ctx.currentTime + start);
+          gain.gain.setValueAtTime(gainVal, ctx.currentTime + start);
+          gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + start + duration);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(ctx.currentTime + start);
+          osc.stop(ctx.currentTime + start + duration);
+        };
+
+        switch (soundType) {
+          case 'chaching':
+            createNote(1046.50, 0, 0.12, 'sine', 0.2);
+            createNote(1567.98, 0.08, 0.35, 'sine', 0.25);
+            break;
+          case 'ping':
+            createNote(1318.51, 0, 0.1, 'sine', 0.15);
+            createNote(1975.53, 0.06, 0.25, 'sine', 0.18);
+            break;
+          case 'success':
+            createNote(523.25, 0, 0.1, 'triangle', 0.15);
+            createNote(659.25, 0.06, 0.1, 'triangle', 0.15);
+            createNote(783.99, 0.12, 0.1, 'triangle', 0.15);
+            createNote(1046.50, 0.18, 0.3, 'triangle', 0.2);
+            break;
+          case 'retro':
+            createNote(987.77, 0, 0.08, 'square', 0.1);
+            createNote(1318.51, 0.08, 0.25, 'square', 0.12);
+            break;
+          case 'digital':
+            createNote(1760.00, 0, 0.05, 'sine', 0.15);
+            createNote(2637.02, 0.06, 0.12, 'sine', 0.15);
+            break;
+          default:
+            createNote(1046.50, 0, 0.15);
+            createNote(1567.98, 0.1, 0.35);
+            break;
+        }
+      } catch (e) {
+        console.warn("Audio Context error:", e);
+      }
+    }
+
+    function testPlaySound() {
+      const selectedSound = document.getElementById('ui-sound-type').value;
+      playToneSound(selectedSound);
+    }
+
     // สลับ Tab เมนูตั้งค่า
     function switchSettingsTab(tabId) {
        document.querySelectorAll('.settings-tab').forEach(t => t.classList.remove('active'));
@@ -1168,6 +1247,12 @@
     function openUISettingsModal() {
         let s = cachedShopSettings || {};
         const setToggle = (id, key) => { document.getElementById(id).checked = (s[key] !== "false" && s[key] !== false); };
+        
+        setToggle('ui-sound-payment', 'ui_sound_payment');
+        if (document.getElementById('ui-sound-type')) {
+            document.getElementById('ui-sound-type').value = s.ui_sound_type || 'chaching';
+        }
+        
         setToggle('ui-pos-cfd', 'ui_pos_cfd'); setToggle('ui-pos-scan', 'ui_pos_scan');
         setToggle('ui-pos-history', 'ui_pos_history'); setToggle('ui-pos-category', 'ui_pos_category');
         setToggle('ui-set-shopinfo', 'ui_set_shopinfo'); setToggle('ui-set-excel', 'ui_set_excel');
@@ -1181,6 +1266,8 @@
         const getToggle = (id) => document.getElementById(id).checked ? "true" : "false";
         
         let newSettings = {
+            ui_sound_payment: getToggle('ui-sound-payment'),
+            ui_sound_type: document.getElementById('ui-sound-type') ? document.getElementById('ui-sound-type').value : 'chaching',
             ui_pos_cfd: getToggle('ui-pos-cfd'), ui_pos_scan: getToggle('ui-pos-scan'),
             ui_pos_history: getToggle('ui-pos-history'), ui_pos_category: getToggle('ui-pos-category'),
             ui_set_shopinfo: getToggle('ui-set-shopinfo'), ui_set_excel: getToggle('ui-set-excel'),
@@ -1192,7 +1279,7 @@
             document.getElementById('ui-settings-modal').style.display = 'none';
             btn.innerHTML = `<i class="fa-solid fa-floppy-disk me-2"></i> ${i18n[currentLang]['ui_btn_save']}`; btn.disabled = false;
             let staff = (typeof currentStaff !== 'undefined' && currentStaff.name) ? currentStaff.name : 'Unknown';
-            google.script.run.logAction(currentTenantSheetId, staff, "ตั้งค่าระบบ", "อัปเดตการแสดงผลหน้าจอ (UI)");
+            google.script.run.logAction(currentTenantSheetId, staff, "ตั้งค่าระบบ", "อัปเดตการแสดงผลหน้าจอ (UI) และเสียง");
             Swal.fire({icon: 'success', title: i18n[currentLang]['swal_save_success2'], timer: 1000, showConfirmButton: false});
             loadActivityLogsData();
         }).updateShopSettings(currentTenantSheetId, newSettings);

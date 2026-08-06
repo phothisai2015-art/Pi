@@ -256,6 +256,66 @@
   </div>
 
   <script>
+    function playToneSound(soundType) {
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        const ctx = new AudioContext();
+
+        const createNote = (freq, start, duration, type = 'sine', gainVal = 0.15) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, ctx.currentTime + start);
+          gain.gain.setValueAtTime(gainVal, ctx.currentTime + start);
+          gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + start + duration);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(ctx.currentTime + start);
+          osc.stop(ctx.currentTime + start + duration);
+        };
+
+        switch (soundType) {
+          case 'chaching':
+            createNote(1046.50, 0, 0.12, 'sine', 0.2);
+            createNote(1567.98, 0.08, 0.35, 'sine', 0.25);
+            break;
+          case 'ping':
+            createNote(1318.51, 0, 0.1, 'sine', 0.15);
+            createNote(1975.53, 0.06, 0.25, 'sine', 0.18);
+            break;
+          case 'success':
+            createNote(523.25, 0, 0.1, 'triangle', 0.15);
+            createNote(659.25, 0.06, 0.1, 'triangle', 0.15);
+            createNote(783.99, 0.12, 0.1, 'triangle', 0.15);
+            createNote(1046.50, 0.18, 0.3, 'triangle', 0.2);
+            break;
+          case 'retro':
+            createNote(987.77, 0, 0.08, 'square', 0.1);
+            createNote(1318.51, 0.08, 0.25, 'square', 0.12);
+            break;
+          case 'digital':
+            createNote(1760.00, 0, 0.05, 'sine', 0.15);
+            createNote(2637.02, 0.06, 0.12, 'sine', 0.15);
+            break;
+          default:
+            createNote(1046.50, 0, 0.15);
+            createNote(1567.98, 0.1, 0.35);
+            break;
+        }
+      } catch (e) {
+        console.warn("Audio Context error:", e);
+      }
+    }
+
+    function playPaymentSuccessSound() {
+      if (cachedShopSettings && (cachedShopSettings.ui_sound_payment === "false" || cachedShopSettings.ui_sound_payment === false)) {
+        return; 
+      }
+      const soundType = (cachedShopSettings && cachedShopSettings.ui_sound_type) ? cachedShopSettings.ui_sound_type : 'chaching';
+      playToneSound(soundType);
+    }
+  
     let posCart = []; let shopPromptPayNo = ""; let shopName = ""; let currentPOSMode = "grid"; let isAutoPrintEnabled = false; let cachedShopSettings = {};
     let isProcessingOrder = false; let lastScannedItem = null; let posRawSalesData = []; 
     
@@ -628,6 +688,8 @@
       google.script.run.withSuccessHandler(function(res) {
         isProcessingOrder = false; if(res.status === "error") { Swal.fire(i18n[currentLang]['swal_error_occurred'], res.message, 'error'); syncCFD('UPDATE_CART'); return; }
         
+        playPaymentSuccessSound();
+
         let displayMethod = method === 'เงินสด' ? i18n[currentLang]['pos_text_cash'] : i18n[currentLang]['pos_text_transfer'];
         let receiptData = { receiptId: res.receiptId, date: new Date().toLocaleString('th-TH'), customer: document.getElementById('pos-cust-name').value, items: [...posCart], subtotal: netTotal + discount, discount: discount, netTotal: netTotal, payment: displayMethod, seller: currentStaff.name };
         posCart = []; lastScannedItem = null; document.getElementById('pos-cust-name').value = ''; document.getElementById('pos-discount').value = '0'; renderCart(); syncCFD('CHECKOUT_SUCCESS'); 
