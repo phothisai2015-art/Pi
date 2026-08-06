@@ -69,6 +69,41 @@
       #page-pos { overflow-y: auto !important; }
       .pos-left-box { min-height: 60vh; }
     }
+	
+	/* 📱 สไตล์เฉพาะโหมดมือถือตาม Design ใหม่ */
+    @media (max-width: 991px) {
+      /* ปรับ Grid สินค้าเป็น 2 คอลัมน์ */
+      #pos-menu-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; }
+      .pos-product-card { min-height: 140px !important; padding: 8px !important; border-radius: 12px !important; }
+      .pos-card-name { font-size: 12px !important; }
+      
+      /* ซ่อน Dropdown เดิม */
+      #pos-category-filter, #grid-size-controller { display: none !important; }
+      
+      /* ปรับ Layout กล่องซ้ายให้เต็มจอและยืดหยุ่น */
+      .pos-left-box { padding: 0 !important; background: transparent !important; height: calc(100vh - 70px) !important; display: flex; flex-direction: column; }
+      .pos-left-box > .d-flex.bg-light { background: white !important; border: none !important; border-bottom: 2px solid #e2e8f0 !important; border-radius: 0 !important; padding: 10px 15px !important; margin-bottom: 0 !important; }
+      
+      /* แถบเมนูหมวดหมู่แนวตั้งด้านซ้าย (Sidebar) */
+      #mobile-category-sidebar { display: block !important; width: 90px; min-width: 90px; background: #f1f5f9; overflow-y: auto; }
+      .cat-side-item { padding: 18px 5px; text-align: center; font-size: 12px; font-weight: 700; color: #0ea5e9; border-bottom: 1px solid #e2e8f0; cursor: pointer; word-wrap: break-word; transition: 0.2s; }
+      .cat-side-item.active { background: #0ea5e9; color: white; }
+      
+      /* เปลี่ยนกล่องตะกร้าฝั่งขวา ให้กลายเป็น Popup Bottom Sheet เด้งจากขอบล่าง */
+      .pos-mobile-unsticky { position: fixed !important; top: 100%; left: 0; width: 100%; height: 100vh; background: #f8fafc; z-index: 1055 !important; transition: top 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); padding: 15px; padding-top: 70px; padding-bottom: 90px; border-radius: 24px 24px 0 0; box-shadow: 0 -10px 40px rgba(0,0,0,0.15); }
+      .pos-mobile-unsticky.open { top: 0; }
+      
+      /* ปุ่มย่อตะกร้าบนมือถือ */
+      #mobile-close-cart-btn { display: flex !important; position: absolute; top: 15px; left: 15px; z-index: 1060; }
+      
+      /* ดัน Z-index ของ Modal PromptPay ให้สูงกว่าตะกร้า */
+      #modal-promptpay { z-index: 1065 !important; }
+    }
+    
+    /* 🛒 แถบสรุปยอดและปุ่มดูตะกร้า (โชว์เฉพาะมือถือ) */
+    #mobile-cart-bar { position: fixed; bottom: 0; left: 0; width: 100%; z-index: 1045; background: white; padding: 15px; border-top: 1px solid #e2e8f0; box-shadow: 0 -5px 15px rgba(0,0,0,0.05); transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; gap: 10px; }
+    #mobile-cart-bar.show { transform: translateY(0); }
+	
   </style>
 
   <div class="d-flex justify-content-between align-items-center mb-2 mt-2 px-3 px-md-4 pos-mobile-header" style="background: transparent;">
@@ -115,12 +150,31 @@
 
           <div id="pos-grid-view" class="flex-fill" style="display: none; min-height: 300px; max-height: 100%; overflow-y: auto; padding: 5px; padding-top: 15px;">
             <div id="pos-menu-grid" class="d-flex flex-wrap gap-3 justify-content-start"></div>
+			<!-- 🌟 เพิ่ม Wrapper แบ่งซ้ายขวาตรงนี้ -->
+          <div class="d-flex flex-row flex-grow-1" style="min-height: 0; overflow: hidden;">
+            
+            <!-- แถบหมวดหมู่มือถือ (ซ่อนในคอมพิวเตอร์) -->
+            <div id="mobile-category-sidebar" class="d-none d-lg-none">
+                <!-- ข้อมูลจะถูกดึงมาใส่ผ่าน Javascript -->
+            </div>
+
+            <!-- กล่องตารางสินค้าเดิม -->
+            <div id="pos-grid-view" class="flex-fill" style="display: none; min-height: 300px; max-height: 100%; overflow-y: auto; padding: 10px; background: #ffffff;">
+              <div id="pos-menu-grid" class="d-flex flex-wrap gap-2 justify-content-start"></div>
+            </div>
+
+          </div> 
+		  
           </div>
         </div>
       </div>
 
 <div class="col-lg-3 pos-mobile-unsticky d-flex flex-column" style="position: sticky; top: 90px; z-index: 1020; height: calc(100vh - 110px);">
-	  
+	  <!-- เพิ่มปุ่มย่อตะกร้าตรงนี้ -->
+    <button id="mobile-close-cart-btn" class="btn btn-outline-dark fw-bold rounded-pill px-3 py-2 shadow-sm d-none" onclick="toggleMobileCart()">
+      <i class="fa-solid fa-chevron-down me-1"></i> ย่อลง
+    </button>
+	
 	  <div id="pos-cart-container" class="mb-3 shadow-sm bg-white" style="flex-grow: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; border: 1px solid #e2e8f0; border-radius: 12px;">
             <table class="table table-hover align-middle mb-0" style="width: 100%;">
               <thead class="table-light sticky-top" style="z-index: 10; font-size: 0.85rem;">
@@ -200,6 +254,7 @@
       </div>
     </div>
   </div>
+</div> <!-- 🌟 เติมบรรทัดนี้เข้ามา 1 ตัวครับ 🌟 -->
 
   <div id="modal-promptpay" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(5px); z-index: 1050; justify-content: center; align-items: center; padding: 15px;">
     <div class="bg-white p-4 p-md-5 rounded-4 shadow-lg text-center" style="width: 100%; max-width: 420px;">
@@ -252,6 +307,24 @@
         <button class="btn btn-primary flex-fill fw-bold py-3 rounded-3 shadow-sm" onclick="window.open(document.getElementById('cfd-link-input').value, '_blank')" data-i18n="cfd_btn_open_this">เปิดในเครื่องนี้</button>
       </div>
     </div>
+  </div>
+  
+  <div class="d-flex gap-2">
+        <button class="btn btn-light flex-fill fw-bold py-3 rounded-3 shadow-sm border" onclick="document.getElementById('cfd-connect-modal').style.display='none'" data-i18n="cfd_btn_close">ปิดหน้าต่าง</button>
+        <button class="btn btn-primary flex-fill fw-bold py-3 rounded-3 shadow-sm" onclick="window.open(document.getElementById('cfd-link-input').value, '_blank')" data-i18n="cfd_btn_open_this">เปิดในเครื่องนี้</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🛒 วางแถบลอยด้านล่างมือถือ ตรงนี้เลยครับ! (เหนือแท็ก script) -->
+  <div id="mobile-cart-bar" class="d-none d-lg-none">
+    <button class="btn btn-outline-danger fw-bold rounded-3 shadow-sm" style="width: 60px;" onclick="clearCartManual()">
+      <i class="fa-solid fa-trash-can fa-lg"></i>
+    </button>
+    <button class="btn btn-info flex-fill d-flex justify-content-between align-items-center fw-bold fs-5 rounded-3 px-3 shadow-sm text-white" style="background: #0ea5e9; border: none;" onclick="toggleMobileCart()">
+      <span><span id="mobile-cart-qty">0</span> รายการ</span>
+      <span id="mobile-cart-total">฿0.00</span>
+    </button>
   </div>
 
   <script>
@@ -416,11 +489,40 @@
       }
     }
 
+    // แทนที่ฟังก์ชัน populatePOSCategory เดิม
     function populatePOSCategory() {
       let categories = [...new Set(globalProducts.map(p => p.category).filter(c => c && c.trim() !== ''))].sort();
-      let filterSelect = document.getElementById('pos-category-filter'); let currentFilter = filterSelect.value;
-      filterSelect.innerHTML = `<option value="all" data-i18n="pos_filter_all">${i18n[currentLang]['pos_filter_all'] || '📁 ทุกหมวดหมู่'}</option>`; categories.forEach(c => { filterSelect.innerHTML += `<option value="${c}">${c}</option>`; });
+      let filterSelect = document.getElementById('pos-category-filter'); 
+      let currentFilter = filterSelect.value;
+      
+      // 1. อัปเดต Dropdown สำหรับคอมพิวเตอร์
+      filterSelect.innerHTML = `<option value="all" data-i18n="pos_filter_all">${i18n[currentLang]['pos_filter_all'] || '📁 ทุกหมวดหมู่'}</option>`; 
+      categories.forEach(c => { filterSelect.innerHTML += `<option value="${c}">${c}</option>`; });
       filterSelect.value = categories.includes(currentFilter) ? currentFilter : "all"; 
+
+      // 2. อัปเดตแถบเมนูด้านซ้าย สำหรับมือถือ
+      let mobileSide = document.getElementById('mobile-category-sidebar');
+      if (mobileSide) {
+          mobileSide.innerHTML = `<div class="cat-side-item ${currentFilter === 'all' ? 'active' : ''}" onclick="setMobileCategory('all')">${i18n[currentLang]['pos_filter_all'] || 'ทั้งหมด'}</div>`;
+          categories.forEach(c => {
+              mobileSide.innerHTML += `<div class="cat-side-item ${currentFilter === c ? 'active' : ''}" onclick="setMobileCategory('${c}')">${c}</div>`;
+          });
+      }
+    }
+
+    // เพิ่มฟังก์ชันใหม่สำหรับคลิกเลือกหมวดหมู่บนมือถือ
+    function setMobileCategory(cat) {
+        document.getElementById('pos-category-filter').value = cat;
+        populatePOSCategory(); // รีเฟรชสีปุ่มซ้าย
+        renderMenuGrid();
+    }
+
+    // เพิ่มฟังก์ชันใหม่สำหรับเปิด/ปิดตะกร้าบนมือถือ
+    function toggleMobileCart() {
+        let cartPanel = document.querySelector('.pos-mobile-unsticky');
+        if (cartPanel) {
+            cartPanel.classList.toggle('open');
+        }
     }
 
     function closePOSPage() { document.getElementById('page-pos').style.display = 'none'; syncCFD('CLEAR_CART'); }
@@ -579,6 +681,7 @@
       updateCartTotal(); setTimeout(() => { let cc = document.getElementById('pos-cart-container'); if (cc) { cc.scrollTop = cc.scrollHeight; } }, 50);
     }
 
+    // ค้นหาฟังก์ชัน updateCartTotal(skipSync = false)
     function updateCartTotal(skipSync = false) {
       let subTotal = posCart.reduce((sum, item) => sum + (item.price * item.qty), 0); let totalQty = posCart.reduce((sum, item) => sum + item.qty, 0); let discount = parseFloat(document.getElementById('pos-discount').value) || 0;
       let netTotal = subTotal - discount; if (netTotal < 0) netTotal = 0;
@@ -586,6 +689,29 @@
       document.getElementById('pos-subtotal').innerText = `฿${subTotal.toLocaleString()}`; 
       document.getElementById('pos-net-total').innerText = `฿${netTotal.toLocaleString()}`; 
       if (!skipSync) { syncCFD('UPDATE_CART'); } 
+      
+      // --- 🌟 เริ่มต้นโค้ดที่ต้องเพิ่ม ---
+      let mobileQty = document.getElementById('mobile-cart-qty');
+      let mobileTotal = document.getElementById('mobile-cart-total');
+      if (mobileQty) mobileQty.innerText = totalQty.toLocaleString();
+      if (mobileTotal) mobileTotal.innerText = `฿${netTotal.toLocaleString()}`;
+
+      let bottomBar = document.getElementById('mobile-cart-bar');
+      if (bottomBar) {
+          if (posCart.length > 0) { 
+              bottomBar.classList.remove('d-none'); 
+              bottomBar.classList.add('show'); 
+          } else { 
+              bottomBar.classList.remove('show'); 
+              setTimeout(() => { if(posCart.length === 0) bottomBar.classList.add('d-none'); }, 300); // รอจังหวะให้แถบมุดลงจอ
+              
+              // ปิดหน้าต่างตะกร้าอัตโนมัติถ้าไม่มีของ
+              let cartPanel = document.querySelector('.pos-mobile-unsticky');
+              if(cartPanel && cartPanel.classList.contains('open')) { cartPanel.classList.remove('open'); }
+          }
+      }
+      // --- 🌟 สิ้นสุดโค้ดที่ต้องเพิ่ม ---
+
       return netTotal;
     }
 
