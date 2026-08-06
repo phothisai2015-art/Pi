@@ -632,7 +632,7 @@
         // แทรกโค้ดเสียงตรงนี้เลยครับ (หลังจากเช็ค error ผ่านแล้ว)
         // ====================================================
         if (cachedShopSettings && (cachedShopSettings.pay_sound_enable === 'true' || cachedShopSettings.pay_sound_enable === true)) {
-            const soundUrl = cachedShopSettings.pay_sound_url || "https://assets.mixkit.com/sfx/preview/mixkit-cash-register-purchase-87.mp3";
+            const soundUrl = cachedShopSettings.pay_sound_url || "https://cdn.jsdelivr.net/gh/IonDen/ion.sound@master/sounds/bell_ring.mp3";
             const audio = new Audio(soundUrl);
             audio.play().catch(e => console.warn("Audio blocked:", e));
         }
