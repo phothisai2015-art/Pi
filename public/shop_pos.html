@@ -258,103 +258,29 @@
   <script>
     function playToneSound(soundType) {
       try {
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-        if (!AudioContext) return;
-        const ctx = new AudioContext();
-
-        const createNote = (freqStart, start, duration, type = 'sine', gainVal = 0.15, freqEnd = null) => {
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.type = type;
-          
-          osc.frequency.setValueAtTime(freqStart, ctx.currentTime + start);
-          if (freqEnd) {
-            osc.frequency.exponentialRampToValueAtTime(freqEnd, ctx.currentTime + start + duration);
-          }
-
-          gain.gain.setValueAtTime(0, ctx.currentTime + start); 
-          gain.gain.linearRampToValueAtTime(gainVal, ctx.currentTime + start + 0.01); 
-          gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + start + duration);
-          
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          osc.start(ctx.currentTime + start);
-          osc.stop(ctx.currentTime + start + duration);
+        const soundUrls = {
+          'kaching_dragon': '/sould/dragon-studio-cash-register-kaching-376867.mp3',
+          'purchase': '/sould/freesound_community-cash-register-purchase-87313.mp3',
+          'game_button': '/sould/freesound_gamestudio-button-394464.mp3',
+          'register_1': '/sould/ksjsbwui1-cash-register-1-513922.mp3',
+          'kaching_modestas': '/sould/modestas123123-cash-register-kaching-sound-effect-125042.mp3',
+          'kaching_modestas_2': '/sould/modestas123123-cash-register-kaching-sound-effect-125042 (1).mp3',
+          'drawer_open': '/sould/universfield-cash-register-open-567194.mp3',
+          'drawer_ding': '/sould/universfield-cash-register-open-ding-559401.mp3'
         };
 
-        switch (soundType) {
-          case 'youtuber_chaching':
-            // เสียง "แค๊ก" (กลไกสปริง)
-            createNote(400, 0, 0.08, 'square', 0.15, 100);
-            // เสียง "ชิ้ง!" (กระดิ่งกระทบ กังวานและใสแบบมีมิติ)
-            createNote(1400, 0.08, 0.5, 'sine', 0.25);
-            createNote(2100, 0.08, 0.4, 'sine', 0.15);
-            createNote(2800, 0.08, 0.3, 'sine', 0.05);
-            break;
-          case 'chaching':
-            createNote(1046.50, 0, 0.12, 'sine', 0.2);
-            createNote(1567.98, 0.08, 0.35, 'sine', 0.25);
-            break;
-          case 'ping':
-            createNote(1318.51, 0, 0.1, 'sine', 0.15);
-            createNote(1975.53, 0.06, 0.25, 'sine', 0.18);
-            break;
-          case 'success':
-            createNote(523.25, 0, 0.1, 'triangle', 0.15);
-            createNote(659.25, 0.06, 0.1, 'triangle', 0.15);
-            createNote(783.99, 0.12, 0.1, 'triangle', 0.15);
-            createNote(1046.50, 0.18, 0.3, 'triangle', 0.2);
-            break;
-          case 'retro':
-            createNote(987.77, 0, 0.08, 'square', 0.1);
-            createNote(1318.51, 0.08, 0.25, 'square', 0.12);
-            break;
-          case 'digital':
-            createNote(1760.00, 0, 0.05, 'sine', 0.15);
-            createNote(2637.02, 0.06, 0.12, 'sine', 0.15);
-            break;
-          case 'magic':
-            createNote(1046.50, 0, 0.05, 'sine', 0.1);
-            createNote(1318.51, 0.05, 0.05, 'sine', 0.1);
-            createNote(1567.98, 0.1, 0.05, 'sine', 0.1);
-            createNote(2093.00, 0.15, 0.3, 'sine', 0.15);
-            break;
-          case 'level_up':
-            createNote(659.25, 0, 0.1, 'square', 0.1);
-            createNote(783.99, 0.1, 0.1, 'square', 0.1);
-            createNote(1046.50, 0.2, 0.1, 'square', 0.1);
-            createNote(1318.51, 0.3, 0.3, 'square', 0.15);
-            break;
-          case 'bell':
-            createNote(1500, 0, 0.5, 'sine', 0.2);
-            createNote(2000, 0, 0.5, 'sine', 0.1);
-            break;
-          case 'mellow':
-            createNote(440.00, 0, 0.4, 'triangle', 0.15);
-            createNote(554.37, 0, 0.4, 'triangle', 0.15);
-            createNote(659.25, 0, 0.4, 'triangle', 0.15);
-            break;
-          case 'arcade_win':
-            createNote(523.25, 0, 0.1, 'square', 0.1);
-            createNote(523.25, 0.1, 0.1, 'square', 0.1);
-            createNote(523.25, 0.2, 0.1, 'square', 0.1);
-            createNote(659.25, 0.3, 0.4, 'square', 0.15);
-            break;
-          case 'gentle_chime':
-            createNote(880.00, 0, 0.4, 'sine', 0.15);
-            createNote(1108.73, 0.1, 0.4, 'sine', 0.15);
-            break;
-          case 'coin_drop':
-            createNote(987.77, 0, 0.1, 'square', 0.1);
-            createNote(1318.51, 0.05, 0.3, 'square', 0.15);
-            break;
-          default:
-            createNote(1046.50, 0, 0.15, 'sine', 0.2);
-            createNote(1567.98, 0.1, 0.35, 'sine', 0.25);
-            break;
+        if (soundUrls[soundType]) {
+          const audio = new Audio(soundUrls[soundType]);
+          audio.volume = 1.0;
+          audio.play().catch(e => console.warn("Audio play blocked by browser:", e));
+        } else {
+          // Fallback
+          const audio = new Audio('/sould/modestas123123-cash-register-kaching-sound-effect-125042.mp3');
+          audio.volume = 1.0;
+          audio.play().catch(e => console.warn("Audio play blocked by browser:", e));
         }
       } catch (e) {
-        console.warn("Audio Context error:", e);
+        console.warn("Audio Error:", e);
       }
     }
 
@@ -367,7 +293,7 @@
       if (cachedShopSettings && (cachedShopSettings.ui_sound_payment === "false" || cachedShopSettings.ui_sound_payment === false)) {
         return; 
       }
-      const soundType = (cachedShopSettings && cachedShopSettings.ui_sound_type) ? cachedShopSettings.ui_sound_type : 'chaching';
+      const soundType = (cachedShopSettings && cachedShopSettings.ui_sound_type) ? cachedShopSettings.ui_sound_type : 'kaching_dragon';
       playToneSound(soundType);
     }
   
