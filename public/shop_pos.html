@@ -3,37 +3,22 @@
 <!-- ========================================================= -->
 <div id="page-pos" style="display: none; background: #f8fafc; height: 100vh; position: absolute; top: 0; left: 0; width: 100%; z-index: 1040; overflow: hidden; -webkit-overflow-scrolling: touch;">
   <style>
-    /* 🔒 ปรับกล่องให้ยืดเต็มความสูง 100% ชนขอบล่างพอดีทุกจอ */
-@media (min-width: 992px) {
+    @media (max-width: 991px) {
   #page-pos { 
-    overflow-y: hidden !important; 
-    display: flex !important;
-    flex-direction: column !important;
-  }
-  #page-pos > .container-fluid {
-    flex: 1 !important;
-    display: flex !important;
-    flex-direction: column !important;
-  }
-  #page-pos > .container-fluid > .row {
-    flex: 1 !important;
-    height: 100% !important;
-  }
-  #page-pos .col-lg-9, 
-  #page-pos .col-lg-3 {
-    height: 100% !important;
+    overflow-y: auto !important; 
   }
   .pos-left-box { 
-    height: 100% !important; 
-    overflow: hidden !important; 
+    min-height: auto; 
   }
-  .pos-mobile-unsticky {
-    height: 100% !important;
-    top: 0 !important;
+  .pos-mobile-unsticky { 
+    position: static !important; 
   }
-  .pos-right-summary { 
-    overflow-y: auto !important; 
-    overflow-x: hidden !important; 
+  #pos-cart-container { 
+    max-height: 300px !important; 
+    display: block !important; 
+  }
+  #pos-grid-view { 
+    max-height: 400px !important; 
   }
 }
     .return-item-row-pos { display: flex; align-items: center; gap: 10px; padding: 10px; border-bottom: 1px solid #e2e8f0; }
@@ -404,13 +389,7 @@
     }
 
     function openPOSPage() {
-  document.getElementById('page-pos').style.display = 'block'; 
-  
-  autoFitPOSLayout(); // 👈 เพิ่มบรรทัดนี้ลงไปตรงนี้ได้เลยครับ!
-
-  document.getElementById('pos-staff-badge').innerText = currentStaff.name || "-"; 
-  switchPOSMode('grid');
-	  
+      document.getElementById('page-pos').style.display = 'block'; document.getElementById('pos-staff-badge').innerText = currentStaff.name || "-"; switchPOSMode('grid');
       if (!window.globalProducts || globalProducts.length === 0) { google.script.run.withSuccessHandler(function(data) { globalProducts = data; window.globalProducts = data; populatePOSCategory(); renderMenuGrid(); }).getProducts(currentTenantSheetId); } else { populatePOSCategory(); renderMenuGrid(); }
       google.script.run.withSuccessHandler(function(settings) {
         cachedShopSettings = settings; shopPromptPayNo = settings.shop_promptpay; shopName = settings.shop_name; let accName = settings.shop_account_name || settings.shop_name;
@@ -437,31 +416,6 @@
         });
       }
     }
-// 🎯 ฟังก์ชันปรับสเกลหน้า POS ให้พอดีจอ 100% อัตโนมัติ (ฉบับแก้ไขขอบล่างทะลุ)
-function autoFitPOSLayout() {
-  const posPage = document.getElementById('page-pos');
-  if (!posPage) return;
-
-  if (window.innerWidth >= 992) {
-    const baseHeight = 900; 
-    const currentHeight = window.innerHeight;
-
-    if (currentHeight < baseHeight) {
-      const scaleRatio = currentHeight / baseHeight;
-      posPage.style.zoom = scaleRatio;
-      posPage.style.height = (100 / scaleRatio) + 'vh'; // 👈 ยืดความสูงหน้าเพจชดเชยตามสเกลที่ย่อ
-    } else {
-      posPage.style.zoom = '1';
-      posPage.style.height = '100vh';
-    }
-  } else {
-    posPage.style.zoom = '1';
-    posPage.style.height = '100vh';
-  }
-}
-
-// เรียกใช้งานเมื่อขยาย/ย่อหน้าต่าง หรือตอนเปิดหน้า POS
-window.addEventListener('resize', autoFitPOSLayout);
 
     function populatePOSCategory() {
       let categories = [...new Set(globalProducts.map(p => p.category).filter(c => c && c.trim() !== ''))].sort();
