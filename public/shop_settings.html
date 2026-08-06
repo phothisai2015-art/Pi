@@ -527,7 +527,7 @@
             auto_print: isChecked ? "true" : "false",
             shop_logo: document.getElementById('set-logo-url').value,
             pay_sound_enable: document.getElementById('set-sound-enable') ? document.getElementById('set-sound-enable').checked.toString() : "false",
-            pay_sound_url: document.getElementById('set-sound-file') ? document.getElementById('set-sound-file').value : "https://actions.google.com/sounds/v1/alarms/cash_register.ogg"
+            pay_sound_url: document.getElementById('set-sound-file') ? document.getElementById('set-sound-file').value : "https://assets.mixkit.com/sfx/preview/mixkit-cash-register-purchase-87.mp3"
         };
 
         google.script.run.withSuccessHandler(() => {
@@ -785,7 +785,7 @@
         auto_print: (autoPrintCheck && autoPrintCheck.checked) ? "true" : "false",
         shop_logo: document.getElementById('set-logo-url').value,
         pay_sound_enable: document.getElementById('set-sound-enable') ? document.getElementById('set-sound-enable').checked.toString() : "false",
-        pay_sound_url: document.getElementById('set-sound-file') ? document.getElementById('set-sound-file').value : "https://actions.google.com/sounds/v1/alarms/cash_register.ogg"
+        pay_sound_url: document.getElementById('set-sound-file') ? document.getElementById('set-sound-file').value : "https://assets.mixkit.com/sfx/preview/mixkit-cash-register-purchase-87.mp3"
       };
       
       google.script.run
