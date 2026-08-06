@@ -238,39 +238,21 @@
             <input class="form-check-input m-0" type="checkbox" id="ui-sound-payment" style="width: 40px; height: 20px;" onchange="saveSoundSettings()">
           </div>
           <div class="d-flex align-items-center gap-2">
-            <select id="ui-sound-type" class="form-select form-select-sm fw-bold border-secondary text-dark" style="flex: 1;" onchange="saveSoundSettings()">
-  <!-- กลุ่มเสียงแคชเชียร์ & การเงิน -->
-  <option value="chaching">🔔 เครื่องคิดเงิน (Cha-Ching)</option>
-  <option value="cash_register_ding">🛎️ แคชเชียร์ ปิ๊ง! (Register Ding)</option>
-  <option value="cash_drawer">💸 เปิดลิ้นชักเก็บเงิน (Drawer Open)</option>
-  <option value="chaching_pro">💰 ชิ้ง! แบบโปร (Pro Cha-Ching)</option>
-  <option value="coin_drop">🪙 เหรียญตก (Coin Drop)</option>
-
-  <!-- กลุ่มเสียงน่ารัก & สดใส -->
-  <option value="ping">✨ ปิ๊งน่ารัก (Cute Ping)</option>
-  <option value="success">🎉 สำเร็จสดใส (Upbeat Success)</option>
-  <option value="magic">🪄 เวทมนตร์ (Magic Sparkle)</option>
-  <option value="sparkle">✨ ประกายระยิบระยับ (Sparkle)</option>
-  <option value="bounce">🪀 เด้งดึ๋ง (Bouncy)</option>
-
-  <!-- กลุ่มเสียงเกม & ไฮเทค -->
-  <option value="retro">🎮 เกมย้อนยุค (Retro Coin)</option>
-  <option value="level_up">🍄 เลเวลอัป (Level Up!)</option>
-  <option value="arcade_win">🏆 อาร์เคด ชนะ (Arcade Win)</option>
-  <option value="digital">💻 ดิจิทัล บี๊บ (Digital Beep)</option>
-  <option value="laser">🔫 ปืนเลเซอร์ (Laser Pew)</option>
-  <option value="sci_fi">🛸 ไซไฟ (Sci-Fi Alert)</option>
-
-  <!-- กลุ่มเสียงดนตรี & เสียงทั่วไป -->
-  <option value="bell">🛎️ กระดิ่งเคาน์เตอร์ (Desk Bell)</option>
-  <option value="mellow">🎵 เมลโลว์ นุ่มนวล (Mellow Chords)</option>
-  <option value="gentle_chime">🎐 กระดิ่งลม (Gentle Chime)</option>
-  <option value="xylophone">🎵 ไซโลโฟน (Xylophone)</option>
-  <option value="guitar_strum">🎸 กีตาร์ (Guitar Strum)</option>
-  <option value="deep_bass">🥁 เบสทุ้ม (Deep Bass)</option>
-  <option value="short_click">🖱️ คลิกสั้นๆ (Short Click)</option>
-  <option value="alert_double">⚠️ แจ้งเตือนคู่ (Double Alert)</option>
-</select>
+            <select id="ui-sound-type" class="form-select fw-bold border-secondary text-dark" style="flex: 1;" onchange="saveSoundSettings()">
+              <option value="youtuber_chaching">💸 ชิ้ง! แคชเชียร์ยูทูปเบอร์ (Meme Ka-Ching)</option>
+              <option value="chaching">🔔 เครื่องคิดเงิน (Cha-Ching)</option>
+              <option value="ping">✨ ปิ๊งน่ารัก (Cute Ping)</option>
+              <option value="success">🎉 สำเร็จสดใส (Upbeat Success)</option>
+              <option value="retro">🎮 เกมย้อนยุค (Retro Coin)</option>
+              <option value="digital">💻 ดิจิทัล บี๊บ (Digital Beep)</option>
+              <option value="magic">🪄 เวทมนตร์ (Magic Sparkle)</option>
+              <option value="level_up">🍄 เลเวลอัป (Level Up!)</option>
+              <option value="bell">🛎️ กระดิ่งเคาน์เตอร์ (Desk Bell)</option>
+              <option value="mellow">🎵 เมลโลว์ นุ่มนวล (Mellow Chords)</option>
+              <option value="arcade_win">🏆 อาร์เคด ชนะ (Arcade Win)</option>
+              <option value="gentle_chime">🎐 กระดิ่งลม (Gentle Chime)</option>
+              <option value="coin_drop">🪙 เหรียญตก (Coin Drop)</option>
+            </select>
             <button class="btn btn-primary fw-bold text-nowrap rounded-3 shadow-sm" type="button" onclick="testPlaySound()">
               <i class="fa-solid fa-play me-1"></i> ฟังเสียง
             </button>
@@ -496,26 +478,22 @@
   </div>
 
   <script>
-    // 🔊 ฟังก์ชันสร้างเสียงเอฟเฟกต์ตามรูปแบบที่เลือก (อัปเดตใหม่ เสียงไม่ซ้ำกันแน่นอน)
     function playToneSound(soundType) {
       try {
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         if (!AudioContext) return;
         const ctx = new AudioContext();
 
-        // อัปเดตฟังก์ชันสร้างเสียงให้สามารถ "สไลด์เสียง (Pitch Bend)" ได้
         const createNote = (freqStart, start, duration, type = 'sine', gainVal = 0.15, freqEnd = null) => {
           const osc = ctx.createOscillator();
           const gain = ctx.createGain();
           osc.type = type;
           
-          // ตั้งค่าความถี่และการสไลด์เสียง (ถ้ามี)
           osc.frequency.setValueAtTime(freqStart, ctx.currentTime + start);
           if (freqEnd) {
             osc.frequency.exponentialRampToValueAtTime(freqEnd, ctx.currentTime + start + duration);
           }
 
-          // ตั้งค่าความดังและการเฟดเสียง (Fade in/out ป้องกันเสียงลำโพงแตก)
           gain.gain.setValueAtTime(0, ctx.currentTime + start); 
           gain.gain.linearRampToValueAtTime(gainVal, ctx.currentTime + start + 0.01); 
           gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + start + duration);
@@ -527,129 +505,71 @@
         };
 
         switch (soundType) {
-          // --- 💸 กลุ่มเสียงแคชเชียร์ & การเงิน (เน้นความรู้สึกได้เงิน) ---
+          case 'youtuber_chaching':
+            // เสียง "แค๊ก" (กลไกสปริง)
+            createNote(400, 0, 0.08, 'square', 0.15, 100);
+            // เสียง "ชิ้ง!" (กระดิ่งกระทบ กังวานและใสแบบมีมิติ)
+            createNote(1400, 0.08, 0.5, 'sine', 0.25);
+            createNote(2100, 0.08, 0.4, 'sine', 0.15);
+            createNote(2800, 0.08, 0.3, 'sine', 0.05);
+            break;
           case 'chaching':
-            createNote(1046.50, 0, 0.15, 'sine', 0.2);
-            createNote(1567.98, 0.1, 0.4, 'sine', 0.25);
+            createNote(1046.50, 0, 0.12, 'sine', 0.2);
+            createNote(1567.98, 0.08, 0.35, 'sine', 0.25);
             break;
-          case 'cash_register_ding':
-            // เสียงกระดิ่งใสๆ กังวานยาวแบบเคาน์เตอร์โรงแรม
-            createNote(1396.91, 0, 0.6, 'sine', 0.25);
-            createNote(1400.00, 0, 0.6, 'triangle', 0.15); // ผสมคลื่นให้เสียงหนาขึ้น
-            break;
-          case 'cash_drawer':
-            // เสียงครืด (ลิ้นชัก) + ปิ๊งตอนท้าย
-            createNote(150, 0, 0.15, 'square', 0.1, 50); // เสียงครืดต่ำๆ สไลด์ลง
-            createNote(1200, 0.15, 0.3, 'sine', 0.25); // เสียงกระดิ่ง
-            break;
-          case 'chaching_pro':
-            createNote(1046.50, 0, 0.1, 'sine', 0.15); 
-            createNote(1318.51, 0.05, 0.1, 'sine', 0.15); 
-            createNote(1567.98, 0.1, 0.5, 'sine', 0.3, 2000); // สไลด์เสียงปรี๊ดขึ้นตอนท้าย
-            break;
-          case 'coin_drop':
-            // เสียงเหรียญหล่นกระแทก (สไลด์เสียงขึ้นเร็วๆ)
-            createNote(900, 0, 0.15, 'square', 0.1, 2500);
-            createNote(1200, 0.08, 0.2, 'square', 0.1, 3000);
-            break;
-
-          // --- ✨ กลุ่มเสียงน่ารัก & สดใส ---
           case 'ping':
-            // เสียงปิ๊งสั้นๆ เสียงเดียว
-            createNote(2000, 0, 0.2, 'sine', 0.15);
+            createNote(1318.51, 0, 0.1, 'sine', 0.15);
+            createNote(1975.53, 0.06, 0.25, 'sine', 0.18);
             break;
           case 'success':
             createNote(523.25, 0, 0.1, 'triangle', 0.15);
-            createNote(659.25, 0.1, 0.1, 'triangle', 0.15);
-            createNote(783.99, 0.2, 0.1, 'triangle', 0.15);
-            createNote(1046.50, 0.3, 0.4, 'triangle', 0.2);
+            createNote(659.25, 0.06, 0.1, 'triangle', 0.15);
+            createNote(783.99, 0.12, 0.1, 'triangle', 0.15);
+            createNote(1046.50, 0.18, 0.3, 'triangle', 0.2);
+            break;
+          case 'retro':
+            createNote(987.77, 0, 0.08, 'square', 0.1);
+            createNote(1318.51, 0.08, 0.25, 'square', 0.12);
+            break;
+          case 'digital':
+            createNote(1760.00, 0, 0.05, 'sine', 0.15);
+            createNote(2637.02, 0.06, 0.12, 'sine', 0.15);
             break;
           case 'magic':
-            // เสียงวิ้งๆ รัวๆ
-            createNote(1200, 0, 0.1, 'sine', 0.1, 1500);
-            createNote(1600, 0.05, 0.1, 'sine', 0.1, 2000);
-            createNote(2000, 0.1, 0.1, 'sine', 0.1, 2500);
-            createNote(2400, 0.15, 0.4, 'sine', 0.15, 3000);
-            break;
-          case 'sparkle':
-            createNote(2093.00, 0, 0.1, 'sine', 0.1); 
-            createNote(2637.02, 0.05, 0.1, 'sine', 0.1); 
-            createNote(3135.96, 0.1, 0.3, 'sine', 0.1); 
-            break;
-          case 'bounce':
-            // เสียงเด้งดึ๋ง สไลด์ลงแล้วเด้งขึ้น
-            createNote(400, 0, 0.15, 'triangle', 0.15, 200);
-            createNote(200, 0.1, 0.25, 'triangle', 0.15, 800);
-            break;
-
-          // --- 🎮 กลุ่มเสียงเกม & ไฮเทค ---
-          case 'retro':
-            createNote(987.77, 0, 0.1, 'square', 0.1);
-            createNote(1318.51, 0.1, 0.2, 'square', 0.1);
+            createNote(1046.50, 0, 0.05, 'sine', 0.1);
+            createNote(1318.51, 0.05, 0.05, 'sine', 0.1);
+            createNote(1567.98, 0.1, 0.05, 'sine', 0.1);
+            createNote(2093.00, 0.15, 0.3, 'sine', 0.15);
             break;
           case 'level_up':
-            createNote(440, 0, 0.05, 'square', 0.1);
-            createNote(554, 0.05, 0.05, 'square', 0.1);
-            createNote(659, 0.1, 0.05, 'square', 0.1);
-            createNote(880, 0.15, 0.3, 'square', 0.15);
+            createNote(659.25, 0, 0.1, 'square', 0.1);
+            createNote(783.99, 0.1, 0.1, 'square', 0.1);
+            createNote(1046.50, 0.2, 0.1, 'square', 0.1);
+            createNote(1318.51, 0.3, 0.3, 'square', 0.15);
+            break;
+          case 'bell':
+            createNote(1500, 0, 0.5, 'sine', 0.2);
+            createNote(2000, 0, 0.5, 'sine', 0.1);
+            break;
+          case 'mellow':
+            createNote(440.00, 0, 0.4, 'triangle', 0.15);
+            createNote(554.37, 0, 0.4, 'triangle', 0.15);
+            createNote(659.25, 0, 0.4, 'triangle', 0.15);
             break;
           case 'arcade_win':
             createNote(523.25, 0, 0.1, 'square', 0.1);
             createNote(523.25, 0.1, 0.1, 'square', 0.1);
-            createNote(783.99, 0.2, 0.3, 'square', 0.1);
-            break;
-          case 'digital':
-            createNote(1500, 0, 0.05, 'square', 0.05);
-            createNote(2500, 0.05, 0.1, 'square', 0.05);
-            break;
-          case 'laser':
-            // เสียงปืนเลเซอร์ สไลด์ความถี่ลงอย่างรวดเร็ว
-            createNote(2500, 0, 0.25, 'sawtooth', 0.1, 200);
-            break;
-          case 'sci_fi':
-            // เสียงยานอวกาศ
-            createNote(600, 0, 0.4, 'sine', 0.15, 1500);
-            createNote(1500, 0.2, 0.4, 'sine', 0.15, 600);
-            break;
-
-          // --- 🎵 กลุ่มเสียงดนตรี & เสียงทั่วไป ---
-          case 'bell':
-            createNote(1200, 0, 0.6, 'sine', 0.2);
-            createNote(1210, 0, 0.6, 'sine', 0.2); // Detune นิดๆ ให้เกิดความกังวานคล้ายระฆังจริง
-            break;
-          case 'mellow':
-            createNote(349.23, 0, 0.5, 'triangle', 0.15); 
-            createNote(440.00, 0.05, 0.5, 'triangle', 0.15); 
-            createNote(523.25, 0.1, 0.5, 'triangle', 0.15); 
+            createNote(523.25, 0.2, 0.1, 'square', 0.1);
+            createNote(659.25, 0.3, 0.4, 'square', 0.15);
             break;
           case 'gentle_chime':
-            createNote(1046.50, 0, 0.4, 'sine', 0.1);
-            createNote(1318.51, 0.1, 0.4, 'sine', 0.1);
-            createNote(1567.98, 0.2, 0.5, 'sine', 0.1);
+            createNote(880.00, 0, 0.4, 'sine', 0.15);
+            createNote(1108.73, 0.1, 0.4, 'sine', 0.15);
             break;
-          case 'xylophone':
-            createNote(783.99, 0, 0.1, 'triangle', 0.2); 
-            createNote(1046.50, 0.15, 0.2, 'triangle', 0.2); 
+          case 'coin_drop':
+            createNote(987.77, 0, 0.1, 'square', 0.1);
+            createNote(1318.51, 0.05, 0.3, 'square', 0.15);
             break;
-          case 'guitar_strum':
-            // เสียงเกากีตาร์
-            createNote(196.00, 0, 0.5, 'sawtooth', 0.05); 
-            createNote(246.94, 0.03, 0.5, 'sawtooth', 0.05); 
-            createNote(293.66, 0.06, 0.5, 'sawtooth', 0.05); 
-            createNote(392.00, 0.09, 0.6, 'sawtooth', 0.05); 
-            break;
-          case 'deep_bass':
-            // เสียงเบสหนักๆ สไลด์ลงต่ำ (คล้ายจังหวะตู้ม)
-            createNote(150, 0, 0.4, 'sine', 0.3, 40);
-            break;
-          case 'short_click':
-            createNote(2000, 0, 0.02, 'square', 0.05);
-            break;
-          case 'alert_double':
-            createNote(800, 0, 0.1, 'sawtooth', 0.1);
-            createNote(800, 0.15, 0.1, 'sawtooth', 0.1);
-            break;
-
           default:
             createNote(1046.50, 0, 0.15, 'sine', 0.2);
             createNote(1567.98, 0.1, 0.35, 'sine', 0.25);
