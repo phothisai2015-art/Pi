@@ -627,19 +627,7 @@
 
       google.script.run.withSuccessHandler(function(res) {
         isProcessingOrder = false; if(res.status === "error") { Swal.fire(i18n[currentLang]['swal_error_occurred'], res.message, 'error'); syncCFD('UPDATE_CART'); return; }
-        google.script.run.withSuccessHandler(function(res) {
-        isProcessingOrder = false; 
-        if(res.status === "error") { Swal.fire(i18n[currentLang]['swal_error_occurred'], res.message, 'error'); syncCFD('UPDATE_CART'); return; }
         
-        // 🔊 เล่นเสียงชำระเงิน (เช็คว่าเปิดใช้งานไว้หรือไม่)
-        if (typeof cachedShopSettings !== 'undefined' && 
-           (cachedShopSettings.enable_payment_sound === "true" || cachedShopSettings.enable_payment_sound === true) && 
-           typeof playPaymentSound === 'function') {
-           playPaymentSound(cachedShopSettings.payment_sound_type || 'cash_register');
-        }
-
-        let displayMethod = method === 'เงินสด' ? i18n[currentLang]['pos_text_cash'] : i18n[currentLang]['pos_text_transfer'];
-        // ... (โค้ดเดิมปล่อยไว้เหมือนเดิมครับ ไม่ต้องไปยุ่งกับมัน) ...
         let displayMethod = method === 'เงินสด' ? i18n[currentLang]['pos_text_cash'] : i18n[currentLang]['pos_text_transfer'];
         let receiptData = { receiptId: res.receiptId, date: new Date().toLocaleString('th-TH'), customer: document.getElementById('pos-cust-name').value, items: [...posCart], subtotal: netTotal + discount, discount: discount, netTotal: netTotal, payment: displayMethod, seller: currentStaff.name };
         posCart = []; lastScannedItem = null; document.getElementById('pos-cust-name').value = ''; document.getElementById('pos-discount').value = '0'; renderCart(); syncCFD('CHECKOUT_SUCCESS'); 
