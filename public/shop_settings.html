@@ -238,20 +238,39 @@
             <input class="form-check-input m-0" type="checkbox" id="ui-sound-payment" style="width: 40px; height: 20px;" onchange="saveSoundSettings()">
           </div>
           <div class="d-flex align-items-center gap-2">
-            <select id="ui-sound-type" class="form-select fw-bold border-secondary text-dark" style="flex: 1;" onchange="saveSoundSettings()">
-              <option value="chaching">🔔 เครื่องคิดเงิน (Cha-Ching)</option>
-              <option value="ping">✨ ปิ๊งน่ารัก (Cute Ping)</option>
-              <option value="success">🎉 สำเร็จสดใส (Upbeat Success)</option>
-              <option value="retro">🎮 เกมย้อนยุค (Retro Coin)</option>
-              <option value="digital">💻 ดิจิทัล บี๊บ (Digital Beep)</option>
-              <option value="magic">🪄 เวทมนตร์ (Magic Sparkle)</option>
-              <option value="level_up">🍄 เลเวลอัป (Level Up!)</option>
-              <option value="bell">🛎️ กระดิ่งเคาน์เตอร์ (Desk Bell)</option>
-              <option value="mellow">🎵 เมลโลว์ นุ่มนวล (Mellow Chords)</option>
-              <option value="arcade_win">🏆 อาร์เคด ชนะ (Arcade Win)</option>
-              <option value="gentle_chime">🎐 กระดิ่งลม (Gentle Chime)</option>
-              <option value="coin_drop">🪙 เหรียญตก (Coin Drop)</option>
-            </select>
+            <select id="ui-sound-type" class="form-select form-select-sm fw-bold border-secondary text-dark" style="flex: 1;" onchange="saveSoundSettings()">
+  <!-- กลุ่มเสียงแคชเชียร์ & การเงิน -->
+  <option value="chaching">🔔 เครื่องคิดเงิน (Cha-Ching)</option>
+  <option value="cash_register_ding">🛎️ แคชเชียร์ ปิ๊ง! (Register Ding)</option>
+  <option value="cash_drawer">💸 เปิดลิ้นชักเก็บเงิน (Drawer Open)</option>
+  <option value="chaching_pro">💰 ชิ้ง! แบบโปร (Pro Cha-Ching)</option>
+  <option value="coin_drop">🪙 เหรียญตก (Coin Drop)</option>
+
+  <!-- กลุ่มเสียงน่ารัก & สดใส -->
+  <option value="ping">✨ ปิ๊งน่ารัก (Cute Ping)</option>
+  <option value="success">🎉 สำเร็จสดใส (Upbeat Success)</option>
+  <option value="magic">🪄 เวทมนตร์ (Magic Sparkle)</option>
+  <option value="sparkle">✨ ประกายระยิบระยับ (Sparkle)</option>
+  <option value="bounce">🪀 เด้งดึ๋ง (Bouncy)</option>
+
+  <!-- กลุ่มเสียงเกม & ไฮเทค -->
+  <option value="retro">🎮 เกมย้อนยุค (Retro Coin)</option>
+  <option value="level_up">🍄 เลเวลอัป (Level Up!)</option>
+  <option value="arcade_win">🏆 อาร์เคด ชนะ (Arcade Win)</option>
+  <option value="digital">💻 ดิจิทัล บี๊บ (Digital Beep)</option>
+  <option value="laser">🔫 ปืนเลเซอร์ (Laser Pew)</option>
+  <option value="sci_fi">🛸 ไซไฟ (Sci-Fi Alert)</option>
+
+  <!-- กลุ่มเสียงดนตรี & เสียงทั่วไป -->
+  <option value="bell">🛎️ กระดิ่งเคาน์เตอร์ (Desk Bell)</option>
+  <option value="mellow">🎵 เมลโลว์ นุ่มนวล (Mellow Chords)</option>
+  <option value="gentle_chime">🎐 กระดิ่งลม (Gentle Chime)</option>
+  <option value="xylophone">🎵 ไซโลโฟน (Xylophone)</option>
+  <option value="guitar_strum">🎸 กีตาร์ (Guitar Strum)</option>
+  <option value="deep_bass">🥁 เบสทุ้ม (Deep Bass)</option>
+  <option value="short_click">🖱️ คลิกสั้นๆ (Short Click)</option>
+  <option value="alert_double">⚠️ แจ้งเตือนคู่ (Double Alert)</option>
+</select>
             <button class="btn btn-primary fw-bold text-nowrap rounded-3 shadow-sm" type="button" onclick="testPlaySound()">
               <i class="fa-solid fa-play me-1"></i> ฟังเสียง
             </button>
