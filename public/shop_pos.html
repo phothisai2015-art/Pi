@@ -3,46 +3,24 @@
 <!-- ========================================================= -->
 <div id="page-pos" style="display: none; background: #f8fafc; height: 100vh; position: absolute; top: 0; left: 0; width: 100%; z-index: 1040; overflow: hidden; -webkit-overflow-scrolling: touch;">
   <style>
-    @media (max-width: 991px) and (orientation: portrait) {
-      .pos-mobile-header { flex-direction: column; align-items: flex-start !important; gap: 10px; }
-      .pos-mobile-btns { width: 100%; justify-content: space-between; gap: 5px; }
-      .pos-mobile-btns button { flex: 1; margin: 0 !important; padding: 8px !important; font-size: 13px; }
-      .pos-mobile-unsticky { position: static !important; }
-      
-      /* 🌟 2. ซ่อนหัวตาราง (รายการ ราคา จำนวน รวม) */
-      /* 🌟 4. ซ่อนกล่องรายการสินค้าในตะกร้า (ตามที่วงแดงไว้) */
-      /* 🌟 2. และ 4. ซ่อนตะกร้าสินค้าทั้งหมด */
-    #pos-cart-container { 
-        display: none !important; 
-    }
-    
-    /* 🌟 4. ยืดกล่องจิ้มรูปให้ยาวขึ้น 80vh */
-    #pos-grid-view { 
-        max-height: 80vh !important; 
-        height: 80vh !important;
-        min-height: 250px !important; 
-        display: block !important; 
-    }
-      
-      #page-pos .gap-3 { gap: 10px !important; padding: 12px !important; }
-      #page-pos .flex-shrink-0, #page-pos .input-group.flex-grow-1 { flex: 1 1 100% !important; width: 100% !important; min-width: 100% !important; justify-content: space-between; margin-bottom: 5px; }
-      
-      /* 🌟 1. ซ่อนปุ่มสแกน และ ปุ่มจิ้มรูปภาพ */
-      #btn-mode-barcode, #btn-mode-grid { display: none !important; }
-      
-      /* 🌟 3. ซ่อนตัวปรับขนาด และบังคับรูปให้แสดง 3 คอลัมน์ (3 แถวแนวตั้ง) */
-      #grid-size-controller { display: none !important; }
-      #pos-menu-grid { grid-template-columns: repeat(3, 1fr) !important; }
-      
-      /* 🌟 บังคับแสดงหมวดหมู่ให้เต็มจอ */
-      #pos-category-filter { flex: 1 1 100% !important; min-width: 100% !important; margin-top: 5px; font-size: 14px; display: block !important; } 
-
-      /* 🌟 5. & 6. รวมคลาสซ่อนข้อมูลต่างๆ ในหน้าแนวตั้ง */
-      #mobile-hide-barcode, 
-      #mobile-hide-search-bill,
-      #mobile-hide-customer,
-      #mobile-hide-discount { display: none !important; }
-    }
+    @media (max-width: 991px) {
+  #page-pos { 
+    overflow-y: auto !important; 
+  }
+  .pos-left-box { 
+    min-height: auto; 
+  }
+  .pos-mobile-unsticky { 
+    position: static !important; 
+  }
+  #pos-cart-container { 
+    max-height: 300px !important; 
+    display: block !important; 
+  }
+  #pos-grid-view { 
+    max-height: 400px !important; 
+  }
+}
     .return-item-row-pos { display: flex; align-items: center; gap: 10px; padding: 10px; border-bottom: 1px solid #e2e8f0; }
     .return-item-row-pos:last-child { border-bottom: none; }
     .return-checkbox-pos { width: 22px; height: 22px; cursor: pointer; }
