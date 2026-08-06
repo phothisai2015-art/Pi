@@ -131,10 +131,11 @@
         <h6 class="fw-bold text-dark mb-3">
           <i class="fa-solid fa-receipt text-primary me-2"></i> <span data-i18n="set_printer_auto_title">ระบบการพิมพ์อัตโนมัติ (ผ่านระบบ)</span>
         </h6>
-        <div class="form-check form-switch fs-6 mb-4 p-3 bg-light rounded-3 border d-flex align-items-center">
-          <input class="form-check-input ms-0 me-3" type="checkbox" id="set-auto-print-advanced" style="width: 40px; height: 20px;" onchange="syncAutoPrintAndSave()">
-          <label class="form-check-label fw-bold text-dark mb-0" for="set-auto-print-advanced" data-i18n="set_auto_print"> เปิดระบบพิมพ์ใบเสร็จอัตโนมัติหลังจ่ายเงิน </label>
-        </div>
+		
+        <div class="form-check form-switch fs-6 mb-4 p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center ps-3">
+		<label class="form-check-label fw-bold text-dark mb-0" for="set-auto-print-advanced" data-i18n="set_auto_print"> เปิดระบบพิมพ์ใบเสร็จอัตโนมัติหลังจ่ายเงิน </label>
+		<input class="form-check-input m-0" type="checkbox" id="set-auto-print-advanced" style="width: 40px; height: 20px;" onchange="syncAutoPrintAndSave()">
+		</div>
 
         <!-- การเชื่อมต่อ Bluetooth -->
         <h6 class="fw-bold text-dark mb-3">
