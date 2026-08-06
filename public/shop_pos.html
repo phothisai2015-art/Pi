@@ -200,7 +200,7 @@
       </div>
     </div>
   </div>
-</div> <!-- 🌟 เติมบรรทัดนี้เข้ามา 1 ตัวครับ 🌟 -->
+</div>
 
   <div id="modal-promptpay" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(5px); z-index: 1050; justify-content: center; align-items: center; padding: 15px;">
     <div class="bg-white p-4 p-md-5 rounded-4 shadow-lg text-center" style="width: 100%; max-width: 420px;">
@@ -628,6 +628,16 @@
       google.script.run.withSuccessHandler(function(res) {
         isProcessingOrder = false; if(res.status === "error") { Swal.fire(i18n[currentLang]['swal_error_occurred'], res.message, 'error'); syncCFD('UPDATE_CART'); return; }
         
+        // ====================================================
+        // แทรกโค้ดเสียงตรงนี้เลยครับ (หลังจากเช็ค error ผ่านแล้ว)
+        // ====================================================
+        if (cachedShopSettings && (cachedShopSettings.pay_sound_enable === 'true' || cachedShopSettings.pay_sound_enable === true)) {
+            const soundUrl = cachedShopSettings.pay_sound_url || "https://actions.google.com/sounds/v1/alarms/cash_register.ogg";
+            const audio = new Audio(soundUrl);
+            audio.play().catch(e => console.warn("Audio blocked:", e));
+        }
+        // ====================================================
+
         let displayMethod = method === 'เงินสด' ? i18n[currentLang]['pos_text_cash'] : i18n[currentLang]['pos_text_transfer'];
         let receiptData = { receiptId: res.receiptId, date: new Date().toLocaleString('th-TH'), customer: document.getElementById('pos-cust-name').value, items: [...posCart], subtotal: netTotal + discount, discount: discount, netTotal: netTotal, payment: displayMethod, seller: currentStaff.name };
         posCart = []; lastScannedItem = null; document.getElementById('pos-cust-name').value = ''; document.getElementById('pos-discount').value = '0'; renderCart(); syncCFD('CHECKOUT_SUCCESS'); 

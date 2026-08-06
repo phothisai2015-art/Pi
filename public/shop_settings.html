@@ -227,6 +227,73 @@
       <div id="tab-advanced" class="settings-panel bg-white p-3 p-lg-4 rounded-4 shadow-sm border h-100">
         <h5 class="fw-bold text-secondary mb-4"><i class="fa-solid fa-sliders me-2"></i> <span data-i18n="set_advanced_title">ตั้งค่าขั้นสูง (Advanced Settings)</span></h5>
 
+        <!-- ============================================== -->
+        <!-- กล่องเมนูใหม่: ตั้งค่าเสียงแจ้งเตือน (Sound Settings) -->
+        <!-- ============================================== -->
+        <div class="bg-white p-3 p-md-4 rounded-4 shadow-sm border mb-4">
+          <h6 class="fw-bold text-dark mb-3">
+            <i class="fa-solid fa-volume-high text-primary me-2"></i> ตั้งค่าเสียงแจ้งเตือนระบบ
+          </h6>
+          
+          <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" id="set-sound-enable" style="transform: scale(1.2); margin-right: 10px;">
+            <label class="form-check-label fw-bold text-muted" for="set-sound-enable">เปิดใช้งานเสียงตอนจ่ายเงินสำเร็จ</label>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-bold small text-muted">เลือกเสียงที่คุณต้องการ (กดฟังได้)</label>
+            <div class="input-group shadow-sm" style="border-radius: 8px; overflow: hidden;">
+              
+              <!-- รวมมิตรเสียงทุกแนวบนโลก -->
+              <select class="form-select border-0 bg-light fw-bold" id="set-sound-file">
+                
+                <optgroup label="💰 สายร้านค้า / คลาสสิค">
+                  <option value="https://actions.google.com/sounds/v1/alarms/cash_register.ogg">เสียงเครื่องคิดเงิน (Ka-Ching!)</option>
+                  <option value="https://actions.google.com/sounds/v1/bells/toll_chime.ogg">เสียงกระดิ่งใสๆ (Success Chime)</option>
+                  <option value="https://actions.google.com/sounds/v1/foley/glass_ding.ogg">เสียงเคาะแก้ว (Glass Ding)</option>
+                </optgroup>
+
+                <optgroup label="🎮 สายเกมเมอร์ / 8-Bit">
+                  <option value="https://actions.google.com/sounds/v1/arcade/coin_pickup.ogg">เก็บเหรียญมาริโอ้ (Coin Pickup)</option>
+                  <option value="https://actions.google.com/sounds/v1/arcade/retro_coin_pickup.ogg">เก็บเหรียญเรโทร (Retro Coin)</option>
+                  <option value="https://actions.google.com/sounds/v1/arcade/power_up_burst.ogg">พลังอัปเกรด (Power Up!)</option>
+                </optgroup>
+
+                <optgroup label="🚀 สายล้ำยุค / Sci-Fi">
+                  <option value="https://actions.google.com/sounds/v1/science_fiction/beep_short.ogg">บี๊บสั้นๆ (Digital Beep)</option>
+                  <option value="https://actions.google.com/sounds/v1/science_fiction/teleport_start.ogg">วาร์ป (Teleport)</option>
+                  <option value="https://actions.google.com/sounds/v1/doors/elevator_chime.ogg">เสียงลิฟต์ (Elevator Chime)</option>
+                </optgroup>
+
+                <optgroup label="🦄 สายการ์ตูน / น่ารัก">
+                  <option value="https://actions.google.com/sounds/v1/cartoon/woodpick_pluck.ogg">เสียงวิ้งๆ (Twinkle)</option>
+                  <option value="https://actions.google.com/sounds/v1/cartoon/pop.ogg">เสียงป๊อป (Pop)</option>
+                  <option value="https://actions.google.com/sounds/v1/cartoon/slide_whistle.ogg">นกหวีดสไลด์ (Whistle)</option>
+                </optgroup>
+
+                <optgroup label="🎉 สายฮา / เฉลิมฉลอง">
+                  <option value="https://actions.google.com/sounds/v1/human_voices/kids_cheering.ogg">เด็กเฮ (Kids Cheering)</option>
+                  <option value="https://actions.google.com/sounds/v1/foley/party_horn.ogg">แตรปาร์ตี้ (Party Horn)</option>
+                </optgroup>
+
+                <optgroup label="🌿 สายธรรมชาติ / สัตว์โลก">
+                  <option value="https://actions.google.com/sounds/v1/water/water_drop.ogg">หยดน้ำ (Water Drop)</option>
+                  <option value="https://actions.google.com/sounds/v1/animals/cat_meow.ogg">แมวร้อง (Meow)</option>
+                  <option value="https://actions.google.com/sounds/v1/animals/dog_bark.ogg">หมาเห่า (Woof)</option>
+                </optgroup>
+
+              </select>
+              
+              <!-- ปุ่มกดฟังเสียง -->
+              <button class="btn btn-primary fw-bold" type="button" onclick="previewPaymentSound()">
+                <i class="fa-solid fa-play"></i> ทดสอบเสียง
+              </button>
+              
+            </div>
+          </div>
+        </div>
+        <!-- ============================================== -->
+
         <!-- 1. ระบบ UI Layout -->
         <h6 class="fw-bold text-dark mb-2">
           <i class="fa-solid fa-desktop text-info me-2"></i> 
@@ -470,7 +537,9 @@
             shop_phone: document.getElementById('set-phone').value,
             shop_address: document.getElementById('set-address').value, 
             auto_print: isChecked ? "true" : "false",
-            shop_logo: document.getElementById('set-logo-url').value
+            shop_logo: document.getElementById('set-logo-url').value,
+            pay_sound_enable: document.getElementById('set-sound-enable') ? document.getElementById('set-sound-enable').checked.toString() : "false",
+            pay_sound_url: document.getElementById('set-sound-file') ? document.getElementById('set-sound-file').value : "https://actions.google.com/sounds/v1/alarms/cash_register.ogg"
         };
 
         google.script.run.withSuccessHandler(() => {
@@ -664,7 +733,19 @@
           document.getElementById('set-logo-preview').src = s.shop_logo; 
           document.getElementById('set-logo-preview').style.display = 'block'; 
           document.getElementById('set-logo-url').value = s.shop_logo;
-        }  
+        }
+        
+        // 🌟 โหลดค่าการตั้งค่าเสียง
+        let setSoundEnable = document.getElementById('set-sound-enable');
+        let setSoundFile = document.getElementById('set-sound-file');
+        
+        if (setSoundEnable && s.pay_sound_enable) {
+            setSoundEnable.checked = (s.pay_sound_enable === 'true');
+        }
+        if (setSoundFile && s.pay_sound_url) {
+            setSoundFile.value = s.pay_sound_url;
+        }
+        
       }).getShopSettings(currentTenantSheetId);
     }
 
@@ -714,7 +795,9 @@
         shop_phone: document.getElementById('set-phone').value,
         shop_address: document.getElementById('set-address').value, 
         auto_print: (autoPrintCheck && autoPrintCheck.checked) ? "true" : "false",
-        shop_logo: document.getElementById('set-logo-url').value
+        shop_logo: document.getElementById('set-logo-url').value,
+        pay_sound_enable: document.getElementById('set-sound-enable') ? document.getElementById('set-sound-enable').checked.toString() : "false",
+        pay_sound_url: document.getElementById('set-sound-file') ? document.getElementById('set-sound-file').value : "https://actions.google.com/sounds/v1/alarms/cash_register.ogg"
       };
       
       google.script.run
@@ -728,6 +811,9 @@
           google.script.run.logAction(currentTenantSheetId, staff, "ตั้งค่าระบบ", "อัปเดตข้อมูลร้านค้า & การพิมพ์");
           Swal.fire(i18n[currentLang]['swal_save_success2'], i18n[currentLang]['swal_save_setting_success'], 'success'); 
           loadActivityLogsData(); 
+          
+          // อัปเดต cachedSettings ใหม่อีกครั้งเพื่อให้อัปเดตได้ทันที
+          google.script.run.withSuccessHandler(s => { cachedShopSettings = s || {}; }).getShopSettings(currentTenantSheetId);
         })
         .withFailureHandler((err) => {
           if (uploadStatus) uploadStatus.innerText = ''; 
@@ -1283,6 +1369,18 @@
              }).deleteTestBills(currentTenantSheetId, receiptIds); 
           }
        });
+    }
+
+    // ---------------------------------------------------------
+    // ฟังก์ชันกดฟังเสียงจากเมนูตั้งค่า
+    // ---------------------------------------------------------
+    function previewPaymentSound() {
+        const soundUrl = document.getElementById('set-sound-file').value;
+        const audio = new Audio(soundUrl);
+        audio.play().catch(err => {
+            console.error("เล่นเสียงไม่ได้:", err);
+            Swal.fire({icon: 'error', title: 'ไม่สามารถเล่นเสียงได้', text: 'เบราว์เซอร์ของคุณอาจบล็อกการเล่นเสียงอัตโนมัติ'});
+        });
     }
 
   </script>
