@@ -435,12 +435,26 @@
     }
 
     function switchPOSMode(mode) {
-      currentPOSMode = mode; const gView = document.getElementById('pos-grid-view'); const cartContainer = document.getElementById('pos-cart-container');
-      const bBtn = document.getElementById('btn-mode-barcode'); const gBtn = document.getElementById('btn-mode-grid'); const sizeCtrl = document.getElementById('grid-size-controller'); const catFilter = document.getElementById('pos-category-filter'); 
+      currentPOSMode = mode; 
+      const gView = document.getElementById('pos-grid-view'); 
+      const cartContainer = document.getElementById('pos-cart-container');
+      const sizeCtrl = document.getElementById('grid-size-controller'); 
+      const catFilter = document.getElementById('pos-category-filter'); 
+      
       if (mode === 'barcode') {
-        gView.style.display = 'none'; cartContainer.style.maxHeight = '70vh'; bBtn.className = "btn btn-primary fw-bold rounded-3 px-3 py-2"; gBtn.className = "btn btn-outline-primary fw-bold rounded-3 px-3 py-2"; sizeCtrl.classList.remove('d-flex'); sizeCtrl.classList.add('d-none'); catFilter.classList.add('d-none'); setTimeout(() => { document.getElementById('pos-barcode-input').focus(); }, 100);
+        gView.style.display = 'none'; 
+        cartContainer.style.maxHeight = '70vh'; 
+        sizeCtrl.classList.remove('d-flex'); 
+        sizeCtrl.classList.add('d-none'); 
+        catFilter.classList.add('d-none'); 
+        setTimeout(() => { document.getElementById('pos-barcode-input').focus(); }, 100);
       } else {
-        gView.style.display = 'block'; cartContainer.style.maxHeight = '35vh'; bBtn.className = "btn btn-outline-primary fw-bold rounded-3 px-3 py-2"; gBtn.className = "btn btn-primary fw-bold rounded-3 px-3 py-2"; sizeCtrl.classList.remove('d-none'); sizeCtrl.classList.add('d-flex'); catFilter.classList.remove('d-none'); renderMenuGrid();
+        gView.style.display = 'block'; 
+        cartContainer.style.maxHeight = '35vh'; 
+        sizeCtrl.classList.remove('d-none'); 
+        sizeCtrl.classList.add('d-flex'); 
+        catFilter.classList.remove('d-none'); 
+        renderMenuGrid();
       }
     }
 
