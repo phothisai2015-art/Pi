@@ -56,15 +56,14 @@
     body.dark-theme #pos-cust-name { background-color: #1e293b !important; color: #f8fafc !important; }
     body.dark-theme #pos-discount { background-color: #1e293b !important; }
     body.dark-theme #pos-barcode-input::placeholder, 
-    
-    body.dark-theme #pos-cust-name::placeholder { color: #94a3b8 !important; }
+    body.dark-theme #pos-search-bill-input::placeholder { color: #94a3b8 !important; }
     body.dark-theme #page-pos .input-group-text.bg-white { background-color: #1e293b !important; color: #94a3b8 !important; border-color: #334155 !important; }
 
     /* 🔒 ล็อคความสูงหน้าจอไม่ให้ตกขอบใน Desktop */
     @media (min-width: 992px) {
       #page-pos { overflow-y: hidden !important; }
       .pos-left-box { height: calc(100vh - 85px); overflow: hidden; } /* แก้จาก 130px เป็น 85px */
-      .pos-right-summary { max-height: calc(100vh - 200px); overflow-y: auto; overflow-x: hidden; }
+      .pos-right-summary { overflow-y: auto; overflow-x: hidden; }
     }
     @media (max-width: 991px) {
       #page-pos { overflow-y: auto !important; }
