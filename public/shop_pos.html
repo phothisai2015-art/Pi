@@ -422,25 +422,29 @@
         });
       }
     }
-	// 🎯 ฟังก์ชันปรับสเกลหน้า POS ให้พอดีจอ 100% อัตโนมัติ
+// 🎯 ฟังก์ชันปรับสเกลหน้า POS ให้พอดีจอ 100% อัตโนมัติ (ฉบับแก้ไขขอบล่างทะลุ)
 function autoFitPOSLayout() {
   const posPage = document.getElementById('page-pos');
   if (!posPage) return;
 
   // ทำงานเฉพาะจอ Desktop / แท็บเล็ตแนวนอน (กว้างเกิน 991px)
   if (window.innerWidth >= 992) {
-    const baseHeight = 900; // ความสูงอ้างอิงมาตรฐานที่แสดงผลสวยงาม (แบบรูปที่ 1)
+    const baseHeight = 900; // ความสูงอ้างอิงมาตรฐาน
     const currentHeight = window.innerHeight;
 
     if (currentHeight < baseHeight) {
-      // คำนวณอัตราส่วนเพื่อย่อหน้าจอให้ลงตัวพอดี
       const scaleRatio = currentHeight / baseHeight;
       posPage.style.zoom = scaleRatio;
+      
+      // 🛠️ เพิ่มบรรทัดนี้: คำนวณขยายความสูงชดเชย เพื่อปิดทับเมนูหลักด้านล่างให้มิด 100%
+      posPage.style.height = (100 / scaleRatio) + 'vh';
     } else {
       posPage.style.zoom = '1';
+      posPage.style.height = '100vh';
     }
   } else {
-    posPage.style.zoom = '1'; // บนมือถือปล่อยให้เป็นตามปกติ
+    posPage.style.zoom = '1';
+    posPage.style.height = '100vh';
   }
 }
 
