@@ -774,7 +774,7 @@
 
     function posExecuteBulkReturnSequential(receiptId, items, currentIndex) {
        if (currentIndex >= items.length) {
-          Swal.fire({icon:'success', title: i18n[currentLang]['pos_alert_return_success'], timer: 1000, showConfirmButton:false});
+          Swal.fire({icon:'success', title: i18n[currentLang]['pos_alert_return_success'], timer: 2000, showConfirmButton:false});
           let staff = (typeof currentStaff !== 'undefined' && currentStaff.name) ? currentStaff.name : 'Unknown';
           google.script.run.logAction(currentTenantSheetId, staff, "คืนสินค้า", "คืนบางส่วนบิล " + receiptId);
           
