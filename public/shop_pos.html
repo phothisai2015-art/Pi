@@ -436,20 +436,57 @@
     }
 
     function openPOSPage() {
-      document.getElementById('page-pos').style.display = 'block'; document.getElementById('pos-staff-badge').innerText = currentStaff.name || "-"; switchPOSMode('grid');
-      if (!window.globalProducts || globalProducts.length === 0) { google.script.run.withSuccessHandler(function(data) { globalProducts = data; window.globalProducts = data; populatePOSCategory(); renderMenuGrid(); }).getProducts(currentTenantSheetId); } else { populatePOSCategory(); renderMenuGrid(); }
+      document.getElementById('page-pos').style.display = 'block'; 
+      document.getElementById('pos-staff-badge').innerText = currentStaff.name || "-"; 
+      switchPOSMode('grid');
+
+      // 🌟 ดึงประวัติบิลมาคำนวณยอดขายสะสมของสินค้าแต่ละชิ้น (ลอจิกเดียวกับ Dashboard)
+      google.script.run.withSuccessHandler(function(salesData) {
+        window.posSalesCount = {};
+        if (Array.isArray(salesData)) {
+          salesData.forEach(sale => {
+            if (sale.receiptId && sale.receiptId.includes('(ยกเลิก)')) return;
+            if (sale.items) {
+              sale.items.split(' | ').forEach(str => {
+                let match = str.match(/^(.*?)\s*\(x(\d+)/);
+                if (match) {
+                  let name = match[1].trim();
+                  let qty = parseInt(match[2]) || 0;
+                  window.posSalesCount[name] = (window.posSalesCount[name] || 0) + qty;
+                }
+              });
+            }
+          });
+        }
+
+        // เมื่อนับสถิติเสร็จแล้ว ค่อยโหลดสินค้าและสั่งแสดงผล
+        if (!window.globalProducts || globalProducts.length === 0) { 
+          google.script.run.withSuccessHandler(function(data) { 
+            globalProducts = data; 
+            window.globalProducts = data; 
+            populatePOSCategory(); 
+            renderMenuGrid(); 
+          }).getProducts(currentTenantSheetId); 
+        } else { 
+          populatePOSCategory(); 
+          renderMenuGrid(); 
+        }
+      }).getDashboardData(currentTenantSheetId);
+
       google.script.run.withSuccessHandler(function(settings) {
-        cachedShopSettings = settings; shopPromptPayNo = settings.shop_promptpay; shopName = settings.shop_name; let accName = settings.shop_account_name || settings.shop_name;
-        document.getElementById('pp-name').innerText = accName; isAutoPrintEnabled = (settings.auto_print === "true" || settings.auto_print === true);
+        cachedShopSettings = settings; 
+        shopPromptPayNo = settings.shop_promptpay; 
+        shopName = settings.shop_name; 
+        let accName = settings.shop_account_name || settings.shop_name;
+        document.getElementById('pp-name').innerText = accName; 
+        isAutoPrintEnabled = (settings.auto_print === "true" || settings.auto_print === true);
       }).getShopSettings(currentTenantSheetId);
       
-      // แปลภาษาในหน้า POS
       if (typeof changeLanguage === 'function') {
         changeLanguage(currentLang);
-        syncLanguageToCFD(currentLang); // 🌟 ยิงซิงค์ภาษาให้ CFD ด้วย
+        syncLanguageToCFD(currentLang);
       }
 
-      // แนบ Event Listener สำหรับ Infinite Scroll (ถ้ายังไม่ได้แนบ)
       const gridView = document.getElementById('pos-grid-view');
       if (gridView && !gridView.hasAttribute('data-scroll-attached')) {
         gridView.setAttribute('data-scroll-attached', 'true');
@@ -532,8 +569,19 @@
               let stock = parseInt(p.stock); let minStock = parseInt(p.minStock) || 5;
               if (stock <= 0) return 1; if (stock <= minStock) return 2; return 3; 
             };
-            let statusA = getStockStatus(a); let statusB = getStockStatus(b);
+            
+            let statusA = getStockStatus(a); 
+            let statusB = getStockStatus(b);
+            
+            // 1. เรียงตามสถานะสต็อกก่อน (ของหมดดันไปล่างสุด)
             if (statusA !== statusB) return statusA - statusB; 
+            
+            // 2. เรียงตามยอดขายสะสม (ขายดีที่สุดขึ้นก่อน)
+            let soldA = window.posSalesCount ? (window.posSalesCount[a.name] || 0) : 0;
+            let soldB = window.posSalesCount ? (window.posSalesCount[b.name] || 0) : 0;
+            if (soldA !== soldB) return soldB - soldA;
+
+            // 3. ถ้ายอดขายเท่ากัน ให้เรียงตามตัวอักษรชื่อสินค้า
             return a.name.localeCompare(b.name); 
           });
       }
