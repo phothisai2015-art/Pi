@@ -44,6 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // 🌟 สั่งให้ Popup โฆษณาเด้งขึ้นมาทุกครั้งที่รีเฟรชหรือเข้าหน้าเว็บ
   const advertModalElement = document.getElementById('advertModal');
   if (advertModalElement) {
+    loadDynamicAds();
     const adModal = new bootstrap.Modal(advertModalElement, {
       backdrop: true, // ให้คลิกพื้นที่ว่างรอบๆ เพื่อปิดได้
       keyboard: true  // ให้กดปุ่ม ESC ที่คีย์บอร์ดเพื่อปิดได้
@@ -89,6 +90,60 @@ function setupEnterKeys() {
 
   // หน้าต่ออายุ
   addEnterListener('renew-email-input', renewSearchShop);
+}
+
+// ==========================================
+// 🌟 ฟังก์ชันโหลดรูปโฆษณาอัตโนมัติตามโฟลเดอร์
+// ==========================================
+function loadDynamicAds() {
+  const indicatorsContainer = document.getElementById('dynamic-carousel-indicators');
+  const innerContainer = document.getElementById('dynamic-carousel-inner');
+  
+  if (!indicatorsContainer || !innerContainer) return;
+  
+  let index = 1;
+
+  function checkAndLoadImage() {
+    const imgUrl = `/advert/${index}.jpg`;
+    const img = new Image();
+    
+    // ถ้ารูปมีอยู่จริง (โหลดสำเร็จ)
+    img.onload = function() {
+      // 1. สร้างจุด Indicator
+      const indicator = document.createElement('button');
+      indicator.type = 'button';
+      indicator.setAttribute('data-bs-target', '#adCarouselIndicators');
+      indicator.setAttribute('data-bs-slide-to', index - 1);
+      if (index === 1) indicator.classList.add('active');
+      indicatorsContainer.appendChild(indicator);
+
+      // 2. สร้างกรอบและใส่รูป
+      const itemDiv = document.createElement('div');
+      itemDiv.className = index === 1 ? 'carousel-item active' : 'carousel-item';
+      
+      const imgElement = document.createElement('img');
+      imgElement.src = imgUrl;
+      imgElement.setAttribute('data-bs-target', '#adCarouselIndicators');
+      imgElement.setAttribute('data-bs-slide', 'next'); // คลิกแล้วเลื่อน
+      imgElement.style.cursor = 'pointer';
+      imgElement.title = 'คลิกเพื่อดูรูปถัดไป';
+      
+      itemDiv.appendChild(imgElement);
+      innerContainer.appendChild(itemDiv);
+
+      index++;
+      checkAndLoadImage(); // เรียกตัวเองซ้ำเพื่อเช็ครูปหมายเลขถัดไป
+    };
+    
+    // ถ้าไม่เจอรูป (เช่น ถึงรูปที่ 7 แต่ไม่มีไฟล์ 7.jpg) ให้หยุดทำงาน
+    img.onerror = function() {
+      console.log(`✅ โหลดโฆษณาอัตโนมัติสำเร็จ! มีทั้งหมด ${index - 1} รูป`);
+    };
+    
+    img.src = imgUrl; // สั่งให้เริ่มโหลด
+  }
+  
+  checkAndLoadImage();
 }
 
 // ==========================================
@@ -562,50 +617,23 @@ body.dark-theme .ad-close-btn {
       <button type="button" class="btn-close ad-close-btn" data-bs-dismiss="modal" aria-label="Close"></button>
       
       <!-- Slider รูปภาพ -->
+      <!-- Slider รูปภาพ -->
       <div class="modal-body p-0 h-100">
-        <!-- 📌 1. แก้ไขความเร็วตรง data-bs-interval (เปลี่ยนจาก 4000 เป็น 2000 คือ 2 วินาที หรือ 1500 คือ 1.5 วินาที) -->
         <div id="adCarouselIndicators" class="carousel slide carousel-fade ad-carousel" data-bs-ride="carousel" data-bs-interval="2000">
           
-          <!-- ปุ่มบอกตำแหน่งสไลด์ด้านล่าง (Indicators) -->
-          <div class="carousel-indicators mb-3">
-            <button type="button" data-bs-target="#adCarouselIndicators" data-bs-slide-to="0" class="active" aria-current="true"></button>
-            <button type="button" data-bs-target="#adCarouselIndicators" data-bs-slide-to="1"></button>
-            <button type="button" data-bs-target="#adCarouselIndicators" data-bs-slide-to="2"></button>
-            <button type="button" data-bs-target="#adCarouselIndicators" data-bs-slide-to="3"></button>
-            <button type="button" data-bs-target="#adCarouselIndicators" data-bs-slide-to="4"></button>
-            <button type="button" data-bs-target="#adCarouselIndicators" data-bs-slide-to="5"></button>
-          </div>
+          <!-- 📌 จุด Indicators ด้านล่าง (ปล่อยว่างไว้ เดี๋ยว JS จะสร้างให้เอง) -->
+          <div class="carousel-indicators mb-3" id="dynamic-carousel-indicators"></div>
 
-          <!-- รูปภาพอ้างอิงจากไฟล์ใน public/advert/ -->
-          <div class="carousel-inner">
-            <!-- 📌 2. เพิ่ม data-bs-slide="next" และ style="cursor: pointer;" ไปที่ <img> ทุกตัวเพื่อให้คลิกเลื่อนได้ -->
-            <div class="carousel-item active">
-              <img src="/advert/1.jpg" alt="Advertisement 1" data-bs-target="#adCarouselIndicators" data-bs-slide="next" style="cursor: pointer;" title="คลิกเพื่อดูรูปถัดไป">
-            </div>
-            <div class="carousel-item">
-              <img src="/advert/2.jpg" alt="Advertisement 2" data-bs-target="#adCarouselIndicators" data-bs-slide="next" style="cursor: pointer;" title="คลิกเพื่อดูรูปถัดไป">
-            </div>
-            <div class="carousel-item">
-              <img src="/advert/3.jpg" alt="Advertisement 3" data-bs-target="#adCarouselIndicators" data-bs-slide="next" style="cursor: pointer;" title="คลิกเพื่อดูรูปถัดไป">
-            </div>
-            <div class="carousel-item">
-              <img src="/advert/4.jpg" alt="Advertisement 4" data-bs-target="#adCarouselIndicators" data-bs-slide="next" style="cursor: pointer;" title="คลิกเพื่อดูรูปถัดไป">
-            </div>
-            <div class="carousel-item">
-              <img src="/advert/5.jpg" alt="Advertisement 5" data-bs-target="#adCarouselIndicators" data-bs-slide="next" style="cursor: pointer;" title="คลิกเพื่อดูรูปถัดไป">
-            </div>
-            <div class="carousel-item">
-              <img src="/advert/6.jpg" alt="Advertisement 6" data-bs-target="#adCarouselIndicators" data-bs-slide="next" style="cursor: pointer;" title="คลิกเพื่อดูรูปถัดไป">
-            </div>
-          </div>
+          <!-- 📌 รูปภาพโฆษณา (ปล่อยว่างไว้ เดี๋ยว JS จะดึงรูปมาใส่เอง) -->
+          <div class="carousel-inner" id="dynamic-carousel-inner"></div>
 
-          <!-- ปุ่มกด เลื่อนซ้าย-ขวา (ยังคงไว้เผื่ออยากกดถอยหลัง) -->
+          <!-- ปุ่มกด เลื่อนซ้าย (ย้อนกลับ) -->
           <button class="carousel-control-prev" type="button" data-bs-target="#adCarouselIndicators" data-bs-slide="prev">
             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
             <span class="visually-hidden">Previous</span>
           </button>
+          <!-- ปุ่มกด เลื่อนขวา (ซ่อนไว้เพราะกดที่รูปแทน) -->
           <button class="carousel-control-next" type="button" data-bs-target="#adCarouselIndicators" data-bs-slide="next" style="pointer-events: none; opacity: 0;">
-            <!-- ซ่อนปุ่ม Next เดิมไปเลยเพราะเรากดที่รูปแทนได้แล้ว (ปรับ opacity เป็น 0) -->
             <span class="carousel-control-next-icon" aria-hidden="true"></span>
             <span class="visually-hidden">Next</span>
           </button>
