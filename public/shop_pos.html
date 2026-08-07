@@ -732,6 +732,13 @@
 
         let displayMethod = method === 'เงินสด' ? i18n[currentLang]['pos_text_cash'] : i18n[currentLang]['pos_text_transfer'];
         let receiptData = { receiptId: res.receiptId, date: new Date().toLocaleString('th-TH'), customer: document.getElementById('pos-cust-name').value, items: [...posCart], subtotal: netTotal + discount, discount: discount, netTotal: netTotal, payment: displayMethod, seller: currentStaff.name };
+        
+        // 🌟 เพิ่มส่วนนี้: บวกยอดขายเข้าตัวแปรทันทีที่คิดเงินเสร็จ (ก่อนล้างตะกร้า)
+        if (!window.posSalesCount) window.posSalesCount = {};
+        posCart.forEach(item => {
+          window.posSalesCount[item.name] = (window.posSalesCount[item.name] || 0) + item.qty;
+        });
+
         posCart = []; lastScannedItem = null; document.getElementById('pos-cust-name').value = ''; document.getElementById('pos-discount').value = '0'; renderCart(); syncCFD('CHECKOUT_SUCCESS'); 
         google.script.run.logAction(currentTenantSheetId, currentStaff.name, "ขายสินค้า", "เปิดบิล " + res.receiptId + " ยอด " + netTotal + " บ.");
 
