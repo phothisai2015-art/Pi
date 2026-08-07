@@ -93,6 +93,11 @@
       <button class="settings-tab" onclick="switchSettingsTab('tab-advanced')" id="tab-btn-advanced">
          <i class="fa-solid fa-gear text-secondary"></i> <span data-i18n="set_advanced_title">⚙️ ตั้งค่าขั้นสูง (Excel, UI)</span>
       </button>
+	  
+	  <!-- 🌟 เพิ่มปุ่มเมนูเสียงตรงนี้ 🌟 -->
+      <button class="settings-tab" onclick="switchSettingsTab('tab-sound')" id="tab-btn-sound">
+         <i class="fa-solid fa-volume-high text-info"></i> <span class="custom-translate" data-i18n-th="ตั้งค่าเสียง (Sound)" data-i18n-en="Sound Settings">🔊 ตั้งค่าเสียง (Sound)</span>
+      </button>
     </div>
 
     <!-- Main Content Area -->
@@ -227,16 +232,6 @@
       <div id="tab-advanced" class="settings-panel bg-white p-3 p-lg-4 rounded-4 shadow-sm border h-100">
         <h5 class="fw-bold text-secondary mb-4"><i class="fa-solid fa-sliders me-2"></i> <span data-i18n="set_advanced_title">ตั้งค่าขั้นสูง (Advanced Settings)</span></h5>
 
-        <!-- ระบบเสียงแจ้งเตือน (ย้ายออกมาจาก Modal) -->
-        <h6 class="fw-bold text-primary mb-2">
-          <i class="fa-solid fa-volume-high me-2"></i> 
-          <span class="custom-translate" data-i18n-th="เสียงแจ้งเตือน (Sound)" data-i18n-en="Sound Settings">เสียงแจ้งเตือน (Sound)</span>
-        </h6>
-        <div class="mb-4 p-3 bg-light rounded-3 border">
-          <div class="form-check form-switch fs-6 d-flex justify-content-between align-items-center ps-0 mb-3 border-bottom pb-3">
-            <label class="form-check-label fw-bold text-dark m-0" for="ui-sound-payment">เปิดเสียงเมื่อชำระเงินสำเร็จ</label>
-            <input class="form-check-input m-0" type="checkbox" id="ui-sound-payment" style="width: 40px; height: 20px;" onchange="saveSoundSettings()">
-          </div>
           <div class="d-flex align-items-center gap-2">
             <select id="ui-sound-type" class="form-select form-select-sm fw-bold border-secondary text-dark" style="flex: 1;" onchange="saveSoundSettings()">
               <optgroup label="ไฟล์เสียง MP3 (สมจริง)">
@@ -298,11 +293,45 @@
           </div>
           <button class="btn btn-danger btn-sm fw-bold rounded-pill shadow-sm px-3 py-2" onclick="openClearTestModal()"><i class="fa-solid fa-trash-can me-1"></i> <span class="custom-translate" data-i18n-th="ลบข้อมูล" data-i18n-en="Delete Data">ลบข้อมูล</span></button>
         </div>
-
       </div>
+<!-- 🌟 TAB: ตั้งค่าเสียง (แยกใหม่) 🌟 -->
+      <div id="tab-sound" class="settings-panel bg-white p-3 p-lg-4 rounded-4 shadow-sm border h-100">
+        <h5 class="fw-bold text-dark mb-4">
+          <i class="fa-solid fa-volume-high text-info me-2"></i> 
+          <span class="custom-translate" data-i18n-th="ตั้งค่าเสียง (Sound Settings)" data-i18n-en="Sound Settings">ตั้งค่าเสียง (Sound Settings)</span>
+        </h5>
 
-    </div>
-  </div>
+        <h6 class="fw-bold text-primary mb-2">
+          <i class="fa-solid fa-volume-high me-2"></i> 
+          <span class="custom-translate" data-i18n-th="เสียงแจ้งเตือน (Sound)" data-i18n-en="Sound Settings">เสียงแจ้งเตือน (Sound)</span>
+        </h6>
+        <div class="mb-4 p-3 bg-light rounded-3 border">
+          <div class="form-check form-switch fs-6 d-flex justify-content-between align-items-center ps-0 mb-3 border-bottom pb-3">
+            <label class="form-check-label fw-bold text-dark m-0" for="ui-sound-payment">เปิดเสียงเมื่อชำระเงินสำเร็จ</label>
+            <input class="form-check-input m-0" type="checkbox" id="ui-sound-payment" style="width: 40px; height: 20px;" onchange="saveSoundSettings()">
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <select id="ui-sound-type" class="form-select form-select-sm fw-bold border-secondary text-dark" style="flex: 1;" onchange="saveSoundSettings()">
+              <optgroup label="ไฟล์เสียง MP3 (สมจริง)">
+                <option value="kaching_dragon">💸 ยูทูปเบอร์ แคชเชียร์ (Dragon Studio)</option>
+                <option value="purchase">🔔 เครื่องคิดเงิน 1 (Purchase)</option>
+                <option value="game_button">✨ ปุ่มเกม (Game Button)</option>
+                <option value="kaching_modestas">💰 ชิ้ง! แคชเชียร์ (Modestas)</option>
+                <option value="kaching_modestas_2">💰 ชิ้ง! แคชเชียร์ V2 (Modestas 2)</option>
+                <option value="drawer_open">💸 เปิดลิ้นชัก (Open Drawer)</option>
+                <option value="drawer_ding">🛎️ เปิดลิ้นชัก + ปิ๊ง (Open Ding)</option>
+              </optgroup>
+            </select>
+            <button id="btn-test-sound" class="btn btn-primary fw-bold text-nowrap rounded-3 shadow-sm" type="button" onclick="testPlaySound()">
+              <i class="fa-solid fa-play me-1"></i> ฟังเสียง
+            </button>
+          </div>
+        </div>
+      </div>
+      <!-- 📌 สิ้นสุด TAB: ตั้งค่าเสียง (tab-sound) -->
+
+    </div> <!-- 📌 ปิด settings-content -->
+  </div> <!-- 📌 ปิด container-fluid (settings-layout) -->
 
   <!-- Modal เพิ่มพนักงาน -->
   <div id="user-form-modal" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); z-index: 1050; justify-content: center; align-items: center; padding: 15px;">
@@ -473,6 +502,7 @@
       </div>
     </div>
   </div>
+  
 
   <script>
     // 🌟 สร้างตัวแปรเก็บไฟล์เสียงไว้ในหน่วยความจำ จะได้ไม่ต้องโหลดใหม่ทุกครั้ง
