@@ -242,9 +242,9 @@
               <optgroup label="ไฟล์เสียง MP3 (สมจริง)">
                 <option value="kaching_dragon">💸 ยูทูปเบอร์ แคชเชียร์ (Dragon Studio)</option>
                 <option value="kaching_modestas">💰 ชิ้ง! แคชเชียร์ (Modestas)</option>
-                <option value="kaching_modestas_2">💰 ชิ้ง! แคชเชียร์ V2 (Modestas 2)</option>
+                
                 <option value="purchase">🔔 เครื่องคิดเงิน 1 (Purchase)</option>
-                <option value="register_1">🛎️ เครื่องคิดเงิน 2 (Ksjsbwui1)</option>
+                
                 <option value="drawer_ding">🛎️ เปิดลิ้นชัก + ปิ๊ง (Open Ding)</option>
                 <option value="drawer_open">💸 เปิดลิ้นชัก (Open Drawer)</option>
                 <option value="game_button">✨ ปุ่มเกม (Game Button)</option>
@@ -475,25 +475,35 @@
   </div>
 
   <script>
+    // 🌟 สร้างตัวแปรเก็บไฟล์เสียงไว้ในหน่วยความจำ จะได้ไม่ต้องโหลดใหม่ทุกครั้ง
+    const audioCache = {};
+
     function playToneSound(soundType) {
       try {
         const soundUrls = {
           'kaching_dragon': '/sould/dragon-studio-cash-register-kaching-376867.mp3',
           'purchase': '/sould/freesound_community-cash-register-purchase-87313.mp3',
           'game_button': '/sould/freesound_gamestudio-button-394464.mp3',
-          'register_1': '/sould/ksjsbwui1-cash-register-1-513922.mp3',
+          
           'kaching_modestas': '/sould/modestas123123-cash-register-kaching-sound-effect-125042.mp3',
-          'kaching_modestas_2': '/sould/modestas123123-cash-register-kaching-sound-effect-125042 (1).mp3',
+          
           'drawer_open': '/sould/universfield-cash-register-open-567194.mp3',
           'drawer_ding': '/sould/universfield-cash-register-open-ding-559401.mp3'
         };
 
-        if (soundUrls[soundType]) {
-          const audio = new Audio(soundUrls[soundType]);
-          audio.volume = 1.0;
-          audio.play().catch(e => console.warn("Audio play blocked by browser:", e));
+        const url = soundUrls[soundType];
+        if (url) {
+          // ถ้ายังไม่เคยโหลดเสียงนี้ ให้โหลดมาเก็บไว้ใน Cache ก่อน
+          if (!audioCache[soundType]) {
+            audioCache[soundType] = new Audio(url);
+            audioCache[soundType].volume = 1.0;
+          }
           
-          return audio; // ส่งตัวเล่นเสียงกลับไปให้ปุ่มรับรู้
+          // สั่งให้กลับไปวินาทีที่ 0 (เผื่อกดซ้ำรัวๆ) แล้วเล่นเสียงทันที
+          audioCache[soundType].currentTime = 0;
+          audioCache[soundType].play().catch(e => console.warn("Audio play blocked by browser:", e));
+          
+          return audioCache[soundType];
         }
       } catch (e) {
         console.warn("Audio play error:", e);
