@@ -648,18 +648,20 @@ function togglePinProduct(productId) {
           let pinnedIds = getPinnedProductIds();
 
           // 🌟 เรียงลำดับ 4 ชั้น: 1.ของหมดอยู่ล่างสุด -> 2.ปักหมุด -> 3.ขายดี -> 4.ตัวอักษร
+          // 🌟 ลอจิกการเรียงลำดับใหม่: 1.ปักหมุดขึ้นก่อนเสมอ -> 2.ของหมดดันลงล่าง -> 3.ขายดี -> 4.ตัวอักษร
           currentFilteredProducts.sort((a, b) => {
+            let isPinnedA = pinnedIds.includes(a.id);
+            let isPinnedB = pinnedIds.includes(b.id);
+
+            // 1. สินค้าที่ "ปักหมุด" ให้อยู่บนสุดเสมอ (แม้ของจะหมด ก็ยังล็อกไว้อยู่บนสุดพร้อมป้ายสีแดง)
+            if (isPinnedA !== isPinnedB) return isPinnedA ? -1 : 1;
+
             const isOut = (p) => (p.stock !== "ไม่จำกัด" && !isNaN(parseInt(p.stock)) && parseInt(p.stock) <= 0);
             let isOutA = isOut(a);
             let isOutB = isOut(b);
 
-            // 1. สินค้าหมดดันลงล่างสุด
+            // 2. สำหรับสินค้าปกติ (ไม่ได้ปักหมุด) ถ้า "หมด" ให้ดันลงไปอยู่ล่างสุด
             if (isOutA !== isOutB) return isOutA ? 1 : -1;
-
-            // 2. สินค้าที่ปักหมุดขึ้นบนสุด
-            let isPinnedA = pinnedIds.includes(a.id);
-            let isPinnedB = pinnedIds.includes(b.id);
-            if (isPinnedA !== isPinnedB) return isPinnedA ? -1 : 1;
 
             // 3. เรียงตามยอดขายสะสม (ขายดีขึ้นก่อน)
             let soldA = (window.posSalesCount && window.posSalesCount[a.name]) ? window.posSalesCount[a.name] : 0;
