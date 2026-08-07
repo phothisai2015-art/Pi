@@ -440,7 +440,7 @@
       document.getElementById('pos-staff-badge').innerText = currentStaff.name || "-"; 
       switchPOSMode('grid');
 
-      // 🌟 ดึงประวัติบิลมาคำนวณยอดขายสะสมของสินค้าแต่ละชิ้น (ลอจิกเดียวกับ Dashboard)
+      // 🌟 ดึงประวัติบิลมานับยอดขายเตรียมไว้ก่อน
       google.script.run.withSuccessHandler(function(salesData) {
         window.posSalesCount = {};
         if (Array.isArray(salesData)) {
@@ -459,7 +459,7 @@
           });
         }
 
-        // เมื่อนับสถิติเสร็จแล้ว ค่อยโหลดสินค้าและสั่งแสดงผล
+        // เมื่อคำนวณยอดขายเสร็จแล้ว ค่อยสั่งแสดงผลสินค้า
         if (!window.globalProducts || globalProducts.length === 0) { 
           google.script.run.withSuccessHandler(function(data) { 
             globalProducts = data; 
@@ -564,25 +564,30 @@
           currentFilteredProducts = globalProducts.filter(p => selectedCat === "all" || p.category === selectedCat);
           
           currentFilteredProducts.sort((a, b) => {
-            const getStockStatus = (p) => {
-              if (p.stock === "ไม่จำกัด" || isNaN(parseInt(p.stock))) return 4; 
-              let stock = parseInt(p.stock); let minStock = parseInt(p.minStock) || 5;
-              if (stock <= 0) return 1; if (stock <= minStock) return 2; return 3; 
+            // เช็กว่าสินค้าหมดหรือไม่ (ถ้าไม่ใช่ "ไม่จำกัด" และสต็อก <= 0 ถือว่าหมด)
+            const isOut = (p) => {
+              if (p.stock === "ไม่จำกัด" || isNaN(parseInt(p.stock))) return false;
+              return parseInt(p.stock) <= 0;
             };
-            
-            let statusA = getStockStatus(a); 
-            let statusB = getStockStatus(b);
-            
-            // 1. เรียงตามสถานะสต็อกก่อน (ของหมดดันไปล่างสุด)
-            if (statusA !== statusB) return statusA - statusB; 
-            
-            // 2. เรียงตามยอดขายสะสม (ขายดีที่สุดขึ้นก่อน)
-            let soldA = window.posSalesCount ? (window.posSalesCount[a.name] || 0) : 0;
-            let soldB = window.posSalesCount ? (window.posSalesCount[b.name] || 0) : 0;
-            if (soldA !== soldB) return soldB - soldA;
+
+            let isOutA = isOut(a);
+            let isOutB = isOut(b);
+
+            // 1. สินค้าที่ "หมด" ให้ดันไปอยู่ล่างสุดเสมอ
+            if (isOutA !== isOutB) {
+              return isOutA ? 1 : -1;
+            }
+
+            // 2. ถ้ามีของทั้งคู่ ให้เรียงตาม "ยอดขายสะสม" (ขายดีสุดขึ้นก่อน)
+            let soldA = (window.posSalesCount && window.posSalesCount[a.name]) ? window.posSalesCount[a.name] : 0;
+            let soldB = (window.posSalesCount && window.posSalesCount[b.name]) ? window.posSalesCount[b.name] : 0;
+
+            if (soldB !== soldA) {
+              return soldB - soldA; // ขายได้เยอะกว่าขึ้นก่อน
+            }
 
             // 3. ถ้ายอดขายเท่ากัน ให้เรียงตามตัวอักษรชื่อสินค้า
-            return a.name.localeCompare(b.name); 
+            return a.name.localeCompare(b.name, 'th');
           });
       }
 
