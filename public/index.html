@@ -562,7 +562,7 @@ function processSaaSLogin() {
           // หน่วงเวลา 1 วินาที (1000ms) ให้เสียงเล่นจบก่อน แล้วค่อยเด้งเข้าหน้า POS
           setTimeout(() => {
               window.location.href = '/shop'; 
-          }, 1000);
+          }, 2000);
       }
   }).withFailureHandler(function(err) {
       isSaaSLoggingIn = false; Swal.fire({ icon: 'error', title: 'Error', text: i18n[currentLang]['idx_alert_conn_fail'] || 'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้' });
