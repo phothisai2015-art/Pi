@@ -299,14 +299,15 @@ body.dark-theme .swal2-icon.swal2-error {
 /* ========================================================= */
 /* 🌟 สไตล์ (Styles) สำหรับ Popup โฆษณา */
 /* ========================================================= */
+/* ========================================================= */
+/* 🌟 สไตล์ (Styles) สำหรับ Popup โฆษณา */
+/* ========================================================= */
 .ad-modal-dialog {
   max-width: 75vw; /* กว้าง 3 ใน 4 ของหน้าจอ */
-  height: 75vh; /* สูง 3 ใน 4 ของหน้าจอ */
-  margin: auto;
-  display: flex;
-  align-items: center;
+  /* ลบคำสั่งความสูงและ margin ออก ให้ Bootstrap จัดกลางจอให้เอง */
 }
 .ad-glass-content {
+  height: 75vh; /* 📌 ย้ายความสูง (3 ใน 4 ของจอ) มาไว้ตรงนี้แทน */
   background: rgba(255, 255, 255, 0.4);
   backdrop-filter: blur(25px);
   -webkit-backdrop-filter: blur(25px);
@@ -314,7 +315,6 @@ body.dark-theme .swal2-icon.swal2-error {
   border-radius: 28px;
   box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2);
   overflow: hidden;
-  height: 100%;
   width: 100%;
 }
 .ad-close-btn {
@@ -353,8 +353,14 @@ body.dark-theme .ad-glass-content {
   box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
 }
 body.dark-theme .ad-close-btn {
-  background-color: rgba(0, 0, 0, 0.5);
-  filter: invert(1);
+  background-color: #ffffff !important; /* บังคับพื้นหลังปุ่มเป็นสีขาว */
+  filter: none !important; /* ยกเลิกการสลับสี */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8) !important; /* เพิ่มเงาให้เข้มขึ้นเพื่อให้ตัดกับรูป */
+  opacity: 0.9;
+}
+body.dark-theme .ad-close-btn:hover {
+  background-color: #f8f9fa !important;
+  opacity: 1;
 }
 
 /* 📌 วางโค้ดแก้ป๊อปอัพอยู่ข้างหลัง ตรงนี้เลยครับ */
