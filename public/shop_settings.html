@@ -476,7 +476,7 @@
 
   <script>
     // 🌟 สร้างตัวแปรเก็บไฟล์เสียงไว้ในหน่วยความจำ จะได้ไม่ต้องโหลดใหม่ทุกครั้ง
-    const audioCache = {};
+    var audioCache = window.audioCache || {};
 
     function playToneSound(soundType) {
       try {
