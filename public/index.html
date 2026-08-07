@@ -563,7 +563,8 @@ body.dark-theme .ad-close-btn {
       
       <!-- Slider รูปภาพ -->
       <div class="modal-body p-0 h-100">
-        <div id="adCarouselIndicators" class="carousel slide carousel-fade ad-carousel" data-bs-ride="carousel" data-bs-interval="4000">
+        <!-- 📌 1. แก้ไขความเร็วตรง data-bs-interval (เปลี่ยนจาก 4000 เป็น 2000 คือ 2 วินาที หรือ 1500 คือ 1.5 วินาที) -->
+        <div id="adCarouselIndicators" class="carousel slide carousel-fade ad-carousel" data-bs-ride="carousel" data-bs-interval="2000">
           
           <!-- ปุ่มบอกตำแหน่งสไลด์ด้านล่าง (Indicators) -->
           <div class="carousel-indicators mb-3">
@@ -577,32 +578,34 @@ body.dark-theme .ad-close-btn {
 
           <!-- รูปภาพอ้างอิงจากไฟล์ใน public/advert/ -->
           <div class="carousel-inner">
+            <!-- 📌 2. เพิ่ม data-bs-slide="next" และ style="cursor: pointer;" ไปที่ <img> ทุกตัวเพื่อให้คลิกเลื่อนได้ -->
             <div class="carousel-item active">
-              <img src="/advert/1.jpg" alt="Advertisement 1">
+              <img src="/advert/1.jpg" alt="Advertisement 1" data-bs-target="#adCarouselIndicators" data-bs-slide="next" style="cursor: pointer;" title="คลิกเพื่อดูรูปถัดไป">
             </div>
             <div class="carousel-item">
-              <img src="/advert/2.jpg" alt="Advertisement 2">
+              <img src="/advert/2.jpg" alt="Advertisement 2" data-bs-target="#adCarouselIndicators" data-bs-slide="next" style="cursor: pointer;" title="คลิกเพื่อดูรูปถัดไป">
             </div>
             <div class="carousel-item">
-              <img src="/advert/3.jpg" alt="Advertisement 3">
+              <img src="/advert/3.jpg" alt="Advertisement 3" data-bs-target="#adCarouselIndicators" data-bs-slide="next" style="cursor: pointer;" title="คลิกเพื่อดูรูปถัดไป">
             </div>
             <div class="carousel-item">
-              <img src="/advert/4.jpg" alt="Advertisement 4">
+              <img src="/advert/4.jpg" alt="Advertisement 4" data-bs-target="#adCarouselIndicators" data-bs-slide="next" style="cursor: pointer;" title="คลิกเพื่อดูรูปถัดไป">
             </div>
             <div class="carousel-item">
-              <img src="/advert/5.jpg" alt="Advertisement 5">
+              <img src="/advert/5.jpg" alt="Advertisement 5" data-bs-target="#adCarouselIndicators" data-bs-slide="next" style="cursor: pointer;" title="คลิกเพื่อดูรูปถัดไป">
             </div>
             <div class="carousel-item">
-              <img src="/advert/6.jpg" alt="Advertisement 6">
+              <img src="/advert/6.jpg" alt="Advertisement 6" data-bs-target="#adCarouselIndicators" data-bs-slide="next" style="cursor: pointer;" title="คลิกเพื่อดูรูปถัดไป">
             </div>
           </div>
 
-          <!-- ปุ่มกด เลื่อนซ้าย-ขวา -->
+          <!-- ปุ่มกด เลื่อนซ้าย-ขวา (ยังคงไว้เผื่ออยากกดถอยหลัง) -->
           <button class="carousel-control-prev" type="button" data-bs-target="#adCarouselIndicators" data-bs-slide="prev">
             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
             <span class="visually-hidden">Previous</span>
           </button>
-          <button class="carousel-control-next" type="button" data-bs-target="#adCarouselIndicators" data-bs-slide="next">
+          <button class="carousel-control-next" type="button" data-bs-target="#adCarouselIndicators" data-bs-slide="next" style="pointer-events: none; opacity: 0;">
+            <!-- ซ่อนปุ่ม Next เดิมไปเลยเพราะเรากดที่รูปแทนได้แล้ว (ปรับ opacity เป็น 0) -->
             <span class="carousel-control-next-icon" aria-hidden="true"></span>
             <span class="visually-hidden">Next</span>
           </button>
