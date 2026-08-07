@@ -303,12 +303,12 @@ body.dark-theme .swal2-icon.swal2-error {
 /* 🌟 สไตล์ (Styles) สำหรับ Popup โฆษณา */
 /* ========================================================= */
 .ad-modal-dialog {
-  max-width: 75vw; /* กว้าง 3 ใน 4 ของหน้าจอ */
+  max-width: 60vw; /* กว้าง 3 ใน 4 ของหน้าจอ */
   margin: auto !important;
   /* ลบคำสั่งความสูงและ margin ออก ให้ Bootstrap จัดกลางจอให้เอง */
 }
 .ad-glass-content {
-  height: 75vh; /* 📌 ย้ายความสูง (3 ใน 4 ของจอ) มาไว้ตรงนี้แทน */
+  height: 65vh; /* 📌 ย้ายความสูง (3 ใน 4 ของจอ) มาไว้ตรงนี้แทน */
   background: rgba(255, 255, 255, 0.4);
   backdrop-filter: blur(25px);
   -webkit-backdrop-filter: blur(25px);
@@ -321,10 +321,10 @@ body.dark-theme .swal2-icon.swal2-error {
 /* 📱 📌 เพิ่มส่วนนี้: ปรับขนาดเฉพาะหน้าจอมือถือ (กว้างไม่เกิน 768px) */
 @media (max-width: 768px) {
   .ad-modal-dialog {
-    max-width: 90vw !important; /* บนมือถือให้กว้าง 90% ของจอ จะได้ไม่แคบไป */
+    max-width: 85vw !important; /* บนมือถือให้กว้าง 90% ของจอ จะได้ไม่แคบไป */
   }
   .ad-glass-content {
-    height: 60vh !important; /* ปรับความสูงให้พอดีกับหน้าจอมือถือแนวตั้ง */
+    height: 55vh !important; /* ปรับความสูงให้พอดีกับหน้าจอมือถือแนวตั้ง */
   }
 }
 .ad-close-btn {
