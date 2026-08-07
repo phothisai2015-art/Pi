@@ -111,8 +111,6 @@
             </div>
           </div>
 
-          
-
           <div id="pos-grid-view" class="flex-fill" style="display: none; min-height: 300px; max-height: 100%; overflow-y: auto; padding: 5px; padding-top: 15px;">
             <div id="pos-menu-grid" class="d-flex flex-wrap gap-3 justify-content-start"></div>
           </div>
@@ -273,147 +271,9 @@
           const audio = new Audio(soundUrls[soundType]);
           audio.volume = 1.0;
           audio.play().catch(e => console.warn("Audio play blocked by browser:", e));
-          return;
-        }
-
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-        if (!AudioContext) return;
-        const ctx = new AudioContext();
-
-        const createNote = (freqStart, start, duration, type = 'sine', gainVal = 0.15, freqEnd = null) => {
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.type = type;
-          
-          osc.frequency.setValueAtTime(freqStart, ctx.currentTime + start);
-          if (freqEnd) {
-            osc.frequency.exponentialRampToValueAtTime(freqEnd, ctx.currentTime + start + duration);
-          }
-
-          gain.gain.setValueAtTime(0, ctx.currentTime + start); 
-          gain.gain.linearRampToValueAtTime(gainVal, ctx.currentTime + start + 0.01); 
-          gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + start + duration);
-          
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          osc.start(ctx.currentTime + start);
-          osc.stop(ctx.currentTime + start + duration);
-        };
-
-        switch (soundType) {
-          case 'chaching':
-            createNote(1046.50, 0, 0.15, 'sine', 0.2);
-            createNote(1567.98, 0.1, 0.4, 'sine', 0.25);
-            break;
-          case 'cash_register_ding':
-            createNote(1396.91, 0, 0.6, 'sine', 0.25);
-            createNote(1400.00, 0, 0.6, 'triangle', 0.15);
-            break;
-          case 'cash_drawer':
-            createNote(150, 0, 0.15, 'square', 0.1, 50);
-            createNote(1200, 0.15, 0.3, 'sine', 0.25);
-            break;
-          case 'chaching_pro':
-            createNote(1046.50, 0, 0.1, 'sine', 0.15); 
-            createNote(1318.51, 0.05, 0.1, 'sine', 0.15); 
-            createNote(1567.98, 0.1, 0.5, 'sine', 0.3, 2000);
-            break;
-          case 'coin_drop_synth':
-            createNote(900, 0, 0.15, 'square', 0.1, 2500);
-            createNote(1200, 0.08, 0.2, 'square', 0.1, 3000);
-            break;
-          case 'ping':
-            createNote(2000, 0, 0.2, 'sine', 0.15);
-            break;
-          case 'success':
-            createNote(523.25, 0, 0.1, 'triangle', 0.15);
-            createNote(659.25, 0.1, 0.1, 'triangle', 0.15);
-            createNote(783.99, 0.2, 0.1, 'triangle', 0.15);
-            createNote(1046.50, 0.3, 0.4, 'triangle', 0.2);
-            break;
-          case 'magic':
-            createNote(1200, 0, 0.1, 'sine', 0.1, 1500);
-            createNote(1600, 0.05, 0.1, 'sine', 0.1, 2000);
-            createNote(2000, 0.1, 0.1, 'sine', 0.1, 2500);
-            createNote(2400, 0.15, 0.4, 'sine', 0.15, 3000);
-            break;
-          case 'sparkle':
-            createNote(2093.00, 0, 0.1, 'sine', 0.1); 
-            createNote(2637.02, 0.05, 0.1, 'sine', 0.1); 
-            createNote(3135.96, 0.1, 0.3, 'sine', 0.1); 
-            break;
-          case 'bounce':
-            createNote(400, 0, 0.15, 'triangle', 0.15, 200);
-            createNote(200, 0.1, 0.25, 'triangle', 0.15, 800);
-            break;
-          case 'retro':
-            createNote(987.77, 0, 0.1, 'square', 0.1);
-            createNote(1318.51, 0.1, 0.2, 'square', 0.1);
-            break;
-          case 'level_up':
-            createNote(440, 0, 0.05, 'square', 0.1);
-            createNote(554, 0.05, 0.05, 'square', 0.1);
-            createNote(659, 0.1, 0.05, 'square', 0.1);
-            createNote(880, 0.15, 0.3, 'square', 0.15);
-            break;
-          case 'arcade_win':
-            createNote(523.25, 0, 0.1, 'square', 0.1);
-            createNote(523.25, 0.1, 0.1, 'square', 0.1);
-            createNote(523.25, 0.2, 0.1, 'square', 0.1);
-            createNote(659.25, 0.3, 0.4, 'square', 0.15);
-            break;
-          case 'digital':
-            createNote(1500, 0, 0.05, 'square', 0.05);
-            createNote(2500, 0.05, 0.1, 'square', 0.05);
-            break;
-          case 'laser':
-            createNote(2500, 0, 0.25, 'sawtooth', 0.1, 200);
-            break;
-          case 'sci_fi':
-            createNote(600, 0, 0.4, 'sine', 0.15, 1500);
-            createNote(1500, 0.2, 0.4, 'sine', 0.15, 600);
-            break;
-          case 'bell':
-            createNote(1200, 0, 0.6, 'sine', 0.2);
-            createNote(1210, 0, 0.6, 'sine', 0.2);
-            break;
-          case 'mellow':
-            createNote(349.23, 0, 0.5, 'triangle', 0.15); 
-            createNote(440.00, 0.05, 0.5, 'triangle', 0.15); 
-            createNote(523.25, 0.1, 0.5, 'triangle', 0.15); 
-            break;
-          case 'gentle_chime':
-            createNote(1046.50, 0, 0.4, 'sine', 0.1);
-            createNote(1318.51, 0.1, 0.4, 'sine', 0.1);
-            createNote(1567.98, 0.2, 0.5, 'sine', 0.1);
-            break;
-          case 'xylophone':
-            createNote(783.99, 0, 0.1, 'triangle', 0.2); 
-            createNote(1046.50, 0.15, 0.2, 'triangle', 0.2); 
-            break;
-          case 'guitar_strum':
-            createNote(196.00, 0, 0.5, 'sawtooth', 0.05); 
-            createNote(246.94, 0.03, 0.5, 'sawtooth', 0.05); 
-            createNote(293.66, 0.06, 0.5, 'sawtooth', 0.05); 
-            createNote(392.00, 0.09, 0.6, 'sawtooth', 0.05); 
-            break;
-          case 'deep_bass':
-            createNote(150, 0, 0.4, 'sine', 0.3, 40);
-            break;
-          case 'short_click':
-            createNote(2000, 0, 0.02, 'square', 0.05);
-            break;
-          case 'alert_double':
-            createNote(800, 0, 0.1, 'sawtooth', 0.1);
-            createNote(800, 0.15, 0.1, 'sawtooth', 0.1);
-            break;
-          default:
-            createNote(1046.50, 0, 0.15, 'sine', 0.2);
-            createNote(1567.98, 0.1, 0.35, 'sine', 0.25);
-            break;
         }
       } catch (e) {
-        console.warn("Audio Context error:", e);
+        console.warn("Audio play error:", e);
       }
     }
 
