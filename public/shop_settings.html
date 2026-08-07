@@ -250,9 +250,9 @@
                 <option value="game_button">✨ ปุ่มเกม (Game Button)</option>
               </optgroup>
             </select>
-            <button class="btn btn-primary fw-bold text-nowrap rounded-3 shadow-sm" type="button" onclick="testPlaySound()">
-              <i class="fa-solid fa-play me-1"></i> ฟังเสียง
-            </button>
+            <button id="btn-test-sound" class="btn btn-primary fw-bold text-nowrap rounded-3 shadow-sm" type="button" onclick="testPlaySound()">
+			<i class="fa-solid fa-play me-1"></i> ฟังเสียง
+			</button>
           </div>
         </div>
 
@@ -492,15 +492,51 @@
           const audio = new Audio(soundUrls[soundType]);
           audio.volume = 1.0;
           audio.play().catch(e => console.warn("Audio play blocked by browser:", e));
+          
+          return audio; // ส่งตัวเล่นเสียงกลับไปให้ปุ่มรับรู้
         }
       } catch (e) {
         console.warn("Audio play error:", e);
       }
+      return null;
     }
 
     function testPlaySound() {
       const selectedSound = document.getElementById('ui-sound-type').value;
-      playToneSound(selectedSound);
+      const btn = document.getElementById('btn-test-sound');
+      
+      // 1. เก็บข้อความเดิมของปุ่มไว้
+      const originalHtml = btn.innerHTML;
+      
+      // 2. เปลี่ยนหน้าตาปุ่ม ล็อกการกดซ้ำ และเปลี่ยนเป็นสีเขียว
+      btn.innerHTML = `<i class="fa-solid fa-volume-high fa-beat me-1"></i> กำลังเล่น...`;
+      btn.classList.replace('btn-primary', 'btn-success');
+      btn.disabled = true;
+
+      // 3. สั่งเล่นเสียง
+      const audioObj = playToneSound(selectedSound);
+      
+      // ฟังก์ชันสำหรับคืนค่าปุ่มกลับเป็นปกติ
+      function resetButton() {
+         btn.innerHTML = originalHtml;
+         btn.classList.replace('btn-success', 'btn-primary');
+         btn.disabled = false;
+      }
+
+      // 4. ตรวจสอบว่าเสียงกำลังเล่นอยู่หรือไม่
+      if (audioObj) {
+         // เมื่อเล่นเสียง "จบ" ให้คืนค่าปุ่ม
+         audioObj.onended = function() {
+            resetButton();
+         };
+         // หากมี "ข้อผิดพลาด" (เช่น หาไฟล์ MP3 ไม่เจอ) ให้คืนค่าปุ่ม
+         audioObj.onerror = function() {
+            resetButton();
+         };
+      } else {
+         // หากไม่เจอชื่อไฟล์ในระบบ ให้คืนค่าปุ่มทันที
+         resetButton();
+      }
     }
 
     function saveSoundSettings() {
