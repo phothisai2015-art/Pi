@@ -282,6 +282,22 @@ body.dark-theme .menu-card-btn:hover:not(:disabled) { border-color: #475569; box
 </div>
 
 <script>
+
+// 🌟 โหลดไฟล์เสียง "ปุ่มเกมส์" มารอไว้เลย (ใช้แค่เสียงเดียว)
+const btnSound = new Audio('/sould/freesound_gamestudio-button-394464.mp3');
+btnSound.volume = 1.0;
+
+function playToneSound() {
+  try {
+    btnSound.currentTime = 0; // กลับไปเริ่มที่ 0 ทันที (แก้ปัญหาเสียงหน่วงเวลากดรัวๆ)
+    btnSound.play().catch(e => console.warn("Audio play blocked:", e));
+  } catch (e) {
+    console.warn("Audio play error:", e);
+  }
+}
+
+
+  
 // ⚙️ Script สำหรับหน้าหลัก การล็อกอิน และแมวเดิน
 let currentTenantSheetId = "";
 let globalUsers = []; let currentStaff = { name: "Unknown", permissions: "" }; let currentPin = "";
