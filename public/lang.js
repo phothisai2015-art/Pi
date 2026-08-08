@@ -64,6 +64,7 @@ var i18n = {
     swal_searching: "กำลังค้นหาข้อมูล...",
     swal_req_reset_info: "กรุณากรอกข้อมูลและตั้งรหัสผ่านใหม่ให้ครบถ้วน",
     swal_checking: "กำลังตรวจสอบข้อมูล...",
+	swal_login_success: "เข้าสู่ระบบสำเร็จ!",
 
     // --------------------------------
     // 🖥️ ส่วน HTML: หน้าเมนูหลัก และ Numpad
@@ -701,6 +702,7 @@ var i18n = {
     swal_searching: "Searching for data...",
     swal_req_reset_info: "Please fill in data and set a new password",
     swal_checking: "Verifying data...",
+	swal_login_success: "Login Successful!",
 
     // --------------------------------
     // 🖥️ HTML Section: Main Menu & Numpad
