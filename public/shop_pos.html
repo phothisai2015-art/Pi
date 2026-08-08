@@ -526,16 +526,6 @@
 
           currentFilteredProducts = globalProducts.filter(p => selectedCat === "all" || p.category === selectedCat);
           
-          currentFilteredProducts.sort((a, b) => {
-            const getStockStatus = (p) => {
-              if (p.stock === "ไม่จำกัด" || isNaN(parseInt(p.stock))) return 4; 
-              let stock = parseInt(p.stock); let minStock = parseInt(p.minStock) || 5;
-              if (stock <= 0) return 1; if (stock <= minStock) return 2; return 3; 
-            };
-            let statusA = getStockStatus(a); let statusB = getStockStatus(b);
-            if (statusA !== statusB) return statusA - statusB; 
-            return a.name.localeCompare(b.name); 
-          });
       }
 
       if (currentFilteredProducts.length === 0) { 
@@ -572,6 +562,21 @@
         `; 
         gridContainer.appendChild(card);
       });
+	  // โค้ดเดิมจะจบที่ตรงนี้
+      // });
+
+      // 👇 นำโค้ดนี้ไปวางต่อท้าย 👇
+      if (typeof Sortable !== 'undefined') {
+        Sortable.create(gridContainer, {
+            animation: 150, 
+            delay: 300, // ⏳ ตั้งหน่วงเวลา 300ms (คือการกดค้างบนรูปสินค้าก่อนลาก)
+            delayOnTouchOnly: true, 
+            ghostClass: 'opacity-50', 
+            onEnd: function (evt) {
+                console.log('ย้ายไอเทมจากตำแหน่ง', evt.oldIndex, 'ไป', evt.newIndex);
+            }
+        });
+      }
     }
 
     function changeGridSize(val) { 
