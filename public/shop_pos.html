@@ -42,8 +42,7 @@
     .return-qty-input-pos { width: 70px; text-align: center; font-weight: bold; border-radius: 6px; border: 1px solid #cbd5e1; }
     .return-qty-input-pos:disabled { background-color: #f1f5f9; color: #94a3b8; }
     .pos-product-card { 
-  background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 12px; text-align: center; cursor: pointer; position: relative; transition: all 0.2s ease-in-out; display: flex; flex-direction: column; align-items: center; justify-content: space-between; box-shadow: 0 4px 6px rgba(0,0,0,0.02);
-  
+background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 12px; text-align: center; cursor: pointer; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: space-between; box-shadow: 0 4px 6px rgba(0,0,0,0.02);
   /* 👇 3 บรรทัดนี้แก้บัค Safari (ให้อยู่ข้างในนี้ ถูกต้องแล้วครับ) */
   -webkit-touch-callout: none; 
   -webkit-user-select: none; 
@@ -62,19 +61,18 @@
   object-fit: cover !important;
 }
 /* 🌟 CSS สำหรับโหมดจัดเรียงสินค้า (บังคับขนาดรูปและกล่องให้เท่ากันเป๊ะ) */
-    /* 🌟 CSS สำหรับโหมดจัดเรียงสินค้า (บังคับขนาดรูปและกล่องให้เท่ากันเป๊ะ) */
     #pos-menu-grid.is-sorting .pos-product-card {
       cursor: grab !important;
       border: 2px dashed #f59e0b !important;
       box-shadow: 0 8px 15px rgba(245, 158, 11, 0.2) !important;
       width: 100% !important;
       height: 100% !important;
-      box-sizing: border-box !important; /* 👈 แก้ไขตรงนี้เรียบร้อยครับ */
+      box-sizing: border-box !important;
       display: flex !important;
       flex-direction: column !important;
       justify-content: space-between !important;
+      transition: none !important; /* 🌟 เติมบรรทัดนี้เพื่อเปิดทางให้ระบบ JS สไลด์ได้อย่างอิสระ */
     }
-
     /* 🌟 บังคับให้รูปภาพทุกรูปในโหมดจัดเรียง ขนาดเท่ากันเป๊ะ ไม่ดันกล่อง */
     #pos-menu-grid.is-sorting .pos-card-img, 
     #pos-menu-grid.is-sorting .pos-card-noimg {
