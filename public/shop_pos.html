@@ -3,63 +3,6 @@
 <!-- ========================================================= -->
 <div id="page-pos" style="display: none; background: #f8fafc; height: 100vh; position: absolute; top: 0; left: 0; width: 100%; z-index: 1040; overflow: hidden; -webkit-overflow-scrolling: touch;">
   <style>
-  /* 🌟 สไตล์สำหรับการ์ดสินค้าที่ถูกปักหมุด (กรอบฟ้า + เงาเรืองแสง) */
-.pos-product-card.pinned {
-  border: 2px solid #3b82f6 !important;
-  box-shadow: 0 0 12px rgba(59, 130, 246, 0.45), 0 4px 10px rgba(0,0,0,0.05) !important;
-  background-color: #eff6ff !important;
-}
-/* 🌟 สไตล์สำหรับการ์ดขณะถูกจับลาก (Drag & Drop) */
-.pos-product-card {
-  user-select: none;
-  -webkit-user-select: none;
-  touch-action: manipulation;
-  cursor: grab;
-}
-
-.pos-product-card:active {
-  cursor: grabbing;
-}
-
-/* ขณะกำลังลากการ์ด */
-.pos-product-card.dragging {
-  opacity: 0.4;
-  transform: scale(0.95);
-  border: 2px dashed #3b82f6 !important;
-}
-
-/* เมื่อลากการ์ดมาจ่อเหนือตำแหน่งเป้าหมาย */
-.pos-product-card.drag-over {
-  border: 2px solid #10b981 !important;
-  transform: translateY(-6px) scale(1.03) !important;
-  box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3) !important;
-}
-
-/* รองรับโหมดมืด (Dark Theme) */
-body.dark-theme .pos-product-card.pinned {
-  background-color: #1e293b !important;
-  border-color: #60a5fa !important;
-  box-shadow: 0 0 15px rgba(96, 165, 250, 0.5) !important;
-}
-
-/* ไอคอนหมุดเล็กๆ มุมซ้ายบนของการ์ดที่ปักหมุด */
-.pos-pin-badge {
-  position: absolute;
-  top: 6px;
-  left: 6px;
-  background: #3b82f6;
-  color: white;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 10px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-  z-index: 5;
-}
-
     @media (max-width: 991px) {
   #page-pos { 
     overflow-y: auto !important; 
@@ -311,135 +254,6 @@ body.dark-theme .pos-product-card.pinned {
   </div>
 
   <script>
-  
-  
-  // 🌟 ตัวแปรสำหรับจับเวลาการกดค้าง
-let cardPressTimer = null;
-let isLongPressAction = false;
-
-// เมื่อเริ่มแตะ/คลิกการ์ด
-function handleCardPressStart(e, id, name, price) {
-  isLongPressAction = false;
-  // ตั้งเวลา 1.2 วินาที (1200ms)
-  cardPressTimer = setTimeout(() => {
-    isLongPressAction = true;
-    togglePinProduct(id); // สลับสถานะปักหมุด
-    if (navigator.vibrate) navigator.vibrate(60); // สั่นเตือนเบาๆ ถ้ารองรับ
-  }, 1200);
-}
-
-// เมื่อปล่อยนิ้ว/เลื่อนเมาส์ออก
-function handleCardPressEnd(e, id, name, price) {
-  clearTimeout(cardPressTimer);
-  // ถ้าปล่อยนิ้วก่อน 1.2 วินาที (กดปกติ) ให้ขายสินค้าลงตะกร้า
-  if (!isLongPressAction) {
-    addCartByItemData(id, name, price);
-  }
-  isLongPressAction = false;
-}
-
-function handleCardPressCancel() {
-  clearTimeout(cardPressTimer);
-  isLongPressAction = false;
-}
-
-// ดึงรายการหมุดจาก LocalStorage
-function getPinnedProductIds() {
-  let key = 'pos_pinned_' + (currentTenantSheetId || 'default');
-  let data = localStorage.getItem(key);
-  return data ? JSON.parse(data) : [];
-}
-
-// 🌟 ดึงลำดับสินค้าที่จัดวางไว้จาก LocalStorage
-function getCustomOrder() {
-  let key = 'pos_custom_order_' + (currentTenantSheetId || 'default');
-  let data = localStorage.getItem(key);
-  return data ? JSON.parse(data) : [];
-}
-
-// 🌟 บันทึกลำดับสินค้าใหม่ลง LocalStorage
-function saveCustomOrder(orderArray) {
-  let key = 'pos_custom_order_' + (currentTenantSheetId || 'default');
-  localStorage.setItem(key, JSON.stringify(orderArray));
-}
-
-// ตัวแปรเก็บ ID การ์ดต้นทางที่ถูกจับลาก
-let draggedProductId = null;
-
-function handleDragStart(e, id) {
-  draggedProductId = id;
-  e.dataTransfer.effectAllowed = 'move';
-  e.dataTransfer.setData('text/plain', id);
-  e.currentTarget.classList.add('dragging');
-}
-
-function handleDragOver(e) {
-  if (e.preventDefault) e.preventDefault();
-  e.dataTransfer.dropEffect = 'move';
-  return false;
-}
-
-function handleDragEnter(e) {
-  e.currentTarget.classList.add('drag-over');
-}
-
-function handleDragLeave(e) {
-  e.currentTarget.classList.remove('drag-over');
-}
-
-function handleDrop(e, targetId) {
-  if (e.stopPropagation) e.stopPropagation();
-  e.preventDefault();
-  e.currentTarget.classList.remove('drag-over');
-
-  if (draggedProductId && draggedProductId !== targetId) {
-    swapProductPositions(draggedProductId, targetId);
-  }
-  return false;
-}
-
-function handleDragEnd(e) {
-  e.currentTarget.classList.remove('dragging');
-  document.querySelectorAll('.pos-product-card').forEach(card => {
-    card.classList.remove('drag-over');
-    card.classList.remove('dragging');
-  });
-}
-
-// ฟังก์ชันสลับตำแหน่งรายการสินค้าและบันทึกลำดับใหม่
-function swapProductPositions(srcId, targetId) {
-  let currentIds = currentFilteredProducts.map(p => p.id);
-  let srcIdx = currentIds.indexOf(srcId);
-  let targetIdx = currentIds.indexOf(targetId);
-
-  if (srcIdx !== -1 && targetIdx !== -1) {
-    // สลับตำแหน่งใน Array
-    let [movedItem] = currentFilteredProducts.splice(srcIdx, 1);
-    currentFilteredProducts.splice(targetIdx, 0, movedItem);
-
-    // บันทึกลำดับใหม่ลงเครื่อง
-    let newOrderIds = currentFilteredProducts.map(p => p.id);
-    saveCustomOrder(newOrderIds);
-
-    // รีเรนเดอร์แสดงผลใหม่ทันที
-    renderMenuGrid();
-  }
-}
-
-// สลับสถานะ ปักหมุด / ถอดหมุด
-function togglePinProduct(productId) {
-  let pinned = getPinnedProductIds();
-  let idx = pinned.indexOf(productId);
-  if (idx > -1) {
-    pinned.splice(idx, 1);
-  } else {
-    pinned.push(productId);
-  }
-  let key = 'pos_pinned_' + (currentTenantSheetId || 'default');
-  localStorage.setItem(key, JSON.stringify(pinned));
-  renderMenuGrid(); // วาดหน้าจอใหม่ทันที
-}
-  
     // 🌟 สร้างตัวแปรเก็บไฟล์เสียงไว้ในหน่วยความจำ จะได้ไม่ต้องโหลดใหม่ทุกครั้ง
     var audioCache = window.audioCache || {};
 
@@ -622,57 +436,20 @@ function togglePinProduct(productId) {
     }
 
     function openPOSPage() {
-      document.getElementById('page-pos').style.display = 'block'; 
-      document.getElementById('pos-staff-badge').innerText = currentStaff.name || "-"; 
-      switchPOSMode('grid');
-
-      // 🌟 ดึงประวัติบิลมานับยอดขายเตรียมไว้ก่อน
-      google.script.run.withSuccessHandler(function(salesData) {
-        window.posSalesCount = {};
-        if (Array.isArray(salesData)) {
-          salesData.forEach(sale => {
-            if (sale.receiptId && sale.receiptId.includes('(ยกเลิก)')) return;
-            if (sale.items) {
-              sale.items.split(' | ').forEach(str => {
-                let match = str.match(/^(.*?)\s*\(x(\d+)/);
-                if (match) {
-                  let name = match[1].trim();
-                  let qty = parseInt(match[2]) || 0;
-                  window.posSalesCount[name] = (window.posSalesCount[name] || 0) + qty;
-                }
-              });
-            }
-          });
-        }
-
-        // เมื่อคำนวณยอดขายเสร็จแล้ว ค่อยสั่งแสดงผลสินค้า
-        if (!window.globalProducts || globalProducts.length === 0) { 
-          google.script.run.withSuccessHandler(function(data) { 
-            globalProducts = data; 
-            window.globalProducts = data; 
-            populatePOSCategory(); 
-            renderMenuGrid(); 
-          }).getProducts(currentTenantSheetId); 
-        } else { 
-          populatePOSCategory(); 
-          renderMenuGrid(); 
-        }
-      }).getDashboardData(currentTenantSheetId);
-
+      document.getElementById('page-pos').style.display = 'block'; document.getElementById('pos-staff-badge').innerText = currentStaff.name || "-"; switchPOSMode('grid');
+      if (!window.globalProducts || globalProducts.length === 0) { google.script.run.withSuccessHandler(function(data) { globalProducts = data; window.globalProducts = data; populatePOSCategory(); renderMenuGrid(); }).getProducts(currentTenantSheetId); } else { populatePOSCategory(); renderMenuGrid(); }
       google.script.run.withSuccessHandler(function(settings) {
-        cachedShopSettings = settings; 
-        shopPromptPayNo = settings.shop_promptpay; 
-        shopName = settings.shop_name; 
-        let accName = settings.shop_account_name || settings.shop_name;
-        document.getElementById('pp-name').innerText = accName; 
-        isAutoPrintEnabled = (settings.auto_print === "true" || settings.auto_print === true);
+        cachedShopSettings = settings; shopPromptPayNo = settings.shop_promptpay; shopName = settings.shop_name; let accName = settings.shop_account_name || settings.shop_name;
+        document.getElementById('pp-name').innerText = accName; isAutoPrintEnabled = (settings.auto_print === "true" || settings.auto_print === true);
       }).getShopSettings(currentTenantSheetId);
       
+      // แปลภาษาในหน้า POS
       if (typeof changeLanguage === 'function') {
         changeLanguage(currentLang);
-        syncLanguageToCFD(currentLang);
+        syncLanguageToCFD(currentLang); // 🌟 ยิงซิงค์ภาษาให้ CFD ด้วย
       }
 
+      // แนบ Event Listener สำหรับ Infinite Scroll (ถ้ายังไม่ได้แนบ)
       const gridView = document.getElementById('pos-grid-view');
       if (gridView && !gridView.hasAttribute('data-scroll-attached')) {
         gridView.setAttribute('data-scroll-attached', 'true');
@@ -749,30 +526,15 @@ function togglePinProduct(productId) {
 
           currentFilteredProducts = globalProducts.filter(p => selectedCat === "all" || p.category === selectedCat);
           
-          let customOrder = getCustomOrder();
-
-          // 🌟 ลอจิกการเรียงลำดับใหม่: 
-          // 1. สินค้าหมดดันลงล่างสุด
-          // 2. เรียงตามลำดับที่ผู้ใช้ลากจัดวางไว้ (Custom Order)
-          // 3. เรียงตามตัวอักษรเป็นค่าเริ่มต้น
           currentFilteredProducts.sort((a, b) => {
-            const isOut = (p) => (p.stock !== "ไม่จำกัด" && !isNaN(parseInt(p.stock)) && parseInt(p.stock) <= 0);
-            let isOutA = isOut(a);
-            let isOutB = isOut(b);
-
-            // 1. สินค้าหมดดันไปล่างสุด
-            if (isOutA !== isOutB) return isOutA ? 1 : -1;
-
-            // 2. เรียงตามลำดับ Custom Order ที่เคยลากไว้
-            let idxA = customOrder.indexOf(a.id);
-            let idxB = customOrder.indexOf(b.id);
-
-            if (idxA !== -1 && idxB !== -1) return idxA - idxB;
-            if (idxA !== -1) return -1;
-            if (idxB !== -1) return 1;
-
-            // 3. เรียงตามตัวอักษร
-            return a.name.localeCompare(b.name, 'th');
+            const getStockStatus = (p) => {
+              if (p.stock === "ไม่จำกัด" || isNaN(parseInt(p.stock))) return 4; 
+              let stock = parseInt(p.stock); let minStock = parseInt(p.minStock) || 5;
+              if (stock <= 0) return 1; if (stock <= minStock) return 2; return 3; 
+            };
+            let statusA = getStockStatus(a); let statusB = getStockStatus(b);
+            if (statusA !== statusB) return statusA - statusB; 
+            return a.name.localeCompare(b.name); 
           });
       }
 
@@ -786,7 +548,7 @@ function togglePinProduct(productId) {
       let productsToRender = currentFilteredProducts.slice(startIndex, endIndex);
       
       productsToRender.forEach(p => {
-        let imgHtml = p.image ? `<img src="${p.image}" class="pos-card-img" draggable="false">` : `<div class="pos-card-noimg"><i class="fa-solid fa-image mb-1 fs-4 opacity-50"></i>${i18n[currentLang]['pos_no_image'] || 'ไม่มีรูป'}</div>`;
+        let imgHtml = p.image ? `<img src="${p.image}" class="pos-card-img">` : `<div class="pos-card-noimg"><i class="fa-solid fa-image mb-1 fs-4 opacity-50"></i>${i18n[currentLang]['pos_no_image'] || 'ไม่มีรูป'}</div>`;
         
         let stockNum = parseInt(p.stock); let currentMin = parseInt(p.minStock) || 5; let badgeHtml = ""; let isOut = false;
         if (p.stock !== "ไม่จำกัด" && !isNaN(stockNum)) {
@@ -795,21 +557,10 @@ function togglePinProduct(productId) {
           else { badgeHtml = `<span class="pos-card-badge bg-success">${(i18n[currentLang]['pos_badge_in_stock'] || 'มี ') + stockNum}</span>`; }
         }
         
-        let card = document.createElement('div'); 
-        card.className = 'pos-product-card';
+        let card = document.createElement('div'); card.className = 'pos-product-card';
         if(isOut) { card.className += ' opacity-50 bg-light'; card.style.pointerEvents = 'none'; }
         
-        // 🌟 เพิ่มคุณสมบัติการลากวาง Drag and Drop
-        if(!isOut) {
-          card.setAttribute('draggable', 'true');
-          card.setAttribute('ondragstart', `handleDragStart(event, '${p.id}')`);
-          card.setAttribute('ondragover', `handleDragOver(event)`);
-          card.setAttribute('ondragenter', `handleDragEnter(event)`);
-          card.setAttribute('ondragleave', `handleDragLeave(event)`);
-          card.setAttribute('ondrop', `handleDrop(event, '${p.id}')`);
-          card.setAttribute('ondragend', `handleDragEnd(event)`);
-          card.setAttribute('onclick', `addCartByItemData('${p.id}', '${p.name.replace(/'/g, "\\'")}', ${p.price})`);
-        }
+        if(!isOut) card.setAttribute('onclick', `addCartByItemData('${p.id}', '${p.name.replace(/'/g, "\\'")}', ${p.price})`);
         
         card.innerHTML = `
           ${badgeHtml}
@@ -928,13 +679,6 @@ function togglePinProduct(productId) {
 
         let displayMethod = method === 'เงินสด' ? i18n[currentLang]['pos_text_cash'] : i18n[currentLang]['pos_text_transfer'];
         let receiptData = { receiptId: res.receiptId, date: new Date().toLocaleString('th-TH'), customer: document.getElementById('pos-cust-name').value, items: [...posCart], subtotal: netTotal + discount, discount: discount, netTotal: netTotal, payment: displayMethod, seller: currentStaff.name };
-        
-        // 🌟 เพิ่มส่วนนี้: บวกยอดขายเข้าตัวแปรทันทีที่คิดเงินเสร็จ (ก่อนล้างตะกร้า)
-        if (!window.posSalesCount) window.posSalesCount = {};
-        posCart.forEach(item => {
-          window.posSalesCount[item.name] = (window.posSalesCount[item.name] || 0) + item.qty;
-        });
-
         posCart = []; lastScannedItem = null; document.getElementById('pos-cust-name').value = ''; document.getElementById('pos-discount').value = '0'; renderCart(); syncCFD('CHECKOUT_SUCCESS'); 
         google.script.run.logAction(currentTenantSheetId, currentStaff.name, "ขายสินค้า", "เปิดบิล " + res.receiptId + " ยอด " + netTotal + " บ.");
 
