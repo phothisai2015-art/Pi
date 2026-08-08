@@ -46,6 +46,17 @@
   max-height: 100px !important;
   object-fit: cover !important;
 }
+/* 🌟 CSS สำหรับโหมดจัดเรียงสินค้า */
+    #pos-menu-grid.is-sorting .pos-product-card {
+      cursor: grab !important;
+      border: 2px dashed #f59e0b !important;
+      box-shadow: 0 8px 15px rgba(245, 158, 11, 0.2) !important;
+      transform: scale(0.98);
+    }
+    #pos-menu-grid.is-sorting .pos-product-card:active {
+      cursor: grabbing !important;
+      transform: scale(1.05);
+    }
     .pos-product-card:hover { transform: translateY(-4px); box-shadow: 0 10px 20px rgba(0,0,0,0.08); border-color: #3b82f6; }
     body.dark-theme .pos-product-card:hover { background-color: #1e293b !important; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5) !important; }
     .pos-card-img { width: 100%; object-fit: cover; border-radius: 10px; margin-bottom: 8px; background-color: #f8fafc; }
@@ -102,11 +113,18 @@
     <div class="d-flex align-items-center gap-4">
       <h3 class="fw-bold text-primary m-0" data-i18n="pos_header_title"><i class="fa-solid fa-cash-register me-2"></i> ระบบจุดขาย (POS)</h3>
       <button class="btn btn-info text-white fw-bold rounded-pill px-3 px-md-4 shadow-sm d-none d-sm-block" onclick="openCFD()" data-i18n="pos_btn_customer_screen"><i class="fa-solid fa-desktop me-1"></i> จอลูกค้า</button>
-      <!-- 🌟 ปุ่ม Bluetooth (Desktop) -->
       
+      <!-- 👇 🌟 เพิ่มปุ่มจัดเรียง (สำหรับจอคอม) 👇 -->
+      <button class="btn btn-warning text-dark fw-bold rounded-pill px-3 px-md-4 shadow-sm d-none d-sm-block btn-toggle-sort-class" onclick="toggleSortMode()">
+        <i class="fa-solid fa-arrows-up-down-left-right me-1"></i> <span class="sort-text">จัดเรียงสินค้า</span>
+      </button>
     </div>
+    
     <div class="d-flex align-items-center pos-mobile-btns">
-      <!-- 🌟 ปุ่ม Bluetooth (Mobile) -->
+      <!-- 👇 🌟 เพิ่มปุ่มจัดเรียง (สำหรับจอมือถือ/iPad) 👇 -->
+      <button class="btn btn-warning text-dark fw-bold rounded-pill px-3 shadow-sm d-block d-sm-none me-2 btn-toggle-sort-class" onclick="toggleSortMode()">
+        <i class="fa-solid fa-arrows-up-down-left-right"></i> <span class="sort-text d-none">จัดเรียง</span>
+      </button>
 
       <button class="btn btn-info text-white fw-bold rounded-pill px-3 shadow-sm d-block d-sm-none me-2" onclick="openCFD()"><i class="fa-solid fa-desktop"></i></button>
       <button class="btn btn-outline-secondary fw-bold rounded-pill px-3 px-md-4 me-2" onclick="lockScreenManual()"><i class="fa-solid fa-lock"></i><span class="d-none d-md-inline ms-1" data-i18n="pos_btn_lock"> ล็อกเครื่อง</span></button>
@@ -620,8 +638,7 @@
         // 👇 🌟 เพิ่ม window.posSortableInstance = ไว้ด้านหน้า Sortable.create 👇
         window.posSortableInstance = Sortable.create(gridContainer, {
             animation: 150, 
-            delay: 300, 
-            delayOnTouchOnly: true, 
+            disabled: !isSortMode,
             ghostClass: 'pos-ghost-card',
 			// 👇 🌟 เพิ่ม 3 บรรทัดนี้ เพื่อแก้ปัญหาลากแล้วจอไม่เลื่อน 👇
             scroll: true, // เปิดโหมดเลื่อนจออัตโนมัติ
@@ -664,6 +681,7 @@
     }
 
     function addCartByItemData(id, name, price) {
+	  if (isSortMode) return;
       let product = globalProducts.find(p => p.id === id); let stockNum = parseInt(product.stock); let existingItem = posCart.find(item => item.id === id); let currentQtyInCart = existingItem ? existingItem.qty : 0;
       if(product.stock !== "ไม่จำกัด" && !isNaN(stockNum)) { if(currentQtyInCart + 1 > stockNum) { Swal.fire(i18n[currentLang]['pos_alert_stock_empty_title'], i18n[currentLang]['pos_alert_stock_limit1'] + stockNum, 'error'); return; } }
       if(existingItem) existingItem.qty += 1; else posCart.push({ id: id, name: name, price: parseFloat(price), qty: 1, image: product.image || '', unit: product.unit || 'ชิ้น' }); 
@@ -978,7 +996,42 @@
            }
        }, 500);
     }
-	
+	// 🌟 ตัวแปรเก็บสถานะโหมดจัดเรียง
+    let isSortMode = false;
+
+    // 🌟 ฟังก์ชันเปิด-ปิดโหมดจัดเรียง
+    function toggleSortMode() {
+      isSortMode = !isSortMode;
+      let btns = document.querySelectorAll('.btn-toggle-sort-class');
+      let grid = document.getElementById('pos-menu-grid');
+
+      if (isSortMode) {
+        // เปิดโหมดจัดเรียง -> เปลี่ยนปุ่มเป็นสีเขียว (เสร็จสิ้น)
+        btns.forEach(b => {
+          b.classList.remove('btn-warning');
+          b.classList.add('btn-success', 'text-white');
+          b.classList.remove('text-dark');
+          let span = b.querySelector('.sort-text');
+          if(span) span.innerText = ' เสร็จสิ้น';
+          let icon = b.querySelector('i');
+          if(icon) icon.className = 'fa-solid fa-check me-1';
+        });
+        grid.classList.add('is-sorting');
+        if(window.posSortableInstance) window.posSortableInstance.option('disabled', false);
+      } else {
+        // ปิดโหมดจัดเรียง -> เปลี่ยนปุ่มกลับเป็นสีเหลือง
+        btns.forEach(b => {
+          b.classList.remove('btn-success', 'text-white');
+          b.classList.add('btn-warning', 'text-dark');
+          let span = b.querySelector('.sort-text');
+          if(span) span.innerText = ' จัดเรียงสินค้า';
+          let icon = b.querySelector('i');
+          if(icon) icon.className = 'fa-solid fa-arrows-up-down-left-right me-1';
+        });
+        grid.classList.remove('is-sorting');
+        if(window.posSortableInstance) window.posSortableInstance.option('disabled', true);
+      }
+    }
 
   </script>
 </div>
