@@ -63,7 +63,11 @@
 
 
 /* 🌟 แก้ไขบัคเงาตอนลากให้ขนาดเท่าการ์ดจริง */
+/* 🌟 แก้ไขบัคเงาตอนลากให้ขนาดเท่าการ์ดจริง และป้องกันการ์ดขยายเต็มจอ */
 .sortable-fallback, .sortable-drag {
+  width: 155px !important; /* ล็อคความกว้างตอนลอยไม่ให้ทะลุจอ */
+  height: auto !important; /* ให้ความสูงสมดุลกับความกว้าง */
+  min-height: 180px !important;
   z-index: 10500 !important;
   opacity: 0.95 !important;
   box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2) !important;
