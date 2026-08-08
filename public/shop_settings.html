@@ -55,23 +55,16 @@
         width: auto !important;
       }
     }
-	/* 📱 🌟 ปรับแต่งหน้า Settings สำหรับ แท็บเล็ต / มือถือ แนวนอน (Landscape) */
+	/* 📱 🌟 ปรับแต่งหน้า Settings สำหรับ แนวนอน (Landscape) */
 @media (max-height: 820px) and (orientation: landscape) {
   #page-settings {
-    overflow-y: auto !important;
-    padding-bottom: 30px !important;
+    overflow-y: auto !important; /* ปลดล็อกให้ไถจอเพื่อซ่อน URL Bar ได้ */
+    padding-bottom: 40px !important;
+    height: 100vh !important;
   }
-  .settings-sidebar {
-    padding: 8px !important;
-  }
-  /* ย่อขนาดปุ่มแถบเมนูฝั่งซ้ายให้กระชับขึ้น */
-  .settings-tab {
-    padding: 8px 14px !important; 
-    font-size: 13px !important;
-  }
-  .settings-tab i {
-    font-size: 15px !important;
-  }
+  .settings-sidebar { padding: 8px !important; }
+  .settings-tab { padding: 8px 14px !important; font-size: 13px !important; }
+  .settings-tab i { font-size: 15px !important; }
 }
   </style>
 

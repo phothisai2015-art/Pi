@@ -203,30 +203,7 @@ body.dark-theme .menu-card-btn:hover:not(:disabled) { border-color: #475569; box
 
 @keyframes pulse { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); } }
 
-/* 📱 🌟 ปรับแต่ง หน้า Login / Register สำหรับ แนวนอน (Landscape) */
-@media (max-height: 820px) and (orientation: landscape) {
-  .saas-page-screen {
-    overflow-y: auto !important; /* อนุญาตให้เลื่อนหน้าจอได้หากจอนอนแคบมากๆ */
-    justify-content: flex-start !important;
-    padding-top: 15px !important;
-    padding-bottom: 20px !important;
-  }
-  .login-glass-card {
-    padding: 20px 25px !important; /* บีบกล่องให้เตี้ยลง */
-  }
-  .login-icon-wrap {
-    width: 50px !important;
-    height: 50px !important;
-    margin-bottom: 10px !important;
-  }
-  .login-icon-wrap i {
-    font-size: 22px !important;
-  }
-  .login-footer-links {
-    margin-top: 10px !important;
-    padding-bottom: 8px !important;
-  }
-}
+
 </style>
 </head>
 <body>
