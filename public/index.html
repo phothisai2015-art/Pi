@@ -778,7 +778,18 @@ function processSaaSLogin() {
           localStorage.setItem('saas_tenant_id', res.sheetId);
           localStorage.setItem('saas_shop_name', res.shopName);
           
-             window.location.href = '/shop';         
+          // 🌟 1. สั่งให้แสดงป๊อปอัพ "สำเร็จ"
+          Swal.fire({
+              icon: 'success',
+              title: i18n[currentLang]['swal_login_success'] || 'เข้าสู่ระบบสำเร็จ!',
+              showConfirmButton: false,
+              timer: 1000 // เวลาโชว์ป๊อปอัพ 1000ms (1 วินาที)
+          });
+
+          // 🌟 2. หน่วงเวลา 1 วินาทีให้ป๊อปอัพโชว์เสร็จ แล้วค่อยเปลี่ยนหน้า
+          setTimeout(() => {
+              window.location.href = '/shop'; 
+          }, 1000);
       }
   }).withFailureHandler(function(err) {
       isSaaSLoggingIn = false; Swal.fire({ icon: 'error', title: 'Error', text: i18n[currentLang]['idx_alert_conn_fail'] || 'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้' });
