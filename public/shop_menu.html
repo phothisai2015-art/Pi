@@ -308,6 +308,38 @@ let globalDaysRemaining = null;
 // ========================================================
 let renewPollingInterval = null;
 
+let shopLogoutTimeout;
+
+function forceShopLogout() {
+  localStorage.removeItem('saas_tenant_id'); 
+  localStorage.removeItem('saas_shop_name'); 
+  localStorage.removeItem('pos_lock_time');
+  sessionStorage.removeItem('pos_active_staff');
+  sessionStorage.removeItem('shop_owner_warned');
+  sessionStorage.removeItem('pos_current_page');
+  window.location.href = '/'; 
+}
+
+function checkMaxLockTimeExceeded() {
+  let lockTime = localStorage.getItem('pos_lock_time');
+  if (lockTime) {
+    let diffHours = (Date.now() - parseInt(lockTime)) / (1000 * 60 * 60);
+    if (diffHours >= 6) { 
+      forceShopLogout();
+      return true;
+    }
+  }
+  return false;
+}
+
+// ดักจับเมื่อเปิดจอมือถือ/iPad กลับขึ้นมา หรือสลับ Tab กลับมา
+document.addEventListener("visibilitychange", function() {
+  if (!document.hidden) { 
+    checkMaxLockTimeExceeded();
+  }
+});
+// 🌟 ========================================================= 🌟
+
 function startRenewPolling() {
   if (renewPollingInterval) clearInterval(renewPollingInterval);
   
@@ -562,7 +594,17 @@ function saveFirstAdmin() {
   let userData = { pin: pin, name: name, permissions: 'POS,STOCK,DASH,ADMIN' };
 
   google.script.run.withSuccessHandler(function(res) {
-    if (res === "duplicate") { Swal.fire(i18n[currentLang]['swal_error_occurred'], i18n[currentLang]['swal_pin_used'], 'error'); btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-check-circle me-2"></i> ' + i18n[currentLang]['btn_save_start']; return; }
+        if (res === "duplicate") { 
+          Swal.fire(i18n[currentLang]['swal_error_occurred'], i18n[currentLang]['swal_pin_used'], 'error'); 
+          btn.disabled = false; 
+          btn.innerHTML = '<i class="fa-solid fa-check-circle me-2"></i> ' + i18n[currentLang]['btn_save_start']; 
+          return; // 🌟 เติม return; ตรงนี้ เพื่อหยุดการทำงานถ้า PIN ซ้ำครับ
+        }
+        
+        // 🌟 2 บรรทัดที่คุณเพิ่มเข้ามา ถูกต้องสมบูรณ์แล้วครับ
+        clearTimeout(shopLogoutTimeout);
+        localStorage.removeItem('pos_lock_time');
+    // ------------------------------------
     Swal.fire({ icon: 'success', title: i18n[currentLang]['swal_setup_success'], text: i18n[currentLang]['swal_redirecting'], timer: 1500, showConfirmButton: false });
     document.getElementById('first-time-setup-modal').style.display = 'none';
     globalUsers.push(userData); currentStaff = userData; 
@@ -594,9 +636,14 @@ function updatePinDisplay() {
 function checkPinCode(pin) {
   let user = globalUsers.find(u => u.pin === pin);
   if(user) {
+    // 👇 🌟 เพิ่ม 2 บรรทัดนี้เข้าไปครับ 🌟 👇
+    clearTimeout(shopLogoutTimeout);
+    localStorage.removeItem('pos_lock_time');
+    // ------------------------------------
+
     currentStaff = user; 
     document.getElementById('display-staff-name').innerText = user.name; 
-    document.getElementById('display-staff-name').removeAttribute('data-i18n'); // 🌟 จุดแก้ที่ 3
+    document.getElementById('display-staff-name').removeAttribute('data-i18n');
     applyPermissions(user.permissions);
     
     sessionStorage.setItem('pos_active_staff', JSON.stringify(user));
@@ -641,6 +688,13 @@ function lockScreenManual(isAuto = false) {
   numpad.style.animation = 'popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards';
   document.getElementById('lock-screen').style.display = 'flex'; setTimeout(() => { document.getElementById('lock-screen').style.opacity = '1'; }, 10);
   if(isAuto) Swal.fire({ icon: 'info', title: i18n[currentLang]['swal_locked_title'], text: i18n[currentLang]['swal_locked_desc'], toast: true, position: 'top', timer: 3000, showConfirmButton: false });
+  
+  // 🌟 [เพิ่มไว้ท้ายฟังก์ชัน] บันทึกเวลาล็อก และนับถอยหลัง 6 ชม. (21,600,000 ms)
+  localStorage.setItem('pos_lock_time', Date.now().toString());
+  clearTimeout(shopLogoutTimeout);
+  shopLogoutTimeout = setTimeout(() => {
+    forceShopLogout();
+  }, 21600000);
 }
 
 function shopLogout() {
