@@ -45,6 +45,11 @@
         <i class="fa-solid fa-cart-shopping me-1"></i><span class="hide-on-mobile" data-i18n="prod_btn_buy_list"> รายการต้องซื้อ</span><span class="show-on-mobile" data-i18n="prod_btn_buy_list_mobile"> ต้องซื้อ</span>
       </button>
 
+      <!-- 🌟 ปุ่มถังขยะลบที่เลือก (จะแสดงอัตโนมัติเมื่อติ๊กเลือกสินค้า) -->
+      <button id="btn-bulk-delete-prod" class="btn btn-danger fw-bold shadow-sm px-3 flex-shrink-0 text-truncate" onclick="deleteSelectedProducts()" style="border-radius: 8px; display: none;">
+        <i class="fa-solid fa-trash-can me-1"></i><span class="hide-on-mobile"> ลบที่เลือก (<span id="selected-prod-count">0</span>)</span><span class="show-on-mobile"> ลบ (<span id="selected-prod-count-mb">0</span>)</span>
+      </button>
+
       <select id="filter-category" class="form-select fw-bold shadow-sm flex-shrink-0 text-primary mt-lg-0 mt-2" style="border-radius: 8px; width: auto; min-width: 160px; cursor: pointer;" onchange="renderProductsTable()">
         <option value="all" data-i18n="prod_filter_all">📁 ทุกหมวดหมู่</option>
       </select>  
@@ -60,10 +65,14 @@
     <table class="table table-hover align-middle mb-0" style="width: 100%;">
       <thead class="table-light sticky-top" style="z-index: 10; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
         <tr>
-          <th class="px-4 py-3" data-i18n="prod_th_image"> รูปภาพ </th><th class="py-3" data-i18n="prod_th_id"> รหัส (S/N) </th><th class="py-3" data-i18n="prod_th_name"> ชื่อสินค้า </th><th class="py-3" data-i18n="prod_th_price"> ราคา </th><th class="py-3" data-i18n="prod_th_stock"> สถานะสต็อก </th><th class="py-3 text-end pe-4" data-i18n="prod_th_manage"> จัดการ </th>
+          <!-- 🌟 ช่องติ๊กเลือกทั้งหมด (Select All) -->
+          <th class="ps-4 py-3" style="width: 45px;">
+            <input type="checkbox" id="select-all-products" class="form-check-input" style="cursor: pointer;" onchange="toggleSelectAllProducts(this)">
+          </th>
+          <th class="py-3" data-i18n="prod_th_image"> รูปภาพ </th><th class="py-3" data-i18n="prod_th_id"> รหัส (S/N) </th><th class="py-3" data-i18n="prod_th_name"> ชื่อสินค้า </th><th class="py-3" data-i18n="prod_th_price"> ราคา </th><th class="py-3" data-i18n="prod_th_stock"> สถานะสต็อก </th><th class="py-3 text-end pe-4" data-i18n="prod_th_manage"> จัดการ </th>
         </tr>
       </thead>
-      <tbody id="product-table-body"><tr><td colspan="6" class="text-center text-muted py-4" data-i18n="prod_loading_data"> กำลังโหลดข้อมูล... </td></tr></tbody>
+      <tbody id="product-table-body"><tr><td colspan="7" class="text-center text-muted py-4" data-i18n="prod_loading_data"> กำลังโหลดข้อมูล... </td></tr></tbody>
     </table>
   </div>
 
@@ -240,13 +249,13 @@
   }
 
   function loadProductsTable() {
-    document.getElementById('product-table-body').innerHTML = `<tr><td colspan="6" class="text-center py-4">${i18n[currentLang]['prod_loading_data']}</td></tr>`;
+    document.getElementById('product-table-body').innerHTML = `<tr><td colspan="7" class="text-center py-4">${i18n[currentLang]['prod_loading_data']}</td></tr>`;
     google.script.run.withSuccessHandler(function(data) {
       globalProducts = data; populateCategoryDropdowns(); renderProductsTable();
     }).getProducts(currentTenantSheetId);
   }
 
- function renderProductsTable() {
+  function renderProductsTable() {
     const tbody = document.getElementById('product-table-body'); tbody.innerHTML = '';
     let keyword = document.getElementById('search-product-input').value.toLowerCase().trim();
     let selectedCat = document.getElementById('filter-category').value;
@@ -275,7 +284,9 @@
     });
 
     if(filtered.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-4">${i18n[currentLang]['prod_not_found']}</td></tr>`; return;
+      tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-4">${i18n[currentLang]['prod_not_found']}</td></tr>`; 
+      updateBulkDeleteUI();
+      return;
     }
 
     filtered.forEach(p => {
@@ -286,8 +297,109 @@
       else if (stockNum <= currentMin) badgeHtml = `<span class="badge bg-warning text-dark px-3 py-2 rounded-pill">${i18n[currentLang]['prod_low_stock']} (${stockNum})</span>`;
       else badgeHtml = `<span class="badge bg-success px-3 py-2 rounded-pill">${stockNum} ${p.unit || 'ชิ้น'}</span>`;
 
-      tbody.innerHTML += `<tr><td class="px-4">${imgTag}</td><td class="fw-bold text-secondary">${p.id}</td><td><span class="fw-bold text-dark">${p.name}</span><br><small class="text-muted">${p.category}</small></td><td class="text-success fw-bold fs-6">฿${parseFloat(p.price).toLocaleString()}</td><td>${badgeHtml}</td><td class="text-end pe-4"><button class="btn btn-sm btn-light text-warning shadow-sm me-1" onclick="openProductForm('edit', '${p.id}')"><i class="fa-solid fa-pen"></i></button><button class="btn btn-sm btn-light text-danger shadow-sm" onclick="confirmDelete('${p.id}')"><i class="fa-solid fa-trash"></i></button></td></tr>`;
+      tbody.innerHTML += `
+        <tr>
+          <td class="ps-4">
+            <input type="checkbox" class="form-check-input prod-select-cb" value="${p.id}" style="cursor: pointer;" onchange="updateBulkDeleteUI()">
+          </td>
+          <td>${imgTag}</td>
+          <td class="fw-bold text-secondary">${p.id}</td>
+          <td><span class="fw-bold text-dark">${p.name}</span><br><small class="text-muted">${p.category}</small></td>
+          <td class="text-success fw-bold fs-6">฿${parseFloat(p.price).toLocaleString()}</td>
+          <td>${badgeHtml}</td>
+          <td class="text-end pe-4">
+            <button class="btn btn-sm btn-light text-warning shadow-sm me-1" onclick="openProductForm('edit', '${p.id}')"><i class="fa-solid fa-pen"></i></button>
+            <button class="btn btn-sm btn-light text-danger shadow-sm" onclick="confirmDelete('${p.id}')"><i class="fa-solid fa-trash"></i></button>
+          </td>
+        </tr>
+      `;
     });
+
+    updateBulkDeleteUI();
+  }
+
+  // 🌟 1. ฟังก์ชันเลือกทั้งหมด / ยกเลิกทั้งหมด
+  function toggleSelectAllProducts(masterCb) {
+    let checkboxes = document.querySelectorAll('.prod-select-cb');
+    checkboxes.forEach(cb => {
+      cb.checked = masterCb.checked;
+    });
+    updateBulkDeleteUI();
+  }
+
+  // 🌟 2. ฟังก์ชันอัปเดตปุ่มลบหลายรายการ
+  function updateBulkDeleteUI() {
+    let checkedCbs = document.querySelectorAll('.prod-select-cb:checked');
+    let totalCbs = document.querySelectorAll('.prod-select-cb');
+    let count = checkedCbs.length;
+
+    let btn = document.getElementById('btn-bulk-delete-prod');
+    let masterCb = document.getElementById('select-all-products');
+
+    if (masterCb) {
+      masterCb.checked = (totalCbs.length > 0 && count === totalCbs.length);
+    }
+
+    if (count > 0) {
+      if (btn) btn.style.display = 'inline-block';
+      let elCount = document.getElementById('selected-prod-count');
+      let elCountMb = document.getElementById('selected-prod-count-mb');
+      if (elCount) elCount.innerText = count;
+      if (elCountMb) elCountMb.innerText = count;
+    } else {
+      if (btn) btn.style.display = 'none';
+    }
+  }
+
+  // 🌟 3. ฟังก์ชันลบสินค้าหลายรายการที่เลือกไว้
+  function deleteSelectedProducts() {
+    let checkedCbs = document.querySelectorAll('.prod-select-cb:checked');
+    let idsToDelete = Array.from(checkedCbs).map(cb => cb.value);
+    
+    if (idsToDelete.length === 0) return;
+
+    Swal.fire({
+      title: i18n[currentLang]['swal_confirm_del_title'] || 'ยืนยันการลบ',
+      html: `ต้องการลบสินค้าที่เลือกจำนวน <b class="text-danger fs-5">${idsToDelete.length}</b> รายการ ใช่หรือไม่?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#94a3b8',
+      confirmButtonText: i18n[currentLang]['swal_btn_delete'] || 'ลบเลย',
+      cancelButtonText: i18n[currentLang]['prod_btn_cancel'] || 'ยกเลิก'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire({
+          title: i18n[currentLang]['pos_alert_processing'] || 'กำลังประมวลผล...',
+          allowOutsideClick: false,
+          didOpen: () => Swal.showLoading()
+        });
+
+        executeBulkDeleteProductsSequential(idsToDelete, 0);
+      }
+    });
+  }
+
+  // 🌟 4. ฟังก์ชันทำงานลบทีละรายการแบบวนลูปต่อเนื่อง
+  function executeBulkDeleteProductsSequential(ids, index) {
+    if (index >= ids.length) {
+      let staff = (typeof currentStaff !== 'undefined' && currentStaff.name) ? currentStaff.name : 'Unknown';
+      google.script.run.logAction(currentTenantSheetId, staff, "ลบสินค้าหลายรายการ", "ลบสินค้าจำนวน " + ids.length + " รายการ");
+      
+      loadProductsTable();
+      Swal.fire({ icon: 'success', title: i18n[currentLang]['swal_del_success'] || 'ลบสำเร็จ', timer: 1500, showConfirmButton: false });
+      return;
+    }
+
+    let currentId = ids[index];
+    google.script.run
+      .withSuccessHandler(() => {
+        executeBulkDeleteProductsSequential(ids, index + 1);
+      })
+      .withFailureHandler((err) => {
+        Swal.fire(i18n[currentLang]['swal_error_title2'] || 'Error', err.message, 'error');
+      })
+      .deleteProduct(currentTenantSheetId, currentId);
   }
 
   function openProductForm(mode, id = '') {
@@ -779,4 +891,3 @@
   };
   </script>
 </div>
-
