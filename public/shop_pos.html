@@ -548,9 +548,12 @@
         }
         
         let card = document.createElement('div'); card.className = 'pos-product-card';
-        if(isOut) { card.className += ' opacity-50 bg-light'; card.style.pointerEvents = 'none'; }
-        
-        if(!isOut) card.setAttribute('onclick', `addCartByItemData('${p.id}', '${p.name.replace(/'/g, "\\'")}', ${p.price})`);
+
+        // ลบคำสั่ง card.style.pointerEvents = 'none'; ออก เพื่อให้กล่องยังจับการสัมผัสได้
+        if(isOut) { card.className += ' opacity-50 bg-light'; }
+
+        // เอา if(!isOut) ออก เพื่อให้จิ้มได้เสมอ (ระบบจะเด้งป๊อปอัพเตือนของหมดจากในฟังก์ชัน addCart แทน)
+        card.setAttribute('onclick', `addCartByItemData('${p.id}', '${p.name.replace(/'/g, "\\'")}', ${p.price})`);
         
         card.innerHTML = `
           ${badgeHtml}
