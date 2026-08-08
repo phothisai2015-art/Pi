@@ -76,32 +76,47 @@ body .sortable-drag {
   border-radius: 16px !important;
 }
 
-/* 🌟 ขยายขนาดกล่องเงาให้พอดี ไม่เล็กจิ๋ว และไม่ทะลุจอ */
+
+
+/* 🌟 1. ตั้งค่ากล่องเงาตอนลาก & แก้บัคค้างติดจอถาวร */
 body .sortable-fallback, 
 body .sortable-drag {
-  width: 180px !important; /* ปรับให้กว้างขึ้น สมส่วนกับการ์ดจริง */
+  width: 150px !important; /* ปรับขนาดกล่องเงาให้พอดีมือ */
   height: auto !important;
-  min-height: 220px !important;
-  z-index: 10500 !important;
+  min-height: 180px !important;
+  z-index: 99999 !important; /* ดันให้อยู่หน้าสุดของเว็บ */
   opacity: 0.95 !important;
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2) !important;
-  cursor: grabbing !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3) !important;
   background: white !important;
   border-radius: 16px !important;
-  padding: 12px !important; /* เพิ่ม Padding ให้มีขอบขาวเหมือนการ์ดจริง */
+  padding: 10px !important;
   display: flex !important;
   flex-direction: column !important;
+  align-items: center !important;
+
+  /* 👇 บรรทัดนี้คือพระเอก! สั่งให้เงาทะลุนิ้ว ป้องกันบัคลากแล้วค้างติดจอ 100% */
+  pointer-events: none !important; 
 }
 
-/* 🌟 ปลดล็อคความสูงรูป และใช้สัดส่วน 1:1 แทน */
-body .sortable-fallback img, 
-body .sortable-drag img {
+/* 🌟 2. บังคับรูปภาพข้างในเงา ให้ขยายใหญ่เต็มกล่องสัดส่วน 1:1 */
+body .sortable-fallback .pos-card-img, 
+body .sortable-drag .pos-card-img,
+body .sortable-fallback .pos-card-noimg, 
+body .sortable-drag .pos-card-noimg {
   width: 100% !important;
-  height: auto !important; /* ยกเลิกการจำกัดความสูงตายตัว */
-  aspect-ratio: 1 / 1 !important; /* บังคับให้เป็นสี่เหลี่ยมจัตุรัสเสมอ */
+  height: auto !important;
+  aspect-ratio: 1 / 1 !important; /* ล็อคให้เป็นสี่เหลี่ยมจัตุรัส */
   object-fit: cover !important;
   border-radius: 10px !important;
-  margin-bottom: 8px !important;
+  margin: 0 auto 8px auto !important;
+}
+
+/* 🌟 3. ปรับขนาดตัวหนังสือในเงาให้ชัดเจน */
+body .sortable-fallback .pos-card-name, 
+body .sortable-drag .pos-card-name {
+  font-size: 14px !important;
+  white-space: normal !important;
+  text-align: center !important;
 }
 
 /* ไม่ต้องจำกัดความสูง/กว้างแล้ว ปล่อยให้มันก๊อปปี้ขนาดจากตัวจริงมาเลย */
