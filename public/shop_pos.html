@@ -49,6 +49,13 @@
     .btn-success.btn-lg, .btn-info.btn-lg { transition: all 0.2s ease !important; }
     .btn-success.btn-lg:hover, .btn-info.btn-lg:hover { transform: translateY(-3px); filter: brightness(1.05); }
     .btn-success.btn-lg:active, .btn-info.btn-lg:active { transform: translateY(2px); }
+	
+	/* 🌟 เพิ่มโค้ดนี้สำหรับเงาตอนลากสินค้า */
+    .pos-ghost-card { 
+      opacity: 0.3 !important; 
+      border: 2px dashed #94a3b8 !important; 
+      background-color: #f1f5f9 !important;
+    }
 
     /* 🌙 แก้ไขสีตัวอักษรกล่องค้นหา/สแกนบาร์โค้ดและกล่องข้อมูลในโหมดมืด */
     body.dark-theme #pos-barcode-input, 
@@ -69,6 +76,7 @@
       #page-pos { overflow-y: auto !important; }
       .pos-left-box { min-height: 60vh; }
     }
+	
   </style>
 
   <div class="d-flex justify-content-between align-items-center mb-2 mt-2 px-3 px-md-4 pos-mobile-header" style="background: transparent;">
@@ -589,7 +597,7 @@
             animation: 150, 
             delay: 300, 
             delayOnTouchOnly: true, 
-            ghostClass: 'opacity-50', 
+            ghostClass: 'pos-ghost-card', // 🌟 เปลี่ยนชื่อคลาสเป็นอันนี้แทน
             onEnd: function (evt) {
                 // 1. ดึง ID ของกล่องที่เพิ่งถูกลาก
                 let draggedId = evt.item.getAttribute('data-id');
