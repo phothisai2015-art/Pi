@@ -145,6 +145,42 @@ body.dark-theme .menu-card-btn:hover:not(:disabled) { border-color: #475569; box
   0% { transform: translateY(0) scale(1); }
   100% { transform: translateY(2px) scale(0.98, 1.02); }
 }
+
+  /* 📱 🌟 ปรับแต่ง Main Menu & Numpad สำหรับ แนวนอน (Landscape) */
+@media (max-height: 820px) and (orientation: landscape) {
+  /* ย่อขนาดการ์ดเมนูหลัก 4 ปุ่ม */
+  .main-container#main-menu {
+    padding-top: 15px !important;
+    padding-bottom: 15px !important;
+    height: auto !important;
+    min-height: 100vh;
+  }
+  .main-container#main-menu .mb-5 {
+    margin-bottom: 15px !important;
+  }
+  .menu-card-btn {
+    padding: 15px 10px !important;
+  }
+  .menu-icon-wrap {
+    width: 48px !important;
+    height: 48px !important;
+    font-size: 22px !important;
+  }
+
+  /* ย่อแป้นกด PIN นัมแพด ให้กดง่ายไม่ตกขอบ */
+  .numpad-container {
+    padding: 15px 20px !important;
+  }
+  .num-btn {
+    height: 48px !important;
+    font-size: 20px !important;
+  }
+  .pin-display {
+    margin-bottom: 15px !important;
+    height: 30px !important;
+  }
+}
+  
 </style>
 
 <!-- 🌟 หน้าจอล็อกพนักงาน (Numpad & Cats) -->

@@ -32,6 +32,25 @@
       #dash-start-date { flex: 0 0 calc(50% - 4px) !important; width: calc(50% - 4px) !important; order: 3; margin: 0 !important; font-size: 12px !important; }
       #dash-end-date { flex: 0 0 calc(50% - 4px) !important; width: calc(50% - 4px) !important; order: 4; margin: 0 !important; font-size: 12px !important; }
     }
+
+    /* 📱 🌟 ปรับแต่ง Dashboard สำหรับ แท็บเล็ต / มือถือ แนวนอน (Landscape) */
+@media (max-height: 820px) and (orientation: landscape) {
+  #page-dashboard {
+    overflow-y: auto !important; /* เปิดให้ไถเลื่อนขึ้น-ลงได้เมื่อเนื้อหาล้นจอ */
+    padding: 10px 20px 40px 20px !important;
+  }
+  .dash-header-wrapper {
+    margin-bottom: 10px !important;
+  }
+  /* ย่อความสูงกราฟลง เพื่อให้เห็นตารางและข้อมูลครบขึ้น */
+  .dash-chart-box {
+    height: 210px !important; 
+  }
+  .dash-table-box {
+    height: 300px !important; 
+  }
+}
+    
   </style>
 
   <div class="dash-header-wrapper">
