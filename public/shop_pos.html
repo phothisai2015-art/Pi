@@ -76,13 +76,32 @@ body .sortable-drag {
   border-radius: 16px !important;
 }
 
-/* 🌟 ควบคุมรูปภาพข้างในเงาไม่ให้เพี้ยน */
+/* 🌟 ขยายขนาดกล่องเงาให้พอดี ไม่เล็กจิ๋ว และไม่ทะลุจอ */
+body .sortable-fallback, 
+body .sortable-drag {
+  width: 180px !important; /* ปรับให้กว้างขึ้น สมส่วนกับการ์ดจริง */
+  height: auto !important;
+  min-height: 220px !important;
+  z-index: 10500 !important;
+  opacity: 0.95 !important;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2) !important;
+  cursor: grabbing !important;
+  background: white !important;
+  border-radius: 16px !important;
+  padding: 12px !important; /* เพิ่ม Padding ให้มีขอบขาวเหมือนการ์ดจริง */
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* 🌟 ปลดล็อคความสูงรูป และใช้สัดส่วน 1:1 แทน */
 body .sortable-fallback img, 
 body .sortable-drag img {
   width: 100% !important;
-  height: 120px !important;
+  height: auto !important; /* ยกเลิกการจำกัดความสูงตายตัว */
+  aspect-ratio: 1 / 1 !important; /* บังคับให้เป็นสี่เหลี่ยมจัตุรัสเสมอ */
   object-fit: cover !important;
   border-radius: 10px !important;
+  margin-bottom: 8px !important;
 }
 
 /* ไม่ต้องจำกัดความสูง/กว้างแล้ว ปล่อยให้มันก๊อปปี้ขนาดจากตัวจริงมาเลย */
