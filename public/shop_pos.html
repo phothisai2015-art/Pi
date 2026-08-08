@@ -3,17 +3,6 @@
 <!-- ========================================================= -->
 <div id="page-pos" style="display: none; background: #f8fafc; height: 100vh; position: absolute; top: 0; left: 0; width: 100%; z-index: 1040; overflow: hidden; -webkit-overflow-scrolling: touch;">
   <style>
-/* 🌟 เอฟเฟกต์การ์ดลอยตัว นุ่มนวลสไตล์ iPhone ตอนกำลังลาก */
-    .pos-chosen-card {
-      transform: scale(1.05) !important;
-      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2) !important;
-      z-index: 999 !important;
-      /* ❌ ลบ transition: transform ... !important; ออกจากตรงนี้ */
-    }
-    .pos-drag-card {
-      opacity: 0.85 !important;
-    }
-  
     @media (max-width: 991px) {
   #page-pos { 
     overflow-y: auto !important; 
@@ -37,104 +26,40 @@
     .return-checkbox-pos { width: 22px; height: 22px; cursor: pointer; }
     .return-qty-input-pos { width: 70px; text-align: center; font-weight: bold; border-radius: 6px; border: 1px solid #cbd5e1; }
     .return-qty-input-pos:disabled { background-color: #f1f5f9; color: #94a3b8; }
-    /* 🌟 แก้ไขให้เหลือปีกกาปิดชุดเดียว ถูกต้อง 100% */
     .pos-product-card { 
-      background: white; 
-      border: 1px solid #e2e8f0; 
-      border-radius: 16px; 
-      padding: 12px; 
-      text-align: center; 
-      cursor: pointer; 
-      position: relative; 
-      display: flex; 
-      flex-direction: column; 
-      align-items: center; 
-      justify-content: space-between; 
-      box-shadow: 0 4px 6px rgba(0,0,0,0.02);
-      
-      /* 👇 🌟 เพิ่มบรรทัดนี้: คืนค่าให้การ์ดพริ้วไหว โดยไม่ขัดขวาง JS */
-      transition: all 0.2s ease;
-
-      /* 3 บรรทัดนี้แก้บัค Safari */
-      -webkit-touch-callout: none; 
-      -webkit-user-select: none; 
-      user-select: none; 
-    }
+  background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 12px; text-align: center; cursor: pointer; position: relative; transition: all 0.2s ease-in-out; display: flex; flex-direction: column; align-items: center; justify-content: space-between; box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+  
+  /* 👇 3 บรรทัดนี้แก้บัค Safari (ให้อยู่ข้างในนี้ ถูกต้องแล้วครับ) */
+  -webkit-touch-callout: none; 
+  -webkit-user-select: none; 
+  user-select: none; 
+} /* 👈 ปิดปีกกาของ .pos-product-card ตรงนี้ครับ */
 
 
-/* 🌟 แก้ไขบัคเงาตอนลาก (เพิ่ม body นำหน้าเพื่อให้คำสั่งนี้มีพลังสูงสุด ชนะ 100%) */
-body .sortable-fallback, 
-body .sortable-drag {
-  width: 140px !important; /* ล็อคขนาดให้พอดีกับมือถือ */
-  height: auto !important;
-  min-height: 160px !important;
-  z-index: 10500 !important;
-  opacity: 0.95 !important;
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2) !important;
-  cursor: grabbing !important;
-  background: white !important; /* ป้องกันพื้นหลังใส */
-  border-radius: 16px !important;
+/* 👇 🌟 ย้ายก้อนนี้ออกมาไว้ "ข้างนอก" ปีกกาด้านบนครับ 👇 */
+.sortable-fallback, .sortable-drag {
+  max-width: 150px !important;
+  max-height: 200px !important;
+  z-index: 10500 !important; /* ให้อยู่ชั้นบนสุดเสมอ */
 }
-
-
-
-/* 🌟 1. ตั้งค่ากล่องเงาตอนลาก & แก้บัคค้างติดจอถาวร */
-body .sortable-fallback, 
-body .sortable-drag {
-  width: 150px !important; /* ปรับขนาดกล่องเงาให้พอดีมือ */
-  height: auto !important;
-  min-height: 180px !important;
-  z-index: 99999 !important; /* ดันให้อยู่หน้าสุดของเว็บ */
-  opacity: 0.95 !important;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3) !important;
-  background: white !important;
-  border-radius: 16px !important;
-  padding: 10px !important;
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-
-  /* 👇 บรรทัดนี้คือพระเอก! สั่งให้เงาทะลุนิ้ว ป้องกันบัคลากแล้วค้างติดจอ 100% */
-  pointer-events: none !important; 
-}
-
-/* 🌟 2. บังคับรูปภาพข้างในเงา ให้ขยายใหญ่เต็มกล่องสัดส่วน 1:1 */
-body .sortable-fallback .pos-card-img, 
-body .sortable-drag .pos-card-img,
-body .sortable-fallback .pos-card-noimg, 
-body .sortable-drag .pos-card-noimg {
-  width: 100% !important;
-  height: auto !important;
-  aspect-ratio: 1 / 1 !important; /* ล็อคให้เป็นสี่เหลี่ยมจัตุรัส */
+.sortable-fallback img, .sortable-drag img {
+  max-height: 100px !important;
   object-fit: cover !important;
-  border-radius: 10px !important;
-  margin: 0 auto 8px auto !important;
 }
-
-/* 🌟 3. ปรับขนาดตัวหนังสือในเงาให้ชัดเจน */
-body .sortable-fallback .pos-card-name, 
-body .sortable-drag .pos-card-name {
-  font-size: 14px !important;
-  white-space: normal !important;
-  text-align: center !important;
-}
-
-/* ไม่ต้องจำกัดความสูง/กว้างแล้ว ปล่อยให้มันก๊อปปี้ขนาดจากตัวจริงมาเลย */
-
-/* 🌟 3. CSS โหมดจัดเรียง (ถอด transition: none ออก ปล่อยให้ JS สไลด์ได้อิสระ) */
+/* 🌟 CSS สำหรับโหมดจัดเรียงสินค้า (บังคับขนาดรูปและกล่องให้เท่ากันเป๊ะ) */
+    /* 🌟 CSS สำหรับโหมดจัดเรียงสินค้า (บังคับขนาดรูปและกล่องให้เท่ากันเป๊ะ) */
     #pos-menu-grid.is-sorting .pos-product-card {
       cursor: grab !important;
       border: 2px dashed #f59e0b !important;
       box-shadow: 0 8px 15px rgba(245, 158, 11, 0.2) !important;
       width: 100% !important;
       height: 100% !important;
-      box-sizing: border-box !important;
+      box-sizing: border-box !important; /* 👈 แก้ไขตรงนี้เรียบร้อยครับ */
       display: flex !important;
       flex-direction: column !important;
       justify-content: space-between !important;
     }
 
-    /* 🌟 =============================================== 🌟 */
     /* 🌟 บังคับให้รูปภาพทุกรูปในโหมดจัดเรียง ขนาดเท่ากันเป๊ะ ไม่ดันกล่อง */
     #pos-menu-grid.is-sorting .pos-card-img, 
     #pos-menu-grid.is-sorting .pos-card-noimg {
@@ -720,26 +645,20 @@ body .sortable-drag .pos-card-name {
             window.posSortableInstance.destroy();
         }
         
-       window.posSortableInstance = Sortable.create(gridContainer, {
-            animation: 300, // 🌟 ความเร็วสไลด์ 300ms กำลังสมูธสวยงาม
-            easing: "cubic-bezier(0.2, 0, 0, 1)", // 🌟 สมการชะลอความเร็วแบบ iPhone
-            disabled: !isSortMode, 
-			
-			// 👇 🌟 เพิ่ม 2 บรรทัดนี้ เพื่อแก้บัคเงากระโดดบนมือถือ 👇
-            forceFallback: true, // บังคับสร้างเงาการ์ดจำลองขึ้นมาเอง ไม่พึ่งเบราว์เซอร์
-            fallbackOnBody: true, // สั่งให้เงาลอยอยู่หน้าสุดเสมอ ไม่โดนกรอบจอบังหรือดันเพี้ยน
-            // 👆 =========================================== 👆
-
-            chosenClass: 'pos-chosen-card', 
-            dragClass: 'pos-drag-card', 
-
-            delay: 200, 
-            delayOnTouchOnly: true, 
-            touchStartThreshold: 5, 
+        // 👇 🌟 เพิ่ม window.posSortableInstance = ไว้ด้านหน้า Sortable.create 👇
+        window.posSortableInstance = Sortable.create(gridContainer, {
+            animation: 150, 
+            disabled: !isSortMode,
+			// 👇 🌟 เพิ่ม 2 บรรทัดนี้เพื่อให้มือรูปัดเลื่อนดูรายการได้ปกติ 👇
+            delay: 200, // แตะค้างไว้ 0.2 วินาทีค่อยเริ่มลาก (ถ้าปัดผ่านเร็วๆ จะเป็นการเลื่อนจอ)
+            delayOnTouchOnly: true, // ให้หน่วงเวลาเฉพาะบนมือถือ/iPad (ใน PC คลิกลากได้ทันที)
+            touchStartThreshold: 5, // อนุญาตให้นิ้วสั่น/ขยับได้นิดหน่อยตอนกดค้าง
             ghostClass: 'pos-ghost-card',
-            scroll: true, 
-            scrollSensitivity: 90, 
-            scrollSpeed: 15, 
+			// 👇 🌟 เพิ่ม 3 บรรทัดนี้ เพื่อแก้ปัญหาลากแล้วจอไม่เลื่อน 👇
+            scroll: true, // เปิดโหมดเลื่อนจออัตโนมัติ
+            scrollSensitivity: 90, // ขยายพื้นที่ขอบจอ (ถ้านิ้วห่างจากขอบบน/ล่าง 90px ให้เริ่มเลื่อนเลย)
+            scrollSpeed: 15, // ความเร็วในการเลื่อนหน้าจอ (ค่าเดิมคือ 10 จะอืดๆ หน่อย)
+            // 👆 ========================================= 👆
             onEnd: function (evt) {
                 // 1. ดึง ID ของกล่องที่เพิ่งถูกลาก
                 let draggedId = evt.item.getAttribute('data-id');
