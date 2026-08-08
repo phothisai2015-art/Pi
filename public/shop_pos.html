@@ -3,6 +3,16 @@
 <!-- ========================================================= -->
 <div id="page-pos" style="display: none; background: #f8fafc; height: 100vh; position: absolute; top: 0; left: 0; width: 100%; z-index: 1040; overflow: hidden; -webkit-overflow-scrolling: touch;">
   <style>
+  /* 🌟 เอฟเฟกต์การ์ดลอยตัว นุ่มนวลสไตล์ iPhone ตอนกำลังลาก */
+    .pos-chosen-card {
+      transform: scale(1.08) !important; /* ยกลอยขยายใหญ่ขึ้น 8% */
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2) !important; /* ใส่เงาทอดด้านล่าง */
+      z-index: 999 !important;
+      transition: transform 0.15s ease !important;
+    }
+    .pos-drag-card {
+      opacity: 0.9 !important;
+    }
   
   /* 🌟 เพิ่มอนิเมชันยกการ์ดตอนลากให้ดูสมูธ */
     .pos-product-card {
@@ -650,21 +660,24 @@
             window.posSortableInstance.destroy();
         }
         
-        // 👇 🌟 เพิ่ม window.posSortableInstance = ไว้ด้านหน้า Sortable.create 👇
-        window.posSortableInstance = Sortable.create(gridContainer, {
-            animation: 250, // 🌟 ปรับเป็น 250ms ให้เห็นจังหวะสไลด์สลับตำแหน่งชัดเจนกำลังดี
-            easing: "cubic-bezier(0.25, 1, 0.5, 1)", // 🌟 เติมจังหวะชะลอความเร็วสไตล์ iOS/Modern UI
-            disabled: !isSortMode,
-			// 👇 🌟 เพิ่ม 2 บรรทัดนี้เพื่อให้มือรูปัดเลื่อนดูรายการได้ปกติ 👇
-            delay: 200, // แตะค้างไว้ 0.2 วินาทีค่อยเริ่มลาก (ถ้าปัดผ่านเร็วๆ จะเป็นการเลื่อนจอ)
-            delayOnTouchOnly: true, // ให้หน่วงเวลาเฉพาะบนมือถือ/iPad (ใน PC คลิกลากได้ทันที)
-            touchStartThreshold: 5, // อนุญาตให้นิ้วสั่น/ขยับได้นิดหน่อยตอนกดค้าง
+       window.posSortableInstance = Sortable.create(gridContainer, {
+            animation: 250, 
+            easing: "cubic-bezier(0.2, 0, 0, 1)", // 🌟 ปรับจังหวะสไลด์สไตล์ iOS
+            disabled: !isSortMode, 
+
+            // 👇 🌟 เพิ่ม 3 บรรทัดนี้เพื่อฟีลลิ่งสลับนุ่มนวลแบบ iPhone 👇
+            swapThreshold: 0.65, // ลากเข้าหา 65% การ์ดข้างๆ จะค่อยๆ สไลด์หลบทางให้ทันที (แก้ปัญหากระโดด)
+            chosenClass: 'pos-chosen-card', // คลาสยกลอยตอนจับการ์ด
+            dragClass: 'pos-drag-card', // คลาสตอนกำลังลาก
+            // 👆 ================================================ 👆
+
+            delay: 200, 
+            delayOnTouchOnly: true, 
+            touchStartThreshold: 5, 
             ghostClass: 'pos-ghost-card',
-			// 👇 🌟 เพิ่ม 3 บรรทัดนี้ เพื่อแก้ปัญหาลากแล้วจอไม่เลื่อน 👇
-            scroll: true, // เปิดโหมดเลื่อนจออัตโนมัติ
-            scrollSensitivity: 90, // ขยายพื้นที่ขอบจอ (ถ้านิ้วห่างจากขอบบน/ล่าง 90px ให้เริ่มเลื่อนเลย)
-            scrollSpeed: 15, // ความเร็วในการเลื่อนหน้าจอ (ค่าเดิมคือ 10 จะอืดๆ หน่อย)
-            // 👆 ========================================= 👆
+            scroll: true, 
+            scrollSensitivity: 90, 
+            scrollSpeed: 15, 
             onEnd: function (evt) {
                 // 1. ดึง ID ของกล่องที่เพิ่งถูกลาก
                 let draggedId = evt.item.getAttribute('data-id');
