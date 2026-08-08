@@ -116,7 +116,81 @@
       #page-pos { overflow-y: auto !important; }
       .pos-left-box { min-height: 60vh; }
     }
-	
+
+	  /* ========================================================= */
+    /* 📱 🌟 ปรับแต่งพิเศษสำหรับ แท็บเล็ต / มือถือ แนวนอน (Landscape) */
+    /* ========================================================= */
+    @media (min-width: 768px) and (max-height: 820px) and (orientation: landscape) {
+      /* 1. กระชับระยะห่างแถบเมนูบนสุด */
+      .pos-mobile-header {
+        margin-top: 4px !important;
+        margin-bottom: 4px !important;
+      }
+      .pos-mobile-header h3 {
+        font-size: 1.2rem !important;
+      }
+
+      /* 2. ล็อคความสูงฝั่งซ้ายและฝั่งขวา ให้พอดีเป๊ะ ไม่ดันตกขอบล่าง */
+      .pos-left-box {
+        height: calc(100vh - 50px) !important;
+        padding: 10px !important;
+      }
+      .col-lg-3.pos-mobile-unsticky {
+        height: calc(100vh - 50px) !important;
+        top: 45px !important;
+      }
+
+      /* 3. กระชับกล่องค้นหาและบาร์โค้ดฝั่งซ้าย */
+      .pos-left-box .bg-light.rounded-4 {
+        padding: 8px !important;
+        margin-bottom: 8px !important;
+        gap: 8px !important;
+      }
+
+      /* 4. ปรับขนาดย่อกล่องสรุปยอดและปุ่มจ่ายเงินฝั่งขวา */
+      .pos-right-summary {
+        padding: 10px !important;
+      }
+      .pos-right-summary h6 {
+        font-size: 0.8rem !important;
+        margin-bottom: 4px !important;
+      }
+      .pos-right-summary .fs-6 {
+        font-size: 0.85rem !important;
+      }
+      .pos-right-summary .fs-3 {
+        font-size: 1.4rem !important; /* ย่อยอดสุทธิ */
+      }
+      .pos-right-summary .p-3 {
+        padding: 8px 12px !important; /* ย่อกล่องสีน้ำเงิน */
+        margin-bottom: 6px !important;
+      }
+      .pos-right-summary .btn-lg {
+        padding-top: 8px !important;
+        padding-bottom: 8px !important;
+        font-size: 0.95rem !important; /* ปรับปุ่มรับเงินสด/PromptPay ให้เล็กลงพอดีมือ */
+        border-radius: 10px !important;
+      }
+      
+      /* 5. ย่อกล่องกรอกชื่อลูกค้าและส่วนลด */
+      #mobile-hide-customer {
+        margin-bottom: 6px !important;
+      }
+      #mobile-hide-customer input {
+        height: 2.3rem !important;
+        min-height: 2.3rem !important;
+        font-size: 0.85rem !important;
+      }
+      #mobile-hide-discount {
+        margin-bottom: 6px !important;
+      }
+
+      /* 6. ตะกร้าสินค้าขยายเต็มพื้นที่ที่เหลือและสไลด์เนียนขึ้น */
+      #pos-cart-container {
+        border-radius: 16px !important;
+      }
+    }
+	  
   </style>
 
   <div class="d-flex justify-content-between align-items-center mb-2 mt-2 px-3 px-md-4 pos-mobile-header" style="background: transparent;">
