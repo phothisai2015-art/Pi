@@ -519,6 +519,20 @@
               gridContainer.innerHTML = `<div class="text-center text-muted p-5 w-100">${i18n[currentLang]['pos_empty_stock'] || 'ไม่มีข้อมูลสินค้าในคลัง...'}</div>`; 
               return; 
           }
+		  // 👇 🌟 เริ่มส่วนที่เพิ่ม: ดึงลำดับที่เคยบันทึกไว้ในเครื่องมาจัดเรียงก่อน 👇
+          let savedOrder = localStorage.getItem('pos_custom_order');
+          if (savedOrder) {
+              let orderArr = JSON.parse(savedOrder);
+              globalProducts.sort((a, b) => {
+                 let indexA = orderArr.indexOf(a.id);
+                 let indexB = orderArr.indexOf(b.id);
+                 if (indexA === -1 && indexB === -1) return 0;
+                 if (indexA === -1) return 1; // สินค้าใหม่ที่เพิ่งเพิ่มเข้ามา ให้ไปอยู่ท้ายสุด
+                 if (indexB === -1) return -1;
+                 return indexA - indexB;
+              });
+          }
+          // 👆 สิ้นสุดส่วนที่เพิ่ม 👆
           
           let currentSize = document.getElementById('image-size-slider').value; 
           let selectedCat = document.getElementById('pos-category-filter').value; 
@@ -573,11 +587,35 @@
       if (typeof Sortable !== 'undefined') {
         Sortable.create(gridContainer, {
             animation: 150, 
-            delay: 300, // ⏳ ตั้งหน่วงเวลา 300ms (คือการกดค้างบนรูปสินค้าก่อนลาก)
+            delay: 300, 
             delayOnTouchOnly: true, 
             ghostClass: 'opacity-50', 
             onEnd: function (evt) {
-                console.log('ย้ายไอเทมจากตำแหน่ง', evt.oldIndex, 'ไป', evt.newIndex);
+                // 1. ดึง ID ของกล่องที่เพิ่งถูกลาก
+                let draggedId = evt.item.getAttribute('data-id');
+                // 2. ดึงลำดับ ID ใหม่ทั้งหมดที่เรียงอยู่บนหน้าจอ ณ ตอนนี้
+                let newDomOrder = Array.from(gridContainer.children).map(c => c.getAttribute('data-id'));
+                
+                // 3. หาตำแหน่งเดิมของสินค้าตัวนี้ในข้อมูลหลัก
+                let oldIndex = globalProducts.findIndex(p => p.id === draggedId);
+                if(oldIndex === -1) return;
+                
+                // 4. ตัดข้อมูลออกจากที่เดิม และเอาไปแทรกในตำแหน่งใหม่
+                let movedItem = globalProducts.splice(oldIndex, 1)[0];
+                let nextItemId = newDomOrder[evt.newIndex + 1];
+                
+                if (nextItemId) {
+                    let insertIndex = globalProducts.findIndex(p => p.id === nextItemId);
+                    globalProducts.splice(insertIndex, 0, movedItem);
+                } else {
+                    let prevItemId = newDomOrder[evt.newIndex - 1];
+                    let insertIndex = globalProducts.findIndex(p => p.id === prevItemId);
+                    globalProducts.splice(insertIndex + 1, 0, movedItem);
+                }
+
+                // 5. 🌟 พระเอกอยู่ตรงนี้: บันทึกลำดับทั้งหมดเก็บไว้ในเครื่อง
+                let currentOrderIds = globalProducts.map(p => p.id);
+                localStorage.setItem('pos_custom_order', JSON.stringify(currentOrderIds));
             }
         });
       }
