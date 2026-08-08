@@ -691,8 +691,7 @@ body.dark-theme .ad-close-btn:hover {
 <!-- ============================================== -->
 <script>
 
-  const loginAudio = new Audio('/sould/login.mp3');
-  loginAudio.preload = 'auto';
+  
   
 // เช็คสถานะการเข้าสู่ระบบ
 window.onload = function() {
@@ -778,13 +777,8 @@ function processSaaSLogin() {
       else {
           localStorage.setItem('saas_tenant_id', res.sheetId);
           localStorage.setItem('saas_shop_name', res.shopName);
-          loginAudio.currentTime = 0; // รีเซ็ตเสียงไปที่จุดเริ่มต้น
-		  loginAudio.play().catch(e => console.log(e));
           
-          // หน่วงเวลา 1 วินาที (1000ms) ให้เสียงเล่นจบก่อน แล้วค่อยเด้งเข้าหน้า POS
-          setTimeout(() => {
-              window.location.href = '/shop'; 
-          }, 800);
+             window.location.href = '/shop';         
       }
   }).withFailureHandler(function(err) {
       isSaaSLoggingIn = false; Swal.fire({ icon: 'error', title: 'Error', text: i18n[currentLang]['idx_alert_conn_fail'] || 'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้' });
