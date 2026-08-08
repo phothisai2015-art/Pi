@@ -496,6 +496,13 @@
       google.script.run.withSuccessHandler(function(settings) {
         cachedShopSettings = settings; shopPromptPayNo = settings.shop_promptpay; shopName = settings.shop_name; let accName = settings.shop_account_name || settings.shop_name;
         document.getElementById('pp-name').innerText = accName; isAutoPrintEnabled = (settings.auto_print === "true" || settings.auto_print === true);
+		// 🌟 ดึงลำดับการจัดเรียงจาก Database มาอัปเดตลงเครื่อง และรีเฟรชหน้าจอใหม่
+        if (settings.pos_custom_order) {
+            localStorage.setItem('pos_custom_order_' + currentTenantSheetId, settings.pos_custom_order);
+            if (currentPOSMode === 'grid') {
+                renderMenuGrid(); 
+            }
+        }
       }).getShopSettings(currentTenantSheetId);
       
       // แปลภาษาในหน้า POS
@@ -575,7 +582,8 @@
               return; 
           }
 		  // 👇 🌟 เริ่มส่วนที่เพิ่ม: ดึงลำดับที่เคยบันทึกไว้ในเครื่องมาจัดเรียงก่อน 👇
-          let savedOrder = localStorage.getItem('pos_custom_order');
+          // 👇 🌟 เริ่มส่วนที่เพิ่ม: ดึงลำดับที่เคยบันทึกไว้ในเครื่องมาจัดเรียงก่อน 👇
+          let savedOrder = localStorage.getItem('pos_custom_order_' + currentTenantSheetId);
           if (savedOrder) {
               let orderArr = JSON.parse(savedOrder);
               globalProducts.sort((a, b) => {
@@ -682,9 +690,14 @@
                     globalProducts.splice(insertIndex + 1, 0, movedItem);
                 }
 
-                // 5. บันทึกลำดับทั้งหมดเก็บไว้ในเครื่อง
+                // 5. บันทึกลำดับทั้งหมดเก็บไว้ในเครื่อง (แยกตามร้านค้า)
                 let currentOrderIds = globalProducts.map(p => p.id);
-                localStorage.setItem('pos_custom_order', JSON.stringify(currentOrderIds));
+                let orderStr = JSON.stringify(currentOrderIds);
+                localStorage.setItem('pos_custom_order_' + currentTenantSheetId, orderStr);
+
+                // 🌟 6. ส่งข้อมูลไปบันทึกลง Database ของร้านนี้ (ตาราง settings) ทันที
+                if (cachedShopSettings) cachedShopSettings.pos_custom_order = orderStr;
+                google.script.run.updateShopSettings(currentTenantSheetId, { pos_custom_order: orderStr });
             }
         });
       }
