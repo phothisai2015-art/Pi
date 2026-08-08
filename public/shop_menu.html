@@ -145,101 +145,38 @@ body.dark-theme .menu-card-btn:hover:not(:disabled) { border-color: #475569; box
   0% { transform: translateY(0) scale(1); }
   100% { transform: translateY(2px) scale(0.98, 1.02); }
 }
-/* 📱 🌟 ปรับแต่งพิเศษสำหรับ หน้าล็อก PIN และ หน้าเมนูหลัก ในแนวนอน (Landscape) */
+/* 📱 🌟 ปรับแต่ง Main Menu & Numpad สำหรับ แนวนอน (Landscape) */
 @media (max-height: 820px) and (orientation: landscape) {
-  
-  /* --- 1. ปรับหน้าจอล็อก PIN (Lock Screen & Numpad) --- */
-  #lock-screen {
-    overflow-y: auto !important; /* ยอมให้ไถเลื่อนขึ้นลงได้หากจอสั้นมากๆ */
-    padding: 10px 0 !important;
-    justify-content: flex-start !important; /* จัดให้อยู่จากด้านบนลงมา ไม่โดนตัดขอบ */
-  }
-  .numpad-container {
-    padding: 12px 20px 18px 20px !important;
-    max-width: 320px !important;
-    margin: auto !important;
-    border-radius: 24px !important;
-  }
-  .numpad-header-wrap h4 {
-    font-size: 0.95rem !important;
-    margin-bottom: 2px !important;
-  }
-  .numpad-header-wrap p {
-    margin-bottom: 6px !important;
-    font-size: 0.75rem !important;
-  }
-  .numpad-header-wrap i.lock-icon-anim {
-    font-size: 1.2rem !important;
-    margin-bottom: 2px !important;
-  }
-  .pin-display {
-    margin-bottom: 10px !important;
-    height: 25px !important;
-  }
-  .pin-dot {
-    width: 12px !important;
-    height: 12px !important;
-  }
-  .numpad-grid {
-    gap: 8px !important;
-  }
-  .num-btn {
-    height: 42px !important;
-    font-size: 18px !important;
-    border-radius: 12px !important;
-  }
-  /* ซ่อนแมวแอบดูบนนัมแพดในแนวนอนเพื่อคืนพื้นที่แนวตั้ง */
-  .panel-cat {
-    display: none !important;
-  }
-
-  /* --- 2. ปรับหน้าเมนูหลัก (Main Menu Cards) --- */
+  /* ย่อขนาดการ์ดเมนูหลัก 4 ปุ่ม */
   .main-container#main-menu {
-    padding-top: 10px !important;
-    padding-bottom: 20px !important;
+    padding-top: 15px !important;
+    padding-bottom: 15px !important;
     height: auto !important;
     min-height: 100vh;
-    justify-content: flex-start !important;
   }
-  .main-container#main-menu .text-center.mb-5 {
-    margin-bottom: 10px !important;
-  }
-  #display-shop-logo {
-    max-width: 55px !important;
-    margin-bottom: 6px !important;
-    border-radius: 14px !important;
-  }
-  .main-container#main-menu h2 {
-    font-size: 1.1rem !important;
-  }
-  .main-container#main-menu .d-inline-flex {
-    padding: 4px 12px !important;
-    margin-top: 4px !important;
-  }
-  .main-container#main-menu .row.g-4 {
-    --bs-gutter-y: 0.5rem !important;
-    --bs-gutter-x: 0.5rem !important;
+  .main-container#main-menu .mb-5 {
+    margin-bottom: 15px !important;
   }
   .menu-card-btn {
-    padding: 10px 8px !important;
-    border-radius: 16px !important;
+    padding: 15px 10px !important;
   }
   .menu-icon-wrap {
-    width: 42px !important;
-    height: 42px !important;
-    font-size: 18px !important;
-    border-radius: 12px !important;
+    width: 48px !important;
+    height: 48px !important;
+    font-size: 22px !important;
   }
-  .menu-card-btn h5 {
-    font-size: 0.9rem !important;
-    margin-top: 4px !important;
-    margin-bottom: 2px !important;
+
+  /* ย่อแป้นกด PIN นัมแพด ให้กดง่ายไม่ตกขอบ */
+  .numpad-container {
+    padding: 15px 20px !important;
   }
-  .menu-card-btn span {
-    font-size: 0.7rem !important;
+  .num-btn {
+    height: 48px !important;
+    font-size: 20px !important;
   }
-  .main-container#main-menu .mt-5 {
-    margin-top: 15px !important;
+  .pin-display {
+    margin-bottom: 15px !important;
+    height: 30px !important;
   }
 }
 </style>
