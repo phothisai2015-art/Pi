@@ -622,7 +622,12 @@
             animation: 150, 
             delay: 300, 
             delayOnTouchOnly: true, 
-            ghostClass: 'pos-ghost-card', 
+            ghostClass: 'pos-ghost-card',
+			// 👇 🌟 เพิ่ม 3 บรรทัดนี้ เพื่อแก้ปัญหาลากแล้วจอไม่เลื่อน 👇
+            scroll: true, // เปิดโหมดเลื่อนจออัตโนมัติ
+            scrollSensitivity: 90, // ขยายพื้นที่ขอบจอ (ถ้านิ้วห่างจากขอบบน/ล่าง 90px ให้เริ่มเลื่อนเลย)
+            scrollSpeed: 15, // ความเร็วในการเลื่อนหน้าจอ (ค่าเดิมคือ 10 จะอืดๆ หน่อย)
+            // 👆 ========================================= 👆
             onEnd: function (evt) {
                 // 1. ดึง ID ของกล่องที่เพิ่งถูกลาก
                 let draggedId = evt.item.getAttribute('data-id');
