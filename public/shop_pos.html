@@ -3,6 +3,11 @@
 <!-- ========================================================= -->
 <div id="page-pos" style="display: none; background: #f8fafc; height: 100vh; position: absolute; top: 0; left: 0; width: 100%; z-index: 1040; overflow: hidden; -webkit-overflow-scrolling: touch;">
   <style>
+  
+  /* 🌟 เพิ่มอนิเมชันยกการ์ดตอนลากให้ดูสมูธ */
+    .pos-product-card {
+      transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+    }
     @media (max-width: 991px) {
   #page-pos { 
     overflow-y: auto !important; 
@@ -647,7 +652,8 @@
         
         // 👇 🌟 เพิ่ม window.posSortableInstance = ไว้ด้านหน้า Sortable.create 👇
         window.posSortableInstance = Sortable.create(gridContainer, {
-            animation: 150, 
+            animation: 250, // 🌟 ปรับเป็น 250ms ให้เห็นจังหวะสไลด์สลับตำแหน่งชัดเจนกำลังดี
+            easing: "cubic-bezier(0.25, 1, 0.5, 1)", // 🌟 เติมจังหวะชะลอความเร็วสไตล์ iOS/Modern UI
             disabled: !isSortMode,
 			// 👇 🌟 เพิ่ม 2 บรรทัดนี้เพื่อให้มือรูปัดเลื่อนดูรายการได้ปกติ 👇
             delay: 200, // แตะค้างไว้ 0.2 วินาทีค่อยเริ่มลาก (ถ้าปัดผ่านเร็วๆ จะเป็นการเลื่อนจอ)
