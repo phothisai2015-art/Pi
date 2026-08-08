@@ -62,16 +62,15 @@
     }
 
 
-/* 👇 🌟 ย้ายก้อนนี้ออกมาไว้ "ข้างนอก" ปีกกาด้านบนครับ 👇 */
+/* 🌟 แก้ไขบัคเงาตอนลากให้ขนาดเท่าการ์ดจริง */
 .sortable-fallback, .sortable-drag {
-  max-width: 150px !important;
-  max-height: 200px !important;
-  z-index: 10500 !important; /* ให้อยู่ชั้นบนสุดเสมอ */
+  z-index: 10500 !important;
+  opacity: 0.95 !important;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2) !important;
+  cursor: grabbing !important;
 }
-.sortable-fallback img, .sortable-drag img {
-  max-height: 100px !important;
-  object-fit: cover !important;
-}
+/* ไม่ต้องจำกัดความสูง/กว้างแล้ว ปล่อยให้มันก๊อปปี้ขนาดจากตัวจริงมาเลย */
+
 /* 🌟 3. CSS โหมดจัดเรียง (ถอด transition: none ออก ปล่อยให้ JS สไลด์ได้อิสระ) */
     #pos-menu-grid.is-sorting .pos-product-card {
       cursor: grab !important;
@@ -84,34 +83,7 @@
       flex-direction: column !important;
       justify-content: space-between !important;
     }
-	/* 🌟 =============================================== 🌟 */
-    /* 🌟 เอฟเฟกต์การ์ดลอยขึ้นลงดุ๊กดิ๊ก ดึงดูดสายตาตอนพร้อมลาก */
-    @keyframes floatReady {
-      0%, 100% { 
-        top: 0px; 
-        box-shadow: 0 8px 15px rgba(245, 158, 11, 0.2) !important; 
-      }
-      50% { 
-        top: -6px; /* ดันการ์ดลอยขึ้น 6px */
-        box-shadow: 0 15px 25px rgba(245, 158, 11, 0.4) !important; /* เงาเข้มและกว้างขึ้นตอนลอย */
-      }
-    }
 
-    /* สั่งให้การ์ดทุกใบเล่นอนิเมชันลอยตัว */
-    #pos-menu-grid.is-sorting .pos-product-card {
-      animation: floatReady 1.5s ease-in-out infinite;
-    }
-
-    /* สลับจังหวะหน่วงเวลาให้การ์ดแต่ละใบลอยไม่พร้อมกัน (ดูเป็นธรรมชาติเหมือนคลื่น) */
-    #pos-menu-grid.is-sorting .pos-product-card:nth-child(2n) {
-      animation-delay: 0.3s;
-    }
-    #pos-menu-grid.is-sorting .pos-product-card:nth-child(3n) {
-      animation-delay: 0.6s;
-    }
-    #pos-menu-grid.is-sorting .pos-product-card:nth-child(5n) {
-      animation-delay: 0.9s;
-    }
     /* 🌟 =============================================== 🌟 */
     /* 🌟 บังคับให้รูปภาพทุกรูปในโหมดจัดเรียง ขนาดเท่ากันเป๊ะ ไม่ดันกล่อง */
     #pos-menu-grid.is-sorting .pos-card-img, 
