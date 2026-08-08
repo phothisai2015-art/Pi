@@ -62,17 +62,29 @@
     }
 
 
-/* 🌟 แก้ไขบัคเงาตอนลากให้ขนาดเท่าการ์ดจริง */
-/* 🌟 แก้ไขบัคเงาตอนลากให้ขนาดเท่าการ์ดจริง และป้องกันการ์ดขยายเต็มจอ */
-.sortable-fallback, .sortable-drag {
-  width: 155px !important; /* ล็อคความกว้างตอนลอยไม่ให้ทะลุจอ */
-  height: auto !important; /* ให้ความสูงสมดุลกับความกว้าง */
-  min-height: 180px !important;
+/* 🌟 แก้ไขบัคเงาตอนลาก (เพิ่ม body นำหน้าเพื่อให้คำสั่งนี้มีพลังสูงสุด ชนะ 100%) */
+body .sortable-fallback, 
+body .sortable-drag {
+  width: 140px !important; /* ล็อคขนาดให้พอดีกับมือถือ */
+  height: auto !important;
+  min-height: 160px !important;
   z-index: 10500 !important;
   opacity: 0.95 !important;
   box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2) !important;
   cursor: grabbing !important;
+  background: white !important; /* ป้องกันพื้นหลังใส */
+  border-radius: 16px !important;
 }
+
+/* 🌟 ควบคุมรูปภาพข้างในเงาไม่ให้เพี้ยน */
+body .sortable-fallback img, 
+body .sortable-drag img {
+  width: 100% !important;
+  height: 120px !important;
+  object-fit: cover !important;
+  border-radius: 10px !important;
+}
+
 /* ไม่ต้องจำกัดความสูง/กว้างแล้ว ปล่อยให้มันก๊อปปี้ขนาดจากตัวจริงมาเลย */
 
 /* 🌟 3. CSS โหมดจัดเรียง (ถอด transition: none ออก ปล่อยให้ JS สไลด์ได้อิสระ) */
