@@ -46,17 +46,26 @@
   max-height: 100px !important;
   object-fit: cover !important;
 }
-/* 🌟 CSS สำหรับโหมดจัดเรียงสินค้า (แก้ไขกล่องหดเบี้ยว) */
+/* 🌟 CSS สำหรับโหมดจัดเรียงสินค้า (บังคับขนาดรูปและกล่องให้เท่ากันเป๊ะ) */
+    /* 🌟 CSS สำหรับโหมดจัดเรียงสินค้า (บังคับขนาดรูปและกล่องให้เท่ากันเป๊ะ) */
     #pos-menu-grid.is-sorting .pos-product-card {
       cursor: grab !important;
       border: 2px dashed #f59e0b !important;
       box-shadow: 0 8px 15px rgba(245, 158, 11, 0.2) !important;
       width: 100% !important;
-      box-sizing: border-box !important;
+      height: 100% !important;
+      box-sizing: border-box !important; /* 👈 แก้ไขตรงนี้เรียบร้อยครับ */
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: space-between !important;
     }
-    #pos-menu-grid.is-sorting .pos-product-card:active {
-      cursor: grabbing !important;
-      transform: scale(1.05);
+
+    /* 🌟 บังคับให้รูปภาพทุกรูปในโหมดจัดเรียง ขนาดเท่ากันเป๊ะ ไม่ดันกล่อง */
+    #pos-menu-grid.is-sorting .pos-card-img, 
+    #pos-menu-grid.is-sorting .pos-card-noimg {
+      width: 100% !important;
+      aspect-ratio: 1 / 1 !important;
+      object-fit: cover !important;
     }
     .pos-product-card:hover { transform: translateY(-4px); box-shadow: 0 10px 20px rgba(0,0,0,0.08); border-color: #3b82f6; }
     body.dark-theme .pos-product-card:hover { background-color: #1e293b !important; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5) !important; }
@@ -640,6 +649,10 @@
         window.posSortableInstance = Sortable.create(gridContainer, {
             animation: 150, 
             disabled: !isSortMode,
+			// 👇 🌟 เพิ่ม 2 บรรทัดนี้เพื่อให้มือรูปัดเลื่อนดูรายการได้ปกติ 👇
+            delay: 200, // แตะค้างไว้ 0.2 วินาทีค่อยเริ่มลาก (ถ้าปัดผ่านเร็วๆ จะเป็นการเลื่อนจอ)
+            delayOnTouchOnly: true, // ให้หน่วงเวลาเฉพาะบนมือถือ/iPad (ใน PC คลิกลากได้ทันที)
+            touchStartThreshold: 5, // อนุญาตให้นิ้วสั่น/ขยับได้นิดหน่อยตอนกดค้าง
             ghostClass: 'pos-ghost-card',
 			// 👇 🌟 เพิ่ม 3 บรรทัดนี้ เพื่อแก้ปัญหาลากแล้วจอไม่เลื่อน 👇
             scroll: true, // เปิดโหมดเลื่อนจออัตโนมัติ
