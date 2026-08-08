@@ -27,12 +27,24 @@
     .return-qty-input-pos { width: 70px; text-align: center; font-weight: bold; border-radius: 6px; border: 1px solid #cbd5e1; }
     .return-qty-input-pos:disabled { background-color: #f1f5f9; color: #94a3b8; }
     .pos-product-card { 
-    background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 12px; text-align: center; cursor: pointer; position: relative; transition: all 0.2s ease-in-out; display: flex; flex-direction: column; align-items: center; justify-content: space-between; box-shadow: 0 4px 6px rgba(0,0,0,0.02); 
-    
-    /* 👇 🌟 เพิ่ม 3 บรรทัดนี้เพื่อแก้บัค Safari 👇 */
-    -webkit-touch-callout: none; /* ปิดการเด้งเมนูป๊อปอัพเวลาจิ้มค้างบน Safari */
-    -webkit-user-select: none; /* ปิดการคลุมดำข้อความบน Safari */
-    user-select: none; /* ปิดการคลุมดำข้อความบนเบราว์เซอร์อื่นๆ */
+  background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 12px; text-align: center; cursor: pointer; position: relative; transition: all 0.2s ease-in-out; display: flex; flex-direction: column; align-items: center; justify-content: space-between; box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+  
+  /* 👇 3 บรรทัดนี้แก้บัค Safari (ให้อยู่ข้างในนี้ ถูกต้องแล้วครับ) */
+  -webkit-touch-callout: none; 
+  -webkit-user-select: none; 
+  user-select: none; 
+} /* 👈 ปิดปีกกาของ .pos-product-card ตรงนี้ครับ */
+
+
+/* 👇 🌟 ย้ายก้อนนี้ออกมาไว้ "ข้างนอก" ปีกกาด้านบนครับ 👇 */
+.sortable-fallback, .sortable-drag {
+  max-width: 150px !important;
+  max-height: 200px !important;
+  z-index: 10500 !important; /* ให้อยู่ชั้นบนสุดเสมอ */
+}
+.sortable-fallback img, .sortable-drag img {
+  max-height: 100px !important;
+  object-fit: cover !important;
 }
     .pos-product-card:hover { transform: translateY(-4px); box-shadow: 0 10px 20px rgba(0,0,0,0.08); border-color: #3b82f6; }
     body.dark-theme .pos-product-card:hover { background-color: #1e293b !important; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5) !important; }
@@ -607,7 +619,7 @@
             
             // 👇 🌟 เพิ่ม 2 บรรทัดนี้ 👇
             touchStartThreshold: 5, // ยอมให้นิ้วขยับ/สั่นได้ 5 พิกเซลตอนกดค้างโดยไม่หลุดการลาก
-            forceFallback: true, // บังคับปิดระบบลากของ Safari แล้วใช้ระบบของ Sortable แทน
+            
 
             ghostClass: 'pos-ghost-card',
             onEnd: function (evt) {
