@@ -5,13 +5,12 @@
   <style>
   /* 🌟 เอฟเฟกต์การ์ดลอยตัว นุ่มนวลสไตล์ iPhone ตอนกำลังลาก */
     .pos-chosen-card {
-      transform: scale(1.08) !important; /* ยกลอยขยายใหญ่ขึ้น 8% */
-      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2) !important; /* ใส่เงาทอดด้านล่าง */
+      transform: scale(1.05) !important;
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2) !important;
       z-index: 999 !important;
-      transition: transform 0.15s ease !important;
     }
     .pos-drag-card {
-      opacity: 0.9 !important;
+      opacity: 0.85 !important;
     }
   
   /* 🌟 เพิ่มอนิเมชันยกการ์ดตอนลากให้ดูสมูธ */
@@ -41,13 +40,26 @@
     .return-checkbox-pos { width: 22px; height: 22px; cursor: pointer; }
     .return-qty-input-pos { width: 70px; text-align: center; font-weight: bold; border-radius: 6px; border: 1px solid #cbd5e1; }
     .return-qty-input-pos:disabled { background-color: #f1f5f9; color: #94a3b8; }
+    /* 🌟 แก้ไขให้เหลือปีกกาปิดชุดเดียว ถูกต้อง 100% */
     .pos-product-card { 
-background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 12px; text-align: center; cursor: pointer; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: space-between; box-shadow: 0 4px 6px rgba(0,0,0,0.02);
-  /* 👇 3 บรรทัดนี้แก้บัค Safari (ให้อยู่ข้างในนี้ ถูกต้องแล้วครับ) */
-  -webkit-touch-callout: none; 
-  -webkit-user-select: none; 
-  user-select: none; 
-} /* 👈 ปิดปีกกาของ .pos-product-card ตรงนี้ครับ */
+      background: white; 
+      border: 1px solid #e2e8f0; 
+      border-radius: 16px; 
+      padding: 12px; 
+      text-align: center; 
+      cursor: pointer; 
+      position: relative; 
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      justify-content: space-between; 
+      box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+
+      /* 3 บรรทัดนี้แก้บัค Safari */
+      -webkit-touch-callout: none; 
+      -webkit-user-select: none; 
+      user-select: none; 
+    } /* 👈 ปิดปีกกาตรงนี้ที่เดียวพอครับ */
 
 
 /* 👇 🌟 ย้ายก้อนนี้ออกมาไว้ "ข้างนอก" ปีกกาด้านบนครับ 👇 */
@@ -60,7 +72,7 @@ background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 12px
   max-height: 100px !important;
   object-fit: cover !important;
 }
-/* 🌟 CSS สำหรับโหมดจัดเรียงสินค้า (บังคับขนาดรูปและกล่องให้เท่ากันเป๊ะ) */
+/* 🌟 3. CSS โหมดจัดเรียง (ถอด transition: none ออก ปล่อยให้ JS สไลด์ได้อิสระ) */
     #pos-menu-grid.is-sorting .pos-product-card {
       cursor: grab !important;
       border: 2px dashed #f59e0b !important;
@@ -71,7 +83,6 @@ background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 12px
       display: flex !important;
       flex-direction: column !important;
       justify-content: space-between !important;
-      transition: none !important; /* 🌟 เติมบรรทัดนี้เพื่อเปิดทางให้ระบบ JS สไลด์ได้อย่างอิสระ */
     }
     /* 🌟 บังคับให้รูปภาพทุกรูปในโหมดจัดเรียง ขนาดเท่ากันเป๊ะ ไม่ดันกล่อง */
     #pos-menu-grid.is-sorting .pos-card-img, 
@@ -659,14 +670,12 @@ background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 12px
         }
         
        window.posSortableInstance = Sortable.create(gridContainer, {
-            animation: 250, 
-            easing: "cubic-bezier(0.2, 0, 0, 1)", // 🌟 ปรับจังหวะสไลด์สไตล์ iOS
+            animation: 300, // 🌟 ความเร็วสไลด์ 300ms กำลังสมูธสวยงาม
+            easing: "cubic-bezier(0.2, 0, 0, 1)", // 🌟 สมการชะลอความเร็วแบบ iPhone
             disabled: !isSortMode, 
 
-            // 👇 🌟 เพิ่ม 3 บรรทัดนี้เพื่อฟีลลิ่งสลับนุ่มนวลแบบ iPhone 
-            chosenClass: 'pos-chosen-card', // คลาสยกลอยตอนจับการ์ด
-            dragClass: 'pos-drag-card', // คลาสตอนกำลังลาก
-            // 👆 ================================================ 👆
+            chosenClass: 'pos-chosen-card', 
+            dragClass: 'pos-drag-card', 
 
             delay: 200, 
             delayOnTouchOnly: true, 
