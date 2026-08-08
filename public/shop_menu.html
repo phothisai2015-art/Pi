@@ -148,9 +148,9 @@ body.dark-theme .menu-card-btn:hover:not(:disabled) { border-color: #475569; box
 /* 📱 🌟 ปรับแต่ง Main Menu & Numpad สำหรับ แนวนอน (Landscape) */
 @media (max-height: 820px) and (orientation: landscape) {
   .main-container#main-menu {
-    overflow-y: auto !important; /* ปลดล็อกให้ไถจอเพื่อซ่อน URL Bar ได้ */
+    overflow-y: auto !important; 
     padding-top: 15px !important;
-    padding-bottom: 40px !important;
+    padding-bottom: 200px !important; /* 🌟 เพิ่มตรงนี้: สร้างพื้นที่หลอกให้หน้าจอยาวทะลุขอบ เพื่อให้ไถซ่อน URL ได้ */
     height: 100vh !important;
     justify-content: flex-start !important;
   }
