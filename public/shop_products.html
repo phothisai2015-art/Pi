@@ -26,6 +26,22 @@
       .prod-table-container td.fs-6 { font-size: 10px !important; }
       .prod-table-container td small { font-size: 9px !important; display: block; line-height: 1.1; margin-top: 2px; }
     }
+	/* 📱 🌟 ปรับแต่งหน้าคลังสินค้า (Products) สำหรับ แนวนอน (Landscape) */
+@media (max-height: 820px) and (orientation: landscape) {
+  #page-products {
+    overflow-y: auto !important; /* ปลดล็อกให้ไถจอเพื่อซ่อน URL Bar ได้ */
+    padding: 10px 15px 40px 15px !important;
+    height: 100vh !important;
+  }
+  .prod-header-wrapper {
+    margin-bottom: 10px !important;
+  }
+  .prod-table-container {
+    max-height: none !important; /* ปลดล็อกตารางให้ยาวตามจริง เพื่อให้จอมีพื้นที่ให้ไถเลื่อน */
+    height: auto !important;
+    overflow-y: visible !important;
+  }
+}
   </style>
 
   <div class="prod-header-wrapper">
