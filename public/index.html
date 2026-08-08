@@ -41,18 +41,27 @@ document.addEventListener("DOMContentLoaded", () => {
     if(icon) icon.className = 'fa-solid fa-sun'; 
   }
 
-  // 🌟 สั่งให้ Popup โฆษณาเด้งขึ้นมาทุกครั้งที่รีเฟรชหรือเข้าหน้าเว็บ
+  // 🌟 สั่งให้ Popup วิดีโอเด้งขึ้นมา
   const advertModalElement = document.getElementById('advertModal');
   if (advertModalElement) {
-    loadDynamicAds();
+    // เอาคำสั่ง loadDynamicAds() ออกไป
     const adModal = new bootstrap.Modal(advertModalElement, {
       backdrop: true, // ให้คลิกพื้นที่ว่างรอบๆ เพื่อปิดได้
       keyboard: true  // ให้กดปุ่ม ESC ที่คีย์บอร์ดเพื่อปิดได้
     });
-    // หน่วงเวลาเล็กน้อย (500ms) ให้หน้าเว็บโหลดเสร็จก่อนค่อยเด้ง เพื่อความสวยงาม
+    
+    // หน่วงเวลาให้หน้าเว็บโหลดเสร็จก่อนค่อยเด้ง
     setTimeout(() => {
       adModal.show();
+      const vid = document.getElementById('adVideoPlayer');
+      if(vid) vid.play().catch(e => console.log(e)); // บังคับเล่น
     }, 1000);
+
+    // หยุดเล่นวิดีโอเมื่อผู้ใช้กดปิดป๊อปอัพ จะได้ไม่กินทรัพยากรเครื่อง
+    advertModalElement.addEventListener('hidden.bs.modal', function () {
+      const vid = document.getElementById('adVideoPlayer');
+      if(vid) vid.pause();
+    });
   }
 });
 
@@ -92,59 +101,7 @@ function setupEnterKeys() {
   addEnterListener('renew-email-input', renewSearchShop);
 }
 
-// ==========================================
-// 🌟 ฟังก์ชันโหลดรูปโฆษณาอัตโนมัติตามโฟลเดอร์
-// ==========================================
-function loadDynamicAds() {
-  const indicatorsContainer = document.getElementById('dynamic-carousel-indicators');
-  const innerContainer = document.getElementById('dynamic-carousel-inner');
-  
-  if (!indicatorsContainer || !innerContainer) return;
-  
-  let index = 1;
 
-  function checkAndLoadImage() {
-    const imgUrl = `/advert/${index}.jpg`;
-    const img = new Image();
-    
-    // ถ้ารูปมีอยู่จริง (โหลดสำเร็จ)
-    img.onload = function() {
-      // 1. สร้างจุด Indicator
-      const indicator = document.createElement('button');
-      indicator.type = 'button';
-      indicator.setAttribute('data-bs-target', '#adCarouselIndicators');
-      indicator.setAttribute('data-bs-slide-to', index - 1);
-      if (index === 1) indicator.classList.add('active');
-      indicatorsContainer.appendChild(indicator);
-
-      // 2. สร้างกรอบและใส่รูป
-      const itemDiv = document.createElement('div');
-      itemDiv.className = index === 1 ? 'carousel-item active' : 'carousel-item';
-      
-      const imgElement = document.createElement('img');
-      imgElement.src = imgUrl;
-      imgElement.setAttribute('data-bs-target', '#adCarouselIndicators');
-      imgElement.setAttribute('data-bs-slide', 'next'); // คลิกแล้วเลื่อน
-      imgElement.style.cursor = 'pointer';
-      imgElement.title = 'คลิกเพื่อดูรูปถัดไป';
-      
-      itemDiv.appendChild(imgElement);
-      innerContainer.appendChild(itemDiv);
-
-      index++;
-      checkAndLoadImage(); // เรียกตัวเองซ้ำเพื่อเช็ครูปหมายเลขถัดไป
-    };
-    
-    // ถ้าไม่เจอรูป (เช่น ถึงรูปที่ 7 แต่ไม่มีไฟล์ 7.jpg) ให้หยุดทำงาน
-    img.onerror = function() {
-      console.log(`✅ โหลดโฆษณาอัตโนมัติสำเร็จ! มีทั้งหมด ${index - 1} รูป`);
-    };
-    
-    img.src = imgUrl; // สั่งให้เริ่มโหลด
-  }
-  
-  checkAndLoadImage();
-}
 
 // ==========================================
 // 2. MAGICAL ADAPTER: เชื่อมต่อ API กับ Server.js
@@ -649,7 +606,7 @@ body.dark-theme .ad-close-btn:hover {
 </div>
 
 <!-- ============================================== -->
-<!-- 🌟 Popup โฆษณา (Ad Modal Slider) -->
+<!-- 🌟 Popup วิดีโอโฆษณา (VOD) -->
 <!-- ============================================== -->
 <div class="modal fade" id="advertModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered ad-modal-dialog">
@@ -658,30 +615,15 @@ body.dark-theme .ad-close-btn:hover {
       <!-- ปุ่มปิด (Close) -->
       <button type="button" class="btn-close ad-close-btn" data-bs-dismiss="modal" aria-label="Close"></button>
       
-      <!-- Slider รูปภาพ -->
-      <!-- Slider รูปภาพ -->
+      <!-- ส่วนเล่นวิดีโอ -->
       <div class="modal-body p-0 h-100">
-        <div id="adCarouselIndicators" class="carousel slide carousel-fade ad-carousel" data-bs-ride="carousel" data-bs-interval="2000">
-          
-          <!-- 📌 จุด Indicators ด้านล่าง (ปล่อยว่างไว้ เดี๋ยว JS จะสร้างให้เอง) -->
-          <div class="carousel-indicators mb-3" id="dynamic-carousel-indicators"></div>
-
-          <!-- 📌 รูปภาพโฆษณา (ปล่อยว่างไว้ เดี๋ยว JS จะดึงรูปมาใส่เอง) -->
-          <div class="carousel-inner" id="dynamic-carousel-inner"></div>
-
-          <!-- ปุ่มกด เลื่อนซ้าย (ย้อนกลับ) -->
-          <button class="carousel-control-prev" type="button" data-bs-target="#adCarouselIndicators" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Previous</span>
-          </button>
-          <!-- ปุ่มกด เลื่อนขวา (ซ่อนไว้เพราะกดที่รูปแทน) -->
-          <button class="carousel-control-next" type="button" data-bs-target="#adCarouselIndicators" data-bs-slide="next" style="pointer-events: none; opacity: 0;">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Next</span>
-          </button>
-          
-        </div>
+        <video id="adVideoPlayer" class="w-100 h-100" style="object-fit: cover; border-radius: 28px;" autoplay loop muted playsinline>
+          <!-- อ้างอิงพาธวิดีโอตามรูปภาพของคุณ -->
+          <source src="/VDO/welcome.mp4" type="video/mp4">
+          เบราว์เซอร์ของคุณไม่รองรับการแสดงผลวิดีโอ
+        </video>
       </div>
+
     </div>
   </div>
 </div>
