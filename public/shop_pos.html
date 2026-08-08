@@ -548,6 +548,7 @@
         }
         
         let card = document.createElement('div'); card.className = 'pos-product-card';
+		card.setAttribute('data-id', p.id); // 🌟 เพิ่มบรรทัดนี้เพื่อให้ระบบจำว่ากล่องนี้คือสินค้าอะไร
 
         // ลบคำสั่ง card.style.pointerEvents = 'none'; ออก เพื่อให้กล่องยังจับการสัมผัสได้
         if(isOut) { card.className += ' opacity-50 bg-light'; }
