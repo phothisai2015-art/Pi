@@ -612,16 +612,17 @@
 
       // 👇 นำโค้ดนี้ไปวางต่อท้าย 👇
       if (typeof Sortable !== 'undefined') {
-        Sortable.create(gridContainer, {
+        // 👇 🌟 เพิ่ม 3 บรรทัดนี้เพื่อเคลียร์คำสั่งลากอันเก่าทิ้ง ป้องกันบัคซ้อนทับกัน 👇
+        if (window.posSortableInstance) {
+            window.posSortableInstance.destroy();
+        }
+        
+        // 👇 🌟 เพิ่ม window.posSortableInstance = ไว้ด้านหน้า Sortable.create 👇
+        window.posSortableInstance = Sortable.create(gridContainer, {
             animation: 150, 
             delay: 300, 
             delayOnTouchOnly: true, 
-            
-            // 👇 🌟 เพิ่ม 2 บรรทัดนี้ 👇
-            touchStartThreshold: 5, // ยอมให้นิ้วขยับ/สั่นได้ 5 พิกเซลตอนกดค้างโดยไม่หลุดการลาก
-            
-
-            ghostClass: 'pos-ghost-card',
+            ghostClass: 'pos-ghost-card', 
             onEnd: function (evt) {
                 // 1. ดึง ID ของกล่องที่เพิ่งถูกลาก
                 let draggedId = evt.item.getAttribute('data-id');
@@ -645,7 +646,7 @@
                     globalProducts.splice(insertIndex + 1, 0, movedItem);
                 }
 
-                // 5. 🌟 พระเอกอยู่ตรงนี้: บันทึกลำดับทั้งหมดเก็บไว้ในเครื่อง
+                // 5. บันทึกลำดับทั้งหมดเก็บไว้ในเครื่อง
                 let currentOrderIds = globalProducts.map(p => p.id);
                 localStorage.setItem('pos_custom_order', JSON.stringify(currentOrderIds));
             }
