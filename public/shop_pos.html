@@ -3,20 +3,17 @@
 <!-- ========================================================= -->
 <div id="page-pos" style="display: none; background: #f8fafc; height: 100vh; position: absolute; top: 0; left: 0; width: 100%; z-index: 1040; overflow: hidden; -webkit-overflow-scrolling: touch;">
   <style>
-  /* 🌟 เอฟเฟกต์การ์ดลอยตัว นุ่มนวลสไตล์ iPhone ตอนกำลังลาก */
+/* 🌟 เอฟเฟกต์การ์ดลอยตัว นุ่มนวลสไตล์ iPhone ตอนกำลังลาก */
     .pos-chosen-card {
       transform: scale(1.05) !important;
       box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2) !important;
       z-index: 999 !important;
+      /* ❌ ลบ transition: transform ... !important; ออกจากตรงนี้ */
     }
     .pos-drag-card {
       opacity: 0.85 !important;
     }
   
-  /* 🌟 เพิ่มอนิเมชันยกการ์ดตอนลากให้ดูสมูธ */
-    .pos-product-card {
-      transition: box-shadow 0.2s ease !important;
-    }
     @media (max-width: 991px) {
   #page-pos { 
     overflow-y: auto !important; 
@@ -54,12 +51,15 @@
       align-items: center; 
       justify-content: space-between; 
       box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+      
+      /* 👇 🌟 เพิ่มบรรทัดนี้: คืนค่าให้การ์ดพริ้วไหว โดยไม่ขัดขวาง JS */
+      transition: all 0.2s ease;
 
       /* 3 บรรทัดนี้แก้บัค Safari */
       -webkit-touch-callout: none; 
       -webkit-user-select: none; 
       user-select: none; 
-    } /* 👈 ปิดปีกกาตรงนี้ที่เดียวพอครับ */
+    }
 
 
 /* 👇 🌟 ย้ายก้อนนี้ออกมาไว้ "ข้างนอก" ปีกกาด้านบนครับ 👇 */
