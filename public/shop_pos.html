@@ -16,7 +16,7 @@
   
   /* 🌟 เพิ่มอนิเมชันยกการ์ดตอนลากให้ดูสมูธ */
     .pos-product-card {
-      transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+      transition: box-shadow 0.2s ease !important;
     }
     @media (max-width: 991px) {
   #page-pos { 
@@ -665,8 +665,7 @@
             easing: "cubic-bezier(0.2, 0, 0, 1)", // 🌟 ปรับจังหวะสไลด์สไตล์ iOS
             disabled: !isSortMode, 
 
-            // 👇 🌟 เพิ่ม 3 บรรทัดนี้เพื่อฟีลลิ่งสลับนุ่มนวลแบบ iPhone 👇
-            swapThreshold: 0.65, // ลากเข้าหา 65% การ์ดข้างๆ จะค่อยๆ สไลด์หลบทางให้ทันที (แก้ปัญหากระโดด)
+            // 👇 🌟 เพิ่ม 3 บรรทัดนี้เพื่อฟีลลิ่งสลับนุ่มนวลแบบ iPhone 
             chosenClass: 'pos-chosen-card', // คลาสยกลอยตอนจับการ์ด
             dragClass: 'pos-drag-card', // คลาสตอนกำลังลาก
             // 👆 ================================================ 👆
