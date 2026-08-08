@@ -84,6 +84,35 @@
       flex-direction: column !important;
       justify-content: space-between !important;
     }
+	/* 🌟 =============================================== 🌟 */
+    /* 🌟 เอฟเฟกต์การ์ดลอยขึ้นลงดุ๊กดิ๊ก ดึงดูดสายตาตอนพร้อมลาก */
+    @keyframes floatReady {
+      0%, 100% { 
+        top: 0px; 
+        box-shadow: 0 8px 15px rgba(245, 158, 11, 0.2) !important; 
+      }
+      50% { 
+        top: -6px; /* ดันการ์ดลอยขึ้น 6px */
+        box-shadow: 0 15px 25px rgba(245, 158, 11, 0.4) !important; /* เงาเข้มและกว้างขึ้นตอนลอย */
+      }
+    }
+
+    /* สั่งให้การ์ดทุกใบเล่นอนิเมชันลอยตัว */
+    #pos-menu-grid.is-sorting .pos-product-card {
+      animation: floatReady 1.5s ease-in-out infinite;
+    }
+
+    /* สลับจังหวะหน่วงเวลาให้การ์ดแต่ละใบลอยไม่พร้อมกัน (ดูเป็นธรรมชาติเหมือนคลื่น) */
+    #pos-menu-grid.is-sorting .pos-product-card:nth-child(2n) {
+      animation-delay: 0.3s;
+    }
+    #pos-menu-grid.is-sorting .pos-product-card:nth-child(3n) {
+      animation-delay: 0.6s;
+    }
+    #pos-menu-grid.is-sorting .pos-product-card:nth-child(5n) {
+      animation-delay: 0.9s;
+    }
+    /* 🌟 =============================================== 🌟 */
     /* 🌟 บังคับให้รูปภาพทุกรูปในโหมดจัดเรียง ขนาดเท่ากันเป๊ะ ไม่ดันกล่อง */
     #pos-menu-grid.is-sorting .pos-card-img, 
     #pos-menu-grid.is-sorting .pos-card-noimg {
