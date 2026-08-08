@@ -659,8 +659,22 @@ function saveFirstAdmin() {
 
 function pressNum(val) {
   playToneSound('game_button');
-  if(val === 'clear') { currentPin = ""; } else if (val === 'del') { currentPin = currentPin.slice(0, -1); } else { if(currentPin.length < 4) currentPin += val; }
-  updatePinDisplay(); if(currentPin.length === 4) checkPinCode(currentPin);
+  if (val === 'clear') { 
+    currentPin = ""; 
+  } else if (val === 'del') { 
+    currentPin = currentPin.slice(0, -1); 
+  } else { 
+    if (currentPin.length < 4) currentPin += val; 
+  }
+  
+  updatePinDisplay(); 
+
+  // 🌟 [แก้ตรงนี้] หน่วงเวลา 150ms ให้ไข่ปลาโชว์ครบก่อนค่อยตรวจ PIN
+  if (currentPin.length === 4) {
+    setTimeout(() => {
+      checkPinCode(currentPin);
+    }, 150); 
+  }
 }
 
 function updatePinDisplay() {
