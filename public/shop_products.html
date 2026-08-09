@@ -338,7 +338,7 @@
 
       tbody.innerHTML += `
         <!-- เพิ่ม ontouchstart และ ontouchend เพื่อดักการสไลด์นิ้ว -->
-        <tr ontouchstart="handleSwipeStart(event)" ontouchend="handleSwipeEnd(event, this)">
+        <tr>
           <td class="ps-4">
             <input type="checkbox" class="form-check-input prod-select-cb" value="${p.id}" style="cursor: pointer;" onchange="updateBulkDeleteUI()">
           </td>
@@ -934,38 +934,49 @@
   // ==========================================
   // 🌟 ระบบคำนวณการสไลด์นิ้ว (Swipe) บนมือถือ
   // ==========================================
+  // ==========================================
+  // 🌟 ระบบคำนวณการสไลด์นิ้ว (Swipe) บนมือถือที่เสถียรขึ้น
+  // ==========================================
   let touchStartX = 0;
   let touchEndX = 0;
 
-  function handleSwipeStart(e) {
-    // เก็บพิกัดแกน X ตอนที่นิ้วเริ่มแตะจอ
-    touchStartX = e.changedTouches[0].screenX;
-  }
+  // ใช้ Event Delegation ผูก Event ไว้ที่ตัวตารางหลักเลย
+  const productTable = document.getElementById('product-table-body');
 
-  function handleSwipeEnd(e, rowElement) {
-    // เก็บพิกัดแกน X ตอนที่นิ้วยกออก
-    touchEndX = e.changedTouches[0].screenX;
-    
-    // คำนวณระยะทาง ถ้าสไลด์ไปทางซ้ายมากกว่า 40px
-    if (touchEndX < touchStartX - 40) {
-      // ปิดเมนูที่อาจจะเปิดค้างอยู่แถวอื่นก่อน
-      document.querySelectorAll('#product-table-body tr').forEach(tr => tr.classList.remove('show-actions'));
-      // เปิดเมนูแถวที่สไลด์
-      rowElement.classList.add('show-actions');
-    }
-    
-    // ถ้าสไลด์กลับไปทางขวามากกว่า 40px ให้ซ่อนปุ่ม
-    if (touchEndX > touchStartX + 40) {
-      rowElement.classList.remove('show-actions');
-    }
+  if (productTable) {
+    productTable.addEventListener('touchstart', function(e) {
+      if (window.innerWidth > 768) return; // ทำงานเฉพาะจอมือถือ/แท็บเล็ต
+      let tr = e.target.closest('tr');
+      if (!tr) return;
+      touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+
+    productTable.addEventListener('touchend', function(e) {
+      if (window.innerWidth > 768) return;
+      let tr = e.target.closest('tr');
+      if (!tr) return;
+      touchEndX = e.changedTouches[0].screenX;
+      
+      // สไลด์ซ้ายมากกว่า 40px
+      if (touchEndX < touchStartX - 40) {
+        document.querySelectorAll('#product-table-body tr').forEach(r => r.classList.remove('show-actions'));
+        tr.classList.add('show-actions');
+      }
+      
+      // สไลด์ขวากลับมากกว่า 40px
+      if (touchEndX > touchStartX + 40) {
+        tr.classList.remove('show-actions');
+      }
+    }, { passive: true });
   }
 
   // กดที่พื้นที่ว่างๆ ในหน้าคลังสินค้าเพื่อซ่อนปุ่มกลับ
   document.getElementById('page-products').addEventListener('touchstart', function(e) {
-    if (!e.target.closest('tr')) {
+    if (window.innerWidth > 768) return;
+    if (!e.target.closest('tr') && !e.target.closest('.action-cell')) {
       document.querySelectorAll('#product-table-body tr').forEach(tr => tr.classList.remove('show-actions'));
     }
-  });
+  }, { passive: true });
   
   </script>
 </div>
