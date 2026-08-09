@@ -26,6 +26,45 @@
       .prod-table-container td.fs-6 { font-size: 10px !important; }
       .prod-table-container td small { font-size: 9px !important; display: block; line-height: 1.1; margin-top: 2px; }
     }
+	/* ========================================= */
+    /* 📱 ระบบ Swipe สไลด์ซ้ายเฉพาะจอมือถือ/แท็บเล็ต */
+    /* ========================================= */
+    @media (max-width: 768px) {
+      /* ซ่อนหัวตารางคำว่า จัดการ */
+      th.manage-header { display: none !important; }
+      
+      #product-table-body tr {
+        position: relative;
+        overflow: hidden; 
+      }
+      
+      /* เอาปุ่มไปซ่อนไว้ด้านขวาสุดนอกจอ */
+      #product-table-body td.action-cell {
+        position: absolute;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        display: flex;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(5px);
+        padding: 0 15px !important;
+        transform: translateX(110%);
+        transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        box-shadow: -5px 0 15px rgba(0,0,0,0.08);
+        z-index: 5;
+        border-radius: 0 12px 12px 0;
+      }
+      
+      body.dark-theme #product-table-body td.action-cell {
+        background: rgba(30, 41, 59, 0.95);
+      }
+      
+      /* เมื่อมีคลาส show-actions จะเลื่อนปุ่มเข้ามาในจอ */
+      #product-table-body tr.show-actions td.action-cell {
+        transform: translateX(0);
+      }
+    }
   </style>
 
   <div class="prod-header-wrapper">
@@ -69,7 +108,7 @@
           <th class="ps-4 py-3" style="width: 45px;">
             <input type="checkbox" id="select-all-products" class="form-check-input" style="cursor: pointer;" onchange="toggleSelectAllProducts(this)">
           </th>
-          <th class="py-3" data-i18n="prod_th_image"> รูปภาพ </th><th class="py-3" data-i18n="prod_th_id"> รหัส (S/N) </th><th class="py-3" data-i18n="prod_th_name"> ชื่อสินค้า </th><th class="py-3" data-i18n="prod_th_price"> ราคา </th><th class="py-3" data-i18n="prod_th_stock"> สถานะสต็อก </th><th class="py-3 text-end pe-4" data-i18n="prod_th_manage"> จัดการ </th>
+          <th class="py-3" data-i18n="prod_th_image"> รูปภาพ </th><th class="py-3" data-i18n="prod_th_id"> รหัส (S/N) </th><th class="py-3" data-i18n="prod_th_name"> ชื่อสินค้า </th><th class="py-3" data-i18n="prod_th_price"> ราคา </th><th class="py-3" data-i18n="prod_th_stock"> สถานะสต็อก </th><th class="py-3 text-end pe-4 manage-header" data-i18n="prod_th_manage"> จัดการ </th>
         </tr>
       </thead>
       <tbody id="product-table-body"><tr><td colspan="7" class="text-center text-muted py-4" data-i18n="prod_loading_data"> กำลังโหลดข้อมูล... </td></tr></tbody>
@@ -298,7 +337,8 @@
       else badgeHtml = `<span class="badge bg-success px-3 py-2 rounded-pill">${stockNum} ${p.unit || 'ชิ้น'}</span>`;
 
       tbody.innerHTML += `
-        <tr>
+        <!-- เพิ่ม ontouchstart และ ontouchend เพื่อดักการสไลด์นิ้ว -->
+        <tr ontouchstart="handleSwipeStart(event)" ontouchend="handleSwipeEnd(event, this)">
           <td class="ps-4">
             <input type="checkbox" class="form-check-input prod-select-cb" value="${p.id}" style="cursor: pointer;" onchange="updateBulkDeleteUI()">
           </td>
@@ -307,7 +347,8 @@
           <td><span class="fw-bold text-dark">${p.name}</span><br><small class="text-muted">${p.category}</small></td>
           <td class="text-success fw-bold fs-6">฿${parseFloat(p.price).toLocaleString()}</td>
           <td>${badgeHtml}</td>
-          <td class="text-end pe-4">
+          <!-- เพิ่มคลาส action-cell ตรงนี้ -->
+          <td class="text-end pe-4 action-cell">
             <button class="btn btn-sm btn-light text-warning shadow-sm me-1" onclick="openProductForm('edit', '${p.id}')"><i class="fa-solid fa-pen"></i></button>
             <button class="btn btn-sm btn-light text-danger shadow-sm" onclick="confirmDelete('${p.id}')"><i class="fa-solid fa-trash"></i></button>
           </td>
@@ -889,5 +930,42 @@
       printWin.close();
     }, 600);
   };
+  
+  // ==========================================
+  // 🌟 ระบบคำนวณการสไลด์นิ้ว (Swipe) บนมือถือ
+  // ==========================================
+  let touchStartX = 0;
+  let touchEndX = 0;
+
+  function handleSwipeStart(e) {
+    // เก็บพิกัดแกน X ตอนที่นิ้วเริ่มแตะจอ
+    touchStartX = e.changedTouches[0].screenX;
+  }
+
+  function handleSwipeEnd(e, rowElement) {
+    // เก็บพิกัดแกน X ตอนที่นิ้วยกออก
+    touchEndX = e.changedTouches[0].screenX;
+    
+    // คำนวณระยะทาง ถ้าสไลด์ไปทางซ้ายมากกว่า 40px
+    if (touchEndX < touchStartX - 40) {
+      // ปิดเมนูที่อาจจะเปิดค้างอยู่แถวอื่นก่อน
+      document.querySelectorAll('#product-table-body tr').forEach(tr => tr.classList.remove('show-actions'));
+      // เปิดเมนูแถวที่สไลด์
+      rowElement.classList.add('show-actions');
+    }
+    
+    // ถ้าสไลด์กลับไปทางขวามากกว่า 40px ให้ซ่อนปุ่ม
+    if (touchEndX > touchStartX + 40) {
+      rowElement.classList.remove('show-actions');
+    }
+  }
+
+  // กดที่พื้นที่ว่างๆ ในหน้าคลังสินค้าเพื่อซ่อนปุ่มกลับ
+  document.getElementById('page-products').addEventListener('touchstart', function(e) {
+    if (!e.target.closest('tr')) {
+      document.querySelectorAll('#product-table-body tr').forEach(tr => tr.classList.remove('show-actions'));
+    }
+  });
+  
   </script>
 </div>
