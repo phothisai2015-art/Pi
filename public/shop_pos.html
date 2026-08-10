@@ -1158,7 +1158,7 @@
         };
         // 👆 ======================================================== 👆
 
-        posCart = []; lastScannedItem = null; document.getElementById('pos-right-panel').classList.remove('show-mobile-cart');
+        posCart = []; lastScannedItem = null; document.getElementById('pos-cust-name').value = ''; document.getElementById('pos-discount').value = '0'; renderCart(); syncCFD('CHECKOUT_SUCCESS'); document.getElementById('pos-right-panel').classList.remove('show-mobile-cart');
         google.script.run.logAction(currentTenantSheetId, currentStaff.name, "ขายสินค้า", "เปิดบิล " + res.receiptId + " ยอด " + netTotal + " บ.");
 
         refreshProductsData(async function() {
