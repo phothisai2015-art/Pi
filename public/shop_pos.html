@@ -190,6 +190,48 @@
         border-radius: 16px !important;
       }
     }
+	
+	/* ========================================================= */
+    /* 📱 🌟 ปรับแต่งสำหรับมือถือ แนวตั้ง (Portrait) โดยเฉพาะ */
+    /* ========================================================= */
+    @media (max-width: 991px) and (orientation: portrait) {
+      /* 1. ซ่อนกล่องยิงบาร์โค้ด และ ตัวปรับขนาดรูป */
+      #mobile-hide-barcode, 
+      #grid-size-controller { 
+        display: none !important; 
+      }
+      
+      /* 2. แสดงปุ่มรถเข็นข้างหมวดหมู่ */
+      .mobile-portrait-cart-btn { display: inline-block !important; }
+      
+      /* 3. ดัดแปลงฝั่งขวา (ตะกร้า+สรุปยอด) ให้กลายเป็น Pop-up เต็มจอ */
+      #pos-right-panel {
+        position: fixed !important;
+        top: 0 !important; 
+        left: 0 !important;
+        width: 100% !important; 
+        height: 100vh !important;
+        background: #f1f5f9 !important;
+        z-index: 1100 !important;
+        padding: 15px !important;
+        display: none !important; /* ซ่อนไว้ก่อนเป็นค่าเริ่มต้น */
+        overflow-y: auto !important;
+      }
+      /* คลาสสำหรับเปิด Pop-up */
+      #pos-right-panel.show-mobile-cart {
+        display: flex !important;
+      }
+      
+      /* 4. แสดงปุ่ม (X) สำหรับปิดตะกร้าบนมือถือ */
+      #mobile-close-cart-btn { display: flex !important; }
+    }
+    
+    /* 💻 สำหรับจอคอม หรือ มือถือแนวนอน (ซ่อนปุ่มรถเข็นพิเศษนี้ไป) */
+    @media (min-width: 992px), (max-width: 991px) and (orientation: landscape) {
+      .mobile-portrait-cart-btn { display: none !important; }
+      #mobile-close-cart-btn { display: none !important; }
+      #pos-right-panel { display: flex !important; }
+    }
 	  
   </style>
 
@@ -226,6 +268,11 @@
               <select id="pos-category-filter" class="form-select fw-bold border-primary text-primary" style="width: auto; min-width: 150px; cursor: pointer;" onchange="renderMenuGrid()">
                 <option value="all" data-i18n="pos_filter_all">📁 ทุกหมวดหมู่</option>
               </select>
+			  <!-- 👇 🌟 เพิ่มปุ่มตะกร้าสำหรับมือถือแนวตั้ง ไว้ตรงนี้ 👇 -->
+              <button class="btn btn-primary fw-bold position-relative mobile-portrait-cart-btn" onclick="toggleMobileCart()">
+                <i class="fa-solid fa-cart-shopping"></i> ตะกร้า
+                <span id="mobile-cart-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger shadow-sm" style="display: none; font-size: 0.7rem; border: 2px solid white; transition: transform 0.2s ease;">0</span>
+              </button>
             </div>
 			
 			<div id="mobile-hide-barcode" class="input-group flex-grow-1 shadow-sm" style="border-radius: 8px; overflow: hidden; min-width: 200px;">
@@ -247,6 +294,14 @@
       </div>
 
 <div class="col-lg-3 pos-mobile-unsticky d-flex flex-column" style="position: sticky; top: 90px; z-index: 1020; height: calc(100vh - 110px);">
+	  <!-- 👇 🌟 ใส่ id="pos-right-panel" เข้าไปใน class ด้านล่างนี้ 👇 -->
+<div id="pos-right-panel" class="col-lg-3 pos-mobile-unsticky d-flex flex-column" style="position: sticky; top: 90px; z-index: 1020; height: calc(100vh - 110px);">
+	  
+      <!-- 👇 🌟 เพิ่มปุ่ม (X) สำหรับปิดหน้าตะกร้าในมือถือ 👇 -->
+      <div id="mobile-close-cart-btn" class="justify-content-between align-items-center mb-3">
+          <h4 class="fw-bold text-primary m-0"><i class="fa-solid fa-cart-shopping me-2"></i>ตะกร้าสินค้า</h4>
+          <button class="btn-close" style="transform: scale(1.2);" onclick="toggleMobileCart()"></button>
+      </div>
 	  
 	  <div id="pos-cart-container" class="mb-3 shadow-sm bg-white" style="flex-grow: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; border: 1px solid #e2e8f0; border-radius: 12px;">
             <table class="table table-hover align-middle mb-0" style="width: 100%; table-layout: fixed;">
@@ -864,6 +919,15 @@
       document.getElementById('pos-total-qty').innerText = `${totalQty.toLocaleString()}`; 
       document.getElementById('pos-subtotal').innerText = `฿${subTotal.toLocaleString()}`; 
       document.getElementById('pos-net-total').innerText = `฿${netTotal.toLocaleString()}`; 
+	  // 👇 🌟 เพิ่มโค้ดอัปเดตป้ายตัวเลขบนมือถือตรงนี้ 👇
+      let mobileBadge = document.getElementById('mobile-cart-badge');
+      if (mobileBadge) {
+          mobileBadge.innerText = totalQty;
+          mobileBadge.style.display = totalQty > 0 ? 'inline-block' : 'none';
+          mobileBadge.style.transform = 'translate(-50%, -50%) scale(1.4)'; // ทำเอฟเฟกต์เด้ง
+          setTimeout(() => { mobileBadge.style.transform = 'translate(-50%, -50%) scale(1)'; }, 200);
+      }
+      // 👆 ========================================= 👆
       if (!skipSync) { syncCFD('UPDATE_CART'); } 
       return netTotal;
     }
@@ -1258,6 +1322,14 @@
         grid.classList.remove('is-sorting');
         if(window.posSortableInstance) window.posSortableInstance.option('disabled', true);
       }
+    }
+	
+	// 🌟 ฟังก์ชันเปิด-ปิดตะกร้าบนมือถือแนวตั้ง
+    function toggleMobileCart() {
+        let panel = document.getElementById('pos-right-panel');
+        if (panel) {
+            panel.classList.toggle('show-mobile-cart');
+        }
     }
 
   </script>
