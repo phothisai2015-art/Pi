@@ -27,45 +27,47 @@
       .prod-table-container td small { font-size: 9px !important; display: block; line-height: 1.1; margin-top: 2px; }
     }
 	/* ========================================= */
-    /* 📱 ระบบ Swipe สไลด์ซ้ายเฉพาะจอมือถือ/แท็บเล็ต */
+    /* 📱 ระบบ Swipe สไลด์ซ้าย-ขวา เฉพาะจอมือถือ/แท็บเล็ต */
     /* ========================================= */
     @media (max-width: 768px) {
-      /* ซ่อนหัวตารางคำว่า จัดการ */
-      th.manage-header { display: none !important; }
+      /* 🌟 ซ่อนหัวตารางคำว่า จัดการ และ ปุ่ม Checkbox เลือกทั้งหมด */
+      th.manage-header, th.select-header { display: none !important; }
       
-      /* 🌟 1. ให้ช่อง td เป็นตัวกักขังกรอบแทน tr */
-      #product-table-body td.action-cell {
+      #product-table-body td.action-cell,
+      #product-table-body td.select-cell {
         position: relative !important;
         padding: 0 !important;
         border: none !important;
       }
       
-      /* 🌟 2. กล่องครอบปุ่ม (ซ่อนไว้นอกจอ) อิงความสูงตาม td */
+      /* 🌟 กล่องครอบปุ่มแก้ไข/ลบ (ปัดซ้าย) */
       #product-table-body .swipe-actions {
-        position: absolute;
-        right: 0;
-        top: 0;
-        bottom: 0;
-        display: flex;
-        align-items: center;
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(5px);
-        padding: 0 15px;
-        transform: translateX(110%);
+        position: absolute; right: 0; top: 0; bottom: 0;
+        display: flex; align-items: center;
+        background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(5px);
+        padding: 0 15px; transform: translateX(110%);
         transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        box-shadow: -5px 0 15px rgba(0,0,0,0.08);
-        z-index: 5;
-        border-radius: 12px 0 0 12px;
+        box-shadow: -5px 0 15px rgba(0,0,0,0.08); z-index: 5; border-radius: 12px 0 0 12px;
       }
       
-      body.dark-theme #product-table-body .swipe-actions {
+      /* 🌟 กล่องครอบปุ่มติ๊กเลือก (ปัดขวา) */
+      #product-table-body .swipe-select {
+        position: absolute; left: 0; top: 0; bottom: 0;
+        display: flex; align-items: center; justify-content: center;
+        background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(5px);
+        padding: 0 15px; transform: translateX(-110%);
+        transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        box-shadow: 5px 0 15px rgba(0,0,0,0.08); z-index: 5; border-radius: 0 12px 12px 0;
+      }
+      
+      body.dark-theme #product-table-body .swipe-actions,
+      body.dark-theme #product-table-body .swipe-select {
         background: rgba(30, 41, 59, 0.95);
       }
       
-      /* 🌟 3. เมื่อสไลด์ ให้เลื่อนเฉพาะกล่องนี้เข้ามา */
-      #product-table-body tr.show-actions .swipe-actions {
-        transform: translateX(0);
-      }
+      /* คลาสสำหรับสั่งให้เลื่อนปุ่มเข้ามาในจอ */
+      #product-table-body tr.show-actions .swipe-actions { transform: translateX(0); }
+      #product-table-body tr.show-select .swipe-select { transform: translateX(0); }
     }
   </style>
 
@@ -107,7 +109,7 @@
       <thead class="table-light sticky-top" style="z-index: 10; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
         <tr>
           <!-- 🌟 ช่องติ๊กเลือกทั้งหมด (Select All) -->
-          <th class="ps-4 py-3" style="width: 45px;">
+          <th class="ps-4 py-3 select-header" style="width: 45px;">
             <input type="checkbox" id="select-all-products" class="form-check-input" style="cursor: pointer;" onchange="toggleSelectAllProducts(this)">
           </th>
           <th class="py-3" data-i18n="prod_th_image"> รูปภาพ </th><th class="py-3" data-i18n="prod_th_id"> รหัส (S/N) </th><th class="py-3" data-i18n="prod_th_name"> ชื่อสินค้า </th><th class="py-3" data-i18n="prod_th_price"> ราคา </th><th class="py-3" data-i18n="prod_th_stock"> สถานะสต็อก </th><th class="py-3 text-end pe-4 manage-header" data-i18n="prod_th_manage"> จัดการ </th>
@@ -341,8 +343,10 @@
       tbody.innerHTML += `
         <!-- เพิ่ม ontouchstart และ ontouchend เพื่อดักการสไลด์นิ้ว -->
         <tr>
-          <td class="ps-4">
-            <input type="checkbox" class="form-check-input prod-select-cb" value="${p.id}" style="cursor: pointer;" onchange="updateBulkDeleteUI()">
+          <td class="ps-0 select-cell">
+            <div class="swipe-select">
+              <input type="checkbox" class="form-check-input prod-select-cb" value="${p.id}" style="cursor: pointer; transform: scale(1.2);" onchange="updateBulkDeleteUI()">
+            </div>
           </td>
           <td>${imgTag}</td>
           <td class="fw-bold text-secondary">${p.id}</td>
@@ -937,21 +941,13 @@
   };
   
   // ==========================================
-  // 🌟 ระบบคำนวณการสไลด์นิ้ว (Swipe) บนมือถือ
-  // ==========================================
-  // ==========================================
-  // 🌟 ระบบคำนวณการสไลด์นิ้ว (Swipe) บนมือถือที่เสถียรขึ้น
-  // ==========================================
-  // ==========================================
-  // 🌟 ระบบคำนวณการสไลด์นิ้ว (Swipe) + ล็อกหน้าจอ + เปิดทีละแถว
-  // ==========================================
-  // ==========================================
-  // 🌟 ระบบคำนวณการสไลด์นิ้ว (Swipe) ไหลตามนิ้ว + ล็อกหน้าจอ + เปิดทีละแถว
+  // 🌟 ระบบสไลด์นิ้ว (Swipe) ซ้าย-ขวา ไหลตามนิ้ว + ล็อกหน้าจอ
   // ==========================================
   let touchStartX = 0;
   let touchStartY = 0;
   let isSwipingHorizontal = false;
-  let currentSwipeActions = null; // ตัวแปรเก็บกล่องปุ่มที่กำลังถูกลาก
+  let currentSwipeActions = null; 
+  let currentSwipeSelect = null; 
 
   const productTable = document.getElementById('product-table-body');
 
@@ -965,41 +961,43 @@
       touchStartY = e.touches[0].clientY;
       isSwipingHorizontal = false;
       
-      // หากล่องปุ่มของแถวนี้ แล้วปิด CSS Transition ชั่วคราวเพื่อให้มันติดนิ้วทันที
       currentSwipeActions = tr.querySelector('.swipe-actions');
-      if (currentSwipeActions) {
-         currentSwipeActions.style.transition = 'none';
-      }
+      currentSwipeSelect = tr.querySelector('.swipe-select');
+      
+      if (currentSwipeActions) currentSwipeActions.style.transition = 'none';
+      if (currentSwipeSelect) currentSwipeSelect.style.transition = 'none';
     }, { passive: true });
 
     productTable.addEventListener('touchmove', function(e) {
-      if (window.innerWidth > 768 || !touchStartX || !touchStartY || !currentSwipeActions) return;
+      if (window.innerWidth > 768 || !touchStartX || !touchStartY) return;
       
       let touchCurrentX = e.touches[0].clientX;
       let touchCurrentY = e.touches[0].clientY;
       
-      let diffX = touchCurrentX - touchStartX; // ค่าติดลบ = ปัดซ้าย, ค่าบวก = ปัดขวา
+      let diffX = touchCurrentX - touchStartX; 
       let absX = Math.abs(diffX);
       let absY = Math.abs(touchCurrentY - touchStartY);
       
-      // ถ้านิ้วไถแนวนอนเกิน 5px ให้ล็อกหน้าจอและเริ่มคำนวณพิกัดให้ปุ่มขยับตามนิ้ว
       if (absX > absY && absX > 5) { 
         isSwipingHorizontal = true;
         e.preventDefault(); 
         
         let tr = e.target.closest('tr');
         
-        // ถ้าแถวนี้เปิดอยู่แล้ว และกำลังปัดขวา (เพื่อปิด)
-        if (tr.classList.contains('show-actions')) {
-            if (diffX > 0) { 
-                currentSwipeActions.style.transform = `translateX(${diffX}px)`;
+        // ➡️ ปัดขวา (ค่าบวก) -> ดึงปุ่มเลือกออกมา
+        if (diffX > 0) { 
+            if (tr.classList.contains('show-actions')) {
+                if (currentSwipeActions) currentSwipeActions.style.transform = `translateX(${diffX}px)`;
+            } else {
+                if (currentSwipeSelect) currentSwipeSelect.style.transform = `translateX(calc(-110% + ${diffX}px))`;
             }
         } 
-        // ถ้าแถวนี้ปิดอยู่ และกำลังปัดซ้าย (เพื่อเปิด)
+        // ⬅️ ปัดซ้าย (ค่าติดลบ) -> ดึงปุ่มจัดการออกมา
         else {
-            if (diffX < 0) { 
-                // ดึงกล่องปุ่มที่ซ่อนอยู่ (110%) ออกมาตามระยะที่นิ้วลาก
-                currentSwipeActions.style.transform = `translateX(calc(110% + ${diffX}px))`;
+            if (tr.classList.contains('show-select')) {
+                if (currentSwipeSelect) currentSwipeSelect.style.transform = `translateX(${diffX}px)`;
+            } else {
+                if (currentSwipeActions) currentSwipeActions.style.transform = `translateX(calc(110% + ${diffX}px))`;
             }
         }
       }
@@ -1008,57 +1006,59 @@
     productTable.addEventListener('touchend', function(e) {
       if (window.innerWidth > 768) return;
       let tr = e.target.closest('tr');
-      if (!tr || !currentSwipeActions) return;
+      if (!tr) return;
       
-      // คืนค่า Transition ของ CSS เพื่อให้ปุ่มเด้งเข้าล็อกอย่างสมูท (Snap)
-      currentSwipeActions.style.transition = '';
-      currentSwipeActions.style.transform = ''; // ล้าง style ทิ้ง ให้ CSS Class รับช่วงต่อ
+      if (currentSwipeActions) { currentSwipeActions.style.transition = ''; currentSwipeActions.style.transform = ''; }
+      if (currentSwipeSelect) { currentSwipeSelect.style.transition = ''; currentSwipeSelect.style.transform = ''; }
       
       let touchEndX = e.changedTouches[0].clientX;
       let diffX = touchEndX - touchStartX;
       
       if (isSwipingHorizontal) {
-        // 🌟 ถ้าปัดซ้ายเกิน 40px ให้เปิดปุ่ม
+        // ⬅️ ถ้าปัดซ้ายเกิน 40px
         if (diffX < -40) {
-          // สั่งปิดแถวอื่นๆ ทั้งหมดก่อน ยกเว้นแถวที่กำลังสไลด์
-          document.querySelectorAll('#product-table-body tr').forEach(r => {
-            if (r !== tr) {
-               r.classList.remove('show-actions');
-               let otherAction = r.querySelector('.swipe-actions');
-               if (otherAction) {
-                  otherAction.style.transition = '';
-                  otherAction.style.transform = '';
-               }
-            }
-          });
-          
-          tr.classList.add('show-actions'); 
+          if (tr.classList.contains('show-select')) {
+             // ถ้าเปิด Checkbox อยู่ ให้หด Checkbox ของ "ทุกแถว" กลับไป
+             document.querySelectorAll('#product-table-body tr').forEach(r => r.classList.remove('show-select'));
+          } else {
+             // ปิดปุ่มจัดการแถวอื่น แล้วเปิดปุ่มจัดการแถวนี้
+             document.querySelectorAll('#product-table-body tr').forEach(r => r.classList.remove('show-actions', 'show-select'));
+             tr.classList.add('show-actions'); 
+          }
         } 
-        // 🌟 ถ้าปัดไม่ถึง 40px หรือกำลังปัดขวา ให้หดกลับ
+        // ➡️ ถ้าปัดขวาเกิน 40px
+        else if (diffX > 40) {
+          if (tr.classList.contains('show-actions')) {
+             tr.classList.remove('show-actions');
+          } else {
+             // 🌟 เปิด Checkbox ให้ "ทุกแถวออกมาพร้อมกันทั้งหมด"
+             document.querySelectorAll('#product-table-body tr').forEach(r => r.classList.add('show-select'));
+          }
+        } 
+        // หดกลับถ้าปัดไม่ถึงระยะ
         else {
-          tr.classList.remove('show-actions'); 
+          tr.classList.remove('show-actions', 'show-select'); 
         }
       }
       
-      // เคลียร์ค่าคืน
       touchStartX = 0;
       touchStartY = 0;
       isSwipingHorizontal = false;
       currentSwipeActions = null;
+      currentSwipeSelect = null;
     }, { passive: true });
   }
 
-  // กดที่พื้นที่ว่างๆ หรือสไลด์เลื่อนจอธรรมดา เพื่อพับเก็บทุกแถว
+  // กดที่พื้นที่ว่างๆ เพื่อพับเก็บทุกแถว
   document.getElementById('page-products').addEventListener('touchstart', function(e) {
     if (window.innerWidth > 768) return;
-    if (!e.target.closest('tr') && !e.target.closest('.action-cell')) {
+    if (!e.target.closest('tr') && !e.target.closest('.action-cell') && !e.target.closest('.select-cell')) {
       document.querySelectorAll('#product-table-body tr').forEach(tr => {
-         tr.classList.remove('show-actions');
-         let otherAction = tr.querySelector('.swipe-actions');
-         if (otherAction) {
-            otherAction.style.transition = '';
-            otherAction.style.transform = '';
-         }
+         tr.classList.remove('show-actions', 'show-select');
+         let acts = tr.querySelector('.swipe-actions');
+         let sels = tr.querySelector('.swipe-select');
+         if (acts) { acts.style.transition = ''; acts.style.transform = ''; }
+         if (sels) { sels.style.transition = ''; sels.style.transform = ''; }
       });
     }
   }, { passive: true });
