@@ -200,10 +200,26 @@
     /* ========================================================= */
     @media (max-width: 991px) and (orientation: portrait) {
       /* 1. ซ่อนกล่องยิงบาร์โค้ด และ ตัวปรับขนาดรูป */
-      #mobile-hide-barcode, 
-      #grid-size-controller { 
-        display: none !important; 
+      #mobile-hide-barcode,
+      #grid-size-controller {
+          display: none !important;
+      } /* 👈 ต้องมีปีกกาปิดตรงนี้ก่อนครับ! */
+
+      /* 👇 🌟 6. ตัดชื่อปุ่มเมนูด้านบนออก ให้เหลือแค่ไอคอน (เฉพาะแนวตั้ง) 👇 */
+      .pos-mobile-header .btn {
+          font-size: 0 !important; /* ซ่อนตัวหนังสือที่อยู่ลอยๆ ในปุ่ม */
+          padding-left: 16px !important;
+          padding-right: 16px !important;
+          justify-content: center !important;
       }
+      .pos-mobile-header .btn i {
+          font-size: 1.25rem !important; /* ขยายขนาดไอคอนให้ชัดขึ้นทดแทนข้อความ */
+          margin: 0 !important; /* ตัดช่องว่างระหว่างไอคอนกับข้อความทิ้ง */
+      }
+      .pos-mobile-header .btn span {
+          display: none !important; /* ซ่อนข้อความที่อยู่ในแท็ก span */
+      }
+      
       
       /* 2. แสดงปุ่มรถเข็นข้างหมวดหมู่ */
       .mobile-portrait-cart-btn { display: inline-block !important; }
