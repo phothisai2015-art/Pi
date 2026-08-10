@@ -1447,11 +1447,11 @@
         }
     }
 	
-// 🌟 ระบบปัดหน้าจอลงเพื่อปิดตะกร้า (สไลด์ติดนิ้ว - อัปเดตแก้บัคสัมผัสไวเกินไป)
+// 🌟 ระบบปัดหน้าจอลงเพื่อปิดตะกร้า (สไลด์ติดนิ้ว - อัปเดตระยะดึงให้ลึกขึ้น)
     let posTouchStartY = 0;
     let posCurrentY = 0;
     let isDraggingCart = false;
-    let isTrackingCart = false; // 👈 เพิ่มตัวเช็คสถานะ
+    let isTrackingCart = false; 
     const posCartPanel = document.getElementById('pos-right-panel');
     const posCartScrollArea = document.getElementById('pos-cart-container');
 
@@ -1480,7 +1480,7 @@
             posCurrentY = e.touches[0].clientY;
             let deltaY = posCurrentY - posTouchStartY;
             
-            // 🛑 ต้องลากนิ้วลงเกิน 15px ก่อน ถึงจะถือว่า "ตั้งใจปัดลง" (ป้องกันการแตะแล้วนิ้วขยับ/สั่น)
+            // 🛑 ต้องลากนิ้วลงเกิน 15px ก่อน ถึงจะเริ่มขยับ
             if (!isDraggingCart && deltaY > 15) {
                 isDraggingCart = true;
                 posCartPanel.style.transition = 'none'; 
@@ -1495,13 +1495,14 @@
             if (!isTrackingCart) return;
             isTrackingCart = false;
             
-            if (!isDraggingCart) return; // ถ้าไม่ได้ลาก (แค่แตะเฉยๆ) ก็ไม่ต้องทำอะไร
+            if (!isDraggingCart) return; 
             isDraggingCart = false;
             
             let deltaY = posCurrentY - posTouchStartY;
             posCartPanel.style.transition = 'transform 0.3s ease-out'; 
             
-            if (deltaY > 100) {
+            // 👇 🌟 เปลี่ยนจาก 100 เป็น 250 เพื่อให้ต้องดึงลงมาลึกขึ้นถึงจะยอมปิด 👇
+            if (deltaY > 250) {
                 posCartPanel.style.transform = `translateY(100%)`;
                 setTimeout(() => { 
                     posCartPanel.classList.remove('show-mobile-cart'); 
@@ -1509,6 +1510,7 @@
                     posCartPanel.style.transition = '';
                 }, 300);
             } else {
+                // ถ้าดึงลงมาไม่ถึง 250px ให้เด้งกลับไปที่เดิม
                 posCartPanel.style.transform = 'translateY(0)';
                 setTimeout(() => {
                     posCartPanel.style.transform = ''; 
