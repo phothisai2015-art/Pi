@@ -106,68 +106,6 @@
         transform: translateX(0);
       }
     }
-	/* ========================================================= */
-    /* 🌟 ล็อกแถบบน + หัวตาราง (กรอบสีแดง) ให้ตรึงอยู่กับที่ (Sticky) ทั้ง PC และมือถือ */
-    /* ========================================================= */
-    
-    /* 1. ล็อกหน้าจอหลักไม่ให้เลื่อนทั้งหน้า */
-    #page-products {
-      display: flex !important;
-      flex-direction: column !important;
-      height: 100vh !important;
-      overflow: hidden !important;
-      padding: 15px 30px 15px 30px !important;
-      box-sizing: border-box !important;
-    }
-
-    /* 2. ส่วนหัว (ปุ่มสั่งการ + ช่องค้นหา) ตรึงอยู่บนสุด */
-    .prod-header-wrapper {
-      flex-shrink: 0 !important;
-      background-color: #f8fafc !important;
-      z-index: 30 !important;
-      padding-bottom: 10px !important;
-      margin-bottom: 0 !important;
-      border-bottom: none !important;
-    }
-    body.dark-theme .prod-header-wrapper {
-      background-color: #0f172a !important;
-    }
-
-    /* 3. กล่องตารางขยายเต็มพื้นที่ที่เหลือ และเลื่อน (Scroll) เฉพาะรายการสินค้า */
-    .prod-table-container {
-      flex: 1 1 auto !important;
-      height: 0 !important; /* บังคับให้ flexbox คำนวณความสูงที่เหลือ */
-      max-height: none !important;
-      overflow-y: auto !important;
-      overflow-x: hidden !important;
-      border-radius: 16px !important;
-    }
-
-    /* 4. หัวตาราง (thead) ตรึงอยู่ใต้ส่วนหัวพอดี ไม่โดนเลื่อนทับ */
-    .prod-table-container thead {
-      position: sticky !important;
-      top: 0 !important;
-      z-index: 20 !important;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05) !important;
-    }
-    body.dark-theme .prod-table-container thead th {
-      background-color: #1e293b !important;
-      color: #f1f5f9 !important;
-    }
-
-    /* 📱 ปรับแต่งระยะขอบสำหรับจอมือถือ */
-    @media (max-width: 768px) {
-      #page-products {
-        padding: 10px 10px 10px 10px !important;
-      }
-      .prod-header-wrapper {
-        position: relative !important;
-        top: 0 !important;
-        margin-top: 0 !important;
-        padding-top: 5px !important;
-      }
-    }
-	
   </style>
 
   <div class="prod-header-wrapper">
