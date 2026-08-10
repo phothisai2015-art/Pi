@@ -249,20 +249,20 @@
 <div class="col-lg-3 pos-mobile-unsticky d-flex flex-column" style="position: sticky; top: 90px; z-index: 1020; height: calc(100vh - 110px);">
 	  
 	  <div id="pos-cart-container" class="mb-3 shadow-sm bg-white" style="flex-grow: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; border: 1px solid #e2e8f0; border-radius: 12px;">
-            <table class="table table-hover align-middle mb-0" style="width: 100%;">
-              <thead class="table-light sticky-top" style="z-index: 10; font-size: 0.85rem;">
-                <tr>
-                  <th width="40%" class="py-2 px-2" data-i18n="pos_table_item">รายการสินค้า</th>
-                  <th width="15%" class="text-center py-2 px-1" data-i18n="pos_table_price">ราคา</th>
-                  <th width="25%" class="text-center py-2 px-1" data-i18n="pos_table_qty">จำนวน</th>
-                  <th width="15%" class="text-end py-2 px-1" data-i18n="pos_table_total">รวม</th>
-                  <th width="5%" class="py-2"></th>
-                </tr>
-              </thead>
-              <tbody id="pos-cart-body">
-                <tr><td colspan="5" class="text-center text-muted py-5"><i class="fa-solid fa-cart-arrow-down fa-3x mb-3 text-light"></i><br><span data-i18n="pos_empty_cart">ยังไม่มีสินค้าในตะกร้า</span></td></tr>
-              </tbody>
-            </table>
+            <table class="table table-hover align-middle mb-0" style="width: 100%; table-layout: fixed;">
+  <thead class="table-light sticky-top" style="z-index: 10; font-size: 0.8rem;">
+    <tr>
+      <th style="width: 36%;" class="py-2 px-2" data-i18n="pos_table_item">รายการสินค้า</th>
+      <th style="width: 18%;" class="text-center py-2 px-1" data-i18n="pos_table_price">ราคา</th>
+      <th style="width: 24%;" class="text-center py-2 px-0" data-i18n="pos_table_qty">จำนวน</th>
+      <th style="width: 16%;" class="text-end py-2 px-1" data-i18n="pos_table_total">รวม</th>
+      <th style="width: 6%;" class="text-center py-2 px-0"></th>
+    </tr>
+  </thead>
+  <tbody id="pos-cart-body">
+    <tr><td colspan="5" class="text-center text-muted py-5"><i class="fa-solid fa-cart-arrow-down fa-3x mb-3 text-light"></i><br><span data-i18n="pos_empty_cart">ยังไม่มีสินค้าในตะกร้า</span></td></tr>
+  </tbody>
+</table>
           </div>
 	  
 
@@ -824,11 +824,38 @@
     function renderCart() {
       const tbody = document.getElementById('pos-cart-body'); tbody.innerHTML = '';
       if(posCart.length === 0) { tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-5"><i class="fa-solid fa-cart-arrow-down fa-3x mb-3 text-light"></i><br>${i18n[currentLang]['pos_empty_cart']}</td></tr>`; updateCartTotal(); return; }
+      
       posCart.forEach(item => {
         let lineTotal = item.price * item.qty;
-        tbody.innerHTML += `<tr style="font-size: 0.85rem;"><td class="fw-bold px-2">${item.name}</td><td class="text-center text-muted px-1">฿${item.price.toLocaleString()}</td><td class="text-center px-1"><div class="input-group input-group-sm justify-content-center flex-nowrap"><button class="btn btn-outline-secondary px-2" onclick="updateCartQty('${item.id}', -1)"><i class="fa-solid fa-minus"></i></button><input type="text" class="form-control text-center fw-bold bg-white px-1" value="${item.qty}" style="max-width: 35px;" readonly><button class="btn btn-outline-secondary px-2" onclick="updateCartQty('${item.id}', 1)"><i class="fa-solid fa-plus"></i></button></div></td><td class="text-end fw-bold text-primary px-1">฿${lineTotal.toLocaleString()}</td><td class="text-end px-2"><button class="btn btn-sm btn-outline-danger border-0" onclick="updateCartQty('${item.id}', -999)"><i class="fa-solid fa-trash-can"></i></button></td></tr>`;
+        tbody.innerHTML += `
+        <tr style="font-size: 0.85rem;">
+          <td class="fw-bold px-2 text-wrap" style="line-height: 1.25; word-break: break-word;">
+            ${item.name}
+          </td>
+          <td class="text-center text-muted px-1">฿${item.price.toLocaleString()}</td>
+          <td class="text-center px-0">
+            <!-- 🌟 เปลี่ยนดีไซน์ปุ่มบวก-ลบ ให้เป็นมินิมอล ประหยัดพื้นที่ขั้นสุด -->
+            <div class="d-flex justify-content-between align-items-center border rounded bg-white mx-auto" style="max-width: 70px; height: 26px;">
+              <button class="btn btn-light btn-sm border-0 text-secondary p-0 d-flex justify-content-center align-items-center" style="width: 22px; height: 100%; background: transparent;" onclick="updateCartQty('${item.id}', -1)">
+                <i class="fa-solid fa-minus" style="font-size: 0.6rem;"></i>
+              </button>
+              <span class="fw-bold text-dark px-1 text-center" style="font-size: 0.85rem; min-width: 15px;">${item.qty}</span>
+              <button class="btn btn-light btn-sm border-0 text-secondary p-0 d-flex justify-content-center align-items-center" style="width: 22px; height: 100%; background: transparent;" onclick="updateCartQty('${item.id}', 1)">
+                <i class="fa-solid fa-plus" style="font-size: 0.6rem;"></i>
+              </button>
+            </div>
+          </td>
+          <td class="text-end fw-bold text-primary px-1">฿${lineTotal.toLocaleString()}</td>
+          <td class="text-center px-0">
+            <button class="btn btn-sm text-danger border-0 p-1" onclick="updateCartQty('${item.id}', -999)">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+          </td>
+        </tr>`;
       });
-      updateCartTotal(); setTimeout(() => { let cc = document.getElementById('pos-cart-container'); if (cc) { cc.scrollTop = cc.scrollHeight; } }, 50);
+      
+      updateCartTotal(); 
+      setTimeout(() => { let cc = document.getElementById('pos-cart-container'); if (cc) { cc.scrollTop = cc.scrollHeight; } }, 50);
     }
 
     function updateCartTotal(skipSync = false) {
@@ -858,51 +885,150 @@
     function CRC16(data) { let crc = 0xFFFF; for (let i = 0; i < data.length; i++) { crc ^= data.charCodeAt(i) << 8; for (let j = 0; j < 8; j++) { if ((crc & 0x8000) > 0) crc = (crc << 1) ^ 0x1021; else crc <<= 1; } } let hex = (crc & 0xFFFF).toString(16).toUpperCase(); return ("0000" + hex).slice(-4); }
 
     function processCheckout(method) {
-      if(posCart.length === 0) return Swal.fire(i18n[currentLang]['swal_error_title'], i18n[currentLang]['pos_alert_cart_empty'], 'warning');
+      if(posCart.length === 0) return Swal.fire(i18n[currentLang]['swal_error_title'] || 'ข้อผิดพลาด', i18n[currentLang]['pos_alert_cart_empty'] || 'ไม่มีสินค้าในตะกร้า', 'warning');
       let netTotal = updateCartTotal(true); 
+      
       if(method === 'เงินสด') { 
         syncCFD('WAIT_CASH', { amount: netTotal }); 
-        Swal.fire({ title: i18n[currentLang]['pos_alert_confirm_cash_title'], text: i18n[currentLang]['pos_alert_confirm_cash_desc'] + netTotal.toLocaleString() + i18n[currentLang]['pos_alert_confirm_cash_desc2'], icon: 'question', showCancelButton: true, confirmButtonColor: '#22c55e', cancelButtonColor: '#ef4444', confirmButtonText: i18n[currentLang]['pos_btn_confirm'], cancelButtonText: i18n[currentLang]['pos_btn_cancel'] }).then((result) => { 
-            if (result.isConfirmed) executeOrder('เงินสด'); else syncCFD('UPDATE_CART'); 
+        
+        // 🌟 Popup สำหรับกรอกจำนวนเงินและคำนวณเงินทอน
+        Swal.fire({
+          title: 'รับชำระเงินสด',
+          html: `
+            <div class="mb-3 text-start">
+              <label class="form-label fw-bold text-muted">ยอดที่ต้องชำระ (บาท)</label>
+              <input type="text" class="form-control form-control-lg text-end fw-bold text-danger bg-light" value="${netTotal.toLocaleString()}" readonly>
+            </div>
+            <div class="mb-3 text-start">
+              <label class="form-label fw-bold text-primary">รับเงินมา (บาท)</label>
+              <input type="number" id="cash-received" class="form-control form-control-lg text-end fw-bold text-success" placeholder="กรอกจำนวนเงินที่รับมา..." min="${netTotal}">
+            </div>
+            <div class="mb-2 text-start">
+              <label class="form-label fw-bold text-muted">เงินทอน (บาท)</label>
+              <input type="text" id="cash-change" class="form-control form-control-lg text-end fw-bold text-primary bg-light" value="0" readonly>
+            </div>
+            <!-- ปุ่มคีย์ลัดจำนวนเงิน -->
+            <div class="d-flex gap-2 justify-content-center mt-3">
+              <button type="button" class="btn btn-outline-secondary btn-sm flex-fill" onclick="document.getElementById('cash-received').value=${netTotal}; document.getElementById('cash-received').dispatchEvent(new Event('input'));">พอดี</button>
+              <button type="button" class="btn btn-outline-secondary btn-sm flex-fill" onclick="document.getElementById('cash-received').value=100; document.getElementById('cash-received').dispatchEvent(new Event('input'));">100</button>
+              <button type="button" class="btn btn-outline-secondary btn-sm flex-fill" onclick="document.getElementById('cash-received').value=500; document.getElementById('cash-received').dispatchEvent(new Event('input'));">500</button>
+              <button type="button" class="btn btn-outline-secondary btn-sm flex-fill" onclick="document.getElementById('cash-received').value=1000; document.getElementById('cash-received').dispatchEvent(new Event('input'));">1,000</button>
+            </div>
+          `,
+          showCancelButton: true,
+          confirmButtonText: '<i class="fa-solid fa-check me-2"></i> ยืนยันรับเงิน',
+          cancelButtonText: i18n[currentLang]['pos_btn_cancel'] || 'ยกเลิก',
+          confirmButtonColor: '#22c55e',
+          cancelButtonColor: '#ef4444',
+          didOpen: () => {
+            const inputReceived = document.getElementById('cash-received');
+            const inputChange = document.getElementById('cash-change');
+            const confirmBtn = Swal.getConfirmButton();
+
+            confirmBtn.disabled = true;
+            inputReceived.focus();
+
+            inputReceived.addEventListener('input', () => {
+              let received = parseFloat(inputReceived.value) || 0;
+              let change = received - netTotal;
+              
+              if (change >= 0) {
+                inputChange.value = change.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2});
+                inputChange.classList.remove('text-danger');
+                inputChange.classList.add('text-primary');
+                confirmBtn.disabled = false;
+              } else {
+                inputChange.value = "ยอดเงินไม่พอ";
+                inputChange.classList.remove('text-primary');
+                inputChange.classList.add('text-danger');
+                confirmBtn.disabled = true;
+              }
+            });
+          },
+          preConfirm: () => {
+            const received = parseFloat(document.getElementById('cash-received').value) || 0;
+            const change = received - netTotal;
+            if (received < netTotal) {
+              Swal.showValidationMessage('กรุณาใส่จำนวนเงินให้ครบถ้วน');
+              return false;
+            }
+            return { received: received, change: change };
+          }
+        }).then((result) => { 
+            if (result.isConfirmed) {
+              // 🌟 ส่งยอดรับและเงินทอนไปที่ executeOrder ด้วย
+              executeOrder('เงินสด', result.value.received, result.value.change); 
+            } else {
+              syncCFD('UPDATE_CART'); 
+            }
         });
-      } else executeOrder('โอนเงิน');
+      } else {
+        executeOrder('โอนเงิน');
+      }
     }
 
-    function executeOrder(method) {
+    // 🌟 รับค่า receivedAmount และ changeAmount เพิ่มเข้ามา
+    function executeOrder(method, receivedAmount = 0, changeAmount = 0) {
       isProcessingOrder = true; let netTotal = updateCartTotal(true); 
       let itemsStr = posCart.map(i => `${i.name} (x${i.qty} ${i.unit || 'ชิ้น'}) = ${i.price * i.qty} บ.`).join(' | '); 
       let discount = parseFloat(document.getElementById('pos-discount').value) || 0; if(discount > 0) itemsStr += ` | [หักส่วนลด ${discount} บ.]`;
       let orderData = { customerName: document.getElementById('pos-cust-name').value, phone: "-", itemsStr: itemsStr, total: netTotal, paymentMethod: method, seller: currentStaff.name, cartItems: posCart.map(i => ({ id: i.id, qty: i.qty })) };
       
-      document.getElementById('modal-promptpay').style.display = 'none'; Swal.fire({ title: i18n[currentLang]['pos_alert_saving_bill'], allowOutsideClick: false, didOpen: () => { Swal.showLoading(); }});
+      document.getElementById('modal-promptpay').style.display = 'none'; 
+      Swal.fire({ title: i18n[currentLang]['pos_alert_saving_bill'] || 'กำลังบันทึกบิล...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); }});
 
       google.script.run.withSuccessHandler(function(res) {
-        isProcessingOrder = false; if(res.status === "error") { Swal.fire(i18n[currentLang]['swal_error_occurred'], res.message, 'error'); syncCFD('UPDATE_CART'); return; }
+        isProcessingOrder = false; if(res.status === "error") { Swal.fire(i18n[currentLang]['swal_error_occurred'] || 'เกิดข้อผิดพลาด', res.message, 'error'); syncCFD('UPDATE_CART'); return; }
         
         playPaymentSuccessSound();
 
-        let displayMethod = method === 'เงินสด' ? i18n[currentLang]['pos_text_cash'] : i18n[currentLang]['pos_text_transfer'];
-        let receiptData = { receiptId: res.receiptId, date: new Date().toLocaleString('th-TH'), customer: document.getElementById('pos-cust-name').value, items: [...posCart], subtotal: netTotal + discount, discount: discount, netTotal: netTotal, payment: displayMethod, seller: currentStaff.name };
+        let displayMethod = method === 'เงินสด' ? (i18n[currentLang]['pos_text_cash'] || 'เงินสด') : (i18n[currentLang]['pos_text_transfer'] || 'โอนเงิน');
+        
+        // 👇 🌟 จุดสำคัญ: แนบ received และ change ส่งไปที่หน้าพิมพ์ใบเสร็จ 👇
+        let receiptData = { 
+            receiptId: res.receiptId, 
+            date: new Date().toLocaleString('th-TH'), 
+            customer: document.getElementById('pos-cust-name').value, 
+            items: [...posCart], 
+            subtotal: netTotal + discount, 
+            discount: discount, 
+            netTotal: netTotal, 
+            payment: displayMethod, 
+            seller: currentStaff.name,
+            received: receivedAmount, // ส่งค่ารับเงินมา
+            change: changeAmount      // ส่งค่าเงินทอน
+        };
+        // 👆 ======================================================== 👆
+
         posCart = []; lastScannedItem = null; document.getElementById('pos-cust-name').value = ''; document.getElementById('pos-discount').value = '0'; renderCart(); syncCFD('CHECKOUT_SUCCESS'); 
         google.script.run.logAction(currentTenantSheetId, currentStaff.name, "ขายสินค้า", "เปิดบิล " + res.receiptId + " ยอด " + netTotal + " บ.");
 
         refreshProductsData(async function() {
+          
           if (isAutoPrintEnabled) {
-            Swal.fire({ title: i18n[currentLang]['pos_alert_printing_bill'], timer: 1200, showConfirmButton: false, didOpen: () => { Swal.showLoading(); } });
+            if(method === 'เงินสด') {
+               Swal.fire({ icon: 'success', title: `ทอนเงิน: ฿${changeAmount.toLocaleString()}`, showConfirmButton: false, timer: 1500 });
+            } else {
+               Swal.fire({ title: i18n[currentLang]['pos_alert_printing_bill'] || 'กำลังสั่งพิมพ์...', timer: 1200, showConfirmButton: false, didOpen: () => { Swal.showLoading(); } });
+            }
+
             receiptData.shopName = cachedShopSettings ? cachedShopSettings.shop_name : 'POS STORE';
             
-            // 🌟 ลองพิมพ์ผ่าน Bluetooth ก่อน
             let printedDirectly = false;
             if (printerCharacteristic) {
                 printedDirectly = await printReceiptDirect(receiptData);
             }
             
-            // ถ้าไม่ได้ต่อ Bluetooth ค่อยเด้งหน้าต่างพิมพ์ของเบราว์เซอร์
             if (!printedDirectly) {
-                setTimeout(() => { if (typeof openReceipt === "function") { openReceipt(receiptData, cachedShopSettings); setTimeout(() => { window.print(); }, 800); } }, 1000);
+                setTimeout(() => { if (typeof openReceipt === "function") { openReceipt(receiptData, cachedShopSettings); setTimeout(() => { window.print(); }, 800); } }, method === 'เงินสด' ? 1500 : 1000);
             }
           } else { 
-            Swal.fire({ icon: 'success', title: i18n[currentLang]['pos_alert_save_success'], timer: 1200, showConfirmButton: false }); 
+            if (method === 'เงินสด') {
+               Swal.fire({ icon: 'success', title: `ทอนเงิน: ฿${changeAmount.toLocaleString()}`, html: '<b class="text-success">บันทึกรายการสำเร็จ</b>', confirmButtonText: 'ตกลง', confirmButtonColor: '#3b82f6' }); 
+            } else {
+               Swal.fire({ icon: 'success', title: i18n[currentLang]['pos_alert_save_success'] || 'บันทึกสำเร็จ', timer: 1200, showConfirmButton: false }); 
+            }
+            
             if (currentPOSMode === 'barcode') { setTimeout(() => { document.getElementById('pos-barcode-input').focus(); }, 200); } 
           }
         });

@@ -123,62 +123,152 @@
     <!-- Main Content Area -->
     <div class="settings-content">
       
-      <!-- TAB: ข้อมูลร้านค้า -->
-      <div id="tab-profile" class="settings-panel active bg-white p-3 p-lg-4 rounded-4 shadow-sm border h-100">
-        <h5 class="fw-bold text-dark mb-4"><i class="fa-solid fa-store text-danger me-2"></i> <span data-i18n="set_shop_info_title">ข้อมูลร้านค้า (Store Profile)</span></h5>
+      <!-- TAB: ข้อมูลร้านค้า (ดีไซน์ใหม่ มีกรอบชัดเจน สะอาดตา) -->
+      <div id="tab-profile" class="settings-panel active bg-white p-4 rounded-4 shadow-sm border h-100">
         
-        <div class="form-floating mb-3"><input type="text" id="set-shop-name" class="form-control fw-bold bg-light" placeholder="ระบุชื่อร้านค้า" data-i18n="set_placeholder_shop_name"><label class="fw-bold text-muted" data-i18n="set_label_shop_name"> ชื่อร้านค้า / ชื่อบริษัท </label></div>
-        <div class="mb-3"><label class="form-label fw-bold text-muted small" data-i18n="set_label_promptpay"> เบอร์พร้อมเพย์ (รับเงิน) </label><input type="text" id="set-promptpay" class="form-control fw-bold text-primary bg-light" placeholder="08XXXXXXXX" data-i18n="set_placeholder_promptpay"></div>
-        <div class="form-floating mb-3"><input type="text" id="set-account-name" class="form-control fw-bold bg-light" placeholder="ชื่อบัญชี" data-i18n="set_placeholder_acc_name"><label class="fw-bold text-muted" data-i18n="set_label_acc_name"> ชื่อบัญชีธนาคาร (แสดงตอนสแกน) </label></div>
-        <div class="form-floating mb-3"><input type="text" id="set-phone" class="form-control fw-bold bg-light" placeholder="เบอร์โทร" data-i18n="set_placeholder_phone"><label class="fw-bold text-muted" data-i18n="set_label_phone"> เบอร์โทรศัพท์ร้าน </label></div>
-        <div class="form-floating mb-3"><textarea id="set-address" class="form-control fw-bold bg-light" style="height: 80px" placeholder="ที่อยู่" data-i18n="set_placeholder_address"></textarea><label class="fw-bold text-muted" data-i18n="set_label_address"> ที่อยู่ร้านค้า </label></div>
+        <!-- ส่วนหัวของ Tab -->
+        <div class="d-flex align-items-center mb-4 pb-3 border-bottom">
+          <div class="bg-primary bg-opacity-10 text-primary p-3 rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+            <i class="fa-solid fa-store fa-lg"></i>
+          </div>
+          <div>
+            <h5 class="fw-bold text-dark m-0" data-i18n="set_shop_info_title">ข้อมูลร้านค้า (Store Profile)</h5>
+            <div class="small text-muted mt-1">ตั้งค่ารายละเอียดร้านค้าและข้อมูลบนใบเสร็จ</div>
+          </div>
+        </div>
         
-        <div class="mb-4 p-3 bg-light rounded-3 border">
-           <label class="form-label fw-bold small text-muted"><i class="fa-solid fa-image me-1"></i> <span data-i18n="set_label_logo">โลโก้ร้านค้า</span> </label>
-           <div class="d-flex align-items-center gap-3">
-              <img id="set-logo-preview" src="" style="width: 60px; height: 60px; object-fit: contain; background: white; border: 1px dashed #ccc; border-radius: 8px; display: none;">
-              <div class="flex-fill">
-                 <input type="file" id="set-logo-file" class="form-control form-control-sm" accept="image/*">
-                 <div id="set-upload-status" class="text-info small fw-bold mt-1"></div>
-              </div>
-           </div>
-           <input type="hidden" id="set-logo-url">
+        <!-- แบ่ง Layout เป็น 2 คอลัมน์ด้วย Grid -->
+        <div class="row g-4 mb-4">
+          
+          <!-- คอลัมน์ซ้าย: ข้อมูลทั่วไป -->
+          <div class="col-lg-6 d-flex flex-column gap-3">
+            <h6 class="fw-bold text-secondary mb-1"><i class="fa-solid fa-circle-info me-2"></i>ข้อมูลทั่วไป</h6>
+            
+            <div>
+              <label class="form-label fw-bold text-dark small mb-1" data-i18n="set_label_shop_name">ชื่อร้านค้า / ชื่อบริษัท <span class="text-danger">*</span></label>
+              <input type="text" id="set-shop-name" class="form-control form-control-lg fs-6 shadow-sm" placeholder="ระบุชื่อร้านค้า" data-i18n="set_placeholder_shop_name">
+            </div>
+            
+            <div>
+              <label class="form-label fw-bold text-dark small mb-1" data-i18n="set_label_phone">เบอร์โทรศัพท์ติดต่อ</label>
+              <input type="text" id="set-phone" class="form-control form-control-lg fs-6 shadow-sm" placeholder="เบอร์โทรร้าน" data-i18n="set_placeholder_phone">
+            </div>
+            
+            <div>
+              <label class="form-label fw-bold text-dark small mb-1" data-i18n="set_label_address">ที่อยู่ร้านค้า (แสดงบนใบเสร็จ)</label>
+              <textarea id="set-address" class="form-control shadow-sm" style="height: 110px; resize: none;" placeholder="ระบุที่อยู่..." data-i18n="set_placeholder_address"></textarea>
+            </div>
+          </div>
+
+          <!-- คอลัมน์ขวา: การรับเงิน & โลโก้ -->
+          <div class="col-lg-6 d-flex flex-column gap-3">
+            <h6 class="fw-bold text-secondary mb-1"><i class="fa-solid fa-qrcode me-2"></i>การชำระเงิน & โลโก้</h6>
+            
+            <div>
+              <label class="form-label fw-bold text-dark small mb-1" data-i18n="set_label_promptpay">เบอร์พร้อมเพย์ (สร้าง QR Code อัตโนมัติ)</label>
+              <input type="text" id="set-promptpay" class="form-control form-control-lg fs-6 text-primary fw-bold shadow-sm" placeholder="08XXXXXXXX" data-i18n="set_placeholder_promptpay">
+            </div>
+            
+            <div>
+              <label class="form-label fw-bold text-dark small mb-1" data-i18n="set_label_acc_name">ชื่อบัญชีรับเงิน</label>
+              <input type="text" id="set-account-name" class="form-control form-control-lg fs-6 shadow-sm" placeholder="ระบุชื่อบัญชีธนาคาร" data-i18n="set_placeholder_acc_name">
+            </div>
+            
+            <div class="mt-2 p-3 rounded-4 border shadow-sm">
+               <label class="form-label fw-bold small text-dark mb-2"><i class="fa-solid fa-image text-muted me-1"></i> <span data-i18n="set_label_logo">อัปโหลดโลโก้ร้านค้า</span> </label>
+               <div class="d-flex align-items-center gap-3">
+                  
+                  <div class="bg-white border rounded-3 d-flex justify-content-center align-items-center shadow-sm position-relative" style="width: 70px; height: 70px; overflow: hidden; flex-shrink: 0;">
+                    <i class="fa-solid fa-image text-muted" style="font-size: 24px; opacity: 0.3;"></i>
+                    <img id="set-logo-preview" src="" class="position-absolute w-100 h-100" style="object-fit: contain; display: none; background: #fff; top: 0; left: 0;">
+                  </div>
+
+                  <div class="flex-fill">
+                     <input type="file" id="set-logo-file" class="form-control form-control-sm shadow-sm" accept="image/*" style="font-size: 13px;">
+                     <div id="set-upload-status" class="text-primary small fw-bold mt-1"></div>
+                  </div>
+               </div>
+               <input type="hidden" id="set-logo-url">
+            </div>
+          </div>
+          
         </div>
 
-        <button id="btn-save-settings" class="btn btn-danger w-100 fw-bold py-3 rounded-pill shadow-sm" onclick="saveSettings()"><i class="fa-solid fa-floppy-disk me-2"></i> <span data-i18n="set_btn_save_settings">บันทึกการตั้งค่าร้าน</span></button>
-      </div>
-	  
-	  <!-- TAB: ตั้งค่าปริ้นเตอร์ -->
-      <div id="tab-printer" class="settings-panel bg-white p-3 p-lg-4 rounded-4 shadow-sm border h-100">
-        <h5 class="fw-bold text-dark mb-4"><i class="fa-solid fa-print text-success me-2"></i> <span data-i18n="set_printer_title">ตั้งค่าเครื่องพิมพ์ (Printer Settings)</span></h5>
-
-        <!-- ระบบพิมพ์อัตโนมัติ (AirPrint/เบราว์เซอร์) -->
-        <h6 class="fw-bold text-dark mb-3">
-          <i class="fa-solid fa-receipt text-primary me-2"></i> <span data-i18n="set_printer_auto_title">ระบบการพิมพ์อัตโนมัติ (ผ่านระบบ)</span>
-        </h6>
-		
-        <div class="form-check form-switch fs-6 mb-4 p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center ps-3">
-		<label class="form-check-label fw-bold text-dark mb-0" for="set-auto-print-advanced" data-i18n="set_auto_print"> เปิดระบบพิมพ์ใบเสร็จอัตโนมัติหลังจ่ายเงิน </label>
-		<input class="form-check-input m-0" type="checkbox" id="set-auto-print-advanced" style="width: 40px; height: 20px;" onchange="syncAutoPrintAndSave()">
-		</div>
-
-        <!-- การเชื่อมต่อ Bluetooth -->
-        <h6 class="fw-bold text-dark mb-3">
-          <i class="fa-brands fa-bluetooth text-info me-2"></i> <span data-i18n="set_printer_bt_title">ปริ้นเตอร์บลูทูธ (พิมพ์ตรงไร้หน้าต่าง)</span>
-        </h6>
-        <div class="mb-4 p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center flex-wrap gap-3">
-          <div>
-            <span class="fw-bold text-dark d-block mb-1"><span data-i18n="set_printer_status_label">สถานะ:</span> <span id="bt-printer-status" class="text-danger fw-bold" data-i18n="set_printer_not_connected">ยังไม่เชื่อมต่อ</span></span>
-            <span class="small text-muted"><i class="fa-solid fa-circle-info"></i> <span data-i18n="set_printer_bt_note">รองรับเฉพาะ Chrome/Edge (Windows, Mac, Android)</span></span>
-          </div>
-          <button class="btn btn-secondary text-white fw-bold rounded-pill shadow-sm px-4 py-2" onclick="window.connectBluetoothPrinter()">
-             <i class="fa-brands fa-bluetooth me-1"></i> <span data-i18n="set_btn_connect_bt">เชื่อมต่อปริ้นเตอร์</span>
+        <!-- ส่วนปุ่มบันทึก -->
+        <div class="d-flex justify-content-end pt-3 border-top">
+          <button id="btn-save-settings" class="btn btn-primary fw-bold px-5 py-2 rounded-pill shadow-sm" onclick="saveSettings()">
+            <i class="fa-solid fa-floppy-disk me-2"></i> <span data-i18n="set_btn_save_settings">บันทึกข้อมูลร้านค้า</span>
           </button>
         </div>
         
-        <div class="alert alert-info small fw-bold mt-2">
-           <i class="fa-solid fa-lightbulb me-1"></i> <span data-i18n="set_printer_hint">คำแนะนำ: หากคุณเชื่อมต่อปริ้นเตอร์ Bluetooth สำเร็จ ระบบจะข้ามการเด้งหน้าต่างพิมพ์ของเบราว์เซอร์ และพิมพ์ใบเสร็จพร้อมเด้งลิ้นชักให้อัตโนมัติทันที</span>
+      </div>
+	  
+	  <!-- TAB: ตั้งค่าปริ้นเตอร์ (ดีไซน์ใหม่) -->
+      <div id="tab-printer" class="settings-panel bg-white p-4 rounded-4 shadow-sm border h-100">
+        
+        <!-- ส่วนหัวของ Tab -->
+        <div class="d-flex align-items-center mb-4 pb-3 border-bottom">
+          <div class="bg-success bg-opacity-10 text-success p-3 rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+            <i class="fa-solid fa-print fa-lg"></i>
+          </div>
+          <div>
+            <h5 class="fw-bold text-dark m-0" data-i18n="set_printer_title">ตั้งค่าเครื่องพิมพ์ (Printer Settings)</h5>
+            <div class="small text-muted mt-1">ตั้งค่าระบบการพิมพ์ใบเสร็จอัตโนมัติและบลูทูธ</div>
+          </div>
         </div>
+
+        <!-- แบ่ง Layout เป็น 2 คอลัมน์ด้วย Grid -->
+        <div class="row g-4 mb-2">
+          
+          <!-- คอลัมน์ซ้าย: ระบบพิมพ์อัตโนมัติ (ผ่านเบราว์เซอร์) -->
+          <div class="col-lg-6 d-flex flex-column gap-3">
+            <h6 class="fw-bold text-secondary mb-1"><i class="fa-solid fa-receipt me-2"></i><span data-i18n="set_printer_auto_title">พิมพ์ผ่านเบราว์เซอร์ (Browser/AirPrint)</span></h6>
+            
+            <div class="p-4 rounded-4 border shadow-sm d-flex flex-column justify-content-center bg-white h-100">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <label class="form-check-label fw-bold text-dark fs-6" for="set-auto-print-advanced" data-i18n="set_auto_print" style="cursor: pointer;">พิมพ์ใบเสร็จอัตโนมัติหลังจ่ายเงิน</label>
+                <div class="form-check form-switch m-0 p-0 d-flex align-items-center">
+                  <input class="form-check-input m-0 shadow-sm" type="checkbox" id="set-auto-print-advanced" style="width: 45px; height: 24px; cursor: pointer;" onchange="syncAutoPrintAndSave()">
+                </div>
+              </div>
+              <div class="small text-muted mt-2">
+                 เมื่อเปิดใช้งาน ระบบจะเด้งหน้าต่างพิมพ์ของเบราว์เซอร์ขึ้นมาทันทีที่กดบันทึกบิลสำเร็จ
+              </div>
+            </div>
+          </div>
+
+          <!-- คอลัมน์ขวา: ปริ้นเตอร์บลูทูธ -->
+          <div class="col-lg-6 d-flex flex-column gap-3">
+            <h6 class="fw-bold text-secondary mb-1"><i class="fa-brands fa-bluetooth me-2"></i><span data-i18n="set_printer_bt_title">ปริ้นเตอร์บลูทูธ (พิมพ์ตรงไร้หน้าต่าง)</span></h6>
+            
+            <div class="p-4 rounded-4 border shadow-sm d-flex flex-column justify-content-between bg-white h-100">
+              <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                  <div class="fw-bold text-dark mb-2"><span data-i18n="set_printer_status_label">สถานะ:</span> <span id="bt-printer-status" class="badge bg-danger rounded-pill px-3 py-1 ms-1" data-i18n="set_printer_not_connected">ยังไม่เชื่อมต่อ</span></div>
+                  <div class="small text-muted" style="font-size: 0.8rem;"><i class="fa-solid fa-circle-info me-1"></i> <span class="custom-translate" data-i18n-th="รองรับเฉพาะ Chrome/Edge (Windows, Mac, Android)" data-i18n-en="Supported only on Chrome/Edge (Windows, Mac, Android)">รองรับเฉพาะ Chrome/Edge (Windows, Mac, Android)</span></div>
+                </div>
+                <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex justify-content-center align-items-center flex-shrink-0" style="width: 45px; height: 45px;">
+                  <i class="fa-brands fa-bluetooth-b fa-xl"></i>
+                </div>
+              </div>
+              
+              <button class="btn btn-primary fw-bold rounded-pill shadow-sm w-100 py-2 mt-auto" onclick="window.connectBluetoothPrinter()">
+                 <i class="fa-brands fa-bluetooth me-2"></i> <span data-i18n="set_btn_connect_bt">เชื่อมต่อปริ้นเตอร์บลูทูธ</span>
+              </button>
+            </div>
+          </div>
+          
+        </div>
+
+        <!-- กล่องคำแนะนำการใช้งานแบบสวยงาม -->
+        <div class="alert alert-info border-info border-opacity-50 bg-info bg-opacity-10 d-flex gap-3 align-items-start mt-4 rounded-4 p-3 shadow-sm mb-0">
+           <i class="fa-solid fa-lightbulb text-info fs-4 mt-1"></i>
+           <div>
+             <div class="fw-bold text-dark mb-1">คำแนะนำการใช้งาน</div>
+             <div class="small text-muted" data-i18n="set_printer_hint">หากคุณเชื่อมต่อปริ้นเตอร์ Bluetooth สำเร็จ ระบบจะข้ามการเด้งหน้าต่างพิมพ์ของเบราว์เซอร์ และทำการพิมพ์ใบเสร็จพร้อมเด้งเปิดลิ้นชักเก็บเงินให้อัตโนมัติทันที ทำให้ขายได้รวดเร็วขึ้น!</div>
+           </div>
+        </div>
+
       </div>
 
       <!-- TAB: แพ็กเกจร้านค้า -->
@@ -197,18 +287,105 @@
         </div>
       </div>
 
-      <!-- TAB: จัดการพนักงาน -->
-      <div id="tab-staff" class="settings-panel bg-white p-3 p-lg-4 rounded-4 shadow-sm border h-100">
-        <div class="d-flex justify-content-between align-items-center mb-4 user-mgmt-header">
-          <h5 class="fw-bold text-dark m-0"><i class="fa-solid fa-users-gear text-primary me-2"></i> <span data-i18n="set_user_title">จัดการพนักงาน (Staff & Roles)</span> </h5>
-          <button class="btn btn-primary btn-sm fw-bold rounded-pill px-3 shadow-sm" onclick="openUserForm()"><i class="fa-solid fa-user-plus me-1"></i> <span data-i18n="set_btn_add_user">เพิ่มพนักงาน</span> </button>
+      <!-- TAB: จัดการพนักงาน (ดีไซน์ใหม่) -->
+      <div id="tab-staff" class="settings-panel bg-white p-4 rounded-4 shadow-sm border h-100">
+        <!-- ส่วนหัว Tab -->
+        <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom flex-wrap gap-2">
+          <div class="d-flex align-items-center">
+            <div class="bg-primary bg-opacity-10 text-primary p-3 rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+              <i class="fa-solid fa-users-gear fa-lg"></i>
+            </div>
+            <div>
+              <h5 class="fw-bold text-dark m-0" data-i18n="set_user_title">จัดการพนักงาน (Staff & Roles)</h5>
+              <div class="small text-muted mt-1">เพิ่ม/แก้ไขพนักงาน และกำหนดสิทธิ์การใช้งานระบบ</div>
+            </div>
+          </div>
+          <button class="btn btn-primary fw-bold rounded-pill px-4 py-2 shadow-sm" onclick="openUserForm()">
+            <i class="fa-solid fa-user-plus me-1"></i> <span data-i18n="set_btn_add_user">เพิ่มพนักงาน</span>
+          </button>
         </div>
-        <div class="table-responsive user-table-wrapper" style="max-height: 60vh; overflow-y: auto; overflow-x: hidden;">
-          <table class="table table-hover align-middle" style="width: 100%;">
-            <thead class="table-light sticky-top"><tr><th data-i18n="set_th_user_name"> ชื่อพนักงาน </th><th class="text-center" data-i18n="set_th_pin"> รหัส PIN </th><th data-i18n="set_th_permission"> สิทธิ์การเข้าถึง </th><th class="text-end" data-i18n="set_th_manage"> จัดการ </th></tr></thead>
-            <tbody id="users-table-body"><tr><td colspan="4" class="text-center text-muted py-4" data-i18n="set_loading_users"> กำลังโหลดข้อมูลพนักงาน... </td></tr></tbody>
+
+        <!-- ตารางแสดงรายชื่อพนักงาน -->
+        <div class="table-responsive rounded-3 border" style="max-height: 55vh; overflow-y: auto;">
+          <table class="table table-hover align-middle mb-0" style="width: 100%;">
+            <thead class="table-light sticky-top shadow-sm">
+              <tr>
+                <th class="py-3 px-3" data-i18n="set_th_user_name">ชื่อพนักงาน</th>
+                <th class="py-3 text-center" data-i18n="set_th_pin">รหัส PIN</th>
+                <th class="py-3" data-i18n="set_th_permission">สิทธิ์การเข้าถึง</th>
+                <th class="py-3 text-end pe-3" data-i18n="set_th_manage">จัดการ</th>
+              </tr>
+            </thead>
+            <tbody id="users-table-body">
+              <tr><td colspan="4" class="text-center text-muted py-4" data-i18n="set_loading_users">กำลังโหลดข้อมูลพนักงาน...</td></tr>
+            </tbody>
           </table>
         </div>
+      </div>
+
+      <!-- TAB: ประวัติการใช้งาน (ดีไซน์ใหม่) -->
+      <div id="tab-log" class="settings-panel bg-white p-4 rounded-4 shadow-sm border h-100">
+        <!-- ส่วนหัว Tab -->
+        <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom flex-wrap gap-2">
+          <div class="d-flex align-items-center">
+            <div class="bg-info bg-opacity-10 text-info p-3 rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+              <i class="fa-solid fa-list-check fa-lg"></i>
+            </div>
+            <div>
+              <h5 class="fw-bold text-dark m-0" data-i18n="set_log_title">ประวัติการใช้งาน (Activity Log)</h5>
+              <div class="small text-muted mt-1">ตรวจสอบประวัติการทำรายการย้อนหลังของพนักงานทุกคน</div>
+            </div>
+          </div>
+
+          <!-- ตัวกรอง -->
+          <div class="d-flex flex-wrap gap-2">
+            <select id="log-staff-filter" class="form-select form-select-sm fw-bold border bg-light text-dark shadow-sm" style="width: auto; min-width: 140px;" onchange="changeLogPage(1)">
+              <option value="all" data-i18n="set_filter_all_staff">👤 พนักงานทั้งหมด</option>
+            </select>
+            <select id="log-filter" class="form-select form-select-sm fw-bold border bg-light text-dark shadow-sm" style="width: auto; min-width: 160px;" onchange="changeLogPage(1)">
+              <option value="all" data-i18n="set_filter_all_cat">📁 ทุกหมวดหมู่</option>
+              <option value="เข้าสู่ระบบ" data-i18n="set_log_login">🔓 เข้าสู่ระบบ</option>
+              <option value="ออกจากระบบ" data-i18n="set_log_logout">🔒 ออกจากระบบ</option>
+              <option value="ขายสินค้า" data-i18n="set_log_sell">🛒 ขายสินค้า</option>
+              <option value="ยกเลิกบิล" data-i18n="set_log_void">🚫 ยกเลิกบิล</option>
+              <option value="คืนสินค้า" data-i18n="set_log_return">↩️ คืนสินค้า</option>
+              <option value="พิมพ์บิลซ้ำ" data-i18n="set_log_reprint">🖨️ พิมพ์บิลซ้ำ</option>
+              <option value="เพิ่มสินค้า" data-i18n="set_log_add_prod">📦 เพิ่มสินค้า</option>
+              <option value="แก้ไขสินค้า" data-i18n="set_log_edit_prod">✏️ แก้ไขสินค้า</option>
+              <option value="ลบสินค้า" data-i18n="set_log_del_prod">🗑️ ลบสินค้า</option>
+              <option value="รับสินค้าเข้า" data-i18n="set_log_recv_stock">📥 รับสินค้าเข้า</option>
+              <option value="ลบข้อมูลทดสอบ" data-i18n="set_log_clear_test">🗑️ ลบข้อมูลทดสอบ</option>
+              <option value="จัดการพนักงาน" data-i18n="set_log_action_manage_staff">👥 จัดการพนักงาน</option>
+              <option value="ตั้งค่าระบบ" data-i18n="set_log_action_system_setting">⚙️ ตั้งค่าระบบ</option>
+              <option value="เริ่มต้นระบบ" data-i18n="set_log_action_init">🚀 เริ่มต้นระบบ</option>
+              <option value="ดาวน์โหลด Excel" data-i18n="set_log_action_export">📥 ดาวน์โหลด Excel</option>
+              <option value="นำเข้า Excel" data-i18n="set_log_action_import">📤 นำเข้า Excel</option>
+            </select>
+            <button class="btn btn-sm btn-outline-secondary rounded-pill fw-bold shadow-sm px-3" onclick="loadActivityLogsData()">
+              <i class="fa-solid fa-rotate-right me-1"></i> <span data-i18n="set_btn_refresh">รีเฟรช</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- ตารางประวัติ -->
+        <div class="table-responsive border rounded-3 bg-light" style="max-height: 480px; overflow-y: auto;">
+          <table class="table table-hover align-middle mb-0 small bg-white" style="width: 100%;">
+            <thead class="table-light sticky-top shadow-sm">
+              <tr>
+                <th class="py-2 px-3 text-muted" data-i18n="set_th_datetime">วัน-เวลา</th>
+                <th class="py-2 text-muted" data-i18n="set_th_staff">พนักงาน</th>
+                <th class="py-2 text-muted" data-i18n="set_th_category">หมวดหมู่</th>
+                <th class="py-2 text-muted" data-i18n="set_th_detail">รายละเอียด</th>
+              </tr>
+            </thead>
+            <tbody id="activity-log-body">
+              <tr><td colspan="4" class="text-center py-4 text-muted" data-i18n="set_loading_logs">กำลังโหลดข้อมูลประวัติ...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <!-- Pagination -->
+        <div id="log-pagination" class="d-flex justify-content-between align-items-center mt-3 gap-2 bg-white p-2 rounded-3 border shadow-sm"></div>
       </div>
 
       <!-- TAB: ประวัติการใช้งาน -->
@@ -248,90 +425,145 @@
         <div id="log-pagination" class="d-flex justify-content-between align-items-center mt-3 gap-2 bg-white p-2 rounded-3 border shadow-sm"></div>
       </div>
 
-      <!-- TAB: ตั้งค่าขั้นสูง (จัดระเบียบใหม่ทั้งหมด) -->
-      <div id="tab-advanced" class="settings-panel bg-white p-3 p-lg-4 rounded-4 shadow-sm border h-100">
-        <h5 class="fw-bold text-secondary mb-4"><i class="fa-solid fa-sliders me-2"></i> <span data-i18n="set_advanced_title">ตั้งค่าขั้นสูง (Advanced Settings)</span></h5>
+      <!-- TAB: ตั้งค่าขั้นสูง (ดีไซน์ใหม่ เรียบหรู สะอาดตา) -->
+      <div id="tab-advanced" class="settings-panel bg-white p-4 rounded-4 shadow-sm border h-100">
 
-        <!-- 1. ระบบ UI Layout -->
-        <h6 class="fw-bold text-dark mb-2">
-          <i class="fa-solid fa-desktop text-info me-2"></i> 
-          <span class="custom-translate" data-i18n-th="การแสดงผล" data-i18n-en="Display">การแสดงผล</span>
-        </h6>
-        <div class="mb-4 p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center">
-          <div>
-            <span class="fw-bold text-dark d-block" data-i18n="set_btn_ui">ปรับแต่งการแสดงผล (UI Layout)</span>
-            <span class="small text-muted">ซ่อน/แสดงปุ่มและเมนูการทำงานตามความเหมาะสม</span>
+        <!-- ส่วนหัวของ Tab -->
+        <div class="d-flex align-items-center mb-4 pb-3 border-bottom">
+          <div class="bg-secondary bg-opacity-10 text-secondary p-3 rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+            <i class="fa-solid fa-sliders fa-lg"></i>
           </div>
-          <button class="btn btn-primary btn-sm fw-bold rounded-pill shadow-sm px-3 py-2" onclick="openUISettingsModal()"><i class="fa-solid fa-sliders me-1"></i> <span class="custom-translate" data-i18n-th="ปรับหน้าจอ" data-i18n-en="UI Setting">ปรับหน้าจอ</span></button>
+          <div>
+            <h5 class="fw-bold text-dark m-0" data-i18n="set_advanced_title">ตั้งค่าขั้นสูง (Advanced Settings)</h5>
+            <div class="small text-muted mt-1">ปรับแต่งการแสดงผลหน้าจอ จัดการข้อมูล Excel และลบข้อมูลทดสอบ</div>
+          </div>
         </div>
 
-        <!-- 2. จัดการข้อมูล Excel (ปรับให้ขนาดกะทัดรัด) -->
-        <h6 class="fw-bold text-success mb-2"><i class="fa-solid fa-file-excel me-2"></i> <span data-i18n="set_excel_title">จัดการข้อมูลด้วย Excel</span></h6>
-        <div class="mb-4 p-3 bg-light rounded-3 border">
-          <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
-            <span class="fw-bold text-dark">นำเข้า / ส่งออก ข้อมูลร้านและคลังสินค้า</span>
-            <div class="d-flex gap-2">
-              <button class="btn btn-outline-success btn-sm fw-bold rounded-pill px-3 py-2 shadow-sm" onclick="exportDataToExcel()"><i class="fa-solid fa-download me-1"></i> <span data-i18n="set_btn_export">โหลดฟอร์ม</span></button>
-              <button class="btn btn-success btn-sm fw-bold rounded-pill px-3 py-2 shadow-sm" onclick="document.getElementById('import-excel-input').value=''; document.getElementById('import-excel-input').click()"><i class="fa-solid fa-upload me-1"></i> <span data-i18n="set_btn_import">นำเข้าข้อมูล</span></button>
-              <input type="file" id="import-excel-input" class="d-none" accept=".xlsx, .xls" onchange="importDataFromExcel(this)">
+        <!-- แบ่ง Layout ด้วย Grid -->
+        <div class="row g-4">
+
+          <!-- 1. การแสดงผลหน้าจอ (UI Layout) -->
+          <div class="col-lg-6">
+            <div class="p-4 rounded-4 border shadow-sm bg-white h-100 d-flex flex-column justify-content-between">
+              <div>
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <i class="fa-solid fa-desktop text-info fs-5"></i>
+                  <h6 class="fw-bold text-dark m-0 custom-translate" data-i18n-th="การแสดงผลหน้าจอ (UI Layout)" data-i18n-en="Display Settings (UI Layout)">การแสดงผลหน้าจอ (UI Layout)</h6>
+                </div>
+                <p class="small text-muted mb-3">ปรับแต่งและเลือกซ่อน/แสดงปุ่ม เมนูการทำงาน และฟังก์ชันต่างๆ บนหน้าขาย (POS) และหน้าตั้งค่าตามต้องการ</p>
+              </div>
+              <button class="btn btn-primary fw-bold rounded-pill shadow-sm w-100 py-2 mt-2" onclick="openUISettingsModal()">
+                <i class="fa-solid fa-sliders me-1"></i> <span class="custom-translate" data-i18n-th="ปรับแต่งการแสดงผล" data-i18n-en="UI Settings">ปรับแต่งการแสดงผล</span>
+              </button>
             </div>
           </div>
-          <div class="text-muted small fw-bold mt-1 pt-2 border-top">
-            <i class="fa-solid fa-circle-info text-info me-1"></i>
-            <span data-i18n="set_excel_hint">* โหลดฟอร์มออกมาแก้ไข (ตั้งค่าร้าน หรือ สินค้า) แล้วกด "นำเข้าข้อมูล" เพื่ออัปเดตทับได้ทันที ถ้ารหัสสินค้าตรงกันจะอัปเดต ถ้ารหัสใหม่จะเพิ่มสินค้าให้ครับ</span>
+
+          <!-- 2. ลบข้อมูลทดสอบ (Clear Test Data) -->
+          <div class="col-lg-6">
+            <div class="p-4 rounded-4 border border-danger border-opacity-25 shadow-sm bg-white h-100 d-flex flex-column justify-content-between">
+              <div>
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <i class="fa-solid fa-trash-can text-danger fs-5"></i>
+                  <h6 class="fw-bold text-danger m-0 custom-translate" data-i18n-th="การจัดการข้อมูลทดสอบ" data-i18n-en="Data Management">การจัดการข้อมูลทดสอบ</h6>
+                </div>
+                <p class="small text-muted mb-3">ลบบิลทดสอบขายตามช่วงเวลา เพื่อล้างระบบให้สะอาดพร้อมสำหรับเริ่มใช้งานจริง</p>
+              </div>
+              <button class="btn btn-outline-danger fw-bold rounded-pill shadow-sm w-100 py-2 mt-2" onclick="openClearTestModal()">
+                <i class="fa-solid fa-trash-can me-1"></i> <span class="custom-translate" data-i18n-th="ลบข้อมูลทดสอบ (เคลียร์บิล)" data-i18n-en="Clear Test Data">ลบข้อมูลทดสอบ (เคลียร์บิล)</span>
+              </button>
+            </div>
           </div>
+
+          <!-- 3. จัดการข้อมูลด้วย Excel -->
+          <div class="col-12">
+            <div class="p-4 rounded-4 border shadow-sm bg-white">
+              <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3 pb-3 border-bottom">
+                <div>
+                  <div class="d-flex align-items-center gap-2 mb-1">
+                    <i class="fa-solid fa-file-excel text-success fs-5"></i>
+                    <h6 class="fw-bold text-dark m-0" data-i18n="set_excel_title">จัดการข้อมูลด้วย Excel</h6>
+                  </div>
+                  <div class="small text-muted">ดาวน์โหลดฟอร์มเพื่อนำไปแก้ไขข้อมูลร้านค้าและรายการสินค้า แล้วนำกลับมาอัปเดตเข้าระบบ</div>
+                </div>
+                <div class="d-flex gap-2">
+                  <button class="btn btn-outline-success fw-bold rounded-pill px-4 py-2 shadow-sm" onclick="exportDataToExcel()">
+                    <i class="fa-solid fa-download me-1"></i> <span data-i18n="set_btn_export">โหลดฟอร์ม</span>
+                  </button>
+                  <button class="btn btn-success fw-bold rounded-pill px-4 py-2 shadow-sm" onclick="document.getElementById('import-excel-input').value=''; document.getElementById('import-excel-input').click()">
+                    <i class="fa-solid fa-upload me-1"></i> <span data-i18n="set_btn_import">นำเข้าข้อมูล</span>
+                  </button>
+                  <input type="file" id="import-excel-input" class="d-none" accept=".xlsx, .xls" onchange="importDataFromExcel(this)">
+                </div>
+              </div>
+              
+              <div class="alert alert-success border-0 bg-success bg-opacity-10 d-flex gap-2 align-items-center m-0 p-3 rounded-3">
+                <i class="fa-solid fa-circle-info text-success fs-5 flex-shrink-0"></i>
+                <div class="small text-muted fw-bold" data-i18n="set_excel_hint">
+                  * โหลดฟอร์มออกมาแก้ไข (ตั้งค่าร้าน หรือ สินค้า) แล้วกด "นำเข้าข้อมูล" เพื่ออัปเดตทับได้ทันที ถ้ารหัสสินค้าตรงกันจะอัปเดต ถ้ารหัสใหม่จะเพิ่มสินค้าให้ครับ
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
 
-        <!-- 3. การจัดการข้อมูลทดสอบ -->
-        <h6 class="fw-bold text-danger mb-2">
-          <i class="fa-solid fa-trash-can me-2"></i> 
-          <span class="custom-translate" data-i18n-th="การจัดการข้อมูล" data-i18n-en="Data Management">การจัดการข้อมูล</span>
-        </h6>
-        <div class="p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center">
+      </div>
+
+      <!-- TAB: ตั้งค่าเสียง (ดีไซน์ใหม่ เรียบหรู สะอาดตา) -->
+      <div id="tab-sound" class="settings-panel bg-white p-4 rounded-4 shadow-sm border h-100">
+        
+        <!-- ส่วนหัวของ Tab -->
+        <div class="d-flex align-items-center mb-4 pb-3 border-bottom">
+          <div class="bg-info bg-opacity-10 text-info p-3 rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+            <i class="fa-solid fa-volume-high fa-lg"></i>
+          </div>
           <div>
-            <span class="fw-bold text-dark d-block custom-translate" data-i18n-th="ลบข้อมูลทดสอบ (เคลียร์บิล)" data-i18n-en="Clear Test Data (Bills)">ลบข้อมูลทดสอบ (เคลียร์บิล)</span>
-            <span class="small text-muted">ลบบิลทดสอบเพื่อเริ่มต้นการใช้งานจริง</span>
-          </div>
-          <button class="btn btn-danger btn-sm fw-bold rounded-pill shadow-sm px-3 py-2" onclick="openClearTestModal()"><i class="fa-solid fa-trash-can me-1"></i> <span class="custom-translate" data-i18n-th="ลบข้อมูล" data-i18n-en="Delete Data">ลบข้อมูล</span></button>
-        </div>
-
-      </div>
-
-      <!-- 🌟 TAB: ตั้งค่าเสียง (แยกใหม่) 🌟 -->
-      <div id="tab-sound" class="settings-panel bg-white p-3 p-lg-4 rounded-4 shadow-sm border h-100">
-        <h5 class="fw-bold text-dark mb-4">
-          <i class="fa-solid fa-volume-high text-info me-2"></i> 
-          <span class="custom-translate" data-i18n-th="ตั้งค่าเสียง (Sound Settings)" data-i18n-en="Sound Settings">ตั้งค่าเสียง (Sound Settings)</span>
-        </h5>
-
-        <h6 class="fw-bold text-primary mb-2">
-          <i class="fa-solid fa-volume-high me-2"></i> 
-          <span class="custom-translate" data-i18n-th="เสียงแจ้งเตือน (Sound)" data-i18n-en="Sound Settings">เสียงแจ้งเตือน (Sound)</span>
-        </h6>
-        <div class="mb-4 p-3 bg-light rounded-3 border">
-          <div class="form-check form-switch fs-6 d-flex justify-content-between align-items-center ps-0 mb-3 border-bottom pb-3">
-            <label class="form-check-label fw-bold text-dark m-0" for="ui-sound-payment">เปิดเสียงเมื่อชำระเงินสำเร็จ</label>
-            <input class="form-check-input m-0" type="checkbox" id="ui-sound-payment" style="width: 40px; height: 20px;" onchange="saveSoundSettings()">
-          </div>
-          <div class="d-flex align-items-center gap-2">
-            <select id="ui-sound-type" class="form-select form-select-sm fw-bold border-secondary text-dark" style="flex: 1;" onchange="saveSoundSettings()">
-              <optgroup label="ไฟล์เสียง MP3 (สมจริง)">
-                <option value="kaching_dragon">💸 ยูทูปเบอร์ แคชเชียร์ (Dragon Studio)</option>
-                <option value="purchase">🔔 เครื่องคิดเงิน 1 (Purchase)</option>
-                <option value="game_button">✨ ปุ่มเกม (Game Button)</option>
-                <option value="kaching_modestas">💰 ชิ้ง! แคชเชียร์ (Modestas)</option>
-                
-                <option value="drawer_open">💸 เปิดลิ้นชัก (Open Drawer)</option>
-                <option value="drawer_ding">🛎️ เปิดลิ้นชัก + ปิ๊ง (Open Ding)</option>
-              </optgroup>
-            </select>
-            <button id="btn-test-sound" class="btn btn-primary fw-bold text-nowrap rounded-3 shadow-sm" type="button" onclick="testPlaySound()">
-              <i class="fa-solid fa-play me-1"></i> ฟังเสียง
-            </button>
+            <h5 class="fw-bold text-dark m-0 custom-translate" data-i18n-th="ตั้งค่าเสียง (Sound Settings)" data-i18n-en="Sound Settings">ตั้งค่าเสียง (Sound Settings)</h5>
+            <div class="small text-muted mt-1">ตั้งค่าเสียงเอฟเฟกต์สำหรับการชำระเงินและปุ่มกด</div>
           </div>
         </div>
-      </div>
-      <!-- 📌 สิ้นสุด TAB: ตั้งค่าเสียง -->
+
+        <!-- กล่องการตั้งค่าเสียง -->
+        <div class="p-4 rounded-4 border shadow-sm bg-white mb-4">
+          <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
+            <div>
+              <label class="form-check-label fw-bold text-dark fs-6" for="ui-sound-payment" style="cursor: pointer;">เปิดเสียงเมื่อชำระเงินสำเร็จ</label>
+              <div class="small text-muted mt-1">เล่นเสียงเอฟเฟกต์ทันทีเมื่อกดบันทึกหรือทำรายการขายสำเร็จ</div>
+            </div>
+            <div class="form-check form-switch m-0 p-0 d-flex align-items-center">
+              <input class="form-check-input m-0 shadow-sm" type="checkbox" id="ui-sound-payment" style="width: 45px; height: 24px; cursor: pointer;" onchange="saveSoundSettings()">
+            </div>
+          </div>
+
+          <div class="mt-3">
+            <label class="form-label fw-bold text-dark small mb-2"><i class="fa-solid fa-music text-info me-1"></i> เลือกรูปแบบเสียงเอฟเฟกต์</label>
+            <div class="d-flex align-items-center gap-2 flex-wrap flex-md-nowrap">
+              <select id="ui-sound-type" class="form-select form-select-lg fs-6 shadow-sm border" style="flex: 1;" onchange="saveSoundSettings()">
+                <optgroup label="ไฟล์เสียง MP3 (สมจริง)">
+                  <option value="kaching_dragon">💸 ยูทูปเบอร์ แคชเชียร์ (Dragon Studio)</option>
+                  <option value="purchase">🔔 เครื่องคิดเงิน 1 (Purchase)</option>
+                  <option value="game_button">✨ ปุ่มเกม (Game Button)</option>
+                  <option value="kaching_modestas">💰 ชิ้ง! แคชเชียร์ (Modestas)</option>
+                  <option value="drawer_open">💸 เปิดลิ้นชัก (Open Drawer)</option>
+                  <option value="drawer_ding">🛎️ เปิดลิ้นชัก + ปิ๊ง (Open Ding)</option>
+                </optgroup>
+              </select>
+              <button id="btn-test-sound" class="btn btn-primary fw-bold px-4 py-2 rounded-pill shadow-sm text-nowrap mt-2 mt-md-0" type="button" onclick="testPlaySound()">
+                <i class="fa-solid fa-play me-1"></i> ฟังเสียง
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- กล่องคำแนะนำ -->
+        <div class="alert alert-info border-info border-opacity-50 bg-info bg-opacity-10 d-flex gap-3 align-items-start rounded-4 p-3 shadow-sm mb-0">
+           <i class="fa-solid fa-circle-info text-info fs-4 mt-1"></i>
+           <div>
+             <div class="fw-bold text-dark mb-1">คำแนะนำเกี่ยวกับระบบเสียง</div>
+             <div class="small text-muted">หากเบราว์เซอร์บล็อกเสียงในครั้งแรก กรุณากดปุ่ม "ฟังเสียง" เพื่อเปิดสิทธิ์การเล่นเสียงของระบบ หรือกดโต้ตอบบนหน้าจอ 1 ครั้งก่อนครับ</div>
+           </div>
+        </div>
+
 
     </div> <!-- 📌 ปิด settings-content -->
   </div> <!-- 📌 ปิด container-fluid (settings-layout) -->

@@ -49,6 +49,9 @@
       <div class="d-flex justify-content-between fw-bold mb-1"><span data-i18n="rc_summary_total_qty">จำนวนรวมทั้งหมด</span><span id="rc-total-qty">0</span></div>
       <div class="d-flex justify-content-between fw-bold mb-1"><span data-i18n="rc_summary_subtotal">รวมเป็นเงิน</span><span id="rc-subtotal">0.00</span></div>
       <div class="d-flex justify-content-between fw-bold mb-1 text-danger" id="rc-discount-row" style="display: none;"><span data-i18n="rc_summary_discount">ส่วนลด</span><span id="rc-discount">0.00</span></div>
+	  <!-- 🌟 ส่วนแสดง ยอดรับเงิน และ เงินทอน (อัปเดตแก้บัคโชว์ 0.00) -->
+      <div class="justify-content-between fw-bold mb-1 d-none" id="rc-received-row"><span data-i18n="rc_summary_received">รับเงินมา</span><span id="rc-received">0.00</span></div>
+      <div class="justify-content-between fw-bold mb-1 d-none" id="rc-change-row"><span data-i18n="rc_summary_change">เงินทอน</span><span id="rc-change">0.00</span></div>
       <div class="d-flex justify-content-between receipt-total">
         <span data-i18n="rc_summary_net">ยอดสุทธิ (NET)</span>
         <div class="text-end"><span id="rc-nettotal">0.00</span><div class="text-muted mt-1" style="font-size: 12px; font-weight: normal;"><span data-i18n="rc_payment_method">วิธีชำระ: </span><span id="rc-payment">-</span></div></div>
@@ -76,7 +79,30 @@
       document.getElementById('rc-total-qty').innerText = totalQty.toLocaleString() + ' ' + (currentLang === 'th' ? 'ชิ้น' : 'pcs'); 
       document.getElementById('rc-subtotal').innerText = data.subtotal.toLocaleString();
       if(data.discount > 0) { document.getElementById('rc-discount-row').style.display = 'flex'; document.getElementById('rc-discount').innerText = '-' + data.discount.toLocaleString(); } else { document.getElementById('rc-discount-row').style.display = 'none'; }
-      document.getElementById('rc-nettotal').innerText = data.netTotal.toLocaleString(); document.getElementById('rc-payment').innerText = data.payment;
+      
+      document.getElementById('rc-nettotal').innerText = data.netTotal.toLocaleString(); 
+      document.getElementById('rc-payment').innerText = data.payment;
+
+      // 🌟 อัพเดทการแสดงผลรับเงินมาและเงินทอน (ใช้ classList เปิด/ปิด แทน)
+      let rcReceivedRow = document.getElementById('rc-received-row');
+      let rcChangeRow = document.getElementById('rc-change-row');
+
+      if (data.received !== undefined && parseFloat(data.received) > 0) {
+        rcReceivedRow.classList.remove('d-none');
+        rcReceivedRow.classList.add('d-flex');
+        document.getElementById('rc-received').innerText = parseFloat(data.received).toLocaleString();
+        
+        rcChangeRow.classList.remove('d-none');
+        rcChangeRow.classList.add('d-flex');
+        document.getElementById('rc-change').innerText = parseFloat(data.change).toLocaleString();
+      } else {
+        rcReceivedRow.classList.remove('d-flex');
+        rcReceivedRow.classList.add('d-none');
+        
+        rcChangeRow.classList.remove('d-flex');
+        rcChangeRow.classList.add('d-none');
+      }
+      // 👆 ========================================= 👆
     }
     function closeReceipt() { document.getElementById('page-receipt').style.display = 'none'; }
   </script>
