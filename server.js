@@ -628,6 +628,15 @@ app.get('/api/superadmin/tenants', verifySuperAdmin, (req, res) => {
   });
 });
 
+// 👇 🌟 นำโค้ดมาวางตรงนี้เลยครับ (ต่อท้าย get tenants) 👇
+app.post('/api/superadmin/kick-tenant', verifySuperAdmin, (req, res) => {
+  const { sheetId } = req.body;
+  // ส่งสัญญาณบังคับล็อกเอาท์ไปยัง Room ของร้านค้านั้นทันที
+  io.to(sheetId).emit('force_logout_event'); 
+  res.json({ status: "success" });
+});
+// 👆 ======================================== 👆
+
 app.post('/api/superadmin/delete-tenant', verifySuperAdmin, (req, res) => {
   const { sheetId } = req.body;
   const shopDirPath = path.join(__dirname, 'public', 'uploads', sheetId);
