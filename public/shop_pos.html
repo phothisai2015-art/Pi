@@ -224,7 +224,7 @@
       /* 2. แสดงปุ่มรถเข็นข้างหมวดหมู่ */
       .mobile-portrait-cart-btn { display: inline-block !important; }
       
-      /* 3. ดัดแปลงฝั่งขวา (ตะกร้า+สรุปยอด) ให้กลายเป็น Pop-up เต็มจอ */
+      /* 3. ดัดแปลงฝั่งขวา ให้กลายเป็น Pop-up แบบสไลด์ขึ้น-ลง */
       #pos-right-panel {
         position: fixed !important;
         top: 0 !important; 
@@ -234,12 +234,17 @@
         background: #f1f5f9 !important;
         z-index: 1100 !important;
         padding: 15px !important;
-        display: none !important; /* ซ่อนไว้ก่อนเป็นค่าเริ่มต้น */
+        display: flex !important; 
+        /* เปลี่ยนเป็นซ่อนหน้าต่างไว้ด้านล่างจอ แทนการใช้ display: none */
+        transform: translateY(100%);
+        visibility: hidden;
+        transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1), visibility 0.35s;
         overflow-y: auto !important;
       }
-      /* คลาสสำหรับเปิด Pop-up */
+      /* คลาสสำหรับเปิด Pop-up เลื่อนขึ้นมา */
       #pos-right-panel.show-mobile-cart {
-        display: flex !important;
+        transform: translateY(0);
+        visibility: visible;
       }
       
       /* 4. แสดงปุ่ม (X) สำหรับปิดตะกร้าบนมือถือ */
@@ -1442,34 +1447,63 @@
         }
     }
 	
-	// 🌟 ระบบปัดหน้าจอลงเพื่อปิดตะกร้า (Swipe down to close)
+	// 🌟 ระบบปัดหน้าจอลงเพื่อปิดตะกร้า (สไลด์ติดนิ้ว - Swipe down to close)
     let posTouchStartY = 0;
-    let posTouchEndY = 0;
+    let posCurrentY = 0;
+    let isDraggingCart = false;
     const posCartPanel = document.getElementById('pos-right-panel');
     const posCartScrollArea = document.getElementById('pos-cart-container');
 
     if (posCartPanel) {
         posCartPanel.addEventListener('touchstart', function(e) {
-            posTouchStartY = e.changedTouches[0].screenY;
+            posTouchStartY = e.touches[0].clientY;
+            // เช็คว่าตารางสินค้าถูกเลื่อนกลับไปบนสุดหรือยัง
+            let isAtTop = posCartScrollArea ? (posCartScrollArea.scrollTop <= 5) : true;
+            
+            // ถ้าหน้าตะกร้าเปิดอยู่ และจออยู่บนสุด ให้เริ่มจับนิ้ว
+            if (isAtTop && posCartPanel.classList.contains('show-mobile-cart')) {
+                isDraggingCart = true;
+                posCartPanel.style.transition = 'none'; // ปิดแอนิเมชันอัตโนมัติ เพื่อให้นิ้วดึงหนึบติดมือ
+            }
+        }, {passive: true});
+
+        posCartPanel.addEventListener('touchmove', function(e) {
+            if (!isDraggingCart) return;
+            posCurrentY = e.touches[0].clientY;
+            let deltaY = posCurrentY - posTouchStartY;
+            
+            // ยอมให้ดึงลงได้อย่างเดียว (ถ้าดันขึ้นด้านบนไม่ต้องทำงาน)
+            if (deltaY > 0) {
+                posCartPanel.style.transform = `translateY(${deltaY}px)`;
+            }
         }, {passive: true});
 
         posCartPanel.addEventListener('touchend', function(e) {
-            posTouchEndY = e.changedTouches[0].screenY;
+            if (!isDraggingCart) return;
+            isDraggingCart = false;
             
-            // ถ้าระยะการปัดนิ้วลง มากกว่า 100px (แปลว่าตั้งใจปัดลง)
-            if (posTouchEndY - posTouchStartY > 100) {
+            let deltaY = posCurrentY - posTouchStartY;
+            
+            // เปิดแอนิเมชันสไลด์กลับมา
+            posCartPanel.style.transition = 'transform 0.3s ease-out'; 
+            
+            if (deltaY > 150) {
+                // ถ้าดึงลงไปเกิน 150px ให้สไลด์ลงปิดสุดจอไปเลย
+                posCartPanel.style.transform = `translateY(100%)`;
                 
-                // เช็คว่าในตารางรายการสินค้า เลื่อนอยู่บนสุดหรือยัง? 
-                // (ถ้าเลื่อนดูบิลอยู่กลางๆ จะได้ไม่เผลอปิดตะกร้า)
-                let isAtTop = true;
-                if (posCartScrollArea) {
-                    isAtTop = (posCartScrollArea.scrollTop <= 5);
-                }
-                
-                // ถ้าอยู่บนสุด และหน้าต่างเปิดอยู่ ให้ปิดตะกร้าทันที
-                if (isAtTop && posCartPanel.classList.contains('show-mobile-cart')) {
-                    posCartPanel.classList.remove('show-mobile-cart');
-                }
+                // รอแอนิเมชันจบ (300ms) ค่อยเคลียร์ค่าออก
+                setTimeout(() => { 
+                    posCartPanel.classList.remove('show-mobile-cart'); 
+                    posCartPanel.style.transform = ''; 
+                    posCartPanel.style.transition = '';
+                }, 300);
+            } else {
+                // ถ้าดึงลงนิดเดียวแล้วปล่อย ให้เด้งกลับไปเต็มจอเหมือนเดิม
+                posCartPanel.style.transform = 'translateY(0)';
+                setTimeout(() => {
+                    posCartPanel.style.transform = ''; 
+                    posCartPanel.style.transition = '';
+                }, 300);
             }
         }, {passive: true});
     }
