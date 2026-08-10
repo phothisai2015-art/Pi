@@ -380,10 +380,17 @@
 
 <div id="pos-right-panel" class="col-lg-3 pos-mobile-unsticky d-flex flex-column" style="position: sticky; top: 90px; z-index: 1020; height: calc(100vh - 110px);">
 
-      <!-- 👇 🌟 เพิ่มปุ่ม (X) สำหรับปิดหน้าตะกร้าในมือถือ 👇 -->
-      <div id="mobile-close-cart-btn" class="d-flex justify-content-between align-items-center mb-3">
-          <h4 class="fw-bold text-primary m-0"><i class="fa-solid fa-cart-shopping me-2"></i>ตะกร้าสินค้า</h4>
-          <button class="btn-close" style="transform: scale(1.2);" onclick="toggleMobileCart()"></button>
+      <!-- 👇 🌟 เพิ่มปุ่ม (X) และขีดสไลด์ สำหรับปิดหน้าตะกร้าในมือถือ 👇 -->
+      <div id="mobile-close-cart-btn" class="d-flex flex-column w-100 mb-3">
+          <!-- ขีดบอกใบ้ว่าให้รูดจอลงได้ (ซ่อนในจอคอม) -->
+          <div class="d-lg-none w-100 d-flex justify-content-center mb-3 pt-1" style="cursor: pointer;" onclick="toggleMobileCart()">
+              <div style="width: 50px; height: 6px; background-color: #94a3b8; border-radius: 10px;"></div>
+          </div>
+          <!-- หัวข้อตะกร้าและปุ่มปิด -->
+          <div class="d-flex justify-content-between align-items-center w-100">
+              <h4 class="fw-bold text-primary m-0"><i class="fa-solid fa-cart-shopping me-2"></i>ตะกร้าสินค้า</h4>
+              <button class="btn-close" style="transform: scale(1.2);" onclick="toggleMobileCart()"></button>
+          </div>
       </div>
 	  
 	  <div id="pos-cart-container" class="mb-3 shadow-sm bg-white" style="flex-grow: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; border: 1px solid #e2e8f0; border-radius: 12px;">
@@ -1147,7 +1154,7 @@
         };
         // 👆 ======================================================== 👆
 
-        posCart = []; lastScannedItem = null; document.getElementById('pos-cust-name').value = ''; document.getElementById('pos-discount').value = '0'; renderCart(); syncCFD('CHECKOUT_SUCCESS'); 
+        posCart = []; lastScannedItem = null; document.getElementById('pos-right-panel').classList.remove('show-mobile-cart');
         google.script.run.logAction(currentTenantSheetId, currentStaff.name, "ขายสินค้า", "เปิดบิล " + res.receiptId + " ยอด " + netTotal + " บ.");
 
         refreshProductsData(async function() {
@@ -1413,6 +1420,38 @@
         if (panel) {
             panel.classList.toggle('show-mobile-cart');
         }
+    }
+	
+	// 🌟 ระบบปัดหน้าจอลงเพื่อปิดตะกร้า (Swipe down to close)
+    let posTouchStartY = 0;
+    let posTouchEndY = 0;
+    const posCartPanel = document.getElementById('pos-right-panel');
+    const posCartScrollArea = document.getElementById('pos-cart-container');
+
+    if (posCartPanel) {
+        posCartPanel.addEventListener('touchstart', function(e) {
+            posTouchStartY = e.changedTouches[0].screenY;
+        }, {passive: true});
+
+        posCartPanel.addEventListener('touchend', function(e) {
+            posTouchEndY = e.changedTouches[0].screenY;
+            
+            // ถ้าระยะการปัดนิ้วลง มากกว่า 100px (แปลว่าตั้งใจปัดลง)
+            if (posTouchEndY - posTouchStartY > 100) {
+                
+                // เช็คว่าในตารางรายการสินค้า เลื่อนอยู่บนสุดหรือยัง? 
+                // (ถ้าเลื่อนดูบิลอยู่กลางๆ จะได้ไม่เผลอปิดตะกร้า)
+                let isAtTop = true;
+                if (posCartScrollArea) {
+                    isAtTop = (posCartScrollArea.scrollTop <= 5);
+                }
+                
+                // ถ้าอยู่บนสุด และหน้าต่างเปิดอยู่ ให้ปิดตะกร้าทันที
+                if (isAtTop && posCartPanel.classList.contains('show-mobile-cart')) {
+                    posCartPanel.classList.remove('show-mobile-cart');
+                }
+            }
+        }, {passive: true});
     }
 
   </script>
