@@ -266,6 +266,57 @@
       .pos-card-name { font-size: 11.5px !important; margin-bottom: 2px !important; line-height: 1.1 !important; }
       .pos-card-price { font-size: 13px !important; }
     }
+	/* ========================================================= */
+    /* 🌙 แก้ไขบัคโหมดกลางคืน (Dark Mode) สำหรับตะกร้าสินค้า */
+    /* ========================================================= */
+    
+    /* 1. เปลี่ยนพื้นหลังแผงตะกร้า (Pop-up มือถือ) ให้เป็นสีมืด */
+    body.dark-theme #pos-right-panel { 
+        background-color: #0f172a !important; 
+    }
+    
+    /* 2. เปลี่ยนหัวข้อ "ตะกร้าสินค้า" และปุ่มกากบาท (X) ให้เป็นสีขาว */
+    body.dark-theme #mobile-close-cart-btn h4 { 
+        color: #f8fafc !important; 
+    }
+    body.dark-theme #mobile-close-cart-btn .btn-close { 
+        filter: invert(1) brightness(200%) !important; 
+    }
+    
+    /* 3. เปลี่ยนพื้นหลังกล่องสรุปยอดด้านล่าง ให้เป็นสีเทาเข้ม */
+    body.dark-theme .pos-right-summary { 
+        background-color: #1e293b !important; 
+    }
+    
+    /* 4. เปลี่ยนพื้นหลังตารางตะกร้า และหัวตาราง ให้เข้ากับโหมดกลางคืน */
+    body.dark-theme #pos-cart-container { 
+        background-color: #1e293b !important; 
+        border-color: #334155 !important; 
+    }
+    body.dark-theme #pos-cart-container .table-light th { 
+        background-color: #334155 !important; 
+        color: #f8fafc !important; 
+        border-color: #475569 !important; 
+    }
+    
+    /* 5. ปรับสีตัวหนังสือในตาราง และข้อความ "ยังไม่มีสินค้า" */
+    body.dark-theme #pos-cart-body tr td { 
+        color: #e2e8f0 !important; 
+        border-color: #334155 !important; 
+    }
+    body.dark-theme #pos-cart-body .text-muted { 
+        color: #94a3b8 !important; 
+    }
+    
+    /* 6. ปรับสีปุ่ม เพิ่ม/ลด จำนวนสินค้า (+) (-) ไม่ให้เป็นสีขาวโดดๆ */
+    body.dark-theme #pos-cart-body .bg-white.border {
+        background-color: #0f172a !important;
+        border-color: #334155 !important;
+    }
+    body.dark-theme #pos-cart-body .bg-white.border button i,
+    body.dark-theme #pos-cart-body .bg-white.border span {
+        color: #f8fafc !important;
+    }
 	  
   </style>
 
