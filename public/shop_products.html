@@ -6,9 +6,18 @@
     #page-products { padding: 20px 60px 60px 60px; }
     .prod-table-container { max-height: calc(100vh - 180px); border: none !important; box-shadow: 0 15px 35px rgba(0,0,0,0.05) !important; border-radius: 24px !important;} 
     .show-on-mobile { display: none; }
-    .table-hover tbody tr { transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-    .table-hover tbody tr:hover { background-color: #ffffff !important; transform: scale(1.01); box-shadow: 0 10px 25px rgba(59, 130, 246, 0.1); z-index: 10; position: relative; border-radius: 12px; }
-    body.dark-theme .table-hover tbody tr:hover { background-color: #1e293b !important; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4) !important; }
+    /* 🌟 แก้ไขเอฟเฟกต์เมาส์ชี้ ไม่ให้ขยายหลุดกรอบตาราง */
+    .table-hover tbody tr { 
+      transition: background-color 0.2s ease, box-shadow 0.2s ease; 
+    }
+    .table-hover tbody tr:hover { 
+      background-color: #f1f5f9 !important; 
+      box-shadow: inset 0 0 0 1px #3b82f6; /* ทำเส้นขอบสีฟ้าล้อมรอบแทนการขยาย */
+    }
+    body.dark-theme .table-hover tbody tr:hover { 
+      background-color: #1e293b !important; 
+      box-shadow: inset 0 0 0 1px #3b82f6; /* ทำเส้นขอบสีฟ้าในโหมดมืด */
+    }
     body.dark-theme .table-hover tbody tr:hover td, body.dark-theme .table-hover tbody tr:hover span.text-dark { color: #f1f5f9 !important; }
 
     @media (max-width: 768px) { #page-products { padding: 15px 15px 100px 15px !important; } .prod-table-container { max-height: 65vh; } }
