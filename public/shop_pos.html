@@ -224,12 +224,47 @@
       
       /* 4. แสดงปุ่ม (X) สำหรับปิดตะกร้าบนมือถือ */
       #mobile-close-cart-btn { display: flex !important; }
-    }
-    
-    /* 💻 สำหรับจอคอม หรือ มือถือแนวนอน (ซ่อนปุ่มรถเข็นพิเศษนี้ไป) */
-    @media (min-width: 992px), (max-width: 991px) and (orientation: landscape) {
-      .mobile-portrait-cart-btn { display: none !important; }
-      #mobile-close-cart-btn { display: none !important; }
+
+      /* 👇 🌟 5. จัดการเลย์เอาต์แอป: ตรึงแถบบน และ สินค้า 3 แถว 👇 */
+      
+      /* ล็อคไม่ให้หน้าเว็บหลักเลื่อน (ป้องกันแถบเมนูด้านบนโดนดันหายไป) */
+      #page-pos {
+        overflow: hidden !important; 
+      }
+      
+      /* บังคับกล่องฝั่งซ้าย (ตัวกั้น) ให้สูงพอดีจอ */
+      .pos-left-box {
+        height: calc(100vh - 75px) !important; /* หักความสูงของแถบเมนูด้านบนออก */
+        min-height: unset !important;
+        margin-bottom: 0 !important;
+        padding-bottom: 5px !important;
+      }
+      
+      /* ปลดล็อคความสูงของตารางสินค้า ให้เลื่อน (Scroll) เฉพาะส่วนนี้เท่านั้น */
+      #pos-grid-view {
+        max-height: none !important;
+        height: 100% !important; /* กินพื้นที่ที่เหลือทั้งหมด */
+        padding-bottom: 80px !important; /* เว้นที่ว่างด้านล่างนิดนึงไม่ให้ชิดขอบไป */
+      }
+      
+      /* บังคับสินค้าให้แสดงเป็น 3 คอลัมน์ (3 แถว) พอดีเป๊ะ ไม่ว่าจอจะใหญ่หรือเล็ก */
+      #pos-menu-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 8px !important;
+      }
+      
+      /* ปรับขนาดกล่องและตัวหนังสือให้เล็กลง กระชับเข้ากับ 3 แถว */
+      .pos-product-card {
+        padding: 6px !important;
+        min-height: 110px !important;
+        border-radius: 12px !important;
+      }
+      .pos-card-img {
+        margin-bottom: 4px !important;
+        border-radius: 8px !important;
+      }
+      .pos-card-name { font-size: 11.5px !important; margin-bottom: 2px !important; line-height: 1.1 !important; }
+      .pos-card-price { font-size: 13px !important; }
     }
 	  
   </style>
