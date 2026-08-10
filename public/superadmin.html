@@ -12,13 +12,40 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
-        body { font-family: 'Sarabun', sans-serif; background-color: #f8fafc; color: #334155; }
+        body { font-family: 'Sarabun', sans-serif; background-color: #f1f5f9; color: #334155; }
         .swal2-container { z-index: 999999 !important; }
-		@keyframes pulse {
-    0% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.5; transform: scale(1.3); }
-    100% { opacity: 1; transform: scale(1); }
-}
+        
+        /* 🌟 Modern UI Styles */
+        .glass-card { background: white; border: 1px solid rgba(255,255,255,0.7); border-radius: 24px; box-shadow: 0 15px 35px rgba(15, 23, 42, 0.04); transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .glass-card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08); }
+        .gradient-danger { background: linear-gradient(135deg, #f43f5e 0%, #fb923c 100%); color: white; border: none; }
+        .gradient-primary { background: -webkit-linear-gradient(45deg, #f43f5e, #fb923c); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        /* 🌟 Search Pill */
+        .search-pill-container { background: white; border-radius: 50px; border: 1px solid #e2e8f0; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s ease; overflow: hidden; }
+        .search-pill-container:focus-within { border-color: #3b82f6; box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1); }
+        .search-pill { border: none !important; box-shadow: none !important; background: transparent; }
+        
+        /* 🌟 Table Modernization */
+        .table-custom { border-collapse: separate; border-spacing: 0 8px; }
+        .table-custom thead th { border: none; font-weight: 700; color: #64748b; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px; padding-bottom: 10px; }
+        .table-custom tbody tr { background-color: white; box-shadow: 0 2px 6px rgba(0,0,0,0.02); border-radius: 16px; transition: all 0.2s ease; }
+        .table-custom tbody tr:hover { transform: scale(1.005); box-shadow: 0 8px 15px rgba(0,0,0,0.05); z-index: 10; position: relative; }
+        .table-custom td { vertical-align: middle; border: none; padding: 16px 12px; }
+        .table-custom td:first-child { border-top-left-radius: 16px; border-bottom-left-radius: 16px; padding-left: 20px; }
+        .table-custom td:last-child { border-top-right-radius: 16px; border-bottom-right-radius: 16px; padding-right: 20px; }
+        
+        /* 🌟 Buttons & Avatars */
+        .btn-modern { border-radius: 12px; font-weight: 700; padding: 8px 16px; transition: all 0.2s ease; display: inline-flex; align-items: center; justify-content: center; }
+        .btn-modern:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.1); }
+        .btn-icon-only { width: 38px; height: 38px; padding: 0; border-radius: 10px; }
+        .shop-avatar { width: 48px; height: 48px; border-radius: 14px; background: linear-gradient(135deg, #e0e7ff, #ede9fe); color: #4f46e5; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; font-weight: 800; box-shadow: inset 0 -2px 0 rgba(0,0,0,0.05); }
+
+        @keyframes pulse {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.3); }
+            100% { opacity: 1; transform: scale(1); }
+        }
     </style>
 
     <script>
@@ -29,14 +56,14 @@
 
     (function() {
       function callServerApi(prop, args, successCb, failureCb) {
-        const token = sessionStorage.getItem('saas_superadmin_token'); // 🌟 ดึง Token
+        const token = sessionStorage.getItem('saas_superadmin_token');
 
         let url = ''; 
         let options = { 
             method: 'GET', 
             headers: { 
                 'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + token // 🌟 แนบ Token ทุุกการส่ง
+                'Authorization': 'Bearer ' + token
             } 
         };
 
@@ -57,7 +84,7 @@
           .then(res => {
               if(res.status === 401 || res.status === 403) {
                   sessionStorage.removeItem('saas_superadmin_token');
-                  window.location.href = '/'; // หาก Token หมดอายุ เตะออก
+                  window.location.href = '/';
                   throw new Error("Unauthorized");
               }
               return res.json();
@@ -82,49 +109,63 @@
 </head>
 <body>
 
-<div style="background: #f8fafc; min-height: 100vh; width: 100%; padding: 20px;">
-   <div class="container" style="max-width: 1200px; margin: 0 auto; padding-top: 20px;">
+<div style="background: #f1f5f9; min-height: 100vh; width: 100%; padding: 30px 15px;">
+   <div class="container" style="max-width: 1200px; margin: 0 auto;">
+      
+      <!-- 🌟 Header Section -->
       <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-         <h3 class="fw-bold text-danger m-0"><i class="fa-solid fa-user-shield me-2"></i> ศูนย์ควบคุมระบบ (Super Admin)</h3>
-         <div>
-            <button class="btn btn-warning fw-bold rounded-pill px-4 shadow-sm me-2" onclick="openSaSettingsModal()"><i class="fa-solid fa-gear me-2"></i>ตั้งค่าบัญชี</button>
-            <button class="btn btn-success fw-bold rounded-pill px-4 shadow-sm me-2" onclick="openSaAddModal()"><i class="fa-solid fa-plus me-2"></i>สร้างร้านค้าใหม่</button>
-            <button class="btn btn-outline-danger fw-bold rounded-pill px-4 shadow-sm" onclick="logoutSuperAdmin()"><i class="fa-solid fa-arrow-left me-2"></i> ออกจากระบบ</button>
+         <div class="d-flex align-items-center">
+             <div class="bg-white p-3 rounded-4 shadow-sm me-3 border">
+                 <i class="fa-solid fa-user-shield fs-4" style="color: #f43f5e;"></i>
+             </div>
+             <div>
+                 <h3 class="fw-bold m-0 gradient-primary">ศูนย์ควบคุมระบบ</h3>
+                 <span class="text-muted fw-bold small">Super Admin Dashboard</span>
+             </div>
+         </div>
+         <div class="d-flex gap-2">
+            <button class="btn btn-white bg-white text-dark fw-bold rounded-pill px-4 shadow-sm border btn-modern" onclick="openSaSettingsModal()"><i class="fa-solid fa-gear text-muted me-2"></i> ตั้งค่าบัญชี</button>
+            <button class="btn btn-dark fw-bold rounded-pill px-4 shadow-sm btn-modern" onclick="openSaAddModal()"><i class="fa-solid fa-plus me-2 text-warning"></i> สร้างร้านค้าใหม่</button>
+            <button class="btn btn-outline-danger fw-bold rounded-pill px-4 border-2 btn-modern" onclick="logoutSuperAdmin()"><i class="fa-solid fa-power-off me-2"></i> ออกจากระบบ</button>
          </div>
       </div>
       
-      <div class="row mb-4 g-3">
+      <!-- 🌟 Stats & Search Section -->
+      <div class="row mb-4 g-4 align-items-stretch">
          <div class="col-md-4">
-            <div class="bg-white p-4 rounded-4 shadow-sm border border-danger text-center h-100 d-flex flex-column justify-content-center">
-               <h6 class="text-muted fw-bold mb-2">จำนวนร้านค้าในระบบทั้งหมด</h6>
-               <h1 class="text-danger fw-bold m-0 display-4" id="sa-total-shops">0</h1>
+            <div class="glass-card gradient-danger p-4 h-100 d-flex flex-column justify-content-center position-relative overflow-hidden">
+               <i class="fa-solid fa-store position-absolute" style="font-size: 8rem; right: -20px; bottom: -20px; opacity: 0.15; transform: rotate(-10deg);"></i>
+               <h6 class="fw-bold text-white mb-2" style="opacity: 0.9;">จำนวนร้านค้าในระบบทั้งหมด</h6>
+               <h1 class="fw-bold m-0 display-3 text-white" id="sa-total-shops" style="text-shadow: 0 4px 10px rgba(0,0,0,0.2);">0</h1>
             </div>
          </div>
          <div class="col-md-8">
-            <div class="bg-white p-4 rounded-4 shadow-sm border h-100 d-flex flex-column justify-content-center">
-               <h6 class="text-muted fw-bold mb-3"><i class="fa-solid fa-search"></i> ค้นหาร้านค้า</h6>
-               <input type="text" class="form-control form-control-lg bg-light fw-bold" id="sa-search-shop" placeholder="พิมพ์ชื่อร้าน, อีเมล หรือ เบอร์โทรศัพท์..." oninput="renderSuperAdminTable()">
+            <div class="glass-card p-4 h-100 d-flex flex-column justify-content-center">
+               <h6 class="text-muted fw-bold mb-3"><i class="fa-solid fa-magnifying-glass text-primary me-2"></i> ค้นหาร้านค้าและตัวแทนจำหน่าย</h6>
+               <div class="input-group input-group-lg search-pill-container">
+                  <span class="input-group-text bg-transparent border-0 ps-4 pe-2"><i class="fa-solid fa-search text-muted opacity-50"></i></span>
+                  <input type="text" class="form-control search-pill fw-bold text-dark" id="sa-search-shop" placeholder="พิมพ์ชื่อร้าน, อีเมล หรือ เบอร์โทรศัพท์..." oninput="renderSuperAdminTable()">
+               </div>
             </div>
          </div>
       </div>
 
-      <div class="bg-white p-3 rounded-4 shadow-sm border">
-         <div class="table-responsive" style="max-height: 60vh; overflow-y: auto;">
-            <table class="table table-hover align-middle mb-0 text-nowrap">
-               <thead class="table-light sticky-top shadow-sm">
-                  <tr>
-                    <th class="py-3 px-3">รหัสระบบ (Sheet ID)</th>
-                    <th class="py-3">ชื่อร้านค้า / ติดต่อ</th>
-                    <th class="py-3">รหัสผ่าน</th>
-                    <th class="py-3 text-center">วันหมดอายุ</th>
-                    <th class="py-3 text-end pe-3">จัดการ</th>
-                  </tr>
-               </thead>
-               <tbody id="sa-tenant-body">
-                  <tr><td colspan="5" class="text-center py-5">กำลังโหลดข้อมูล...</td></tr>
-               </tbody>
-            </table>
-         </div>
+      <!-- 🌟 Table Section -->
+      <div class="table-responsive px-2" style="max-height: 65vh; overflow-y: auto; overflow-x: auto;">
+        <table class="table table-custom align-middle mb-0 text-nowrap w-100">
+           <thead class="sticky-top" style="background-color: #f1f5f9; z-index: 20;">
+              <tr>
+                <th width="15%" class="px-4">รหัสระบบ</th>
+                <th width="35%">ชื่อร้านค้า / ติดต่อ</th>
+                <th width="15%">รหัสผ่าน (POS)</th>
+                <th width="20%" class="text-center">สถานะอายุการใช้งาน</th>
+                <th width="15%" class="text-end pe-4">จัดการ</th>
+              </tr>
+           </thead>
+           <tbody id="sa-tenant-body">
+              <tr><td colspan="5" class="text-center py-5 bg-white rounded-4 shadow-sm"><i class="fa-solid fa-spinner fa-spin text-primary me-2"></i> กำลังโหลดข้อมูล...</td></tr>
+           </tbody>
+        </table>
       </div>
    </div>
 </div>
@@ -142,17 +183,12 @@ function logoutSuperAdmin() {
         allowOutsideClick: false,
         didOpen: () => Swal.showLoading()
     });
-    
-    // 🌟 ลบ Token ทิ้งเมื่อล็อกเอาท์
     sessionStorage.removeItem('saas_superadmin_token');
-    
-    setTimeout(() => {
-        window.location.href = '/';
-    }, 500);
+    setTimeout(() => { window.location.href = '/'; }, 500);
 }
 
 function loadSuperAdminData() {
-   document.getElementById('sa-tenant-body').innerHTML = '<tr><td colspan="5" class="text-center py-5"><i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังโหลดข้อมูล...</td></tr>';
+   document.getElementById('sa-tenant-body').innerHTML = '<tr><td colspan="5" class="text-center py-5 bg-white rounded-4 shadow-sm"><i class="fa-solid fa-spinner fa-spin text-primary me-2"></i> กำลังโหลดข้อมูล...</td></tr>';
    google.script.run.withSuccessHandler(data => {
       globalTenants = data;
       document.getElementById('sa-total-shops').innerText = data.length;
@@ -164,24 +200,47 @@ function renderSuperAdminTable() {
    let keyword = document.getElementById('sa-search-shop').value.toLowerCase().trim();
    let filtered = globalTenants.filter(t => (t.shop_name && t.shop_name.toLowerCase().includes(keyword)) || (t.email && t.email.toLowerCase().includes(keyword)) || (t.phone && t.phone.includes(keyword)));
    const tbody = document.getElementById('sa-tenant-body'); tbody.innerHTML = '';
-   if(filtered.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="text-center py-5 text-muted">ไม่พบข้อมูลร้านค้า</td></tr>'; return; }
+   
+   if(filtered.length === 0) { 
+       tbody.innerHTML = '<tr><td colspan="5" class="text-center py-5 text-muted bg-white rounded-4 shadow-sm"><i class="fa-solid fa-box-open fa-2x mb-2 opacity-50"></i><br>ไม่พบข้อมูลร้านค้า</td></tr>'; 
+       return; 
+   }
    
    filtered.forEach(t => {
       let expDate = new Date(t.expire_date); let today = new Date(); today.setHours(0,0,0,0);
       let isExpired = expDate < today;
-      let expColor = isExpired ? "text-danger" : "text-success";
+      let expColor = isExpired ? "text-danger bg-danger bg-opacity-10 border border-danger border-opacity-25" : "text-success bg-success bg-opacity-10 border border-success border-opacity-25";
       let expText = isExpired ? `<i class="fa-solid fa-circle-xmark"></i> ${t.expire_date} (หมดอายุ)` : `<i class="fa-solid fa-circle-check"></i> ${t.expire_date}`;
+      let initial = t.shop_name ? t.shop_name.charAt(0).toUpperCase() : 'S';
 
       tbody.innerHTML += `
         <tr>
-          <td class="px-3"><span class="badge bg-secondary px-3 py-2 rounded-pill">${t.sheet_id}</span></td>
-          <td><b class="text-primary fs-6">${t.shop_name}</b> <span id="status-${t.sheet_id}"></span><br><small class="text-muted"><i class="fa-solid fa-envelope"></i> ${t.email} &nbsp;|&nbsp; <i class="fa-solid fa-phone"></i> ${t.phone}</small></td>
-          <td><span class="fw-bold"><i class="fa-solid fa-key text-warning"></i> ${t.password}</span></td>
-          <td class="fw-bold ${expColor} text-center">${expText}</td>
-          <td class="text-end pe-3">
-			 <button class="btn btn-sm btn-secondary fw-bold shadow-sm rounded-3 px-3 py-2 me-1" onclick="kickTenantAdmin('${t.sheet_id}', '${t.shop_name}')"><i class="fa-solid fa-right-from-bracket"></i> เตะออก</button>
-             <button class="btn btn-sm btn-warning fw-bold shadow-sm rounded-3 px-3 py-2 me-1" onclick="openSaEditModal('${t.sheet_id}', '${t.password}', '${t.expire_date}')"><i class="fa-solid fa-pen me-1"></i> แก้ไข</button>
-             <button class="btn btn-sm btn-danger fw-bold shadow-sm rounded-3 px-3 py-2" onclick="deleteTenantAdmin('${t.sheet_id}', '${t.shop_name}')"><i class="fa-solid fa-trash-can"></i></button>
+          <td class="px-4">
+              <span class="badge bg-light text-secondary border px-3 py-2 rounded-pill shadow-sm"><i class="fa-solid fa-fingerprint me-1 opacity-50"></i> ${t.sheet_id}</span>
+          </td>
+          <td>
+              <div class="d-flex align-items-center">
+                  <div class="shop-avatar shadow-sm me-3">${initial}</div>
+                  <div>
+                      <b class="text-dark fs-6">${t.shop_name}</b> <span id="status-${t.sheet_id}"></span><br>
+                      <small class="text-muted"><i class="fa-solid fa-envelope text-primary opacity-50"></i> ${t.email} <span class="mx-1 opacity-25">|</span> <i class="fa-solid fa-phone text-success opacity-50"></i> ${t.phone}</small>
+                  </div>
+              </div>
+          </td>
+          <td>
+              <div class="bg-light d-inline-block px-3 py-2 rounded-3 border">
+                  <span class="fw-bold text-dark"><i class="fa-solid fa-key text-warning me-2"></i>${t.password}</span>
+              </div>
+          </td>
+          <td class="text-center">
+              <span class="badge ${expColor} px-3 py-2 rounded-pill">${expText}</span>
+          </td>
+          <td class="text-end pe-4">
+             <div class="d-flex justify-content-end gap-2">
+                 <button class="btn btn-outline-secondary btn-modern btn-icon-only bg-white" onclick="kickTenantAdmin('${t.sheet_id}', '${t.shop_name}')" title="เตะออก (Kick)"><i class="fa-solid fa-right-from-bracket"></i></button>
+                 <button class="btn btn-outline-warning btn-modern btn-icon-only bg-white" onclick="openSaEditModal('${t.sheet_id}', '${t.password}', '${t.expire_date}')" title="แก้ไขข้อมูล"><i class="fa-solid fa-pen"></i></button>
+                 <button class="btn btn-danger btn-modern btn-icon-only shadow-sm" onclick="deleteTenantAdmin('${t.sheet_id}', '${t.shop_name}')" title="ลบร้านค้า"><i class="fa-solid fa-trash-can"></i></button>
+             </div>
           </td>
         </tr>
       `;
@@ -208,7 +267,7 @@ function kickTenantAdmin(sheetId, shopName) {
    Swal.fire({
       title: 'เตะร้านค้านี้?',
       text: `คุณต้องการบังคับให้ร้าน ${shopName} ออกจากระบบทันทีใช่หรือไม่? (อุปกรณ์ที่เปิดร้านนี้อยู่จะถูกเด้งออกไปหน้าแรก)`,
-      icon: 'warning', showCancelButton: true, confirmButtonColor: '#6c757d', confirmButtonText: '<i class="fa-solid fa-right-from-bracket"></i> ยืนยันเตะออก', cancelButtonText: 'ยกเลิก'
+      icon: 'warning', showCancelButton: true, confirmButtonColor: '#64748b', confirmButtonText: '<i class="fa-solid fa-right-from-bracket"></i> ยืนยันเตะออก', cancelButtonText: 'ยกเลิก'
    }).then(res => {
       if(res.isConfirmed) {
          Swal.fire({title:'กำลังส่งคำสั่ง...', allowOutsideClick:false, didOpen:()=>Swal.showLoading()});
@@ -225,14 +284,14 @@ function openSaEditModal(sheetId, currentPass, currentExp) {
       title: 'แก้ไขข้อมูลร้านค้า',
       html: `
          <div class="text-start px-2">
-            <div class="alert alert-info small py-2 mb-3">แก้ไขร้าน: <b>${sheetId}</b></div>
-            <label class="small fw-bold text-muted">รหัสผ่าน (Password)</label>
-            <input type="text" id="sa-edit-pass" class="form-control mb-3 fw-bold text-primary" value="${currentPass}">
-            <label class="small fw-bold text-muted">วันหมดอายุ (เลื่อนวันได้ตามต้องการ)</label>
-            <input type="date" id="sa-edit-exp" class="form-control fw-bold" value="${currentExp}">
+            <div class="alert alert-light border small py-2 mb-3"><i class="fa-solid fa-fingerprint text-muted me-1"></i> รหัสอ้างอิง: <b class="text-primary">${sheetId}</b></div>
+            <label class="small fw-bold text-muted mb-1">รหัสผ่าน (Password)</label>
+            <input type="text" id="sa-edit-pass" class="form-control mb-3 fw-bold text-dark bg-light border-0" value="${currentPass}">
+            <label class="small fw-bold text-muted mb-1">วันหมดอายุ (เลื่อนวันได้ตามต้องการ)</label>
+            <input type="date" id="sa-edit-exp" class="form-control fw-bold bg-light border-0" value="${currentExp}">
          </div>
       `,
-      showCancelButton: true, confirmButtonColor: '#0d6efd', confirmButtonText: 'อัปเดตข้อมูล', cancelButtonText: 'ยกเลิก',
+      showCancelButton: true, confirmButtonColor: '#3b82f6', confirmButtonText: 'อัปเดตข้อมูล', cancelButtonText: 'ยกเลิก',
       preConfirm: () => {
          const password = document.getElementById('sa-edit-pass').value.trim();
          const expireDate = document.getElementById('sa-edit-exp').value;
@@ -258,19 +317,19 @@ function openSaAddModal() {
       title: 'สร้างร้านค้าใหม่',
       html: `
          <div class="text-start px-2">
-            <label class="small fw-bold text-muted">ชื่อร้านค้า</label>
-            <input type="text" id="sa-add-name" class="form-control mb-2" placeholder="เช่น ร้านขายดีมินิมาร์ท">
-            <label class="small fw-bold text-muted">อีเมล (ใช้ล็อกอิน)</label>
-            <input type="email" id="sa-add-email" class="form-control mb-2" placeholder="email@gmail.com">
-            <label class="small fw-bold text-muted">เบอร์โทรศัพท์</label>
-            <input type="tel" id="sa-add-phone" class="form-control mb-2" placeholder="08xxxxxxxx">
-            <label class="small fw-bold text-muted">รหัสผ่าน (Password)</label>
-            <input type="text" id="sa-add-pass" class="form-control mb-2" placeholder="ตั้งรหัสผ่านให้ลูกค้า">
-            <label class="small fw-bold text-muted">วันหมดอายุการใช้งาน</label>
-            <input type="date" id="sa-add-exp" class="form-control mb-2" value="${defaultExp}">
+            <label class="small fw-bold text-muted mb-1">ชื่อร้านค้า</label>
+            <input type="text" id="sa-add-name" class="form-control bg-light border-0 mb-3" placeholder="เช่น ร้านขายดีมินิมาร์ท">
+            <label class="small fw-bold text-muted mb-1">อีเมล (ใช้ล็อกอิน)</label>
+            <input type="email" id="sa-add-email" class="form-control bg-light border-0 mb-3" placeholder="email@gmail.com">
+            <label class="small fw-bold text-muted mb-1">เบอร์โทรศัพท์</label>
+            <input type="tel" id="sa-add-phone" class="form-control bg-light border-0 mb-3" placeholder="08xxxxxxxx">
+            <label class="small fw-bold text-muted mb-1">รหัสผ่าน (Password)</label>
+            <input type="text" id="sa-add-pass" class="form-control bg-light border-0 mb-3" placeholder="ตั้งรหัสผ่านให้ลูกค้า">
+            <label class="small fw-bold text-muted mb-1">วันหมดอายุการใช้งาน</label>
+            <input type="date" id="sa-add-exp" class="form-control bg-light border-0 mb-2" value="${defaultExp}">
          </div>
       `,
-      showCancelButton: true, confirmButtonColor: '#198754', confirmButtonText: 'บันทึกร้านค้า', cancelButtonText: 'ยกเลิก',
+      showCancelButton: true, confirmButtonColor: '#10b981', confirmButtonText: '<i class="fa-solid fa-plus me-1"></i> บันทึกร้านค้า', cancelButtonText: 'ยกเลิก',
       preConfirm: () => {
          const shopName = document.getElementById('sa-add-name').value.trim();
          const email = document.getElementById('sa-add-email').value.trim();
@@ -303,25 +362,27 @@ function openSaSettingsModal() {
       originalSAData = { user: sa.username || 'superadmin', pass: sa.password || '1234', email: currentSAEmail };
       
       const isLocked = !currentSAEmail;
-      const lockAttr = isLocked ? 'disabled style="background-color: #f1f5f9; cursor: not-allowed; opacity: 0.7;"' : '';
-      const lockMsg = isLocked ? '<div class="text-danger small fw-bold mb-3 p-2 bg-danger bg-opacity-10 rounded border border-danger"><i class="fa-solid fa-lock me-1"></i> กรุณาผูกอีเมลก่อน เพื่อปลดล็อคการเปลี่ยน Username และ Password</div>' : '';
+      const lockAttr = isLocked ? 'disabled style="background-color: #f1f5f9; cursor: not-allowed; opacity: 0.7;"' : 'class="form-control bg-light border-0 fw-bold text-dark mb-3"';
+      const lockMsg = isLocked ? '<div class="text-danger small fw-bold mb-3 p-2 bg-danger bg-opacity-10 rounded-3 border border-danger border-opacity-25"><i class="fa-solid fa-lock me-1"></i> กรุณาผูกอีเมลก่อน เพื่อปลดล็อคการเปลี่ยน Username และ Password</div>' : '';
 
       Swal.fire({
          title: 'ตั้งค่าบัญชี Super Admin',
          html: `
             <div class="text-start px-2">
-               <div class="alert alert-warning small py-2 mb-2">หากมีการผูกอีเมลไว้ ระบบจะส่ง OTP เพื่อยืนยันการเปลี่ยนแปลงทุกครั้ง<br><br><b>ข้อควรระวัง:</b> หากลบอีเมลออก (ยกเลิกผูก) รหัสผ่านจะถูกรีเซ็ตกลับเป็นค่าเริ่มต้น!</div>
+               <div class="alert alert-warning small py-2 mb-3 border-0 bg-warning bg-opacity-10 text-dark">
+                   <i class="fa-solid fa-circle-info text-warning me-1"></i> หากมีการผูกอีเมลไว้ ระบบจะส่ง OTP เพื่อยืนยันการเปลี่ยนแปลงทุกครั้ง<br><br><b>ข้อควรระวัง:</b> หากลบอีเมลออก (ยกเลิกผูก) รหัสผ่านจะถูกรีเซ็ตกลับเป็นค่าเริ่มต้น!
+               </div>
                ${lockMsg}
-               <label class="small fw-bold text-muted">Username (สำหรับล็อกอิน)</label>
-               <input type="text" id="sa-set-user" class="form-control mb-2 fw-bold text-primary" value="${originalSAData.user}" ${lockAttr}>
-               <label class="small fw-bold text-muted">Password (รหัสผ่าน)</label>
-               <input type="text" id="sa-set-pass" class="form-control mb-3 fw-bold text-primary" value="${originalSAData.pass}" ${lockAttr}>
-               <label class="small fw-bold text-muted">อีเมลผูกบัญชี (แจ้งเตือนล็อกอิน & ยืนยัน OTP)</label>
-               <input type="email" id="sa-set-email" class="form-control fw-bold" placeholder="กรอกอีเมลเพื่อผูกบัญชี (เว้นว่างเพื่อยกเลิก)" value="${originalSAData.email}">
+               <label class="small fw-bold text-muted mb-1">Username (สำหรับล็อกอิน)</label>
+               <input type="text" id="sa-set-user" ${lockAttr} value="${originalSAData.user}">
+               <label class="small fw-bold text-muted mb-1">Password (รหัสผ่าน)</label>
+               <input type="text" id="sa-set-pass" ${lockAttr} value="${originalSAData.pass}">
+               <label class="small fw-bold text-muted mb-1">อีเมลผูกบัญชี (แจ้งเตือนล็อกอิน & ยืนยัน OTP)</label>
+               <input type="email" id="sa-set-email" class="form-control bg-light border-0 fw-bold" placeholder="กรอกอีเมลเพื่อผูกบัญชี (เว้นว่างเพื่อยกเลิก)" value="${originalSAData.email}">
                <div class="text-muted" style="font-size: 11px; margin-top: 5px;">*เว้นว่างช่องนี้ไว้ หากต้องการยกเลิกผูกอีเมล</div>
             </div>
          `,
-         showCancelButton: true, confirmButtonColor: '#0d6efd', confirmButtonText: 'บันทึกการตั้งค่า', cancelButtonText: 'ยกเลิก',
+         showCancelButton: true, confirmButtonColor: '#3b82f6', confirmButtonText: 'บันทึกการตั้งค่า', cancelButtonText: 'ยกเลิก',
          preConfirm: () => {
             const newUsername = document.getElementById('sa-set-user').value.trim();
             const newPassword = document.getElementById('sa-set-pass').value.trim();
@@ -404,7 +465,6 @@ function executeSAUpdate(payload) {
 let onlineShopsData = {};
 
 function pollOnlineStatus() {
-   // ข้ามการทำงานถ้ายังโหลดข้อมูลตารางไม่เสร็จ
    if (globalTenants.length === 0) return; 
 
    google.script.run.withSuccessHandler(data => {
@@ -418,18 +478,15 @@ function updateOnlineBadges() {
       let badge = document.getElementById('status-' + t.sheet_id);
       if (badge) {
          if (onlineShopsData[t.sheet_id]) {
-            // ถ้ามีตัวเลขจำนวนเครื่อง ส่งมาแปลว่าออนไลน์
             let count = onlineShopsData[t.sheet_id];
-            badge.innerHTML = `<span class="badge bg-success ms-2 shadow-sm"><i class="fa-solid fa-circle text-white me-1" style="font-size: 8px; vertical-align: middle; animation: pulse 2s infinite;"></i>ออนไลน์ (${count} จอ)</span>`;
+            badge.innerHTML = `<span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 ms-2 shadow-sm rounded-pill"><i class="fa-solid fa-circle me-1" style="font-size: 8px; vertical-align: middle; animation: pulse 2s infinite;"></i>ออนไลน์ (${count})</span>`;
          } else {
-            // ถ้าไม่มีข้อมูลแปลว่าออฟไลน์
-            badge.innerHTML = `<span class="badge bg-light text-muted border ms-2">ออฟไลน์</span>`;
+            badge.innerHTML = `<span class="badge bg-light text-muted border ms-2 rounded-pill">ออฟไลน์</span>`;
          }
       }
    });
 }
 
-// สั่งให้มันแอบเช็คสถานะทุกๆ 3 วินาที
 setInterval(pollOnlineStatus, 3000);
 
 </script>
