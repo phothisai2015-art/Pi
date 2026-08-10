@@ -557,6 +557,24 @@ function initShopMenuScripts() {
             if(themeBtn) themeBtn.style.display = 'flex';
             
             loadShopData(currentTenantSheetId);
+			
+			// 👇 🌟 เพิ่มโค้ด Socket รับคำสั่งเตะจาก Super Admin ตรงนี้ 👇
+            try {
+               const adminSocket = io();
+               adminSocket.emit('join_shop_room', currentTenantSheetId);
+               adminSocket.on('force_logout_event', () => {
+                   Swal.fire({
+                       icon: 'warning',
+                       title: 'ถูกตัดการเชื่อมต่อ',
+                       text: 'เซสชันของคุณถูกบังคับให้ออกจากระบบโดยผู้ดูแลระบบ (Super Admin)',
+                       confirmButtonText: 'รับทราบ',
+                       allowOutsideClick: false
+                   }).then(() => {
+                       forceShopLogout();
+                   });
+               });
+            } catch(e) { console.warn("Socket for admin kick failed:", e); }
+            // 👆 ======================================================== 👆
 
             // แจ้งเตือนเจ้าของร้านใกล้หมดอายุ
             const hasOwnerWarned = sessionStorage.getItem('shop_owner_warned');

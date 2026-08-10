@@ -43,6 +43,7 @@
           case 'getSuperAdminSettings': url = '/api/superadmin/settings'; break;
           case 'requestSAOTP': url = '/api/superadmin/request-otp'; options.method = 'POST'; break;
           case 'updateSASettings': url = '/api/superadmin/update-settings'; options.method = 'POST'; options.body = JSON.stringify(args[0]); break;
+		  case 'kickTenantData': url = '/api/superadmin/kick-tenant'; options.method = 'POST'; options.body = JSON.stringify({ sheetId: args[0] }); break;
           default: if (successCb) successCb({ status: 'success' }); return;
         }
         
@@ -172,6 +173,7 @@ function renderSuperAdminTable() {
           <td><span class="fw-bold"><i class="fa-solid fa-key text-warning"></i> ${t.password}</span></td>
           <td class="fw-bold ${expColor} text-center">${expText}</td>
           <td class="text-end pe-3">
+			 <button class="btn btn-sm btn-secondary fw-bold shadow-sm rounded-3 px-3 py-2 me-1" onclick="kickTenantAdmin('${t.sheet_id}', '${t.shop_name}')"><i class="fa-solid fa-right-from-bracket"></i> เตะออก</button>
              <button class="btn btn-sm btn-warning fw-bold shadow-sm rounded-3 px-3 py-2 me-1" onclick="openSaEditModal('${t.sheet_id}', '${t.password}', '${t.expire_date}')"><i class="fa-solid fa-pen me-1"></i> แก้ไข</button>
              <button class="btn btn-sm btn-danger fw-bold shadow-sm rounded-3 px-3 py-2" onclick="deleteTenantAdmin('${t.sheet_id}', '${t.shop_name}')"><i class="fa-solid fa-trash-can"></i></button>
           </td>
@@ -192,6 +194,22 @@ function deleteTenantAdmin(sheetId, shopName) {
             if(r.status === 'success') { Swal.fire('สำเร็จ', `ลบร้าน ${shopName} เรียบร้อยแล้ว`, 'success'); loadSuperAdminData(); }
             else { Swal.fire('ผิดพลาด', r.message, 'error'); }
          }).deleteTenantData(sheetId);
+       }
+   });
+}
+
+function kickTenantAdmin(sheetId, shopName) {
+   Swal.fire({
+      title: 'เตะร้านค้านี้?',
+      text: `คุณต้องการบังคับให้ร้าน ${shopName} ออกจากระบบทันทีใช่หรือไม่? (อุปกรณ์ที่เปิดร้านนี้อยู่จะถูกเด้งออกไปหน้าแรก)`,
+      icon: 'warning', showCancelButton: true, confirmButtonColor: '#6c757d', confirmButtonText: '<i class="fa-solid fa-right-from-bracket"></i> ยืนยันเตะออก', cancelButtonText: 'ยกเลิก'
+   }).then(res => {
+      if(res.isConfirmed) {
+         Swal.fire({title:'กำลังส่งคำสั่ง...', allowOutsideClick:false, didOpen:()=>Swal.showLoading()});
+         google.script.run.withSuccessHandler(r => {
+            if(r.status === 'success') { Swal.fire('สำเร็จ', `ส่งคำสั่งเตะร้าน ${shopName} เรียบร้อยแล้ว`, 'success'); }
+            else { Swal.fire('ผิดพลาด', r.message, 'error'); }
+         }).kickTenantData(sheetId);
        }
    });
 }
