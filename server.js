@@ -635,6 +635,19 @@ app.post('/api/superadmin/kick-tenant', verifySuperAdmin, (req, res) => {
   io.to(sheetId).emit('force_logout_event'); 
   res.json({ status: "success" });
 });
+
+// 🌟 API สำหรับดูว่าร้านไหนออนไลน์อยู่บ้าง และเข้ากี่เครื่อง
+app.get('/api/superadmin/online-status', verifySuperAdmin, (req, res) => {
+  const onlineShops = {};
+  // ดึงข้อมูล Room ทั้งหมดใน Socket.io (1 Room = 1 ร้านค้า)
+  for (const [roomName, sockets] of io.sockets.adapter.rooms.entries()) {
+    // ถ้าชื่อ Room เริ่มต้นด้วย SHOP_ แสดงว่าเป็นห้องของร้านค้า
+    if (roomName.startsWith('SHOP_')) {
+      onlineShops[roomName] = sockets.size; // นับจำนวนอุปกรณ์ (Sockets) ที่เชื่อมต่ออยู่
+    }
+  }
+  res.json(onlineShops);
+});
 // 👆 ======================================== 👆
 
 app.post('/api/superadmin/delete-tenant', verifySuperAdmin, (req, res) => {
