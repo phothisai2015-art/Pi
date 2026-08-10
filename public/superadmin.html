@@ -362,7 +362,10 @@ function openSaSettingsModal() {
       originalSAData = { user: sa.username || 'superadmin', pass: sa.password || '1234', email: currentSAEmail };
       
       const isLocked = !currentSAEmail;
-      const lockAttr = isLocked ? 'disabled style="background-color: #f1f5f9; cursor: not-allowed; opacity: 0.7;"' : 'class="form-control bg-light border-0 fw-bold text-dark mb-3"';
+      // 🌟 แก้ไขตรงนี้: จัดการ Class ตอนล็อคให้สวยงาม
+      const lockAttr = isLocked ? 'disabled' : '';
+      const lockClass = isLocked ? 'bg-secondary bg-opacity-10 text-muted' : 'bg-light text-dark';
+      
       const lockMsg = isLocked ? '<div class="text-danger small fw-bold mb-3 p-2 bg-danger bg-opacity-10 rounded-3 border border-danger border-opacity-25"><i class="fa-solid fa-lock me-1"></i> กรุณาผูกอีเมลก่อน เพื่อปลดล็อคการเปลี่ยน Username และ Password</div>' : '';
 
       Swal.fire({
@@ -374,9 +377,11 @@ function openSaSettingsModal() {
                </div>
                ${lockMsg}
                <label class="small fw-bold text-muted mb-1">Username (สำหรับล็อกอิน)</label>
-               <input type="text" id="sa-set-user" ${lockAttr} value="${originalSAData.user}">
+               <input type="text" id="sa-set-user" class="form-control ${lockClass} border-0 fw-bold mb-3" ${lockAttr} value="${originalSAData.user}">
+               
                <label class="small fw-bold text-muted mb-1">Password (รหัสผ่าน)</label>
-               <input type="text" id="sa-set-pass" ${lockAttr} value="${originalSAData.pass}">
+               <input type="text" id="sa-set-pass" class="form-control ${lockClass} border-0 fw-bold mb-3" ${lockAttr} value="${originalSAData.pass}">
+               
                <label class="small fw-bold text-muted mb-1">อีเมลผูกบัญชี (แจ้งเตือนล็อกอิน & ยืนยัน OTP)</label>
                <input type="email" id="sa-set-email" class="form-control bg-light border-0 fw-bold" placeholder="กรอกอีเมลเพื่อผูกบัญชี (เว้นว่างเพื่อยกเลิก)" value="${originalSAData.email}">
                <div class="text-muted" style="font-size: 11px; margin-top: 5px;">*เว้นว่างช่องนี้ไว้ หากต้องการยกเลิกผูกอีเมล</div>
