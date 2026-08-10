@@ -1447,58 +1447,68 @@
         }
     }
 	
-	// 🌟 ระบบปัดหน้าจอลงเพื่อปิดตะกร้า (สไลด์ติดนิ้ว - Swipe down to close)
+// 🌟 ระบบปัดหน้าจอลงเพื่อปิดตะกร้า (สไลด์ติดนิ้ว - อัปเดตแก้บัคสัมผัสไวเกินไป)
     let posTouchStartY = 0;
     let posCurrentY = 0;
     let isDraggingCart = false;
+    let isTrackingCart = false; // 👈 เพิ่มตัวเช็คสถานะ
     const posCartPanel = document.getElementById('pos-right-panel');
     const posCartScrollArea = document.getElementById('pos-cart-container');
 
     if (posCartPanel) {
         posCartPanel.addEventListener('touchstart', function(e) {
+            // 🛑 ถ้ากดโดน "ปุ่ม" หรือ "ช่องกรอกข้อมูล" ไม่ต้องทำแอนิเมชันปัดจอ (ให้กดปุ่มได้ปกติ 100%)
+            if (e.target.closest('button') || e.target.closest('input')) {
+                isTrackingCart = false;
+                return;
+            }
+
             posTouchStartY = e.touches[0].clientY;
-            // เช็คว่าตารางสินค้าถูกเลื่อนกลับไปบนสุดหรือยัง
             let isAtTop = posCartScrollArea ? (posCartScrollArea.scrollTop <= 5) : true;
             
-            // ถ้าหน้าตะกร้าเปิดอยู่ และจออยู่บนสุด ให้เริ่มจับนิ้ว
             if (isAtTop && posCartPanel.classList.contains('show-mobile-cart')) {
-                isDraggingCart = true;
-                posCartPanel.style.transition = 'none'; // ปิดแอนิเมชันอัตโนมัติ เพื่อให้นิ้วดึงหนึบติดมือ
+                isTrackingCart = true;
+                isDraggingCart = false;
+            } else {
+                isTrackingCart = false;
             }
         }, {passive: true});
 
         posCartPanel.addEventListener('touchmove', function(e) {
-            if (!isDraggingCart) return;
+            if (!isTrackingCart) return;
+            
             posCurrentY = e.touches[0].clientY;
             let deltaY = posCurrentY - posTouchStartY;
             
-            // ยอมให้ดึงลงได้อย่างเดียว (ถ้าดันขึ้นด้านบนไม่ต้องทำงาน)
-            if (deltaY > 0) {
+            // 🛑 ต้องลากนิ้วลงเกิน 15px ก่อน ถึงจะถือว่า "ตั้งใจปัดลง" (ป้องกันการแตะแล้วนิ้วขยับ/สั่น)
+            if (!isDraggingCart && deltaY > 15) {
+                isDraggingCart = true;
+                posCartPanel.style.transition = 'none'; 
+            }
+            
+            if (isDraggingCart && deltaY > 0) {
                 posCartPanel.style.transform = `translateY(${deltaY}px)`;
             }
         }, {passive: true});
 
         posCartPanel.addEventListener('touchend', function(e) {
-            if (!isDraggingCart) return;
+            if (!isTrackingCart) return;
+            isTrackingCart = false;
+            
+            if (!isDraggingCart) return; // ถ้าไม่ได้ลาก (แค่แตะเฉยๆ) ก็ไม่ต้องทำอะไร
             isDraggingCart = false;
             
             let deltaY = posCurrentY - posTouchStartY;
-            
-            // เปิดแอนิเมชันสไลด์กลับมา
             posCartPanel.style.transition = 'transform 0.3s ease-out'; 
             
-            if (deltaY > 150) {
-                // ถ้าดึงลงไปเกิน 150px ให้สไลด์ลงปิดสุดจอไปเลย
+            if (deltaY > 100) {
                 posCartPanel.style.transform = `translateY(100%)`;
-                
-                // รอแอนิเมชันจบ (300ms) ค่อยเคลียร์ค่าออก
                 setTimeout(() => { 
                     posCartPanel.classList.remove('show-mobile-cart'); 
                     posCartPanel.style.transform = ''; 
                     posCartPanel.style.transition = '';
                 }, 300);
             } else {
-                // ถ้าดึงลงนิดเดียวแล้วปล่อย ให้เด้งกลับไปเต็มจอเหมือนเดิม
                 posCartPanel.style.transform = 'translateY(0)';
                 setTimeout(() => {
                     posCartPanel.style.transform = ''; 
