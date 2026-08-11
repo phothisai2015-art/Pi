@@ -306,6 +306,32 @@
       }
       .pos-card-name { font-size: 11.5px !important; margin-bottom: 2px !important; line-height: 1.1 !important; }
       .pos-card-price { font-size: 13px !important; }
+	  
+	  /* 🌟 บังคับกล่องพื้นหลังให้ชิดขอบจอ (ซ้าย ขวา ล่าง) 100% */
+      #page-pos .container-fluid {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        padding-bottom: 0 !important;
+      }
+      #page-pos .row {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+      }
+      #page-pos .row > * {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+      }
+      .pos-left-box {
+        border-radius: 0 !important; /* ลบขอบโค้งออกให้มุมฉากแนบสนิทขอบจอ */
+        border-left: none !important;
+        border-right: none !important;
+        border-bottom: none !important;
+        padding-left: 10px !important; /* กั๊กพื้นที่ด้านในนิดนึง ไม่ให้การ์ดเบียดกระจกจอเกินไป */
+        padding-right: 10px !important;
+      }
+      #pos-grid-view {
+        padding-bottom: 20px !important; /* ลดระยะเว้นล่างสุด ให้ชิดลงมาอีก */
+      }
     }
 	/* ========================================================= */
     /* 🌙 แก้ไขบัคโหมดกลางคืน (Dark Mode) สำหรับตะกร้าสินค้า */
