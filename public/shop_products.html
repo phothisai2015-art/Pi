@@ -71,22 +71,20 @@
         padding: 10px !important;
       }
 
-      /* 🌟 1. การ์ดโหมดสว่าง: สไตล์กระจกใส ขอบเงาลอยเด่น (Light Mode) */
+      /* 🌟 1. การ์ดโหมดสว่าง: ปรับขอบตัดคม + เงาซ้อน 2 ชั้น ลอยเด้งชัดเจน (Light Mode) */
       #product-table-body tr {
         display: flex !important;
         flex-direction: column !important;
         position: relative !important;
-        background: rgba(255, 255, 255, 0.85) !important; /* พื้นหลังขาวโปร่งแสง */
-        backdrop-filter: blur(10px) !important; /* เอฟเฟกต์เบลอมองทะลุแบบกระจก */
+        background: #ffffff !important; /* ขาวล้วนตัดกับพื้นหลังเทาอ่อน */
         border-radius: 18px !important;
         padding: 8px 8px 10px 8px !important;
-        border: 1px solid rgba(255, 255, 255, 0.9) !important; /* ขอบกระจกสีขาวสว่าง */
-        /* เงาลอย + เส้นขอบสะท้อนแสงด้านบน (Inset Glow) */
-        box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08), 
-                    inset 0 1px 1px rgba(255, 255, 255, 1) !important; 
+        border: 1px solid #cbd5e1 !important; /* 👈 ขอบสีเทาอมฟ้า ตัดขอบการ์ดชัดเจน ไม่กลืนพื้นหลัง */
+        /* 👈 เงาซ้อน 2 ชั้น ดันการ์ดลอยเด่นมีมิติทันที */
+        box-shadow: 0 10px 20px rgba(15, 23, 42, 0.08), 
+                    0 2px 6px rgba(15, 23, 42, 0.04) !important; 
         cursor: pointer;
       }
-
       /* 🌟 2. การ์ดโหมดมืด: สไตล์กระจกคริสตัลนีออน ขอบเงาสว่าง (Dark Mode) */
       body.dark-theme #product-table-body tr {
         background: rgba(30, 41, 59, 0.75) !important; /* สีกรมท่าโปร่งแสง */
