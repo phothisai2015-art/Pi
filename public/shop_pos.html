@@ -358,6 +358,29 @@
     body.dark-theme #pos-cart-body .bg-white.border span {
         color: #f8fafc !important;
     }
+	/* ========================================================= */
+    /* 🌟 ปรับแต่งแท็บเลื่อน (Scrollbar) หน้า POS โหมดมืด ให้สวยแบบหน้าคลังสินค้า */
+    /* ========================================================= */
+    body.dark-theme #page-pos ::-webkit-scrollbar {
+      width: 16px !important;
+      height: 16px !important;
+    }
+    body.dark-theme #page-pos ::-webkit-scrollbar-track {
+      background: #0f172a !important; 
+    }
+    body.dark-theme #page-pos ::-webkit-scrollbar-thumb {
+      background: #475569 !important; 
+      border-radius: 8px !important;
+      border: none !important; 
+    }
+    body.dark-theme #page-pos ::-webkit-scrollbar-thumb:hover {
+      background: #64748b !important; 
+    }
+
+    /* รองรับเบราว์เซอร์ Firefox ในโหมดมืด */
+    body.dark-theme #page-pos * {
+      scrollbar-color: #475569 #0f172a;
+    }
 	  
   </style>
 
