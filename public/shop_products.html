@@ -50,7 +50,28 @@
     /* 📱 🌟 โหมดมือถือแนวตั้งเท่านั้น: จัดการเปลี่ยนตารางเป็นกล่องการ์ด 2 คอลัมน์ */
     /* ========================================================= */
     @media (max-width: 768px) and (orientation: portrait) {
-	/* แปลง tr เป็นกล่องการ์ด (ลดพื้นที่ขอบใน เพื่อกั๊กที่ให้รูปและตัวหนังสือใหญ่ขึ้น) */
+      .prod-header-wrapper { position: sticky; top: 0; z-index: 1045; background-color: #f8fafc; padding-top: 5px; margin-top: -5px; padding-bottom: 10px; margin-bottom: 10px !important; border-bottom: 1px solid #e2e8f0; }
+      body.dark-theme .prod-header-wrapper { background-color: #0f172a !important; border-bottom-color: #334155 !important; }
+      .prod-mobile-stack { flex-direction: row !important; flex-wrap: wrap !important; gap: 6px !important; margin-bottom: 0 !important; }
+      .prod-mobile-stack > button { flex: 1 1 calc(33.33% - 6px) !important; width: auto !important; margin: 0 !important; font-size: 11px !important; padding: 8px 2px !important; }
+      .hide-on-mobile { display: none !important; } .show-on-mobile { display: inline !important; }
+      .prod-mobile-stack > select { flex: 0 0 35% !important; min-width: 0 !important; width: auto !important; margin: 0 !important; font-size: 12px !important; padding: 6px !important; }
+      .prod-mobile-stack > div.input-group { flex: 1 1 auto !important; min-width: 0 !important; width: auto !important; margin: 0 !important; }
+      .prod-mobile-stack > div .input-group-text, .prod-mobile-stack > div input { font-size: 12px !important; padding: 6px !important; }
+
+      /* ซ่อนหัวตารางบนมือถือ */
+      .prod-table-container thead { display: none !important; }
+      .prod-table-container table { display: block !important; width: 100% !important; }
+      
+      /* แปลง tbody เป็น Grid 2 คอลัมน์ */
+      #product-table-body {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 10px !important;
+        padding: 10px !important;
+      }
+
+     /* แปลง tr เป็นกล่องการ์ด (ลดพื้นที่ขอบใน เพื่อกั๊กที่ให้รูปและตัวหนังสือใหญ่ขึ้น) */
       #product-table-body tr {
         display: flex !important;
         flex-direction: column !important;
@@ -110,7 +131,24 @@
         padding: 5px 8px !important; 
         width: 100%; display: block; text-overflow: ellipsis; overflow: hidden; 
       }
+      /* 7th td: ซ่อนปุ่มลบ มุมขวาบน ในโหมดมือถือ */
+      #product-table-body td:nth-child(7) { 
+        display: none !important; 
       }
+	/* 🌟 ลบแถบลายๆ ตอนเมาส์ชี้บนการ์ดมือถือ ให้เป็นกล่องเดียวกันเนียนๆ */
+      #product-table-body tr:hover > * {
+        background-color: transparent !important;
+        box-shadow: none !important;
+      }
+      #product-table-body tr:hover {
+        background-color: #ffffff !important;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.08) !important;
+      }
+      body.dark-theme #product-table-body tr:hover {
+        background-color: #1e293b !important;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.3) !important;
+      }
+	}
 	
 
     /* 🌟 สีช่องค้นหารองรับ Dark Mode */
