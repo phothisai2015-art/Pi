@@ -114,6 +114,12 @@
     body.dark-theme #search-product-input, body.dark-theme #bulk-scan-input { background-color: #1e293b !important; color: #f1f5f9 !important; }
     body.dark-theme .prod-mobile-stack .input-group-text { background-color: #1e293b !important; color: #94a3b8 !important; }
     body.dark-theme #search-product-input::placeholder, body.dark-theme #bulk-scan-input::placeholder { color: #64748b !important; }
+	
+	/* 📱 สำหรับหน้าจอ iPad / Tablet (แนวตั้งและแนวนอน) */
+    @media (min-width: 769px) and (max-width: 1024px) {
+      #page-products { padding: 5px 10px 10px 10px !important; }
+      .prod-table-container { height: calc(100vh - 135px) !important; }
+    }
   </style>
 
   <div class="prod-header-wrapper">
