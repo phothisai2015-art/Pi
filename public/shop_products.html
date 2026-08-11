@@ -4,8 +4,23 @@
 <div id="page-products" style="display: none; background: #f8fafc; height: 100vh; box-sizing: border-box; position: absolute; top: 0; left: 0; width: 100%; z-index: 1040; overflow: hidden;">
   <style>
     /* 🌟 ระยะขอบ PC / iPad แนวนอน (กางออกเต็มตาตามที่ปรับไว้) */
-    #page-products { padding: 5px 10px 10px 10px; }
-    .prod-table-container { height: calc(100vh - 125px); border: none !important; box-shadow: 0 15px 35px rgba(0,0,0,0.05) !important; border-radius: 24px !important;} 
+   /* 🌟 จัดเลย์เอาต์หน้าแบบ Flexbox ให้ยืดหยุ่นตามความสูงส่วนหัว */
+    #page-products { 
+      padding: 5px 10px 10px 10px; 
+      display: flex !important; 
+      flex-direction: column !important; 
+    }
+    .prod-header-wrapper { 
+      flex-shrink: 0 !important; /* ล็อคส่วนหัวไม่ให้โดนบีบ */
+    }
+    .prod-table-container { 
+      flex: 1 !important; /* คำนวณขยายตารางกินพื้นที่ว่างที่เหลือลงมาล่างสุดอัตโนมัติ */
+      min-height: 0 !important; 
+      height: auto !important; /* ยกเลิกการใช้ calc() แบบตายตัว */
+      border: none !important; 
+      box-shadow: 0 15px 35px rgba(0,0,0,0.05) !important; 
+      border-radius: 24px !important;
+    }
     .show-on-mobile { display: none; }
     
     /* 🌟 เอฟเฟกต์เมาส์ชี้บนคอมพิวเตอร์ */
@@ -31,7 +46,6 @@
 
     @media (max-width: 768px) { 
   #page-products { padding: 5px 10px 10px 10px !important; } 
-  .prod-table-container { height: calc(100vh - 165px) !important; } 
 }
     
     /* ========================================================= */
