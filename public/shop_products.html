@@ -71,21 +71,30 @@
         padding: 10px !important;
       }
 
-      /* แปลง tr เป็นกล่องการ์ด */
+      /* 🌟 1. การ์ดโหมดสว่าง: สไตล์กระจกใส ขอบเงาลอยเด่น (Light Mode) */
       #product-table-body tr {
         display: flex !important;
         flex-direction: column !important;
         position: relative !important;
-        background: #ffffff !important;
-        border-radius: 16px !important;
-        padding: 12px 10px 10px 10px !important;
-        border: 1px solid #e2e8f0 !important;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.03) !important;
+        background: rgba(255, 255, 255, 0.85) !important; /* พื้นหลังขาวโปร่งแสง */
+        backdrop-filter: blur(10px) !important; /* เอฟเฟกต์เบลอมองทะลุแบบกระจก */
+        border-radius: 18px !important;
+        padding: 8px 8px 10px 8px !important;
+        border: 1px solid rgba(255, 255, 255, 0.9) !important; /* ขอบกระจกสีขาวสว่าง */
+        /* เงาลอย + เส้นขอบสะท้อนแสงด้านบน (Inset Glow) */
+        box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08), 
+                    inset 0 1px 1px rgba(255, 255, 255, 1) !important; 
         cursor: pointer;
       }
+
+      /* 🌟 2. การ์ดโหมดมืด: สไตล์กระจกคริสตัลนีออน ขอบเงาสว่าง (Dark Mode) */
       body.dark-theme #product-table-body tr {
-        background: #1e293b !important;
-        border-color: #334155 !important;
+        background: rgba(30, 41, 59, 0.75) !important; /* สีกรมท่าโปร่งแสง */
+        backdrop-filter: blur(10px) !important;
+        border: 1px solid rgba(255, 255, 255, 0.18) !important; /* ขอบสว่างสะท้อนแสง */
+        /* เงามืดลึก + เส้นสะท้อนแสงขอบบนการ์ด */
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 
+                    inset 0 1px 1px rgba(255, 255, 255, 0.25) !important; 
       }
 
       #product-table-body td { display: block !important; padding: 0 !important; border: none !important; text-align: center !important; }
