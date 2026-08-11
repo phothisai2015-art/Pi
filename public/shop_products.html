@@ -475,34 +475,48 @@
   }
 
   function openProductForm(mode, id = '') {
-  
-  if(mode === 'add') {
-      document.getElementById('form-title').innerText = i18n[currentLang]['prod_modal_add_title'];
-      document.getElementById('btn-delete-product').style.display = 'none'; // 👈 ซ่อนปุ่มลบ
-      // ... (โค้ดเดิมด้านล่าง) ...
-    populateCategoryDropdowns(); currentMode = mode;
+    populateCategoryDropdowns(); 
+    currentMode = mode;
     document.getElementById('product-form-modal').style.display = 'flex';
-    document.getElementById('upload-status').innerText = ''; document.getElementById('prod-image-file').value = '';
+    document.getElementById('upload-status').innerText = ''; 
+    document.getElementById('prod-image-file').value = '';
+    
     if(mode === 'add') {
+      // 👈 ซ่อนปุ่มลบ ตอนเพิ่มสินค้าใหม่
+      document.getElementById('btn-delete-product').style.display = 'none'; 
       document.getElementById('form-title').innerText = i18n[currentLang]['prod_modal_add_title'];
-      document.getElementById('prod-old-id').value = ''; document.getElementById('prod-id').value = '';
-      document.getElementById('prod-name').value = ''; document.getElementById('prod-price').value = '';
-      document.getElementById('prod-category').value = ''; document.getElementById('prod-image-url').value = '';
-      document.getElementById('prod-stock').value = ''; document.getElementById('prod-min-stock').value = '5';
-      document.getElementById('prod-unit').value = 'ชิ้น'; document.getElementById('prod-image-preview').style.display = 'none';
+      document.getElementById('prod-old-id').value = ''; 
+      document.getElementById('prod-id').value = '';
+      document.getElementById('prod-name').value = ''; 
+      document.getElementById('prod-price').value = '';
+      document.getElementById('prod-category').value = ''; 
+      document.getElementById('prod-image-url').value = '';
+      document.getElementById('prod-stock').value = ''; 
+      document.getElementById('prod-min-stock').value = '5';
+      document.getElementById('prod-unit').value = 'ชิ้น'; 
+      document.getElementById('prod-image-preview').style.display = 'none';
     } else {
-	  
-      document.getElementById('btn-delete-product').style.display = 'block'; // 👈 แสดงปุ่มลบ
+      // 👈 แสดงปุ่มลบ ตอนแก้ไขสินค้า
+      document.getElementById('btn-delete-product').style.display = 'block'; 
       document.getElementById('form-title').innerText = i18n[currentLang]['prod_modal_edit_title'];
+      
       let p = globalProducts.find(x => x.id === id);
       if(p) {
-        document.getElementById('prod-old-id').value = p.id; document.getElementById('prod-id').value = p.id;
-        document.getElementById('prod-name').value = p.name; document.getElementById('prod-price').value = p.price;
-        document.getElementById('prod-category').value = p.category; document.getElementById('prod-image-url').value = p.image;
-        document.getElementById('prod-stock').value = p.stock; document.getElementById('prod-min-stock').value = p.minStock;
+        document.getElementById('prod-old-id').value = p.id; 
+        document.getElementById('prod-id').value = p.id;
+        document.getElementById('prod-name').value = p.name; 
+        document.getElementById('prod-price').value = p.price;
+        document.getElementById('prod-category').value = p.category; 
+        document.getElementById('prod-image-url').value = p.image;
+        document.getElementById('prod-stock').value = p.stock; 
+        document.getElementById('prod-min-stock').value = p.minStock;
         document.getElementById('prod-unit').value = p.unit || 'ชิ้น'; 
-        if(p.image) { document.getElementById('prod-image-preview').src = p.image; document.getElementById('prod-image-preview').style.display = 'block'; }
-        else { document.getElementById('prod-image-preview').style.display = 'none'; }
+        if(p.image) { 
+          document.getElementById('prod-image-preview').src = p.image; 
+          document.getElementById('prod-image-preview').style.display = 'block'; 
+        } else { 
+          document.getElementById('prod-image-preview').style.display = 'none'; 
+        }
       }
     }
   }
