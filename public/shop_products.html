@@ -127,9 +127,23 @@
       /* 6th td: ป้ายสต็อก */
       #product-table-body td:nth-child(6) { margin-top: auto !important; }
       #product-table-body td:nth-child(6) .badge { 
-        font-size: 11px !important; /* 👈 ขยายตัวหนังสือในป้ายสต็อกเป็น 11px */
+        font-size: 11px !important; 
         padding: 5px 8px !important; 
         width: 100%; display: block; text-overflow: ellipsis; overflow: hidden; 
+      }
+
+      /* 🌟 1. ซ่อมบัคการ์ดสีขาวในโหมดมืด */
+      body.dark-theme #product-table-body tr {
+        background: #1e293b !important;
+        border: 1px solid #334155 !important;
+      }
+
+      /* 🌟 2. ลบเส้นขอบแนวนอน (เส้นขีดๆ) ข้างในการ์ดออกให้เกลี้ยง */
+      #page-products .table>tbody>tr>td, 
+      #product-table-body td { 
+        border: none !important; 
+        border-bottom: 0 !important; 
+        border-top: 0 !important; 
       }
       /* 7th td: ซ่อนปุ่มลบ มุมขวาบน ในโหมดมือถือ */
       #product-table-body td:nth-child(7) { 
