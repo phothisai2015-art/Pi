@@ -372,7 +372,7 @@
   let currentFilteredProducts = []; 
   let currentProductPage = 1;
   const PRODUCT_PAGE_SIZE = 20;
-  
+  let isRenderingProducts = false; // 🌟 เพิ่มตัวล็อคป้องกันการโหลดซ้อนกัน
   
 
   function openProductsPage() { document.getElementById('page-products').style.display = 'block'; loadProductsTable(); if (typeof changeLanguage === 'function') changeLanguage(currentLang); }
@@ -404,10 +404,13 @@
   }
 
 function renderProductsTable(isLoadMore = false) {
+    // 🌟 ป้องกันการโหลดซ้อนกัน (Spam Scroll)
+    if (isLoadMore && isRenderingProducts) return; 
+    isRenderingProducts = true; // เปิดล็อคการทำงานทันที
+
     const tbody = document.getElementById('product-table-body');
     const container = document.querySelector('.prod-table-container');
 
-    // 🌟 ถ้าไม่ใช่การดึงข้อมูลหน้าถัดไป ให้เคลียร์ตารางและเริ่มหน้า 1 ใหม่
     if (!isLoadMore) {
       tbody.innerHTML = '';
       currentProductPage = 1;
@@ -434,18 +437,19 @@ function renderProductsTable(isLoadMore = false) {
         let statusA = getStockStatus(a);
         let statusB = getStockStatus(b);
         if (statusA !== statusB) return statusA - statusB; 
-        return a.name.localeCompare(b.name); 
+        // 🌟 ป้องกันบัค Error กรณีชื่อสินค้าเป็นค่าว่าง
+        return (a.name || '').localeCompare(b.name || ''); 
       });
 
       if(currentFilteredProducts.length === 0) {
         let notFoundText = (typeof i18n !== 'undefined' && i18n[currentLang]) ? i18n[currentLang]['prod_not_found'] : 'ไม่พบข้อมูล...';
         tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-4">${notFoundText}</td></tr>`; 
         updateBulkDeleteUI();
+        isRenderingProducts = false; // ปลดล็อค
         return;
       }
     }
 
-    // 🌟 คำนวณตัดข้อมูลมาแสดงแค่ 20 รายการ (ตามหน้าที่กำลังเปิด)
     let startIndex = (currentProductPage - 1) * PRODUCT_PAGE_SIZE;
     let endIndex = startIndex + PRODUCT_PAGE_SIZE;
     let productsToRender = currentFilteredProducts.slice(startIndex, endIndex);
@@ -493,13 +497,16 @@ function renderProductsTable(isLoadMore = false) {
     tbody.insertAdjacentHTML('beforeend', htmlChunk);
     updateBulkDeleteUI();
 
-    // 🌟 SMART AUTO-LOAD: ถ้าโหลด 20 รายการแรกแล้วยังไม่เกิด Scrollbar ให้แอบโหลดเพิ่มอัตโนมัติ
+    // 🌟 รอให้เบราว์เซอร์วาดตารางเสร็จก่อน ค่อยปลดล็อคและเช็คความสูง
     setTimeout(() => {
-        if (container.scrollHeight <= container.clientHeight && (currentProductPage * PRODUCT_PAGE_SIZE) < currentFilteredProducts.length) {
+        isRenderingProducts = false; // ปลดล็อคให้เลื่อนโหลดรอบต่อไปได้
+
+        // 🌟 เช็ค clientHeight > 0 เพื่อป้องกันบัคลูปโหลดตอนหน้าจอถูกซ่อนอยู่
+        if (container.clientHeight > 0 && container.scrollHeight <= container.clientHeight && (currentProductPage * PRODUCT_PAGE_SIZE) < currentFilteredProducts.length) {
             currentProductPage++;
             renderProductsTable(true);
         }
-    }, 50); 
+    }, 100); 
   }
 
   // 🌟 1. ฟังก์ชันเลือกทั้งหมด / ยกเลิกทั้งหมด
@@ -1214,15 +1221,14 @@ function renderProductsTable(isLoadMore = false) {
     }
   }, { passive: true });
   
-  // 🌟 ดักจับการเลื่อนจอเพื่อโหลดสินค้าล็อตถัดไป (Infinite Scroll)
+// 🌟 ดักจับการเลื่อนจอเพื่อโหลดสินค้าล็อตถัดไป (Infinite Scroll)
   document.querySelector('.prod-table-container').addEventListener('scroll', function() {
       let container = this;
-      // ถ้าเลื่อนลงมาจนเกือบสุดกรอบ (ห่างจากขอบล่างไม่เกิน 100px)
       if (container.scrollTop + container.clientHeight >= container.scrollHeight - 100) {
-          // ตรวจสอบว่ายังมีสินค้าเหลือให้โหลดอีกไหม
-          if ((currentProductPage * PRODUCT_PAGE_SIZE) < currentFilteredProducts.length) {
+          // 🌟 เช็คตัวล็อค isRenderingProducts ก่อนเสมอ
+          if (!isRenderingProducts && (currentProductPage * PRODUCT_PAGE_SIZE) < currentFilteredProducts.length) {
               currentProductPage++;
-              renderProductsTable(true); // สั่งโหลดหน้าถัดไปมาต่อท้าย
+              renderProductsTable(true);
           }
       }
   });
