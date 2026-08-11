@@ -106,6 +106,12 @@
         transform: translateX(0);
       }
     }
+	/* 🌟 ป้องกันตัวหนังสือทะลุหัวตารางเวลาเลื่อนในโหมดมืด */
+    body.dark-theme .table-light.sticky-top th {
+      background-color: #1e293b !important;
+      color: #f8fafc !important;
+      border-bottom: 1px solid #334155 !important;
+    }
   </style>
 
   <div class="prod-header-wrapper">
