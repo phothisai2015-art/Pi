@@ -108,6 +108,8 @@
     }
 	
   </style>
+  
+  
 
   <div class="prod-header-wrapper">
     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -364,7 +366,14 @@
   </div>
 
   <script>
+  
   let globalProducts = []; let currentMode = 'add'; let bulkItems = []; let shoppingListItems = [];
+  // 🌟 เพิ่มตัวแปร 3 ตัวนี้สำหรับระบบทยอยโหลด (Infinite Scroll)
+  let currentFilteredProducts = []; 
+  let currentProductPage = 1;
+  const PRODUCT_PAGE_SIZE = 20;
+  
+  
 
   function openProductsPage() { document.getElementById('page-products').style.display = 'block'; loadProductsTable(); if (typeof changeLanguage === 'function') changeLanguage(currentLang); }
   function closeProductsPage() { document.getElementById('page-products').style.display = 'none'; }
@@ -394,50 +403,74 @@
     }).getProducts(currentTenantSheetId);
   }
 
-  function renderProductsTable() {
-    const tbody = document.getElementById('product-table-body'); tbody.innerHTML = '';
-    let keyword = document.getElementById('search-product-input').value.toLowerCase().trim();
-    let selectedCat = document.getElementById('filter-category').value;
+function renderProductsTable(isLoadMore = false) {
+    const tbody = document.getElementById('product-table-body');
+    const container = document.querySelector('.prod-table-container');
 
-    let filtered = globalProducts.filter(p => {
-      let matchKeyword = (p.name && p.name.toLowerCase().includes(keyword)) || (p.id && p.id.toLowerCase().includes(keyword));
-      let matchCat = (selectedCat === "all") || (p.category === selectedCat);
-      return matchKeyword && matchCat;
-    });
+    // 🌟 ถ้าไม่ใช่การดึงข้อมูลหน้าถัดไป ให้เคลียร์ตารางและเริ่มหน้า 1 ใหม่
+    if (!isLoadMore) {
+      tbody.innerHTML = '';
+      currentProductPage = 1;
+      let keyword = document.getElementById('search-product-input').value.toLowerCase().trim();
+      let selectedCat = document.getElementById('filter-category').value;
 
-    filtered.sort((a, b) => {
-      const getStockStatus = (p) => {
-        if (p.stock === "ไม่จำกัด" || p.stock === i18n['th']['prod_unlimited'] || p.stock === i18n['en']['prod_unlimited'] || isNaN(parseInt(p.stock))) return 4; 
-        let stock = parseInt(p.stock);
-        let minStock = parseInt(p.minStock) || 5;
-        if (stock <= 0) return 1; 
-        if (stock <= minStock) return 2; 
-        return 3; 
-      };
-      
-      let statusA = getStockStatus(a);
-      let statusB = getStockStatus(b);
-      
-      if (statusA !== statusB) return statusA - statusB; 
-      return a.name.localeCompare(b.name); 
-    });
+      currentFilteredProducts = globalProducts.filter(p => {
+        let matchKeyword = (p.name && p.name.toLowerCase().includes(keyword)) || (p.id && p.id.toLowerCase().includes(keyword));
+        let matchCat = (selectedCat === "all") || (p.category === selectedCat);
+        return matchKeyword && matchCat;
+      });
 
-    if(filtered.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-4">${i18n[currentLang]['prod_not_found']}</td></tr>`; 
-      updateBulkDeleteUI();
-      return;
+      currentFilteredProducts.sort((a, b) => {
+        const getStockStatus = (p) => {
+          let unlimitTextTH = (typeof i18n !== 'undefined' && i18n['th']) ? i18n['th']['prod_unlimited'] : 'ไม่จำกัด';
+          let unlimitTextEN = (typeof i18n !== 'undefined' && i18n['en']) ? i18n['en']['prod_unlimited'] : 'Unlimited';
+          if (p.stock === "ไม่จำกัด" || p.stock === unlimitTextTH || p.stock === unlimitTextEN || isNaN(parseInt(p.stock))) return 4; 
+          let stock = parseInt(p.stock);
+          let minStock = parseInt(p.minStock) || 5;
+          if (stock <= 0) return 1; 
+          if (stock <= minStock) return 2; 
+          return 3; 
+        };
+        let statusA = getStockStatus(a);
+        let statusB = getStockStatus(b);
+        if (statusA !== statusB) return statusA - statusB; 
+        return a.name.localeCompare(b.name); 
+      });
+
+      if(currentFilteredProducts.length === 0) {
+        let notFoundText = (typeof i18n !== 'undefined' && i18n[currentLang]) ? i18n[currentLang]['prod_not_found'] : 'ไม่พบข้อมูล...';
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-4">${notFoundText}</td></tr>`; 
+        updateBulkDeleteUI();
+        return;
+      }
     }
 
-    filtered.forEach(p => {
-      let imgTag = p.image ? `<img src="${p.image}" style="width: 45px; height: 45px; object-fit: cover; border-radius: 10px;">` : `<div class="bg-light rounded text-center text-muted" style="width: 45px; height: 45px; line-height: 45px; font-size: 10px;">${i18n[currentLang]['prod_no_image']}</div>`;
-      let stockNum = parseInt(p.stock); let currentMin = parseInt(p.minStock) || 5; let badgeHtml = "";
-      if (p.stock === "ไม่จำกัด" || p.stock === i18n['th']['prod_unlimited'] || p.stock === i18n['en']['prod_unlimited'] || isNaN(stockNum)) badgeHtml = `<span class="badge border text-dark fw-bold px-3 py-2 rounded-pill"><i class="fa-solid fa-infinity"></i> ${i18n[currentLang]['prod_unlimited']}</span>`;
-      else if (stockNum <= 0) badgeHtml = `<span class="badge bg-danger px-3 py-2 rounded-pill">${i18n[currentLang]['prod_out_of_stock']}</span>`;
-      else if (stockNum <= currentMin) badgeHtml = `<span class="badge bg-warning text-dark px-3 py-2 rounded-pill">${i18n[currentLang]['prod_low_stock']} (${stockNum})</span>`;
-      else badgeHtml = `<span class="badge bg-success px-3 py-2 rounded-pill">${stockNum} ${p.unit || 'ชิ้น'}</span>`;
+    // 🌟 คำนวณตัดข้อมูลมาแสดงแค่ 20 รายการ (ตามหน้าที่กำลังเปิด)
+    let startIndex = (currentProductPage - 1) * PRODUCT_PAGE_SIZE;
+    let endIndex = startIndex + PRODUCT_PAGE_SIZE;
+    let productsToRender = currentFilteredProducts.slice(startIndex, endIndex);
 
-      tbody.innerHTML += `
-        <!-- เพิ่ม ontouchstart และ ontouchend เพื่อดักการสไลด์นิ้ว -->
+    let htmlChunk = '';
+    productsToRender.forEach(p => {
+      let noImgText = (typeof i18n !== 'undefined' && i18n[currentLang]) ? i18n[currentLang]['prod_no_image'] : 'ไม่มีรูป';
+      let imgTag = p.image ? `<img src="${p.image}" style="width: 45px; height: 45px; object-fit: cover; border-radius: 10px;">` : `<div class="bg-light rounded text-center text-muted" style="width: 45px; height: 45px; line-height: 45px; font-size: 10px;">${noImgText}</div>`;
+      
+      let stockNum = parseInt(p.stock); let currentMin = parseInt(p.minStock) || 5; let badgeHtml = "";
+      let unlimitText = (typeof i18n !== 'undefined' && i18n[currentLang]) ? i18n[currentLang]['prod_unlimited'] : 'ไม่จำกัด';
+      let outText = (typeof i18n !== 'undefined' && i18n[currentLang]) ? i18n[currentLang]['prod_out_of_stock'] : 'หมด';
+      let lowText = (typeof i18n !== 'undefined' && i18n[currentLang]) ? i18n[currentLang]['prod_low_stock'] : 'เหลือน้อย';
+
+      if (p.stock === "ไม่จำกัด" || p.stock === unlimitText || isNaN(stockNum)) {
+        badgeHtml = `<span class="badge border text-dark fw-bold px-3 py-2 rounded-pill"><i class="fa-solid fa-infinity"></i> ${unlimitText}</span>`;
+      } else if (stockNum <= 0) {
+        badgeHtml = `<span class="badge bg-danger px-3 py-2 rounded-pill">${outText}</span>`;
+      } else if (stockNum <= currentMin) {
+        badgeHtml = `<span class="badge bg-warning text-dark px-3 py-2 rounded-pill">${lowText} (${stockNum})</span>`;
+      } else {
+        badgeHtml = `<span class="badge bg-success px-3 py-2 rounded-pill">${stockNum} ${p.unit || 'ชิ้น'}</span>`;
+      }
+
+      htmlChunk += `
         <tr>
           <td class="ps-4">
             <input type="checkbox" class="form-check-input prod-select-cb" value="${p.id}" style="cursor: pointer;" onchange="updateBulkDeleteUI()">
@@ -447,9 +480,7 @@
           <td><span class="fw-bold text-dark">${p.name}</span><br><small class="text-muted">${p.category}</small></td>
           <td class="text-success fw-bold fs-6">฿${parseFloat(p.price).toLocaleString()}</td>
           <td>${badgeHtml}</td>
-          <!-- เพิ่มคลาส action-cell ตรงนี้ -->
           <td class="text-end pe-4 action-cell">
-            <!-- 🌟 เพิ่มกล่องนี้เข้ามาครอบปุ่มไว้ -->
             <div class="swipe-actions">
               <button class="btn btn-sm btn-light text-warning shadow-sm me-1" onclick="openProductForm('edit', '${p.id}')"><i class="fa-solid fa-pen"></i></button>
               <button class="btn btn-sm btn-light text-danger shadow-sm" onclick="confirmDelete('${p.id}')"><i class="fa-solid fa-trash"></i></button>
@@ -459,7 +490,16 @@
       `;
     });
 
+    tbody.insertAdjacentHTML('beforeend', htmlChunk);
     updateBulkDeleteUI();
+
+    // 🌟 SMART AUTO-LOAD: ถ้าโหลด 20 รายการแรกแล้วยังไม่เกิด Scrollbar ให้แอบโหลดเพิ่มอัตโนมัติ
+    setTimeout(() => {
+        if (container.scrollHeight <= container.clientHeight && (currentProductPage * PRODUCT_PAGE_SIZE) < currentFilteredProducts.length) {
+            currentProductPage++;
+            renderProductsTable(true);
+        }
+    }, 50); 
   }
 
   // 🌟 1. ฟังก์ชันเลือกทั้งหมด / ยกเลิกทั้งหมด
@@ -1173,6 +1213,20 @@
       });
     }
   }, { passive: true });
+  
+  // 🌟 ดักจับการเลื่อนจอเพื่อโหลดสินค้าล็อตถัดไป (Infinite Scroll)
+  document.querySelector('.prod-table-container').addEventListener('scroll', function() {
+      let container = this;
+      // ถ้าเลื่อนลงมาจนเกือบสุดกรอบ (ห่างจากขอบล่างไม่เกิน 100px)
+      if (container.scrollTop + container.clientHeight >= container.scrollHeight - 100) {
+          // ตรวจสอบว่ายังมีสินค้าเหลือให้โหลดอีกไหม
+          if ((currentProductPage * PRODUCT_PAGE_SIZE) < currentFilteredProducts.length) {
+              currentProductPage++;
+              renderProductsTable(true); // สั่งโหลดหน้าถัดไปมาต่อท้าย
+          }
+      }
+  });
+  
   
   </script>
 </div>
