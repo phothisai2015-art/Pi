@@ -26,14 +26,35 @@
     .return-checkbox-pos { width: 22px; height: 22px; cursor: pointer; }
     .return-qty-input-pos { width: 70px; text-align: center; font-weight: bold; border-radius: 6px; border: 1px solid #cbd5e1; }
     .return-qty-input-pos:disabled { background-color: #f1f5f9; color: #94a3b8; }
+    /* 🌟 1. การ์ดสินค้าสำหรับ PC / iPad / Tablet (โหมดสว่าง & โหมดมืด) */
     .pos-product-card { 
-  background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 12px; text-align: center; cursor: pointer; position: relative; transition: all 0.2s ease-in-out; display: flex; flex-direction: column; align-items: center; justify-content: space-between; box-shadow: 0 4px 6px rgba(0,0,0,0.02);
-  
-  /* 👇 3 บรรทัดนี้แก้บัค Safari (ให้อยู่ข้างในนี้ ถูกต้องแล้วครับ) */
-  -webkit-touch-callout: none; 
-  -webkit-user-select: none; 
-  user-select: none; 
-} /* 👈 ปิดปีกกาของ .pos-product-card ตรงนี้ครับ */
+      background: #ffffff !important; 
+      border: 1.5px solid #94a3b8 !important; /* ขอบสีเทา Slate ตัดฉากหลังชัดเจน */
+      border-radius: 16px; 
+      padding: 12px; 
+      text-align: center; 
+      cursor: pointer; 
+      position: relative; 
+      transition: all 0.2s ease-in-out; 
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      justify-content: space-between; 
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.1), 
+                  0 2px 6px rgba(15, 23, 42, 0.04) !important; /* เงาซ้อน 2 ชั้นดันการ์ดลอย */
+
+      -webkit-touch-callout: none; 
+      -webkit-user-select: none; 
+      user-select: none; 
+    }
+
+    body.dark-theme .pos-product-card {
+      background: rgba(30, 41, 59, 0.85) !important; /* กระจกกรมท่าโปร่งแสง */
+      backdrop-filter: blur(10px) !important;
+      border: 1px solid rgba(255, 255, 255, 0.22) !important; /* ขอบกระจกสะท้อนแสง */
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), 
+                  inset 0 1px 1px rgba(255, 255, 255, 0.25) !important; 
+    }
 
 
 /* 👇 🌟 ย้ายก้อนนี้ออกมาไว้ "ข้างนอก" ปีกกาด้านบนครับ 👇 */
@@ -67,8 +88,22 @@
       aspect-ratio: 1 / 1 !important;
       object-fit: cover !important;
     }
-    .pos-product-card:hover { transform: translateY(-4px); box-shadow: 0 10px 20px rgba(0,0,0,0.08); border-color: #3b82f6; }
-    body.dark-theme .pos-product-card:hover { background-color: #1e293b !important; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5) !important; }
+    /* 🌟 2. เอฟเฟกต์เมื่อเอาเมาส์ชี้บนการ์ด (Hover) + สีตัวอักษรโหมดมืด */
+    .pos-product-card:hover { 
+      transform: translateY(-4px); 
+      box-shadow: 0 14px 28px rgba(59, 130, 246, 0.25), 
+                  0 4px 10px rgba(15, 23, 42, 0.1) !important; 
+      border-color: #3b82f6 !important; 
+    }
+    body.dark-theme .pos-product-card:hover { 
+      background-color: rgba(30, 41, 59, 0.95) !important; 
+      border-color: #60a5fa !important;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6), 
+                  inset 0 1px 1px rgba(255, 255, 255, 0.35) !important; 
+    }
+
+    body.dark-theme .pos-card-name { color: #f8fafc !important; }
+    body.dark-theme .pos-card-price { color: #34d399 !important; }
     .pos-card-img { width: 100%; object-fit: cover; border-radius: 10px; margin-bottom: 8px; background-color: #f8fafc; }
     .pos-card-name { font-weight: 700; color: #1e293b; font-size: 14px; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px; }
     .pos-card-price { font-weight: 800; color: #10b981; font-size: 15px; margin: 0; }
