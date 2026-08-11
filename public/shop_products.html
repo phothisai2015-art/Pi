@@ -71,26 +71,25 @@
         padding: 10px !important;
       }
 
-      /* 🌟 1. การ์ดโหมดสว่าง: ปรับขอบตัดคม + เงาซ้อน 2 ชั้น ลอยเด้งชัดเจน (Light Mode) */
+      /* 🌟 1. การ์ดโหมดสว่าง: ขอบตัดคมเข้มขึ้น + เงาดันการ์ดลอยเด้ง (Light Mode) */
       #product-table-body tr {
         display: flex !important;
         flex-direction: column !important;
         position: relative !important;
-        background: #ffffff !important; /* ขาวล้วนตัดกับพื้นหลังเทาอ่อน */
+        background: #ffffff !important;
         border-radius: 18px !important;
         padding: 8px 8px 10px 8px !important;
-        border: 1px solid #cbd5e1 !important; /* 👈 ขอบสีเทาอมฟ้า ตัดขอบการ์ดชัดเจน ไม่กลืนพื้นหลัง */
-        /* 👈 เงาซ้อน 2 ชั้น ดันการ์ดลอยเด่นมีมิติทันที */
-        box-shadow: 0 10px 20px rgba(15, 23, 42, 0.08), 
-                    0 2px 6px rgba(15, 23, 42, 0.04) !important; 
+        border: 1.5px solid #94a3b8 !important; /* ขอบสีเทา Slate ตัดฉากหลังชัดเจน */
+        box-shadow: 0 10px 25px rgba(15, 23, 42, 0.12), 
+                    0 3px 8px rgba(15, 23, 42, 0.05) !important; /* เงาซ้อน 2 ชั้นให้ลอยนูน */
         cursor: pointer;
       }
-      /* 🌟 2. การ์ดโหมดมืด: สไตล์กระจกคริสตัลนีออน ขอบเงาสว่าง (Dark Mode) */
+
+      /* 🌟 2. การ์ดโหมดมืด: กระจกคริสตัลนีออน ขอบเงาสว่าง (Dark Mode) */
       body.dark-theme #product-table-body tr {
-        background: rgba(30, 41, 59, 0.75) !important; /* สีกรมท่าโปร่งแสง */
+        background: rgba(30, 41, 59, 0.85) !important;
         backdrop-filter: blur(10px) !important;
-        border: 1px solid rgba(255, 255, 255, 0.18) !important; /* ขอบสว่างสะท้อนแสง */
-        /* เงามืดลึก + เส้นสะท้อนแสงขอบบนการ์ด */
+        border: 1px solid rgba(255, 255, 255, 0.22) !important;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 
                     inset 0 1px 1px rgba(255, 255, 255, 0.25) !important; 
       }
@@ -100,19 +99,6 @@
       /* 1st td: Checkbox มุมซ้ายบน */
       #product-table-body td:nth-child(1) { position: absolute !important; top: 10px !important; left: 10px !important; z-index: 2 !important; }
       #product-table-body td:nth-child(1) input { width: 18px !important; height: 18px !important; }
-
-      /* แปลง tr เป็นกล่องการ์ด (ลด padding เพื่อกั๊กพื้นที่ให้รูปใหญ่ขึ้น) */
-      #product-table-body tr {
-        display: flex !important;
-        flex-direction: column !important;
-        position: relative !important;
-        background: #ffffff !important;
-        border-radius: 16px !important;
-        padding: 8px 8px 10px 8px !important; /* 👈 ลด padding บน/ข้าง ให้รูปมีพื้นที่ขยาย */
-        border: 1px solid #e2e8f0 !important;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.03) !important;
-        cursor: pointer;
-      }
 
       /* 2nd td: รูปสินค้าตรงกลาง (ขยายภาพให้ใหญ่ขึ้น) */
       #product-table-body td:nth-child(2) { margin-top: 12px !important; margin-bottom: 4px !important; }
