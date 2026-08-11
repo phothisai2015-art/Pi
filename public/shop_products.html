@@ -50,107 +50,67 @@
     /* 📱 🌟 โหมดมือถือแนวตั้งเท่านั้น: จัดการเปลี่ยนตารางเป็นกล่องการ์ด 2 คอลัมน์ */
     /* ========================================================= */
     @media (max-width: 768px) and (orientation: portrait) {
-      .prod-header-wrapper { position: sticky; top: 0; z-index: 1045; background-color: #f8fafc; padding-top: 5px; margin-top: -5px; padding-bottom: 10px; margin-bottom: 10px !important; border-bottom: 1px solid #e2e8f0; }
-      body.dark-theme .prod-header-wrapper { background-color: #0f172a !important; border-bottom-color: #334155 !important; }
-      .prod-mobile-stack { flex-direction: row !important; flex-wrap: wrap !important; gap: 6px !important; margin-bottom: 0 !important; }
-      .prod-mobile-stack > button { flex: 1 1 calc(33.33% - 6px) !important; width: auto !important; margin: 0 !important; font-size: 11px !important; padding: 8px 2px !important; }
-      .hide-on-mobile { display: none !important; } .show-on-mobile { display: inline !important; }
-      .prod-mobile-stack > select { flex: 0 0 35% !important; min-width: 0 !important; width: auto !important; margin: 0 !important; font-size: 12px !important; padding: 6px !important; }
-      .prod-mobile-stack > div.input-group { flex: 1 1 auto !important; min-width: 0 !important; width: auto !important; margin: 0 !important; }
-      .prod-mobile-stack > div .input-group-text, .prod-mobile-stack > div input { font-size: 12px !important; padding: 6px !important; }
-
-      /* ซ่อนหัวตารางบนมือถือ */
-      .prod-table-container thead { display: none !important; }
-      .prod-table-container table { display: block !important; width: 100% !important; }
-      
-      /* แปลง tbody เป็น Grid 2 คอลัมน์ */
-      #product-table-body {
-        display: grid !important;
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 10px !important;
-        padding: 10px !important;
-      }
-
-      /* แปลง tr เป็นกล่องการ์ด */
+	/* แปลง tr เป็นกล่องการ์ด (ลดพื้นที่ขอบใน เพื่อกั๊กที่ให้รูปและตัวหนังสือใหญ่ขึ้น) */
       #product-table-body tr {
         display: flex !important;
         flex-direction: column !important;
         position: relative !important;
         background: #ffffff !important;
         border-radius: 16px !important;
-        padding: 12px 10px 10px 10px !important;
-        border: 1px solid #e2e8f0 !important;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.03) !important;
-        cursor: pointer;
-      }
-      body.dark-theme #product-table-body tr {
-        background: #1e293b !important;
-        border-color: #334155 !important;
-      }
-
-      #product-table-body td { display: block !important; padding: 0 !important; border: none !important; text-align: center !important; }
-      
-      /* 1st td: Checkbox มุมซ้ายบน */
-      #product-table-body td:nth-child(1) { position: absolute !important; top: 10px !important; left: 10px !important; z-index: 2 !important; }
-      #product-table-body td:nth-child(1) input { width: 18px !important; height: 18px !important; }
-
-      /* แปลง tr เป็นกล่องการ์ด (ลด padding เพื่อกั๊กพื้นที่ให้รูปใหญ่ขึ้น) */
-      #product-table-body tr {
-        display: flex !important;
-        flex-direction: column !important;
-        position: relative !important;
-        background: #ffffff !important;
-        border-radius: 16px !important;
-        padding: 8px 8px 10px 8px !important; /* 👈 ลด padding บน/ข้าง ให้รูปมีพื้นที่ขยาย */
+        padding: 6px 6px 8px 6px !important; /* 👈 บีบขอบกล่องด้านในให้แคบลง */
         border: 1px solid #e2e8f0 !important;
         box-shadow: 0 4px 12px rgba(0,0,0,0.03) !important;
         cursor: pointer;
       }
 
-      /* 2nd td: รูปสินค้าตรงกลาง (ขยายภาพให้ใหญ่ขึ้น) */
-      #product-table-body td:nth-child(2) { margin-top: 12px !important; margin-bottom: 4px !important; }
+      /* 2nd td: รูปสินค้าตรงกลาง (ขยายภาพให้ใหญ่เต็มกล่อง) */
+      #product-table-body td:nth-child(2) { margin-top: 8px !important; margin-bottom: 4px !important; }
       #product-table-body td:nth-child(2) img, 
       #product-table-body td:nth-child(2) div { 
-        width: 100px !important; /* 👈 ขยายความกว้างรูปจาก 75px เป็น 100px */
-        height: 100px !important; /* 👈 ขยายความสูงรูปจาก 75px เป็น 100px */
-        line-height: 100px !important; 
+        width: 115px !important; /* 👈 ขยายความกว้างรูปจาก 100px เป็น 115px */
+        height: 115px !important; /* 👈 ขยายความสูงรูปจาก 100px เป็น 115px */
+        line-height: 115px !important; 
         margin: auto !important; 
         border-radius: 14px !important; 
-        object-fit: cover !important; /* สัดส่วนรูปไม่เบี้ยว */
+        object-fit: cover !important; 
       }
 
       /* 3rd td: รหัสสินค้า */
-      #product-table-body td:nth-child(3) { font-size: 10px !important; margin-bottom: 2px !important; }
+      #product-table-body td:nth-child(3) { 
+        font-size: 11px !important; /* 👈 ขยายจาก 10px เป็น 11px */
+        margin-bottom: 2px !important; 
+      }
 
       /* 4th td: ชื่อสินค้า */
-      #product-table-body td:nth-child(4) { font-size: 12px !important; font-weight: bold !important; line-height: 1.2 !important; margin-bottom: 4px !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; }
-      #product-table-body td:nth-child(4) small { font-size: 9px !important; opacity: 0.7; display: block; }
+      #product-table-body td:nth-child(4) { 
+        font-size: 14px !important; /* 👈 ขยายชื่อสินค้าจาก 12px เป็น 14px */
+        font-weight: bold !important; 
+        line-height: 1.2 !important; 
+        margin-bottom: 4px !important; 
+        white-space: nowrap !important; 
+        overflow: hidden !important; 
+        text-overflow: ellipsis !important; 
+      }
+      #product-table-body td:nth-child(4) small { 
+        font-size: 10px !important; /* ขยายชื่อหมวดหมู่ */
+        opacity: 0.7; display: block; 
+      }
 
       /* 5th td: ราคา */
-      #product-table-body td:nth-child(5) { font-size: 13px !important; font-weight: bold !important; margin-bottom: 6px !important; }
+      #product-table-body td:nth-child(5) { 
+        font-size: 15px !important; /* 👈 ขยายราคาจาก 13px เป็น 15px */
+        font-weight: bold !important; 
+        margin-bottom: 8px !important; 
+      }
 
       /* 6th td: ป้ายสต็อก */
       #product-table-body td:nth-child(6) { margin-top: auto !important; }
-      #product-table-body td:nth-child(6) .badge { font-size: 9px !important; padding: 4px 8px !important; width: 100%; display: block; text-overflow: ellipsis; overflow: hidden; }
-
-      /* 7th td: ซ่อนปุ่มลบ มุมขวาบน ในโหมดมือถือ */
-      #product-table-body td:nth-child(7) { 
-        display: none !important; 
+      #product-table-body td:nth-child(6) .badge { 
+        font-size: 11px !important; /* 👈 ขยายตัวหนังสือในป้ายสต็อกเป็น 11px */
+        padding: 5px 8px !important; 
+        width: 100%; display: block; text-overflow: ellipsis; overflow: hidden; 
       }
-	/* 🌟 ลบแถบลายๆ ตอนเมาส์ชี้บนการ์ดมือถือ ให้เป็นกล่องเดียวกันเนียนๆ */
-      #product-table-body tr:hover > * {
-        background-color: transparent !important;
-        box-shadow: none !important;
       }
-      #product-table-body tr:hover {
-        background-color: #ffffff !important;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.08) !important;
-      }
-      body.dark-theme #product-table-body tr:hover {
-        background-color: #1e293b !important;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.3) !important;
-      }
-	}
 	
 
     /* 🌟 สีช่องค้นหารองรับ Dark Mode */
