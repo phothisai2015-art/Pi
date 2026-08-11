@@ -3,7 +3,7 @@
 <!-- ========================================================= -->
 <div id="page-products" style="display: none; background: #f8fafc; height: 100vh; box-sizing: border-box; position: absolute; top: 0; left: 0; width: 100%; z-index: 1040; overflow: hidden;">
   <style>
-    #page-products { padding: 5px 20px 60px 20px; }
+    #page-products { padding: 20px 60px 60px 60px; }
     .prod-table-container { height: calc(100vh - 180px); border: none !important; box-shadow: 0 15px 35px rgba(0,0,0,0.05) !important; border-radius: 24px !important;} 
     .show-on-mobile { display: none; }
     /* 🌟 แก้ไขเอฟเฟกต์เมาส์ชี้ ไม่ให้ขยายหลุดกรอบตาราง */
@@ -20,7 +20,7 @@
     }
     body.dark-theme .table-hover tbody tr:hover td, body.dark-theme .table-hover tbody tr:hover span.text-dark { color: #f1f5f9 !important; }
 
-    @media (max-width: 768px) { #page-products { padding: 5px 15px 100px 15px !important; } .prod-table-container { height: calc(100vh - 240px); } }
+    @media (max-width: 768px) { #page-products { padding: 15px 15px 100px 15px !important; } .prod-table-container { height: calc(100vh - 240px); } }
     @media (max-width: 768px) and (orientation: portrait) {
       .prod-header-wrapper { position: sticky; top: 0; z-index: 1045; background-color: #f8fafc; padding-top: 15px; margin-top: -15px; padding-bottom: 10px; margin-bottom: 10px !important; border-bottom: 1px solid #e2e8f0; }
       body.dark-theme .prod-header-wrapper { background-color: #0f172a !important; border-bottom-color: #334155 !important; }
@@ -108,11 +108,9 @@
     }
 	
   </style>
-  
-  
 
   <div class="prod-header-wrapper">
-    <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="d-flex justify-content-between align-items-center mb-4 mt-3">
       <h3 class="fw-bold text-primary m-0" data-i18n="prod_header_title"><i class="fa-solid fa-box-open me-2"></i> คลังสินค้า </h3>
       <button class="btn btn-outline-danger fw-bold rounded-pill px-4" onclick="closeProductsPage()"><i class="fa-solid fa-arrow-left me-2"></i> <span data-i18n="dash_btn_back">กลับ</span> </button>
     </div>
@@ -366,14 +364,7 @@
   </div>
 
   <script>
-  
   let globalProducts = []; let currentMode = 'add'; let bulkItems = []; let shoppingListItems = [];
-  // 🌟 เพิ่มตัวแปร 3 ตัวนี้สำหรับระบบทยอยโหลด (Infinite Scroll)
-  let currentFilteredProducts = []; 
-  let currentProductPage = 1;
-  const PRODUCT_PAGE_SIZE = 20;
-  let isRenderingProducts = false; // 🌟 เพิ่มตัวล็อคป้องกันการโหลดซ้อนกัน
-  
 
   function openProductsPage() { document.getElementById('page-products').style.display = 'block'; loadProductsTable(); if (typeof changeLanguage === 'function') changeLanguage(currentLang); }
   function closeProductsPage() { document.getElementById('page-products').style.display = 'none'; }
@@ -403,78 +394,50 @@
     }).getProducts(currentTenantSheetId);
   }
 
-function renderProductsTable(isLoadMore = false) {
-    // 🌟 ป้องกันการโหลดซ้อนกัน (Spam Scroll)
-    if (isLoadMore && isRenderingProducts) return; 
-    isRenderingProducts = true; // เปิดล็อคการทำงานทันที
+  function renderProductsTable() {
+    const tbody = document.getElementById('product-table-body'); tbody.innerHTML = '';
+    let keyword = document.getElementById('search-product-input').value.toLowerCase().trim();
+    let selectedCat = document.getElementById('filter-category').value;
 
-    const tbody = document.getElementById('product-table-body');
-    const container = document.querySelector('.prod-table-container');
+    let filtered = globalProducts.filter(p => {
+      let matchKeyword = (p.name && p.name.toLowerCase().includes(keyword)) || (p.id && p.id.toLowerCase().includes(keyword));
+      let matchCat = (selectedCat === "all") || (p.category === selectedCat);
+      return matchKeyword && matchCat;
+    });
 
-    if (!isLoadMore) {
-      tbody.innerHTML = '';
-      currentProductPage = 1;
-      let keyword = document.getElementById('search-product-input').value.toLowerCase().trim();
-      let selectedCat = document.getElementById('filter-category').value;
+    filtered.sort((a, b) => {
+      const getStockStatus = (p) => {
+        if (p.stock === "ไม่จำกัด" || p.stock === i18n['th']['prod_unlimited'] || p.stock === i18n['en']['prod_unlimited'] || isNaN(parseInt(p.stock))) return 4; 
+        let stock = parseInt(p.stock);
+        let minStock = parseInt(p.minStock) || 5;
+        if (stock <= 0) return 1; 
+        if (stock <= minStock) return 2; 
+        return 3; 
+      };
+      
+      let statusA = getStockStatus(a);
+      let statusB = getStockStatus(b);
+      
+      if (statusA !== statusB) return statusA - statusB; 
+      return a.name.localeCompare(b.name); 
+    });
 
-      currentFilteredProducts = globalProducts.filter(p => {
-        let matchKeyword = (p.name && p.name.toLowerCase().includes(keyword)) || (p.id && p.id.toLowerCase().includes(keyword));
-        let matchCat = (selectedCat === "all") || (p.category === selectedCat);
-        return matchKeyword && matchCat;
-      });
-
-      currentFilteredProducts.sort((a, b) => {
-        const getStockStatus = (p) => {
-          let unlimitTextTH = (typeof i18n !== 'undefined' && i18n['th']) ? i18n['th']['prod_unlimited'] : 'ไม่จำกัด';
-          let unlimitTextEN = (typeof i18n !== 'undefined' && i18n['en']) ? i18n['en']['prod_unlimited'] : 'Unlimited';
-          if (p.stock === "ไม่จำกัด" || p.stock === unlimitTextTH || p.stock === unlimitTextEN || isNaN(parseInt(p.stock))) return 4; 
-          let stock = parseInt(p.stock);
-          let minStock = parseInt(p.minStock) || 5;
-          if (stock <= 0) return 1; 
-          if (stock <= minStock) return 2; 
-          return 3; 
-        };
-        let statusA = getStockStatus(a);
-        let statusB = getStockStatus(b);
-        if (statusA !== statusB) return statusA - statusB; 
-        // 🌟 ป้องกันบัค Error กรณีชื่อสินค้าเป็นค่าว่าง
-        return (a.name || '').localeCompare(b.name || ''); 
-      });
-
-      if(currentFilteredProducts.length === 0) {
-        let notFoundText = (typeof i18n !== 'undefined' && i18n[currentLang]) ? i18n[currentLang]['prod_not_found'] : 'ไม่พบข้อมูล...';
-        tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-4">${notFoundText}</td></tr>`; 
-        updateBulkDeleteUI();
-        isRenderingProducts = false; // ปลดล็อค
-        return;
-      }
+    if(filtered.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-4">${i18n[currentLang]['prod_not_found']}</td></tr>`; 
+      updateBulkDeleteUI();
+      return;
     }
 
-    let startIndex = (currentProductPage - 1) * PRODUCT_PAGE_SIZE;
-    let endIndex = startIndex + PRODUCT_PAGE_SIZE;
-    let productsToRender = currentFilteredProducts.slice(startIndex, endIndex);
-
-    let htmlChunk = '';
-    productsToRender.forEach(p => {
-      let noImgText = (typeof i18n !== 'undefined' && i18n[currentLang]) ? i18n[currentLang]['prod_no_image'] : 'ไม่มีรูป';
-      let imgTag = p.image ? `<img src="${p.image}" style="width: 45px; height: 45px; object-fit: cover; border-radius: 10px;">` : `<div class="bg-light rounded text-center text-muted" style="width: 45px; height: 45px; line-height: 45px; font-size: 10px;">${noImgText}</div>`;
-      
+    filtered.forEach(p => {
+      let imgTag = p.image ? `<img src="${p.image}" style="width: 45px; height: 45px; object-fit: cover; border-radius: 10px;">` : `<div class="bg-light rounded text-center text-muted" style="width: 45px; height: 45px; line-height: 45px; font-size: 10px;">${i18n[currentLang]['prod_no_image']}</div>`;
       let stockNum = parseInt(p.stock); let currentMin = parseInt(p.minStock) || 5; let badgeHtml = "";
-      let unlimitText = (typeof i18n !== 'undefined' && i18n[currentLang]) ? i18n[currentLang]['prod_unlimited'] : 'ไม่จำกัด';
-      let outText = (typeof i18n !== 'undefined' && i18n[currentLang]) ? i18n[currentLang]['prod_out_of_stock'] : 'หมด';
-      let lowText = (typeof i18n !== 'undefined' && i18n[currentLang]) ? i18n[currentLang]['prod_low_stock'] : 'เหลือน้อย';
+      if (p.stock === "ไม่จำกัด" || p.stock === i18n['th']['prod_unlimited'] || p.stock === i18n['en']['prod_unlimited'] || isNaN(stockNum)) badgeHtml = `<span class="badge border text-dark fw-bold px-3 py-2 rounded-pill"><i class="fa-solid fa-infinity"></i> ${i18n[currentLang]['prod_unlimited']}</span>`;
+      else if (stockNum <= 0) badgeHtml = `<span class="badge bg-danger px-3 py-2 rounded-pill">${i18n[currentLang]['prod_out_of_stock']}</span>`;
+      else if (stockNum <= currentMin) badgeHtml = `<span class="badge bg-warning text-dark px-3 py-2 rounded-pill">${i18n[currentLang]['prod_low_stock']} (${stockNum})</span>`;
+      else badgeHtml = `<span class="badge bg-success px-3 py-2 rounded-pill">${stockNum} ${p.unit || 'ชิ้น'}</span>`;
 
-      if (p.stock === "ไม่จำกัด" || p.stock === unlimitText || isNaN(stockNum)) {
-        badgeHtml = `<span class="badge border text-dark fw-bold px-3 py-2 rounded-pill"><i class="fa-solid fa-infinity"></i> ${unlimitText}</span>`;
-      } else if (stockNum <= 0) {
-        badgeHtml = `<span class="badge bg-danger px-3 py-2 rounded-pill">${outText}</span>`;
-      } else if (stockNum <= currentMin) {
-        badgeHtml = `<span class="badge bg-warning text-dark px-3 py-2 rounded-pill">${lowText} (${stockNum})</span>`;
-      } else {
-        badgeHtml = `<span class="badge bg-success px-3 py-2 rounded-pill">${stockNum} ${p.unit || 'ชิ้น'}</span>`;
-      }
-
-      htmlChunk += `
+      tbody.innerHTML += `
+        <!-- เพิ่ม ontouchstart และ ontouchend เพื่อดักการสไลด์นิ้ว -->
         <tr>
           <td class="ps-4">
             <input type="checkbox" class="form-check-input prod-select-cb" value="${p.id}" style="cursor: pointer;" onchange="updateBulkDeleteUI()">
@@ -484,7 +447,9 @@ function renderProductsTable(isLoadMore = false) {
           <td><span class="fw-bold text-dark">${p.name}</span><br><small class="text-muted">${p.category}</small></td>
           <td class="text-success fw-bold fs-6">฿${parseFloat(p.price).toLocaleString()}</td>
           <td>${badgeHtml}</td>
+          <!-- เพิ่มคลาส action-cell ตรงนี้ -->
           <td class="text-end pe-4 action-cell">
+            <!-- 🌟 เพิ่มกล่องนี้เข้ามาครอบปุ่มไว้ -->
             <div class="swipe-actions">
               <button class="btn btn-sm btn-light text-warning shadow-sm me-1" onclick="openProductForm('edit', '${p.id}')"><i class="fa-solid fa-pen"></i></button>
               <button class="btn btn-sm btn-light text-danger shadow-sm" onclick="confirmDelete('${p.id}')"><i class="fa-solid fa-trash"></i></button>
@@ -494,19 +459,7 @@ function renderProductsTable(isLoadMore = false) {
       `;
     });
 
-    tbody.insertAdjacentHTML('beforeend', htmlChunk);
     updateBulkDeleteUI();
-
-    // 🌟 รอให้เบราว์เซอร์วาดตารางเสร็จก่อน ค่อยปลดล็อคและเช็คความสูง
-    setTimeout(() => {
-        isRenderingProducts = false; // ปลดล็อคให้เลื่อนโหลดรอบต่อไปได้
-
-        // 🌟 เช็ค clientHeight > 0 เพื่อป้องกันบัคลูปโหลดตอนหน้าจอถูกซ่อนอยู่
-        if (container.clientHeight > 0 && container.scrollHeight <= container.clientHeight && (currentProductPage * PRODUCT_PAGE_SIZE) < currentFilteredProducts.length) {
-            currentProductPage++;
-            renderProductsTable(true);
-        }
-    }, 100); 
   }
 
   // 🌟 1. ฟังก์ชันเลือกทั้งหมด / ยกเลิกทั้งหมด
@@ -1220,19 +1173,6 @@ function renderProductsTable(isLoadMore = false) {
       });
     }
   }, { passive: true });
-  
-// 🌟 ดักจับการเลื่อนจอเพื่อโหลดสินค้าล็อตถัดไป (Infinite Scroll)
-  document.querySelector('.prod-table-container').addEventListener('scroll', function() {
-      let container = this;
-      if (container.scrollTop + container.clientHeight >= container.scrollHeight - 100) {
-          // 🌟 เช็คตัวล็อค isRenderingProducts ก่อนเสมอ
-          if (!isRenderingProducts && (currentProductPage * PRODUCT_PAGE_SIZE) < currentFilteredProducts.length) {
-              currentProductPage++;
-              renderProductsTable(true);
-          }
-      }
-  });
-  
   
   </script>
 </div>
