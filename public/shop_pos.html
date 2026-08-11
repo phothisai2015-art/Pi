@@ -343,6 +343,23 @@
       #pos-grid-view {
         padding-bottom: 20px !important; /* ลดระยะเว้นล่างสุด ให้ชิดลงมาอีก */
       }
+	  /* 🌟 ปลดล็อคความสูงตะกร้า ให้ขยายกินพื้นที่ว่างทั้งหมด และดันกล่องสรุปยอดชิดล่างสุด */
+      #pos-cart-container {
+        max-height: none !important; /* ยกเลิกการจำกัดความสูงตะกร้า */
+        flex-grow: 1 !important; /* สั่งให้ตะกร้ายืดตัวลงมาเต็มที่ */
+      }
+      .pos-right-summary {
+        margin-top: auto !important; /* ดันกล่อง Payment Summary ลงไปชิดขอบล่างเสมอ */
+      }
+	  /* 🌟 ปรับขอบบนซ้ายและขวาของหน้าต่าง Pop-up ตะกร้าให้โค้งมน */
+      #pos-right-panel {
+        border-top-left-radius: 24px !important;
+        border-top-right-radius: 24px !important;
+        /* ดัน Pop-up ลงมานิดนึง เพื่อให้เห็นมุมโค้งตัดกับพื้นหลังสวยๆ */
+        top: 15px !important; 
+        height: calc(100vh - 15px) !important;
+        box-shadow: 0 -10px 25px rgba(0,0,0,0.15) !important; /* เพิ่มเงาด้านบนให้ดูมีมิติลอยขึ้นมา */
+      }
     }
 	/* ========================================================= */
     /* 🌙 แก้ไขบัคโหมดกลางคืน (Dark Mode) สำหรับตะกร้าสินค้า */
