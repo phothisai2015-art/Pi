@@ -141,26 +141,27 @@
     body.dark-theme .prod-mobile-stack .input-group-text { background-color: #1e293b !important; color: #94a3b8 !important; }
     body.dark-theme #search-product-input::placeholder, body.dark-theme #bulk-scan-input::placeholder { color: #64748b !important; }
 	
-	/* 🌟 ปรับแต่งแท็บเลื่อน (Scrollbar) ให้เนียนตาในโหมดมืด */
+	/* 🌟 ปรับแต่งแท็บเลื่อน (Scrollbar) ในโหมดมืดให้ก้านเลื่อนอ้วนเต็มตาเท่าโหมดสว่าง */
     body.dark-theme .prod-table-container::-webkit-scrollbar {
-      width: 14px;
-      height: 14px;
+      width: 16px !important; /* ขยายเป็น 16px เท่าขนาดมาตรฐานโหมดสว่าง */
+      height: 16px !important;
     }
     body.dark-theme .prod-table-container::-webkit-scrollbar-track {
       background: #0f172a !important; /* สีร่องรางเลื่อน */
     }
     body.dark-theme .prod-table-container::-webkit-scrollbar-thumb {
-      background: #334155 !important; /* สีตัวก้านเลื่อน */
-      border-radius: 10px;
+      background: #475569 !important; /* สีก้านเลื่อน */
+      border-radius: 8px !important;
+      border: none !important; /* 👈 เอาเส้นขอบออก เพื่อไม่ให้บีบก้านเลื่อนให้ลีบลง */
     }
     body.dark-theme .prod-table-container::-webkit-scrollbar-thumb:hover {
-      background: #475569 !important; /* สีตัวก้านเลื่อนเวลาเมาส์ชี้ */
+      background: #64748b !important; /* สีก้านเลื่อนเวลาเอาเมาส์ชี้ */
     }
 
-    /* รองรับเบราว์เซอร์ Firefox ในโหมดมืด */
+    /* รองรับเบราว์เซอร์ Firefox */
     body.dark-theme .prod-table-container {
-      scrollbar-color: #334155 #0f172a;
-      scrollbar-width: thin;
+      scrollbar-color: #475569 #0f172a;
+      scrollbar-width: auto;
     }
 	
 	/* 📱 สำหรับหน้าจอ iPad / Tablet (แนวตั้งและแนวนอน) */
