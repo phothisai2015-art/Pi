@@ -133,11 +133,10 @@
       #product-table-body td:nth-child(6) { margin-top: auto !important; }
       #product-table-body td:nth-child(6) .badge { font-size: 9px !important; padding: 4px 8px !important; width: 100%; display: block; text-overflow: ellipsis; overflow: hidden; }
 
-      /* 7th td: ปุ่มลบ มุมขวาบน */
-      #product-table-body td:nth-child(7) { position: absolute !important; top: 6px !important; right: 6px !important; z-index: 2 !important; }
-      #product-table-body td:nth-child(7) .swipe-actions { position: static !important; transform: none !important; background: transparent !important; box-shadow: none !important; padding: 0 !important; backdrop-filter: none !important; }
-      #product-table-body td:nth-child(7) .swipe-actions button:first-child { display: none !important; } /* ซ่อนปุ่มปากกา */
-      #product-table-body td:nth-child(7) .swipe-actions button:last-child { padding: 4px 8px !important; font-size: 11px !important; border-radius: 8px !important; background: rgba(239, 68, 68, 0.1) !important; color: #ef4444 !important; border: none !important; }
+      /* 7th td: ซ่อนปุ่มลบ มุมขวาบน ในโหมดมือถือ */
+      #product-table-body td:nth-child(7) { 
+        display: none !important; 
+      }
 	/* 🌟 ลบแถบลายๆ ตอนเมาส์ชี้บนการ์ดมือถือ ให้เป็นกล่องเดียวกันเนียนๆ */
       #product-table-body tr:hover > * {
         background-color: transparent !important;
@@ -253,7 +252,14 @@
         <div class="col-12"><div class="form-floating"><input type="number" id="prod-min-stock" class="form-control fw-bold text-warning" placeholder="เช่น 5" data-i18n="prod_placeholder_min_stock"><label class="fw-bold text-muted" style="font-size: 0.85rem;"><i class="fa-solid fa-triangle-exclamation text-warning"></i> <span data-i18n="prod_label_min_stock"> ต่ำกว่ากี่ชิ้นให้ติดป้ายเหลือง? </span></label></div></div>
         <div class="col-12"><div class="p-2 bg-light rounded-3 border d-flex align-items-center gap-2 mt-1"><div class="flex-grow-1"><label class="form-label fw-bold small text-muted mb-1"><i class="fa-solid fa-image me-1"></i> <span data-i18n="prod_label_image"> รูปภาพสินค้า </span></label><input type="file" id="prod-image-file" class="form-control form-control-sm" accept="image/*"><div id="upload-status" class="text-info small fw-bold mt-1" style="line-height: 1;"></div></div><img id="prod-image-preview" src="" style="width: 55px; height: 55px; object-fit: cover; display: none; border-radius: 8px; border: 1px solid #ccc; flex-shrink: 0;"></div></div>
       </div>
-      <div class="d-flex gap-2 mt-3"><button class="btn btn-light flex-fill fw-bold py-2" onclick="closeProductForm()" data-i18n="prod_btn_cancel"> ยกเลิก </button><button class="btn btn-primary flex-fill fw-bold py-2 shadow-sm" id="btn-save-product" onclick="submitProductData(this)" data-i18n="prod_btn_save"> บันทึกข้อมูล </button></div>
+      <div class="d-flex gap-2 mt-3">
+        <!-- เพิ่มปุ่มลบ (จะแสดงเฉพาะตอนแก้ไข) -->
+        <button class="btn btn-outline-danger fw-bold py-2 shadow-sm px-3" id="btn-delete-product" onclick="confirmDeleteFromModal()" style="display: none;" title="ลบสินค้านี้">
+          <i class="fa-solid fa-trash-can"></i>
+        </button>
+        <button class="btn btn-light flex-fill fw-bold py-2" onclick="closeProductForm()" data-i18n="prod_btn_cancel"> ยกเลิก </button>
+        <button class="btn btn-primary flex-fill fw-bold py-2 shadow-sm" id="btn-save-product" onclick="submitProductData(this)" data-i18n="prod_btn_save"> บันทึกข้อมูล </button>
+      </div>
     </div>
   </div>
 
@@ -469,6 +475,11 @@
   }
 
   function openProductForm(mode, id = '') {
+  
+  if(mode === 'add') {
+      document.getElementById('form-title').innerText = i18n[currentLang]['prod_modal_add_title'];
+      document.getElementById('btn-delete-product').style.display = 'none'; // 👈 ซ่อนปุ่มลบ
+      // ... (โค้ดเดิมด้านล่าง) ...
     populateCategoryDropdowns(); currentMode = mode;
     document.getElementById('product-form-modal').style.display = 'flex';
     document.getElementById('upload-status').innerText = ''; document.getElementById('prod-image-file').value = '';
@@ -480,6 +491,8 @@
       document.getElementById('prod-stock').value = ''; document.getElementById('prod-min-stock').value = '5';
       document.getElementById('prod-unit').value = 'ชิ้น'; document.getElementById('prod-image-preview').style.display = 'none';
     } else {
+	  
+      document.getElementById('btn-delete-product').style.display = 'block'; // 👈 แสดงปุ่มลบ
       document.getElementById('form-title').innerText = i18n[currentLang]['prod_modal_edit_title'];
       let p = globalProducts.find(x => x.id === id);
       if(p) {
@@ -549,6 +562,14 @@
         google.script.run.withSuccessHandler(() => { google.script.run.logAction(currentTenantSheetId, currentStaff.name, "ลบสินค้า", "รหัส: " + id); loadProductsTable(); Swal.fire({ icon: 'success', title: i18n[currentLang]['swal_del_success'], timer: 1500, showConfirmButton: false }); }).deleteProduct(currentTenantSheetId, id);
       }
     });
+  }
+  // 🌟 ฟังก์ชันสำหรับการกดลบจากในหน้าต่าง Modal
+  function confirmDeleteFromModal() {
+    let id = document.getElementById('prod-old-id').value;
+    if(id) {
+      closeProductForm(); // ปิดหน้าต่างแก้ไขก่อน
+      confirmDelete(id); // เรียกใช้ฟังก์ชันลบตัวเดิม
+    }
   }
 
   window.globalBoxMappings = [];
