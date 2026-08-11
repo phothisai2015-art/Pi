@@ -294,25 +294,48 @@
         gap: 10px !important;
       }
       
-      /* ปรับขนาดกล่องและตัวหนังสือให้เล็กลง กระชับเข้ากับ 3 แถว */
+      /* 🌟 1. การ์ดโหมดสว่างใน POS มือถือ: ขอบตัดคมเข้มขึ้น + เงาเด่นดันการ์ดลอยนูน (Light Mode) */
       .pos-product-card {
-        padding: 6px !important;
-        min-height: 110px !important;
-        border-radius: 12px !important;
+        background: #ffffff !important;
+        padding: 8px !important;
+        min-height: 115px !important;
+        border-radius: 16px !important;
+        border: 1.5px solid #94a3b8 !important; /* ขอบสีเทา Slate ตัดขอบชัดเจน ไม่กลืนพื้นหลัง */
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.12), 
+                    0 2px 6px rgba(15, 23, 42, 0.05) !important; /* เงาซ้อน 2 ชั้นให้ลอยนูน */
       }
+
+      /* 🌟 2. การ์ดโหมดมืดใน POS มือถือ: กระจกใสคริสตัล ขอบเงาสว่างลอยเด่น (Dark Mode) */
+      body.dark-theme .pos-product-card {
+        background: rgba(30, 41, 59, 0.85) !important; /* สีกรมท่าโปร่งแสง */
+        backdrop-filter: blur(10px) !important;
+        border: 1px solid rgba(255, 255, 255, 0.22) !important; /* ขอบกระจกสะท้อนแสง */
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), 
+                    inset 0 1px 1px rgba(255, 255, 255, 0.25) !important; 
+      }
+
       .pos-card-img {
-        margin-bottom: 4px !important;
-        border-radius: 8px !important;
+        margin-bottom: 6px !important;
+        border-radius: 10px !important;
       }
-      /* 🌟 ขยายขนาดตัวหนังสือ ชื่อสินค้า ราคา และป้ายสต็อก ให้ใหญ่ขึ้น */
+
+      /* 🌟 3. ปรับตัวหนังสือและสีการ์ดสินค้า POS มือถือให้คมชัดอ่านง่าย */
       .pos-card-name { 
         font-size: 15px !important; 
         margin-bottom: 4px !important; 
         line-height: 1.2 !important; 
       }
+      body.dark-theme .pos-card-name {
+        color: #f8fafc !important; /* ชื่อสินค้าสีขาวสว่างในโหมดมืด */
+      }
+
       .pos-card-price { 
         font-size: 17px !important; 
       }
+      body.dark-theme .pos-card-price {
+        color: #34d399 !important; /* ราคาสีเขียวนีออนสว่างอ่านง่าย */
+      }
+
       .pos-card-badge { 
         font-size: 11px !important; 
         padding: 4px 8px !important;
