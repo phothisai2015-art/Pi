@@ -120,7 +120,21 @@
       #product-table-body td:nth-child(7) .swipe-actions { position: static !important; transform: none !important; background: transparent !important; box-shadow: none !important; padding: 0 !important; backdrop-filter: none !important; }
       #product-table-body td:nth-child(7) .swipe-actions button:first-child { display: none !important; } /* ซ่อนปุ่มปากกา */
       #product-table-body td:nth-child(7) .swipe-actions button:last-child { padding: 4px 8px !important; font-size: 11px !important; border-radius: 8px !important; background: rgba(239, 68, 68, 0.1) !important; color: #ef4444 !important; border: none !important; }
-    }
+	/* 🌟 ลบแถบลายๆ ตอนเมาส์ชี้บนการ์ดมือถือ ให้เป็นกล่องเดียวกันเนียนๆ */
+      #product-table-body tr:hover > * {
+        background-color: transparent !important;
+        box-shadow: none !important;
+      }
+      #product-table-body tr:hover {
+        background-color: #ffffff !important;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.08) !important;
+      }
+      body.dark-theme #product-table-body tr:hover {
+        background-color: #1e293b !important;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.3) !important;
+      }
+	}
+	
 
     /* 🌟 สีช่องค้นหารองรับ Dark Mode */
     #search-product-input, #bulk-scan-input { background-color: #f1f5f9 !important; color: #0f172a !important; }
@@ -134,6 +148,7 @@
       #page-products { padding: 5px 10px 10px 10px !important; }
       .prod-table-container { height: calc(100vh - 135px) !important; }
     }
+	
   </style>
 
   <div class="prod-header-wrapper">
