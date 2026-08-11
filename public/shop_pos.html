@@ -360,25 +360,26 @@
         height: calc(100vh - 15px) !important;
         box-shadow: 0 -10px 25px rgba(0,0,0,0.15) !important; /* เพิ่มเงาด้านบนให้ดูมีมิติลอยขึ้นมา */
       }
-	  /* 🌟 1. แก้ไขสัดส่วนหัวตะกร้า และสีพื้นหลังโหมดสว่างให้ลอยเด่น */
+	 /* 🌟 แก้ไขสัดส่วนหัวตะกร้า: ลดพื้นที่ด้านบน และดันปุ่ม X เข้ามา */
       #pos-right-panel {
-        background-color: #ffffff !important; /* ให้กล่องเป็นสีขาวล้วน จะได้ตัดกับพื้นหลังสีเทาอ่อน */
-        padding: 20px 20px 15px 20px !important; /* ขยายระยะขอบซ้ายขวา ดันของไม่ให้ชิดขอบจอ */
+        background-color: #ffffff !important; 
+        padding: 10px 10px 15px 10px !important; /* ลดช่องว่างด้านบนให้เหลือ 10px */
       }
-      #mobile-close-cart-btn {
-        margin-bottom: 20px !important; /* เพิ่มระยะห่างระหว่างหัวข้อกับตารางด้านล่าง */
+      #mobile-close-cart-btn .d-lg-none {
+        margin-bottom: 12px !important; /* ลดช่องว่างใต้ขีดจับสีเทาลง */
       }
       #mobile-close-cart-btn > div.justify-content-between {
-        padding: 0 5px; /* ดันข้อความตะกร้า และปุ่ม X เข้ามาหากันอีกนิด */
+        padding-left: 8px !important; /* ดันข้อความตะกร้าเข้ามานิดนึง */
+        padding-right: 15px !important; /* ดันปุ่ม X เข้ามาจากขอบขวาให้มากขึ้น */
         align-items: center !important;
       }
       #mobile-close-cart-btn h4 {
-        font-size: 1.3rem !important; /* ปรับขนาดตัวหนังสือให้พอดี */
+        font-size: 1.3rem !important; 
         display: flex;
         align-items: center;
       }
       #mobile-close-cart-btn .btn-close {
-        transform: scale(1.1) !important; /* ปรับขนาดปุ่ม X ให้ไม่เล็กหรือใหญ่เกินไป */
+        transform: scale(1.1) !important; 
       }
     }
 	/* ========================================================= */
