@@ -94,10 +94,30 @@
       #product-table-body td:nth-child(1) { position: absolute !important; top: 10px !important; left: 10px !important; z-index: 2 !important; }
       #product-table-body td:nth-child(1) input { width: 18px !important; height: 18px !important; }
 
-      /* 2nd td: รูปสินค้าตรงกลาง */
-      #product-table-body td:nth-child(2) { margin-top: 10px !important; margin-bottom: 6px !important; }
+      /* แปลง tr เป็นกล่องการ์ด (ลด padding เพื่อกั๊กพื้นที่ให้รูปใหญ่ขึ้น) */
+      #product-table-body tr {
+        display: flex !important;
+        flex-direction: column !important;
+        position: relative !important;
+        background: #ffffff !important;
+        border-radius: 16px !important;
+        padding: 8px 8px 10px 8px !important; /* 👈 ลด padding บน/ข้าง ให้รูปมีพื้นที่ขยาย */
+        border: 1px solid #e2e8f0 !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.03) !important;
+        cursor: pointer;
+      }
+
+      /* 2nd td: รูปสินค้าตรงกลาง (ขยายภาพให้ใหญ่ขึ้น) */
+      #product-table-body td:nth-child(2) { margin-top: 12px !important; margin-bottom: 4px !important; }
       #product-table-body td:nth-child(2) img, 
-      #product-table-body td:nth-child(2) div { width: 75px !important; height: 75px !important; line-height: 75px !important; margin: auto !important; border-radius: 12px !important; }
+      #product-table-body td:nth-child(2) div { 
+        width: 100px !important; /* 👈 ขยายความกว้างรูปจาก 75px เป็น 100px */
+        height: 100px !important; /* 👈 ขยายความสูงรูปจาก 75px เป็น 100px */
+        line-height: 100px !important; 
+        margin: auto !important; 
+        border-radius: 14px !important; 
+        object-fit: cover !important; /* สัดส่วนรูปไม่เบี้ยว */
+      }
 
       /* 3rd td: รหัสสินค้า */
       #product-table-body td:nth-child(3) { font-size: 10px !important; margin-bottom: 2px !important; }
