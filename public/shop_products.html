@@ -3,7 +3,7 @@
 <!-- ========================================================= -->
 <div id="page-products" style="display: none; background: #f8fafc; height: 100vh; box-sizing: border-box; position: absolute; top: 0; left: 0; width: 100%; z-index: 1040; overflow: hidden;">
   <style>
-    #page-products { padding: 20px 60px 60px 60px; }
+    #page-products { padding: 10px 20px 60px 20px; }
     .prod-table-container { height: calc(100vh - 180px); border: none !important; box-shadow: 0 15px 35px rgba(0,0,0,0.05) !important; border-radius: 24px !important;} 
     .show-on-mobile { display: none; }
     /* 🌟 แก้ไขเอฟเฟกต์เมาส์ชี้ ไม่ให้ขยายหลุดกรอบตาราง */
@@ -20,7 +20,7 @@
     }
     body.dark-theme .table-hover tbody tr:hover td, body.dark-theme .table-hover tbody tr:hover span.text-dark { color: #f1f5f9 !important; }
 
-    @media (max-width: 768px) { #page-products { padding: 15px 15px 100px 15px !important; } .prod-table-container { height: calc(100vh - 240px); } }
+    @media (max-width: 768px) { #page-products { padding: 8px 15px 100px 15px !important; } .prod-table-container { height: calc(100vh - 240px); } }
     @media (max-width: 768px) and (orientation: portrait) {
       .prod-header-wrapper { position: sticky; top: 0; z-index: 1045; background-color: #f8fafc; padding-top: 15px; margin-top: -15px; padding-bottom: 10px; margin-bottom: 10px !important; border-bottom: 1px solid #e2e8f0; }
       body.dark-theme .prod-header-wrapper { background-color: #0f172a !important; border-bottom-color: #334155 !important; }
@@ -106,16 +106,11 @@
         transform: translateX(0);
       }
     }
-	/* 🌟 ป้องกันตัวหนังสือทะลุหัวตารางเวลาเลื่อนในโหมดมืด */
-    body.dark-theme .table-light.sticky-top th {
-      background-color: #1e293b !important;
-      color: #f8fafc !important;
-      border-bottom: 1px solid #334155 !important;
-    }
+	
   </style>
 
   <div class="prod-header-wrapper">
-    <div class="d-flex justify-content-between align-items-center mb-4 mt-3">
+    <div class="d-flex justify-content-between align-items-center mb-3">
       <h3 class="fw-bold text-primary m-0" data-i18n="prod_header_title"><i class="fa-solid fa-box-open me-2"></i> คลังสินค้า </h3>
       <button class="btn btn-outline-danger fw-bold rounded-pill px-4" onclick="closeProductsPage()"><i class="fa-solid fa-arrow-left me-2"></i> <span data-i18n="dash_btn_back">กลับ</span> </button>
     </div>
