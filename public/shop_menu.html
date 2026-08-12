@@ -693,9 +693,14 @@ function saveFirstAdmin() {
   }).saveUser(currentTenantSheetId, userData); 
 }
 
+// 🌟 เพิ่มตัวแปรกันการกดซ้ำตอนกำลังตรวจรหัส
+let isCheckingPin = false;
+
 function pressNum(val) {
-  // 🌟 เพิ่มบรรทัดนี้ เพื่อสั่งให้ปุ่มปล่อยโฟกัสทันทีที่กด จะได้เด้งคืนกลับมา
   if (document.activeElement) document.activeElement.blur(); 
+
+  // 🌟 ถ้าระบบกำลังนับถอยหลังตรวจ PIN อยู่ ให้ข้ามปุ่มที่กดเกินมาทันที
+  if (isCheckingPin) return;
 
   if (val === 'clear') { 
     currentPin = ""; 
@@ -707,8 +712,8 @@ function pressNum(val) {
   
   updatePinDisplay(); 
 
-  // หน่วงเวลา 150ms ให้ไข่ปลาโชว์ครบก่อนค่อยตรวจ PIN
   if (currentPin.length === 4) {
+    isCheckingPin = true; // 🌟 ล็อกปุ่มทันที กันตั้ง Timer ซ้ำ
     setTimeout(() => {
       checkPinCode(currentPin);
     }, 150); 
@@ -724,11 +729,10 @@ function updatePinDisplay() {
 function checkPinCode(pin) {
   let user = globalUsers.find(u => u.pin === pin);
   if(user) {
-    // 👇 🌟 เพิ่ม 2 บรรทัดนี้เข้าไปครับ 🌟 👇
+    isCheckingPin = false; // 🌟 ปลดล็อกสถานะการตรวจ
     clearTimeout(shopLogoutTimeout);
     localStorage.removeItem('pos_lock_time');
-    // ------------------------------------
-
+    
     currentStaff = user; 
     document.getElementById('display-staff-name').innerText = user.name; 
     document.getElementById('display-staff-name').removeAttribute('data-i18n');
@@ -744,6 +748,7 @@ function checkPinCode(pin) {
     google.script.run.logAction(currentTenantSheetId, user.name, "เข้าสู่ระบบ", "ล็อกอินสำเร็จ");
     currentPin = ""; updatePinDisplay(); resetIdleTimer();
   } else {
+    isCheckingPin = false; // 🌟 ปลดล็อกสถานะการตรวจ (กรณีใส่รหัสผิด)
     Swal.fire({ icon: 'error', title: i18n[currentLang]['swal_wrong_pin_title'], text: i18n[currentLang]['swal_try_again'], timer: 1000, showConfirmButton: false });
     currentPin = ""; updatePinDisplay(); let numpad = document.getElementById('numpad-box'); numpad.classList.add('error-shake'); setTimeout(() => { numpad.classList.remove('error-shake'); }, 400);
   }
