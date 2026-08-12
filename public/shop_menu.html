@@ -465,7 +465,21 @@ function toggleThemeMode() {
 let idleTimeout;
 function resetIdleTimer() {
   clearTimeout(idleTimeout);
-  if(document.getElementById('lock-screen') && document.getElementById('lock-screen').style.display === 'none') { idleTimeout = setTimeout(() => { lockScreenManual(true); }, 300000); } 
+  
+  // 🌟 [เพิ่มใหม่] ดึงค่าเวลาจาก Settings (ถ้ายังไม่เคยตั้งค่า ให้ใช้ 5 นาที)
+  let timeoutMinutes = (typeof cachedShopSettings !== 'undefined' && cachedShopSettings.pin_timeout_minutes !== undefined)
+    ? parseFloat(cachedShopSettings.pin_timeout_minutes)
+    : 5;
+    
+  // ถ้าค่าเป็น 0 หรือน้อยกว่า แปลว่า "ปิดใช้งานการล็อกอัตโนมัติ"
+  if (timeoutMinutes <= 0) return; 
+  
+  // แปลงนาที เป็น Milliseconds (1 นาที = 60000 ms)
+  let timeoutMs = timeoutMinutes * 60 * 1000;
+
+  if(document.getElementById('lock-screen') && document.getElementById('lock-screen').style.display === 'none') { 
+    idleTimeout = setTimeout(() => { lockScreenManual(true); }, timeoutMs); 
+  } 
 }
 window.onload = resetIdleTimer; document.onmousemove = resetIdleTimer; document.onkeypress = resetIdleTimer; document.ontouchstart = resetIdleTimer; document.onclick = resetIdleTimer;
 

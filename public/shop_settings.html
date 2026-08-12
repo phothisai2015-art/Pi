@@ -458,6 +458,28 @@
             </div>
           </div>
 
+          <!-- 🌟 [เพิ่มใหม่] ตั้งเวลาล็อกหน้าจออัตโนมัติ -->
+          <div class="col-lg-6">
+            <div class="p-4 rounded-4 border shadow-sm bg-white h-100 d-flex flex-column justify-content-between">
+              <div>
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <i class="fa-solid fa-user-lock text-warning fs-5"></i>
+                  <h6 class="fw-bold text-dark m-0 custom-translate" data-i18n-th="ระบบล็อกหน้าจออัตโนมัติ" data-i18n-en="Auto Lock Screen">ระบบล็อกหน้าจออัตโนมัติ</h6>
+                </div>
+                <p class="small text-muted mb-3">กำหนดเวลาล็อกหน้าจอ (PIN) เมื่อไม่มีการใช้งาน เพื่อป้องกันบุคคลอื่นเข้าถึงระบบ</p>
+              </div>
+              <select id="setting-pin-timeout" class="form-select form-select-lg fs-6 shadow-sm border mt-2" onchange="saveTimeoutSetting()">
+                <option value="1">1 นาที</option>
+                <option value="3">3 นาที</option>
+                <option value="5">5 นาที (ค่าเริ่มต้น)</option>
+                <option value="10">10 นาที</option>
+                <option value="15">15 นาที</option>
+                <option value="30">30 นาที</option>
+                <option value="0">ปิดใช้งาน (ไม่ล็อกอัตโนมัติ)</option>
+              </select>
+            </div>
+          </div>
+
           <!-- 2. ลบข้อมูลทดสอบ (Clear Test Data) -->
           <div class="col-lg-6">
             <div class="p-4 rounded-4 border border-danger border-opacity-25 shadow-sm bg-white h-100 d-flex flex-column justify-content-between">
@@ -1037,6 +1059,10 @@
       google.script.run.withSuccessHandler(function(s) {
         document.getElementById('set-shop-name').value = s.shop_name || '';
         document.getElementById('set-promptpay').value = s.shop_promptpay || '';
+        
+        // 🌟 [เพิ่มใหม่] ดึงค่า Timeout มาแสดง
+        let timeoutSelect = document.getElementById('setting-pin-timeout');
+        if (timeoutSelect) timeoutSelect.value = s.pin_timeout_minutes !== undefined ? s.pin_timeout_minutes : "5";
         document.getElementById('set-account-name').value = s.shop_account_name || '';
         document.getElementById('set-phone').value = s.shop_phone || '';
         document.getElementById('set-address').value = s.shop_address || '';
@@ -1678,6 +1704,29 @@
              }).deleteTestBills(currentTenantSheetId, receiptIds); 
           }
        });
+    }
+	
+	// 🌟 [เพิ่มใหม่] ฟังก์ชันบันทึกเวลาล็อกหน้าจอแบบ Auto-save
+    function saveTimeoutSetting() {
+      let timeoutVal = document.getElementById('setting-pin-timeout').value;
+      let newSettings = { pin_timeout_minutes: timeoutVal };
+      
+      // อัปเดตตัวแปรแคชในระบบ
+      if(typeof cachedShopSettings !== 'undefined') {
+          cachedShopSettings.pin_timeout_minutes = timeoutVal;
+      }
+      
+      // ส่งไปบันทึกบนเซิร์ฟเวอร์
+      google.script.run.withSuccessHandler(() => {
+          let staff = (typeof currentStaff !== 'undefined' && currentStaff.name) ? currentStaff.name : 'Unknown';
+          let timeText = timeoutVal == 0 ? "ปิดใช้งาน" : timeoutVal + " นาที";
+          google.script.run.logAction(currentTenantSheetId, staff, "ตั้งค่าระบบ", "เปลี่ยนเวลาล็อกหน้าจอเป็น: " + timeText);
+          
+          Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 1500 })
+              .fire({ icon: 'success', title: 'บันทึกเวลาล็อกหน้าจอแล้ว' });
+              
+          loadActivityLogsData(); // รีเฟรชตารางประวัติ
+      }).updateShopSettings(currentTenantSheetId, newSettings);
     }
 
   </script>
