@@ -116,6 +116,7 @@ function setupEnterKeys() {
       case 'resetPasswordDirect': url = '/api/reset-password-direct'; options.method = 'POST'; options.body = JSON.stringify({ email: args[0], phone: args[1], newPassword: args[2] }); break;
       case 'checkRenewEmail': url = '/api/check-renew-email'; options.method = 'POST'; options.body = JSON.stringify({ email: args[0] }); break;
       case 'uploadSlipAndNotify': url = '/api/upload-slip-notify'; options.method = 'POST'; options.body = JSON.stringify({ email: args[0], shopName: args[1], pkgName: args[2], price: args[3], base64Data: args[4] }); break;
+	  case 'getPackagePrices': url = '/api/package-prices'; break;
       default: if (successCb) successCb({ status: 'success' }); return;
     }
     fetch(url, options).then(res => res.json()).then(data => { if (successCb) successCb(data); }).catch(err => { if (failureCb) failureCb(err); });
@@ -671,6 +672,9 @@ function switchSaaSPage(targetId) {
     document.getElementById('renew-step-pay').style.display = 'none';
     document.getElementById('renew-step-success').style.display = 'none';
     document.getElementById('renew-email-input').value = '';
+    
+    loadDynamicPackagePrices(); // 🌟 เติมบรรทัดนี้ลงไปตรงนี้ครับ!
+    
     let firstCard = document.querySelector('#page-renew .renew-pkg-card');
     renewSelectPkg('1M|150', firstCard);
   }
@@ -808,6 +812,50 @@ function renewSubmitSlip() {
       }).uploadSlipAndNotify(globalRenewEmail, globalRenewShop, globalRenewPkgName, globalRenewPrice, base64Data);
   };
   reader.readAsDataURL(file);
+}
+
+// ฟังก์ชันโหลดราคาแพ็กเกจล่าสุดจากฐานข้อมูล
+function loadDynamicPackagePrices() {
+  google.script.run.withSuccessHandler(function(pkgs) {
+    if (pkgs) {
+      // อัปเดตราคา 1 เดือน
+      let btn1m = document.querySelector('[onclick*="1M"]');
+      if (btn1m) {
+        btn1m.setAttribute('onclick', `renewSelectPkg('1M|${pkgs.pkg_1m}', this)`);
+        btn1m.querySelector('.renew-pkg-price').innerText = `฿${parseFloat(pkgs.pkg_1m).toLocaleString()}`;
+        btn1m.querySelector('.renew-pkg-perday').innerText = `ตกวันละ ${(parseFloat(pkgs.pkg_1m)/30).toFixed(2)} บ.`;
+        
+        // 🌟 อัปเดตค่า Default ที่ซ่อนไว้ให้เป็นราคาใหม่ทันที (ป้องกันลูกค้ากดข้าม)
+        if (btn1m.classList.contains('selected')) {
+            document.getElementById('renew-package').value = `1M|${pkgs.pkg_1m}`;
+        }
+      }
+
+      // อัปเดตราคา 3 เดือน
+      let btn3m = document.querySelector('[onclick*="3M"]');
+      if(btn3m) {
+         btn3m.setAttribute('onclick', `renewSelectPkg('3M|${pkgs.pkg_3m}', this)`);
+         btn3m.querySelector('.renew-pkg-price').innerText = `฿${parseFloat(pkgs.pkg_3m).toLocaleString()}`;
+         btn3m.querySelector('.renew-pkg-perday').innerText = `ตกวันละ ${(parseFloat(pkgs.pkg_3m)/90).toFixed(2)} บ.`;
+      }
+
+      // อัปเดตราคา 6 เดือน
+      let btn6m = document.querySelector('[onclick*="6M"]');
+      if(btn6m) {
+         btn6m.setAttribute('onclick', `renewSelectPkg('6M|${pkgs.pkg_6m}', this)`);
+         btn6m.querySelector('.renew-pkg-price').innerText = `฿${parseFloat(pkgs.pkg_6m).toLocaleString()}`;
+         btn6m.querySelector('.renew-pkg-perday').innerText = `ตกวันละ ${(parseFloat(pkgs.pkg_6m)/180).toFixed(2)} บ.`;
+      }
+
+      // อัปเดตราคา 12 เดือน
+      let btn12m = document.querySelector('[onclick*="12M"]');
+      if(btn12m) {
+         btn12m.setAttribute('onclick', `renewSelectPkg('12M|${pkgs.pkg_12m}', this)`);
+         btn12m.querySelector('.renew-pkg-price').innerText = `฿${parseFloat(pkgs.pkg_12m).toLocaleString()}`;
+         btn12m.querySelector('.renew-pkg-perday').innerText = `ตกวันละ ${(parseFloat(pkgs.pkg_12m)/365).toFixed(2)} บ.`;
+      }
+    }
+  }).getPackagePrices();
 }
 
 // 4. ฟังก์ชัน รีเซ็ตรหัสผ่าน

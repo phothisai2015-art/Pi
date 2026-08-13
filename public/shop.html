@@ -49,6 +49,7 @@
       case 'getActivityLogs': url = '/api/activity-logs/' + args[0]; break;
       case 'getTenantInfoBySheetId': url = '/api/tenant-info/' + args[0]; break;
       case 'uploadQuickRenewSlip': url = '/api/upload-quick-renew-slip'; options.method = 'POST'; options.body = JSON.stringify({ email: args[0], shopName: args[1], pkgName: args[2], price: args[3], base64Data: args[4] }); break;
+	  case 'getPackagePrices': url = '/api/package-prices'; break;
       case 'importExcelData': url = '/api/import-excel'; options.method = 'POST'; options.body = JSON.stringify({ tenantId: args[0], payload: args[1] }); break;
       case 'clearRenewNotify': url = '/api/clear-renew-notify'; options.method = 'POST'; options.body = JSON.stringify({ sheetId: args[0] }); break;
       default: if (successCb) successCb({ status: 'success' }); return;

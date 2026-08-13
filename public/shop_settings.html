@@ -1012,11 +1012,14 @@
     }
 
     function openQuickRenewModal() {
-      document.getElementById('quick-renew-modal').style.display = 'flex';
-      document.getElementById('qr-slip-file').value = ""; 
-      document.getElementById('qr-pkg-select').value = "1M|150"; 
-      showRenewStep(1); // เปิดมาให้เข้า Step 1 เสมอ
-    }
+  document.getElementById('quick-renew-modal').style.display = 'flex';
+  document.getElementById('qr-slip-file').value = ""; 
+  document.getElementById('qr-pkg-select').value = "1M|150"; 
+  showRenewStep(1); // เปิดมาให้เข้า Step 1 เสมอ
+  
+  // 🌟 ดึงราคาใหม่มาแสดงทันทีที่เปิดป๊อปอัพ
+  loadQuickRenewPackagePrices();
+}
     
     function closeQuickRenewModal() { 
       document.getElementById('quick-renew-modal').style.display = 'none'; 
@@ -1707,6 +1710,45 @@
           loadActivityLogsData(); // รีเฟรชตารางประวัติ
       }).updateShopSettings(currentTenantSheetId, newSettings);
     }
+	
+// ฟังก์ชันโหลดราคาแพ็กเกจล่าสุดสำหรับหน้าต่ออายุด่วน (Settings)
+function loadQuickRenewPackagePrices() {
+  google.script.run.withSuccessHandler(function(pkgs) {
+    if (pkgs) {
+      // แพ็กเกจ 1 เดือน
+      let btn1m = document.querySelector('#quick-renew-modal [onclick*="1M"]');
+      if(btn1m) {
+         btn1m.setAttribute('onclick', `choosePackageAndNext('1M|${pkgs.pkg_1m}')`);
+         let priceEl = btn1m.querySelector('h3'); if(priceEl) priceEl.innerText = `฿${parseFloat(pkgs.pkg_1m).toLocaleString()}`;
+         let perdayEl = btn1m.querySelector('.badge'); if(perdayEl) perdayEl.innerText = `ตกวันละ ${(parseFloat(pkgs.pkg_1m)/30).toFixed(2)} บ.`;
+      }
+
+      // แพ็กเกจ 3 เดือน
+      let btn3m = document.querySelector('#quick-renew-modal [onclick*="3M"]');
+      if(btn3m) {
+         btn3m.setAttribute('onclick', `choosePackageAndNext('3M|${pkgs.pkg_3m}')`);
+         let priceEl = btn3m.querySelector('h3'); if(priceEl) priceEl.innerText = `฿${parseFloat(pkgs.pkg_3m).toLocaleString()}`;
+         let perdayEl = btn3m.querySelector('.badge'); if(perdayEl) perdayEl.innerText = `ตกวันละ ${(parseFloat(pkgs.pkg_3m)/90).toFixed(2)} บ.`;
+      }
+
+      // แพ็กเกจ 6 เดือน
+      let btn6m = document.querySelector('#quick-renew-modal [onclick*="6M"]');
+      if(btn6m) {
+         btn6m.setAttribute('onclick', `choosePackageAndNext('6M|${pkgs.pkg_6m}')`);
+         let priceEl = btn6m.querySelector('h3'); if(priceEl) priceEl.innerText = `฿${parseFloat(pkgs.pkg_6m).toLocaleString()}`;
+         let perdayEl = btn6m.querySelector('.badge'); if(perdayEl) perdayEl.innerText = `ตกวันละ ${(parseFloat(pkgs.pkg_6m)/180).toFixed(2)} บ.`;
+      }
+
+      // แพ็กเกจ 12 เดือน
+      let btn12m = document.querySelector('#quick-renew-modal [onclick*="12M"]');
+      if(btn12m) {
+         btn12m.setAttribute('onclick', `choosePackageAndNext('12M|${pkgs.pkg_12m}')`);
+         let priceEl = btn12m.querySelector('h3'); if(priceEl) priceEl.innerText = `฿${parseFloat(pkgs.pkg_12m).toLocaleString()}`;
+         let perdayEl = btn12m.querySelector('.badge'); if(perdayEl) perdayEl.innerText = `ตกวันละ ${(parseFloat(pkgs.pkg_12m)/365).toFixed(2)} บ.`;
+      }
+    }
+  }).getPackagePrices();
+}
 
   </script>
 </div>
