@@ -223,26 +223,88 @@ app.post('/api/upload-image', (req, res) => {
   } catch(e) { res.json("error: " + e.message); }
 });
 
-app.post('/api/save-order', (req, res) => {
-  const { tenantId, payload } = req.body; const orderData = JSON.parse(payload); const d = new Date(); const pad = (n) => String(n).padStart(2, '0');
-  const recId = "REC" + d.getFullYear().toString().substr(-2) + pad(d.getMonth()+1) + pad(d.getDate()) + pad(d.getHours()) + pad(d.getMinutes()) + pad(d.getSeconds());
-  const timestamp = `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+// ==========================================
+// 🌟 ตัวแปรเก็บสถานะการล็อกคิว (กันเครื่องอื่นกดชนกันในเสี้ยววินาที)
+// ==========================================
+const checkoutLocks = {};
 
-  db.run(`INSERT INTO sales_log (tenant_id, timestamp, receipt_id, customer_name, items_str, total, payment_method, phone, seller) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [tenantId, timestamp, recId, orderData.customerName || "-", orderData.itemsStr, orderData.total, orderData.paymentMethod, orderData.phone || "-", orderData.seller || "Admin"], function(err) {
-      if (err) return res.json({ status: "error", message: err.message });
-      if (orderData.cartItems) {
+app.post('/api/save-order', async (req, res) => {
+  const { tenantId, payload } = req.body; 
+  const orderData = JSON.parse(payload);
+
+  // 🛑 1. เช็คคิว: ถ้าร้านนี้กำลังประมวลผลบิลของเครื่องอื่นอยู่ ให้เด้งกลับทันที
+  if (checkoutLocks[tenantId]) {
+    return res.json({ status: "error", message: "มีการชำระเงินพร้อมกันในระบบ กรุณารอ 2 วินาทีแล้วกดใหม่ครับ" });
+  }
+  checkoutLocks[tenantId] = true; // ล็อกประตู ไม่ให้เครื่องอื่นของร้านนี้ทำรายการแทรกได้
+
+  try {
+    // 🛑 2. เช็คสต็อก "ก่อน" บันทึกบิลเสมอ (ป้องกันการขายเกิน)
+    const checkStockBeforeSave = () => {
+      return new Promise((resolve, reject) => {
+        if (!orderData.cartItems || orderData.cartItems.length === 0) return resolve();
+        let itemsToCheck = orderData.cartItems.length;
+        let hasError = false;
+
         orderData.cartItems.forEach(item => {
-          db.get(`SELECT stock FROM products WHERE tenant_id = ? AND id = ?`, [tenantId, item.id], (e, row) => {
+          db.get(`SELECT name, stock FROM products WHERE tenant_id = ? AND id = ?`, [tenantId, item.id], (err, row) => {
+            if (hasError) return;
             if (row && row.stock !== "ไม่จำกัด") {
-              const newStock = Math.max(0, parseInt(row.stock) - parseInt(item.qty));
-              db.run(`UPDATE products SET stock = ? WHERE tenant_id = ? AND id = ?`, [String(newStock), tenantId, item.id]);
+              let currentStock = parseInt(row.stock) || 0;
+              let orderQty = parseInt(item.qty) || 0;
+              if (currentStock < orderQty) {
+                hasError = true;
+                reject(`สินค้า "${row.name}" มีสต็อกไม่พอ (เหลือแค่ ${currentStock})`);
+              }
             }
+            itemsToCheck--;
+            if (itemsToCheck === 0 && !hasError) resolve();
           });
         });
-      }
-      res.json({ status: "success", receiptId: recId });
+      });
+    };
+
+    // รอจนกว่าจะเช็คสต็อกผ่านทุกตัว ถ้าไม่ผ่านมันจะกระโดดไปหา catch ทันที
+    await checkStockBeforeSave(); 
+
+    // 🟢 3. ถ้ารอดมาได้ ค่อยบันทึกบิลและตัดสต็อก (โค้ดดั้งเดิมของคุณ)
+    const d = new Date(); const pad = (n) => String(n).padStart(2, '0');
+    const recId = "REC" + d.getFullYear().toString().substr(-2) + pad(d.getMonth()+1) + pad(d.getDate()) + pad(d.getHours()) + pad(d.getMinutes()) + pad(d.getSeconds());
+    const timestamp = `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+
+    db.run(`INSERT INTO sales_log (tenant_id, timestamp, receipt_id, customer_name, items_str, total, payment_method, phone, seller) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [tenantId, timestamp, recId, orderData.customerName || "-", orderData.itemsStr, orderData.total, orderData.paymentMethod, orderData.phone || "-", orderData.seller || "Admin"], function(err) {
+        
+        if (err) {
+          delete checkoutLocks[tenantId]; // เกิด error ต้องปลดล็อก
+          return res.json({ status: "error", message: err.message });
+        }
+
+        // หักลบสต็อกตามปกติ
+        if (orderData.cartItems) {
+          orderData.cartItems.forEach(item => {
+            db.get(`SELECT stock FROM products WHERE tenant_id = ? AND id = ?`, [tenantId, item.id], (e, row) => {
+              if (row && row.stock !== "ไม่จำกัด") {
+                const newStock = Math.max(0, parseInt(row.stock) - parseInt(item.qty));
+                db.run(`UPDATE products SET stock = ? WHERE tenant_id = ? AND id = ?`, [String(newStock), tenantId, item.id]);
+              }
+            });
+          });
+        }
+        
+        delete checkoutLocks[tenantId]; // ปลดล็อกประตูคิวให้เครื่องอื่นทำรายการต่อได้
+        
+        // 🌟 4. ส่งสัญญาณผ่าน Socket.io ไปหาทุกเครื่องในร้าน ให้อัปเดตสต็อกเดี๋ยวนี้!
+        io.to(tenantId).emit('force_refresh_stock');
+
+        res.json({ status: "success", receiptId: recId });
     });
+
+  } catch (errorMsg) {
+    // โดนเตะกลับเพราะสต็อกไม่พอ
+    delete checkoutLocks[tenantId]; // ปลดล็อกประตู
+    res.json({ status: "error", message: errorMsg });
+  }
 });
 app.post('/api/void-order', (req, res) => {
   const { tenantId, receiptId } = req.body;
