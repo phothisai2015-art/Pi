@@ -624,6 +624,10 @@ function initShopMenuScripts() {
 function loadShopData(tenantId) {
   if(!tenantId) return;
   google.script.run.withSuccessHandler(function(settings) {
+    // 🌟 ดึงข้อมูลมาแล้ว ให้จำค่า UI และจัดหน้าจอซ่อนปุ่มทันที!
+    cachedShopSettings = settings || {}; 
+    if (typeof applyUISettings === 'function') applyUISettings(); 
+    
     if(settings && settings.shop_logo) { document.getElementById('display-shop-logo').src = settings.shop_logo; document.getElementById('display-shop-logo').style.display = 'inline-block'; }
   }).getShopSettings(tenantId);
 

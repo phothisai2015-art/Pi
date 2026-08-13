@@ -945,6 +945,10 @@
                 renderMenuGrid(); 
             }
         }
+        
+        // 🌟 จัดหน้าจอ UI ตามที่ตั้งค่าไว้ ทันทีที่ข้อมูลจากเซิร์ฟเวอร์มาถึง
+        if (typeof applyUISettings === 'function') applyUISettings();
+        
       }).getShopSettings(currentTenantSheetId);
       
       // แปลภาษาในหน้า POS
