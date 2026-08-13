@@ -169,29 +169,44 @@ app.post('/api/users/save', (req, res) => {
 app.post('/api/users/delete', (req, res) => { db.run(`DELETE FROM users WHERE tenant_id = ? AND pin = ?`, [req.body.tenantId, req.body.pin], function(err) { res.json(this.changes > 0 ? "deleted" : "not_found"); }); });
 
 app.get('/api/products/:tenantId', (req, res) => { db.all(`SELECT id, name, price, image, category, stock, min_stock as minStock, unit FROM products WHERE tenant_id = ?`, [req.params.tenantId], (err, rows) => res.json(rows || [])); });
+// ===============================================
+// 🌟 วางทับตั้งแต่ app.post('/api/products/add' เป็นต้นไป
+// ===============================================
 app.post('/api/products/add', (req, res) => {
   const { tenantId, product } = req.body;
   db.get(`SELECT id FROM products WHERE tenant_id = ? AND id = ?`, [tenantId, product.id], (err, row) => {
     if (row) return res.json("duplicate");
     db.run(`INSERT INTO products (tenant_id, id, name, price, image, category, stock, min_stock, unit) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [tenantId, product.id, product.name, product.price, product.image, product.category, product.stock, product.minStock, product.unit], () => res.json("success"));
+      [tenantId, product.id, product.name, product.price, product.image, product.category, product.stock, product.minStock, product.unit], () => {
+        io.to(tenantId).emit('force_refresh_stock'); // 🌟 เติมแล้ว
+        res.json("success");
+      });
   });
 });
+
 app.post('/api/products/update', (req, res) => {
   const { tenantId, product } = req.body;
   db.get(`SELECT image FROM products WHERE tenant_id = ? AND id = ?`, [tenantId, product.oldId], (err, row) => {
     if (row && row.image && row.image !== product.image) deleteLocalImage(row.image);
     db.run(`UPDATE products SET id=?, name=?, price=?, image=?, category=?, stock=?, min_stock=?, unit=? WHERE tenant_id=? AND id=?`,
-      [product.id, product.name, product.price, product.image, product.category, product.stock, product.minStock, product.unit, tenantId, product.oldId], function() { res.json(this.changes > 0 ? "success" : "not_found"); });
+      [product.id, product.name, product.price, product.image, product.category, product.stock, product.minStock, product.unit, tenantId, product.oldId], function() { 
+        io.to(tenantId).emit('force_refresh_stock'); // 🌟 เติมแล้ว
+        res.json(this.changes > 0 ? "success" : "not_found"); 
+      });
   });
 });
+
 app.post('/api/products/delete', (req, res) => { 
   const { tenantId, id } = req.body;
   db.get(`SELECT image FROM products WHERE tenant_id = ? AND id = ?`, [tenantId, id], (err, row) => {
     if (row && row.image) deleteLocalImage(row.image);
-    db.run(`DELETE FROM products WHERE tenant_id = ? AND id = ?`, [tenantId, id], function() { res.json(this.changes > 0 ? "success" : "not_found"); }); 
+    db.run(`DELETE FROM products WHERE tenant_id = ? AND id = ?`, [tenantId, id], function() { 
+      io.to(tenantId).emit('force_refresh_stock'); // 🌟 เติมแล้ว
+      res.json(this.changes > 0 ? "success" : "not_found"); 
+    }); 
   });
 });
+
 app.post('/api/update-bulk-stock', (req, res) => {
   const { tenantId, payload } = req.body; JSON.parse(payload).forEach(item => {
     db.get(`SELECT stock FROM products WHERE tenant_id = ? AND id = ?`, [tenantId, item.id], (err, row) => {
@@ -200,7 +215,9 @@ app.post('/api/update-bulk-stock', (req, res) => {
         db.run(`UPDATE products SET stock = ? WHERE tenant_id = ? AND id = ?`, [String(newStock), tenantId, item.id]);
       }
     });
-  }); res.json("success");
+  }); 
+  setTimeout(() => { io.to(tenantId).emit('force_refresh_stock'); }, 500); // 🌟 เติมแล้ว
+  res.json("success");
 });
 
 app.post('/api/upload-image', (req, res) => {
@@ -306,6 +323,9 @@ app.post('/api/save-order', async (req, res) => {
     res.json({ status: "error", message: errorMsg });
   }
 });
+// ===============================================
+// 🌟 วางทับตั้งแต่ app.post('/api/void-order'
+// ===============================================
 app.post('/api/void-order', (req, res) => {
   const { tenantId, receiptId } = req.body;
   db.get(`SELECT items_str, receipt_id FROM sales_log WHERE tenant_id = ? AND receipt_id = ?`, [tenantId, receiptId], (err, row) => {
@@ -326,14 +346,12 @@ app.post('/api/void-order', (req, res) => {
           }
         });
       });
-
-      // 🌟 ส่งสัญญาณบอกทุกเครื่องให้หน้าจอกระพริบอัปเดตสต็อกที่คืนมา
-      setTimeout(() => { io.to(tenantId).emit('force_refresh_stock'); }, 500);
-
+      setTimeout(() => { io.to(tenantId).emit('force_refresh_stock'); }, 500); // 🌟 เติมแล้ว
       res.json("success");
     });
   });
 });
+
 app.post('/api/void-partial-item', (req, res) => {
   const { tenantId, receiptId, itemIndex, returnQty } = req.body;
   db.get(`SELECT items_str, total, receipt_id FROM sales_log WHERE tenant_id = ? AND receipt_id = ?`, [tenantId, receiptId], (err, row) => {
@@ -362,6 +380,7 @@ app.post('/api/void-partial-item', (req, res) => {
           db.run(`UPDATE products SET stock = ? WHERE tenant_id = ? AND id = ?`, [String(newStock), tenantId, prod.id]);
         }
       });
+      setTimeout(() => { io.to(tenantId).emit('force_refresh_stock'); }, 500); // 🌟 เติมแล้ว
       res.json("success");
     });
   });
