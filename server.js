@@ -562,7 +562,7 @@ app.post(['/api/upload-slip-notify', '/api/upload-quick-renew-slip'], async (req
       const priceRegex = new RegExp(`${cleanPrice}(\\.00)?`);
       const condition2 = priceRegex.test(slipText);
 
-      const timeRegex = /([0-2][0-9])[:.]([0-5][0-9])/; 
+      const timeRegex = /([0-2]?[0-9])[:.]([0-5][0-9])/; 
       const timeMatch = slipText.match(timeRegex);
       let condition3 = false;
       if (timeMatch) {
@@ -716,12 +716,43 @@ async function pollTelegram() {
               }
             });
           } else if (parts[0] === "REJECT") {
-            await axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/editMessageText`, { 
-              chat_id: chatId, 
-              message_id: messageId, 
-              text: "❌ <b>ปฏิเสธการต่ออายุ</b> (ข้อมูลสลิปไม่ถูกต้อง)", 
-              parse_mode: "HTML" 
+            const email = parts[1]; // ดึงอีเมลจาก Callback Data
+
+            // 1. ค้นหาชื่อร้านจากอีเมล
+            db.get(`SELECT shop_name FROM tenants WHERE LOWER(email) = LOWER(?)`, [email], (err, row) => {
+              if (row) {
+                // 2. ปลดล็อกสถานะในฐานข้อมูล ให้ปุ่มที่หน้าเว็บหยุดหมุน
+                db.run(`UPDATE tenants SET renew_status = 'NONE' WHERE LOWER(email) = LOWER(?)`, [email], (err) => {
+                  
+                  // 3. ส่งอีเมลแจ้งลูกค้าว่าสลิปไม่ผ่าน
+                  const mailOptions = {
+                    from: transporter.options.auth.user,
+                    to: email,
+                    subject: `❌ การแจ้งต่ออายุไม่สำเร็จ - ร้าน ${row.shop_name}`,
+                    text: `สวัสดีครับ\n\nสลิปแจ้งชำระเงินต่ออายุระบบ POS ของร้าน ${row.shop_name} ไม่ได้รับการอนุมัติ\n(ข้อมูลสลิปไม่ถูกต้อง หรือยอดเงินไม่ตรงกับแพ็กเกจ)\n\nกรุณาตรวจสอบและแนบสลิปทำรายการใหม่อีกครั้งผ่านหน้าเว็บครับ`
+                  };
+                  transporter.sendMail(mailOptions).catch(() => {});
+
+                  // 4. อัปเดตข้อความใน Telegram ทันที
+                  axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/editMessageText`, { 
+                    chat_id: chatId, 
+                    message_id: messageId, 
+                    text: "❌ <b>ปฏิเสธการต่ออายุ</b> (ข้อมูลสลิปไม่ถูกต้อง)", 
+                    parse_mode: "HTML" 
+                  }).catch(() => {});
+
+                });
+              } else {
+                // หากหาอีเมลไม่เจอในระบบ ให้เปลี่ยนข้อความใน Telegram แจ้งเตือนแอดมิน
+                axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/editMessageText`, { 
+                  chat_id: chatId, 
+                  message_id: messageId, 
+                  text: "❌ <b>ปฏิเสธการต่ออายุ</b> (ไม่พบข้อมูลอีเมลร้านค้านี้ในระบบ)", 
+                  parse_mode: "HTML" 
+                }).catch(() => {});
+              }
             });
+          }
           }
         }
       }
