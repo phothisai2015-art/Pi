@@ -531,8 +531,26 @@ function initShopMenuScripts() {
   hookPageNavigation(); 
 
   // ========================================================
-  // 🌟 เพิ่มโค้ดแปลภาษาตรงนี้เลยครับ (ดึงคำแปลมาใส่ทันทีที่โหลดหน้าเสร็จ)
+  // 🌟 1. บล็อกหน้าจอด้วยเปอร์เซ็นต์โหลด ทันทีที่เข้าหน้าร้าน!
   // ========================================================
+  Swal.fire({
+    title: 'กำลังเชื่อมต่อระบบ...',
+    html: 'โหลดฐานข้อมูลร้านค้า... <b id="sys-load-percent" class="text-primary fs-3">0%</b>',
+    allowOutsideClick: false,
+    showConfirmButton: false,
+    didOpen: () => {
+      Swal.showLoading();
+      let p = 0;
+      window.sysLoadInterval = setInterval(() => {
+        p += Math.floor(Math.random() * 8) + 2;
+        if (p > 95) p = 95; // ค้างที่ 95% รอข้อมูลจากเซิร์ฟเวอร์มาให้ครบ
+        let el = document.getElementById('sys-load-percent');
+        if (el) el.innerText = p + '%';
+      }, 80); // ตัวเลขจะวิ่งขึ้นรัวๆ
+    }
+  });
+  // ========================================================
+  
   if (typeof changeLanguage === 'function') {
     changeLanguage(currentLang);
   }
@@ -624,7 +642,6 @@ function initShopMenuScripts() {
 function loadShopData(tenantId) {
   if(!tenantId) return;
   google.script.run.withSuccessHandler(function(settings) {
-    // 🌟 ดึงข้อมูลมาแล้ว ให้จำค่า UI และจัดหน้าจอซ่อนปุ่มทันที!
     cachedShopSettings = settings || {}; 
     if (typeof applyUISettings === 'function') applyUISettings(); 
     
@@ -633,33 +650,49 @@ function loadShopData(tenantId) {
 
   google.script.run.withSuccessHandler(function(users) { 
     globalUsers = users || []; 
-    if(globalUsers.length === 0) {
-      document.getElementById('first-time-setup-modal').style.display = 'flex';
-    } else {
-      const savedStaff = sessionStorage.getItem('pos_active_staff');
-      if (savedStaff) {
-        try {
-          let user = JSON.parse(savedStaff);
-          let validUser = globalUsers.find(u => u.pin === user.pin);
-          if (validUser) {
-            currentStaff = validUser; 
-            document.getElementById('display-staff-name').innerText = validUser.name; 
-            document.getElementById('display-staff-name').removeAttribute('data-i18n'); // 🌟 จุดแก้ที่ 1
-            applyPermissions(validUser.permissions);
-            document.getElementById('lock-screen').style.display = 'none';
-            resetIdleTimer();
+    
+    // ========================================================
+    // 🌟 2. ข้อมูลมาครบแล้ว ดันหลอดไปที่ 100% แล้วปลดล็อกหน้าจอ
+    // ========================================================
+    if (window.sysLoadInterval) clearInterval(window.sysLoadInterval);
+    let el = document.getElementById('sys-load-percent');
+    if (el) el.innerText = '100%';
 
-            setTimeout(() => {
-                let lastPage = sessionStorage.getItem('pos_current_page');
-                if(lastPage === 'page-pos' && validUser.permissions.includes('POS') && typeof openPOSPage === 'function') openPOSPage();
-                else if(lastPage === 'page-products' && validUser.permissions.includes('STOCK') && typeof openProductsPage === 'function') openProductsPage();
-                else if(lastPage === 'page-dashboard' && validUser.permissions.includes('DASH') && typeof openDashboardPage === 'function') openDashboardPage();
-                else if(lastPage === 'page-settings' && validUser.permissions.includes('ADMIN') && typeof openSettingsPage === 'function') openSettingsPage();
-            }, 50);
+    setTimeout(() => {
+        // ปิดหน้าจอโหลด (ถ้าเปิดอยู่)
+        if (Swal.isVisible() && Swal.getTitle() && Swal.getTitle().textContent.includes('ระบบ')) {
+           Swal.close();
+        }
+
+        if(globalUsers.length === 0) {
+          document.getElementById('first-time-setup-modal').style.display = 'flex';
+        } else {
+          const savedStaff = sessionStorage.getItem('pos_active_staff');
+          if (savedStaff) {
+            try {
+              let user = JSON.parse(savedStaff);
+              let validUser = globalUsers.find(u => u.pin === user.pin);
+              if (validUser) {
+                currentStaff = validUser; 
+                document.getElementById('display-staff-name').innerText = validUser.name; 
+                document.getElementById('display-staff-name').removeAttribute('data-i18n'); 
+                applyPermissions(validUser.permissions);
+                document.getElementById('lock-screen').style.display = 'none';
+                resetIdleTimer();
+
+                setTimeout(() => {
+                    let lastPage = sessionStorage.getItem('pos_current_page');
+                    if(lastPage === 'page-pos' && validUser.permissions.includes('POS') && typeof openPOSPage === 'function') openPOSPage();
+                    else if(lastPage === 'page-products' && validUser.permissions.includes('STOCK') && typeof openProductsPage === 'function') openProductsPage();
+                    else if(lastPage === 'page-dashboard' && validUser.permissions.includes('DASH') && typeof openDashboardPage === 'function') openDashboardPage();
+                    else if(lastPage === 'page-settings' && validUser.permissions.includes('ADMIN') && typeof openSettingsPage === 'function') openSettingsPage();
+                }, 50);
+              }
+            } catch(e) { sessionStorage.removeItem('pos_active_staff'); }
           }
-        } catch(e) { sessionStorage.removeItem('pos_active_staff'); }
-      }
-    }
+        }
+    }, 400); // หน่วง 0.4 วินาทีให้ผู้ใช้เห็นว่าโหลดเสร็จ 100% แล้วจริงๆ
+
   }).getUsers(tenantId);
 }
 
