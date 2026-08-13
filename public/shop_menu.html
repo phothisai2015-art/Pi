@@ -530,26 +530,6 @@ function hookPageNavigation() {
 function initShopMenuScripts() {
   hookPageNavigation(); 
 
-  // ========================================================
-  // 🌟 1. บล็อกหน้าจอด้วยเปอร์เซ็นต์โหลด ทันทีที่เข้าหน้าร้าน!
-  // ========================================================
-  Swal.fire({
-    title: 'กำลังเชื่อมต่อระบบ...',
-    html: 'โหลดฐานข้อมูลร้านค้า... <b id="sys-load-percent" class="text-primary fs-3">0%</b>',
-    allowOutsideClick: false,
-    showConfirmButton: false,
-    didOpen: () => {
-      Swal.showLoading();
-      let p = 0;
-      window.sysLoadInterval = setInterval(() => {
-        p += Math.floor(Math.random() * 8) + 2;
-        if (p > 95) p = 95; // ค้างที่ 95% รอข้อมูลจากเซิร์ฟเวอร์มาให้ครบ
-        let el = document.getElementById('sys-load-percent');
-        if (el) el.innerText = p + '%';
-      }, 80); // ตัวเลขจะวิ่งขึ้นรัวๆ
-    }
-  });
-  // ========================================================
   
   if (typeof changeLanguage === 'function') {
     changeLanguage(currentLang);
@@ -764,32 +744,45 @@ function updatePinDisplay() {
 }
 
 function checkPinCode(pin) {
-  let user = globalUsers.find(u => u.pin === pin);
-  if(user) {
-    isCheckingPin = false; // 🌟 ปลดล็อกสถานะการตรวจ
-    clearTimeout(shopLogoutTimeout);
-    localStorage.removeItem('pos_lock_time');
-    
-    currentStaff = user; 
-    document.getElementById('display-staff-name').innerText = user.name; 
-    document.getElementById('display-staff-name').removeAttribute('data-i18n');
-    applyPermissions(user.permissions);
-    
-    sessionStorage.setItem('pos_active_staff', JSON.stringify(user));
+      // 🌟 บังคับแปลงเป็น String ให้ชัวร์ 100% ป้องกันพิมพ์แล้วข้อมูลไม่ตรง
+      let user = globalUsers.find(u => String(u.pin).trim() === String(pin).trim());
+      
+      if(user) {
+        isCheckingPin = false; 
+        clearTimeout(shopLogoutTimeout);
+        localStorage.removeItem('pos_lock_time');
+        
+        currentStaff = user; 
+        document.getElementById('display-staff-name').innerText = user.name; 
+        document.getElementById('display-staff-name').removeAttribute('data-i18n');
+        applyPermissions(user.permissions);
+        
+        sessionStorage.setItem('pos_active_staff', JSON.stringify(user));
 
-    document.getElementById('lock-screen').style.opacity = '0';
-    setTimeout(() => { document.getElementById('lock-screen').style.display = 'none'; document.getElementById('numpad-box').style.animation = 'none'; }, 400);
-    
-    Swal.fire({ icon: 'success', title: i18n[currentLang]['swal_welcome'] + user.name, toast: true, position: 'top-end', showConfirmButton: false, timer: 1500 });
+        document.getElementById('lock-screen').style.opacity = '0';
+        setTimeout(() => { document.getElementById('lock-screen').style.display = 'none'; document.getElementById('numpad-box').style.animation = 'none'; }, 400);
+        
+        Swal.fire({ icon: 'success', title: (i18n[currentLang]['swal_welcome'] || 'ยินดีต้อนรับ ') + user.name, toast: true, position: 'top-end', showConfirmButton: false, timer: 1000 });
 
-    google.script.run.logAction(currentTenantSheetId, user.name, "เข้าสู่ระบบ", "ล็อกอินสำเร็จ");
-    currentPin = ""; updatePinDisplay(); resetIdleTimer();
-  } else {
-    isCheckingPin = false; // 🌟 ปลดล็อกสถานะการตรวจ (กรณีใส่รหัสผิด)
-    Swal.fire({ icon: 'error', title: i18n[currentLang]['swal_wrong_pin_title'], text: i18n[currentLang]['swal_try_again'], timer: 1000, showConfirmButton: false });
-    currentPin = ""; updatePinDisplay(); let numpad = document.getElementById('numpad-box'); numpad.classList.add('error-shake'); setTimeout(() => { numpad.classList.remove('error-shake'); }, 400);
-  }
-}
+        google.script.run.logAction(currentTenantSheetId, user.name, "เข้าสู่ระบบ", "ล็อกอินสำเร็จ");
+        currentPin = ""; updatePinDisplay(); resetIdleTimer();
+      } else {
+        // 🌟 รหัสผิด: ลบป๊อปอัพกากบาทออก! เปลี่ยนเป็นแค่จุดสีแดงสั่นๆ จะได้ไม่บล็อกหน้าจอ และพิมพ์ใหม่ได้ทันที
+        let numpad = document.getElementById('numpad-box'); 
+        numpad.classList.add('error-shake'); 
+        
+        // เปลี่ยนจุดเป็นสีแดงเตือนว่าผิด
+        document.getElementById('pin-display').innerHTML = '<div class="pin-dot filled bg-danger" style="box-shadow: 0 0 15px rgba(239,68,68,0.6) !important;"></div>'.repeat(4);
+
+        // ปลดล็อกให้พิมพ์ใหม่ได้ทันทีที่หน้าจอสั่นเสร็จ (400ms)
+        setTimeout(() => { 
+          numpad.classList.remove('error-shake'); 
+          currentPin = ""; 
+          updatePinDisplay(); 
+          isCheckingPin = false; 
+        }, 400);
+      }
+    }
 
 function applyPermissions(perms) {
   let p = perms.toUpperCase();

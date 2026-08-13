@@ -270,7 +270,29 @@ function executeScripts(container) {
 }
 
 // สั่งทำงานทันทีเมื่อเปิดหน้า
-document.addEventListener("DOMContentLoaded", loadShopComponents);
+// สั่งทำงานทันทีเมื่อเปิดหน้า
+document.addEventListener("DOMContentLoaded", () => {
+  // 🌟 เด้งหน้าโหลดทันทีเสี้ยววินาทีแรกที่เข้าเว็บ ป้องกันจอขาว!
+  Swal.fire({
+    title: 'กำลังเตรียมระบบ...',
+    html: 'ดาวน์โหลดโครงสร้างหน้าจอ... <b id="sys-load-percent" class="text-primary fs-3">0%</b>',
+    allowOutsideClick: false,
+    showConfirmButton: false,
+    didOpen: () => {
+      Swal.showLoading();
+      let p = 0;
+      window.sysLoadInterval = setInterval(() => {
+        p += Math.floor(Math.random() * 5) + 2;
+        if (p > 90) p = 90; // ค้างที่ 90 รอข้อมูลจากเซิร์ฟเวอร์
+        let el = document.getElementById('sys-load-percent');
+        if (el) el.innerText = p + '%';
+      }, 30);
+    }
+  });
+  
+  // โหลดหน้าจอต่างๆ ตามหลัง (คนจะไม่เห็นจอขาวแล้ว)
+  loadShopComponents();
+});
 </script>
 
 </body>
