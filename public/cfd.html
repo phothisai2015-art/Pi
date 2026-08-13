@@ -287,6 +287,12 @@
     
     function handleSyncData(data) {
       if (!data) return;
+	  
+	  // 🌟 [เพิ่มตรงนี้] ตรวจสอบและซิงค์ภาษาทันที ไม่ว่าจะส่ง Action อะไรมาจาก POS
+      if (data.lang && data.lang !== cfdLang) {
+        cfdLang = data.lang;
+        applyCfdLanguage();
+      }
 
       // 🌟 ดักรับคำสั่ง SYNC_LANG จาก POS แบบ Real-time
       if (data.action === 'SYNC_LANG') {
@@ -400,6 +406,7 @@
         showConfirmButton: false
       });
     } else {
+	applyCfdLanguage();
       const socket = io();
       socket.emit('join_shop_room', shopId);
 

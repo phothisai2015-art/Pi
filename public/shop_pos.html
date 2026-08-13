@@ -902,6 +902,7 @@
         discount: discount, 
         netTotal: document.getElementById('pos-net-total').innerText, 
         latestItem: lastScannedItem, 
+		lang: typeof currentLang !== 'undefined' ? currentLang : 'th', // 🌟 [เพิ่มบรรทัดนี้] แนบภาษาไปหา CFD ทุกครั้งที่มีการขยับตะกร้า
         ...extraData 
       };
       
