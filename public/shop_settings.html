@@ -707,7 +707,7 @@
     </div>
   </div>
 
-  <!-- Modal ปรับแต่งหน้าจอ UI -->
+<!-- Modal ปรับแต่งหน้าจอ UI -->
   <div id="ui-settings-modal" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(5px); z-index: 999999; justify-content: center; align-items: center; padding: 15px;">
     <div class="bg-white p-4 rounded-4 shadow-lg d-flex flex-column" style="width: 100%; max-width: 450px; max-height: 90vh;">
       <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-3">
@@ -716,41 +716,23 @@
       </div>
       
       <div style="overflow-y: auto; overflow-x: hidden; padding-right: 5px;">
-
           <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-cash-register text-success me-2"></i> <span data-i18n="ui_cat_pos">หมวดขายของ (POS)</span></h6>
+          
           <div class="form-check form-switch fs-6 mb-3 p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center">
             <label class="form-check-label fw-bold text-secondary m-0" for="ui-pos-cfd" data-i18n="ui_pos_1">1. ปุ่มจอลูกค้า (CFD)</label>
             <input class="form-check-input m-0" type="checkbox" id="ui-pos-cfd" style="width: 40px; height: 20px;">
           </div>
           <div class="form-check form-switch fs-6 mb-3 p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center">
-            <label class="form-check-label fw-bold text-secondary m-0" for="ui-pos-scan" data-i18n="ui_pos_2">2. โหมดสแกนบาร์โค้ด</label>
-            <input class="form-check-input m-0" type="checkbox" id="ui-pos-scan" style="width: 40px; height: 20px;">
-          </div>
-          <div class="form-check form-switch fs-6 mb-3 p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center">
-            <label class="form-check-label fw-bold text-secondary m-0" for="ui-pos-history" data-i18n="ui_pos_3">3. ค้นหาบิล & บิลย้อนหลัง</label>
-            <input class="form-check-input m-0" type="checkbox" id="ui-pos-history" style="width: 40px; height: 20px;">
-          </div>
-          <div class="form-check form-switch fs-6 mb-4 p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center">
-            <label class="form-check-label fw-bold text-secondary m-0" for="ui-pos-category" data-i18n="ui_pos_4">4. แถบตัวกรองหมวดหมู่</label>
+            <label class="form-check-label fw-bold text-secondary m-0" for="ui-pos-category" data-i18n="ui_pos_2">2. แถบตัวกรองหมวดหมู่</label>
             <input class="form-check-input m-0" type="checkbox" id="ui-pos-category" style="width: 40px; height: 20px;">
           </div>
-
-          <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-gear text-danger me-2"></i> <span data-i18n="ui_cat_set">หมวดตั้งค่า (Settings)</span></h6>
           <div class="form-check form-switch fs-6 mb-3 p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center">
-            <label class="form-check-label fw-bold text-secondary m-0" for="ui-set-shopinfo" data-i18n="ui_set_1">1. ข้อมูลร้านค้า & การพิมพ์</label>
-            <input class="form-check-input m-0" type="checkbox" id="ui-set-shopinfo" style="width: 40px; height: 20px;">
+            <label class="form-check-label fw-bold text-secondary m-0" for="ui-pos-sort" data-i18n="ui_pos_3">3. ปุ่มจัดเรียงสินค้า</label>
+            <input class="form-check-input m-0" type="checkbox" id="ui-pos-sort" style="width: 40px; height: 20px;">
           </div>
-          <div class="form-check form-switch fs-6 mb-3 p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center">
-            <label class="form-check-label fw-bold text-secondary m-0" for="ui-set-excel" data-i18n="ui_set_2">2. จัดการข้อมูลด้วย Excel</label>
-            <input class="form-check-input m-0" type="checkbox" id="ui-set-excel" style="width: 40px; height: 20px;">
-          </div>
-          <div class="form-check form-switch fs-6 mb-3 p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center">
-            <label class="form-check-label fw-bold text-secondary m-0" for="ui-set-log" data-i18n="ui_set_3">3. ประวัติการใช้งาน (Log)</label>
-            <input class="form-check-input m-0" type="checkbox" id="ui-set-log" style="width: 40px; height: 20px;">
-          </div>
-          <div class="form-check form-switch fs-6 mb-2 p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center">
-            <label class="form-check-label fw-bold text-secondary m-0" for="ui-set-users" data-i18n="ui_set_4">4. จัดการพนักงาน & สิทธิ์</label>
-            <input class="form-check-input m-0" type="checkbox" id="ui-set-users" style="width: 40px; height: 20px;">
+          <div class="form-check form-switch fs-6 mb-4 p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center">
+            <label class="form-check-label fw-bold text-secondary m-0" for="ui-pos-lock" data-i18n="ui_pos_4">4. ปุ่มล็อกเครื่อง</label>
+            <input class="form-check-input m-0" type="checkbox" id="ui-pos-lock" style="width: 40px; height: 20px;">
           </div>
       </div>
 
@@ -1522,75 +1504,49 @@
         let soundType = document.getElementById('ui-sound-type');
         if(soundType) soundType.value = s.ui_sound_type || 'kaching_dragon';
 
+        // 1. ปุ่ม CFD
         document.querySelectorAll('button[onclick="openCFD()"]').forEach(b => {
             if (isON('ui_pos_cfd')) b.style.removeProperty('display');
             else b.style.setProperty('display', 'none', 'important');
         });
         
-        let btnBarcode = document.getElementById('btn-mode-barcode');
-        let btnGrid = document.getElementById('btn-mode-grid');
-        let scanInput = document.getElementById('pos-barcode-input');
-        if (btnBarcode && btnGrid && scanInput) {
-            if (!isON('ui_pos_scan')) {
-                btnBarcode.style.setProperty('display', 'none', 'important');
-                btnGrid.style.setProperty('display', 'none', 'important');
-                scanInput.parentElement.style.setProperty('display', 'none', 'important');
-                if (currentPOSMode === 'barcode') switchPOSMode('grid');
-            } else {
-                btnBarcode.style.removeProperty('display');
-                btnGrid.style.removeProperty('display');
-                scanInput.parentElement.style.removeProperty('display');
-            }
-        }
-
-        let searchInput = document.getElementById('pos-search-bill-input');
-        if (searchInput) {
-            let historyBox = searchInput.closest('.bg-white');
-            if (historyBox) {
-                if (isON('ui_pos_history')) historyBox.style.removeProperty('display');
-                else historyBox.style.setProperty('display', 'none', 'important');
-            }
-        }
-
+        // 2. ตัวกรองหมวดหมู่
         let catFilter = document.getElementById('pos-category-filter');
         if (catFilter) {
             if (!isON('ui_pos_category')) catFilter.style.setProperty('display', 'none', 'important');
             else catFilter.style.removeProperty('display');
         }
 
-        const toggleTab = (tabId, key) => {
-            let tabBtn = document.getElementById('tab-btn-' + tabId.replace('tab-', ''));
-            if (tabBtn) {
-                if (isON(key)) tabBtn.style.removeProperty('display');
-                else tabBtn.style.setProperty('display', 'none', 'important');
-            }
-        };
-        
-        toggleTab('tab-profile', 'ui_set_shopinfo');
-        toggleTab('tab-advanced', 'ui_set_excel');
-        toggleTab('tab-log', 'ui_set_log');
-        toggleTab('tab-staff', 'ui_set_users');
-        
-        let activePanel = document.querySelector('.settings-panel.active');
-        let activeTabId = activePanel ? activePanel.id : 'tab-profile';
-        let activeTabBtn = document.getElementById('tab-btn-' + activeTabId.replace('tab-', ''));
-        
-        if(activeTabBtn && activeTabBtn.style.display === 'none') {
-            let firstVisibleBtn = Array.from(document.querySelectorAll('.settings-tab')).find(b => b.style.display !== 'none');
-            if(firstVisibleBtn) {
-               firstVisibleBtn.click();
-            }
+        // 3. ปุ่มจัดเรียงสินค้า
+        document.querySelectorAll('.btn-toggle-sort-class').forEach(b => {
+            if (isON('ui_pos_sort')) b.style.removeProperty('display');
+            else b.style.setProperty('display', 'none', 'important');
+        });
+
+        // 4. ปุ่มล็อกเครื่อง (ในหน้า POS)
+        document.querySelectorAll('#page-pos button[onclick="lockScreenManual()"]').forEach(b => {
+            if (isON('ui_pos_lock')) b.style.removeProperty('display');
+            else b.style.setProperty('display', 'none', 'important');
+        });
+
+        // 🌟 เคลียร์ค่าเก่าที่เคยซ่อนไว้ในเวอร์ชันก่อน ให้กลับมาแสดงทั้งหมด
+        let searchInput = document.getElementById('pos-search-bill-input');
+        if (searchInput) {
+            let historyBox = searchInput.closest('.bg-white');
+            if (historyBox) historyBox.style.removeProperty('display');
         }
+        document.querySelectorAll('.settings-tab').forEach(b => b.style.removeProperty('display'));
     }
 
     function openUISettingsModal() {
         let s = cachedShopSettings || {};
         const setToggle = (id, key) => { document.getElementById(id).checked = (s[key] !== "false" && s[key] !== false); };
         
-        setToggle('ui-pos-cfd', 'ui_pos_cfd'); setToggle('ui-pos-scan', 'ui_pos_scan');
-        setToggle('ui-pos-history', 'ui_pos_history'); setToggle('ui-pos-category', 'ui_pos_category');
-        setToggle('ui-set-shopinfo', 'ui_set_shopinfo'); setToggle('ui-set-excel', 'ui_set_excel');
-        setToggle('ui-set-log', 'ui_set_log'); setToggle('ui-set-users', 'ui_set_users');
+        setToggle('ui-pos-cfd', 'ui_pos_cfd'); 
+        setToggle('ui-pos-category', 'ui_pos_category');
+        setToggle('ui-pos-sort', 'ui_pos_sort'); 
+        setToggle('ui-pos-lock', 'ui_pos_lock');
+        
         document.getElementById('ui-settings-modal').style.display = 'flex';
     }
 
@@ -1600,12 +1556,12 @@
         const getToggle = (id) => document.getElementById(id).checked ? "true" : "false";
         
         let newSettings = {
-            ui_sound_payment: getToggle('ui-sound-payment'),
+            ui_sound_payment: document.getElementById('ui-sound-payment') ? (document.getElementById('ui-sound-payment').checked ? "true" : "false") : "true",
             ui_sound_type: document.getElementById('ui-sound-type') ? document.getElementById('ui-sound-type').value : 'kaching_dragon',
-            ui_pos_cfd: getToggle('ui-pos-cfd'), ui_pos_scan: getToggle('ui-pos-scan'),
-            ui_pos_history: getToggle('ui-pos-history'), ui_pos_category: getToggle('ui-pos-category'),
-            ui_set_shopinfo: getToggle('ui-set-shopinfo'), ui_set_excel: getToggle('ui-set-excel'),
-            ui_set_log: getToggle('ui-set-log'), ui_set_users: getToggle('ui-set-users')
+            ui_pos_cfd: getToggle('ui-pos-cfd'), 
+            ui_pos_category: getToggle('ui-pos-category'),
+            ui_pos_sort: getToggle('ui-pos-sort'), 
+            ui_pos_lock: getToggle('ui-pos-lock')
         };
 
         google.script.run.withSuccessHandler(() => {
@@ -1618,19 +1574,6 @@
             loadActivityLogsData();
         }).updateShopSettings(currentTenantSheetId, newSettings);
     }
-
-    const originalLoadShopData = loadShopData;
-    loadShopData = function(tenantId) {
-        originalLoadShopData(tenantId);
-        google.script.run.withSuccessHandler(s => { cachedShopSettings = s || {}; applyUISettings(); }).getShopSettings(tenantId);
-    };
-
-    const originalOpenPOSPage = openPOSPage;
-    openPOSPage = function() {
-        originalOpenPOSPage();
-        applyUISettings(); 
-    };
-
     // ---------------------------------------------------------
     // ฟังก์ชันจัดการ การลบข้อมูลทดสอบ
     // ---------------------------------------------------------
