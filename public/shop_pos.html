@@ -925,7 +925,15 @@
     }
 
     function openPOSPage() {
-      document.getElementById('page-pos').style.display = 'block'; document.getElementById('pos-staff-badge').innerText = currentStaff.name || "-"; switchPOSMode('grid');
+      // 🌟 สั่งให้หน้า POS เดินเข้าห้อง (Join Room) เพื่อรอฟังเสียงแจ้งเตือนอัปเดตสต็อก!
+      if (socket && currentTenantSheetId) {
+        socket.emit('join_shop_room', currentTenantSheetId);
+      }
+
+      document.getElementById('page-pos').style.display = 'block'; 
+      document.getElementById('pos-staff-badge').innerText = currentStaff.name || "-"; 
+      switchPOSMode('grid');
+      
       if (!window.globalProducts || globalProducts.length === 0) { google.script.run.withSuccessHandler(function(data) { globalProducts = data; window.globalProducts = data; populatePOSCategory(); renderMenuGrid(); }).getProducts(currentTenantSheetId); } else { populatePOSCategory(); renderMenuGrid(); }
       google.script.run.withSuccessHandler(function(settings) {
         cachedShopSettings = settings; shopPromptPayNo = settings.shop_promptpay; shopName = settings.shop_name; let accName = settings.shop_account_name || settings.shop_name;

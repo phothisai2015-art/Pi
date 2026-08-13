@@ -288,8 +288,13 @@
   <script>
   let globalProducts = []; let currentMode = 'add'; let bulkItems = []; let shoppingListItems = [];
 
-  /* 🌟 แก้จาก 'block' เป็น 'flex' */
+/* 🌟 แก้จาก 'block' เป็น 'flex' */
   function openProductsPage() { 
+    // 🌟 สั่งให้หน้าคลังสินค้า เดินเข้าห้อง (Join Room) เพื่อรอฟังเสียงแจ้งเตือนอัปเดตสต็อก!
+    if (window.socket && currentTenantSheetId) {
+      window.socket.emit('join_shop_room', currentTenantSheetId);
+    }
+
     document.getElementById('page-products').style.display = 'flex'; 
     loadProductsTable(); 
     if (typeof changeLanguage === 'function') changeLanguage(currentLang); 
