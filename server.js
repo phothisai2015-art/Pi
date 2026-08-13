@@ -55,11 +55,21 @@ db.run(`ALTER TABLE tenants ADD COLUMN renew_notified INTEGER DEFAULT 1`, () => 
 
 // 🌟 ตารางตั้งค่า Super Admin
 db.run(`CREATE TABLE IF NOT EXISTS superadmin_settings (key TEXT PRIMARY KEY, value TEXT)`, () => {
-  const defaults = { username: 'superadmin', password: '1234', email: '' };
+  const defaults = { 
+    username: 'superadmin', 
+    password: '1234', 
+    email: '',
+    pkg_1m: '150',   
+    pkg_3m: '400',   
+    pkg_6m: '750',   
+    pkg_12m: '1200'  
+  };
   const stmt = db.prepare(`INSERT OR IGNORE INTO superadmin_settings (key, value) VALUES (?, ?)`);
   for (const [k, v] of Object.entries(defaults)) stmt.run(k, v);
   stmt.finalize();
 });
+
+// 🌟 ตั้งค่า Telegram Bot
 
 // 🌟 ตั้งค่า Telegram Bot
 const TELEGRAM_BOT_TOKEN = "8383540467:AAHP2VfSU0U7riTyhrfq-dQHOQgiTmd8t0Y";
@@ -936,6 +946,28 @@ app.post('/api/superadmin/add-tenant', verifySuperAdmin, (req, res) => {
         res.json({ status: "success" });
       });
   });
+});
+
+// 🌟 API ดึงราคาแพ็กเกจไปแสดงหน้าเว็บลูกค้า (ไม่ต้องใช้ Token)
+app.get('/api/package-prices', (req, res) => {
+  db.all(`SELECT key, value FROM superadmin_settings WHERE key LIKE 'pkg_%'`, [], (err, rows) => {
+    // กำหนดค่าสำรองเผื่อดึงข้อมูลไม่ติด
+    const pkgs = { pkg_1m: '150', pkg_3m: '400', pkg_6m: '750', pkg_12m: '1200' }; 
+    if (rows) rows.forEach(r => pkgs[r.key] = r.value);
+    res.json(pkgs);
+  });
+});
+
+// 🌟 API สำหรับ Super Admin อัปเดตราคาแพ็กเกจ
+app.post('/api/superadmin/update-packages', verifySuperAdmin, (req, res) => {
+  const { pkg_1m, pkg_3m, pkg_6m, pkg_12m } = req.body;
+  const stmt = db.prepare(`UPDATE superadmin_settings SET value = ? WHERE key = ?`);
+  if(pkg_1m) stmt.run(pkg_1m, 'pkg_1m');
+  if(pkg_3m) stmt.run(pkg_3m, 'pkg_3m');
+  if(pkg_6m) stmt.run(pkg_6m, 'pkg_6m');
+  if(pkg_12m) stmt.run(pkg_12m, 'pkg_12m');
+  stmt.finalize();
+  res.json({ status: "success" });
 });
 
 // =================================================================
