@@ -540,16 +540,12 @@ var i18n = {
     
     // Modal ปรับแต่งหน้าจอ UI
     ui_title: "ปรับแต่งการแสดงผล",
+    ui_title: "ปรับแต่งการแสดงผล",
     ui_cat_pos: "หมวดขายของ (POS)",
     ui_pos_1: "1. ปุ่มจอลูกค้า (CFD)",
-    ui_pos_2: "2. โหมดสแกนบาร์โค้ด",
-    ui_pos_3: "3. ค้นหาบิล & บิลย้อนหลัง",
-    ui_pos_4: "4. แถบตัวกรองหมวดหมู่",
-    ui_cat_set: "หมวดตั้งค่า (Settings)",
-    ui_set_1: "1. ข้อมูลร้านค้า & การพิมพ์",
-    ui_set_2: "2. จัดการข้อมูลด้วย Excel",
-    ui_set_3: "3. ประวัติการใช้งาน (Log)",
-    ui_set_4: "4. จัดการพนักงาน & สิทธิ์",
+    ui_pos_2: "2. แถบตัวกรองหมวดหมู่",
+    ui_pos_3: "3. ปุ่มจัดเรียงสินค้า",
+    ui_pos_4: "4. ปุ่มล็อกเครื่อง",
     ui_btn_save: "บันทึกการตั้งค่าหน้าจอ",
     
     // แจ้งเตือน JS ของหน้าการตั้งค่า
@@ -1178,16 +1174,12 @@ var i18n = {
     
     // UI Settings Modal
     ui_title: "Display Layout Settings",
+    ui_title: "Display Layout Settings",
     ui_cat_pos: "POS Section",
     ui_pos_1: "1. Customer Display Button (CFD)",
-    ui_pos_2: "2. Barcode Scan Mode",
-    ui_pos_3: "3. Search & History Bills",
-    ui_pos_4: "4. Category Filter Bar",
-    ui_cat_set: "Settings Section",
-    ui_set_1: "1. Store Info & Printing",
-    ui_set_2: "2. Manage Data via Excel",
-    ui_set_3: "3. Activity Log",
-    ui_set_4: "4. Staff & Permissions Mgmt",
+    ui_pos_2: "2. Category Filter Bar",
+    ui_pos_3: "3. Sort Products Button",
+    ui_pos_4: "4. Lock Screen Button",
     ui_btn_save: "Save Layout Settings",
     
     // JS Alerts - Settings
