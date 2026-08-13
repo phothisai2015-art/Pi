@@ -628,6 +628,38 @@ app.get('/api/superadmin/tenants', verifySuperAdmin, (req, res) => {
   });
 });
 
+// ==========================================
+// 🌟 [ใหม่] API ดึงข้อมูลเชิงลึกของแต่ละร้านค้า (แยก 5 ตาราง)
+// ==========================================
+app.get('/api/superadmin/tenant-details/:sheetId', verifySuperAdmin, async (req, res) => {
+  const sheetId = req.params.sheetId;
+  
+  // สร้างฟังก์ชันช่วย Query เพื่อลดความซ้ำซ้อน
+  const queryDB = (sql, params) => {
+    return new Promise((resolve, reject) => {
+      db.all(sql, params, (err, rows) => {
+        if (err) reject(err);
+        else resolve(rows || []);
+      });
+    });
+  };
+
+  try {
+    // ดึงข้อมูล 5 ตารางพร้อมกัน
+    const [products, sales, users, settings, logs] = await Promise.all([
+      queryDB(`SELECT * FROM products WHERE tenant_id = ?`, [sheetId]),
+      queryDB(`SELECT * FROM sales_log WHERE tenant_id = ? ORDER BY id DESC`, [sheetId]),
+      queryDB(`SELECT * FROM users WHERE tenant_id = ?`, [sheetId]),
+      queryDB(`SELECT * FROM settings WHERE tenant_id = ?`, [sheetId]),
+      queryDB(`SELECT * FROM activity_log WHERE tenant_id = ? ORDER BY id DESC LIMIT 500`, [sheetId])
+    ]);
+
+    res.json({ status: "success", products, sales, users, settings, logs });
+  } catch (err) {
+    res.json({ status: "error", message: err.message });
+  }
+});
+
 // 👇 🌟 นำโค้ดมาวางตรงนี้เลยครับ (ต่อท้าย get tenants) 👇
 app.post('/api/superadmin/kick-tenant', verifySuperAdmin, (req, res) => {
   const { sheetId } = req.body;
