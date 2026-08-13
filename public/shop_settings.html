@@ -610,100 +610,143 @@
     </div>
   </div>
 
-  <!-- Modal ต่ออายุแพ็กเกจด่วน -->
+  <!-- Modal ต่ออายุแพ็กเกจด่วน (2 ขั้นตอน Step-by-Step) -->
   <div id="quick-renew-modal" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(5px); z-index: 1060; justify-content: center; align-items: center; padding: 15px;">
-    <div class="bg-white p-4 rounded-4 shadow-lg text-center" style="width: 100%; max-width: 480px; position: relative; max-height: 95vh; overflow-y: auto;">
+    <div class="bg-white p-4 rounded-4 shadow-lg text-center" style="width: 100%; max-width: 520px; position: relative; max-height: 95vh; overflow-y: auto;">
       <button type="button" class="btn-close position-absolute top-0 end-0 m-3" onclick="closeQuickRenewModal()"></button>
-      
-      <h4 class="fw-bold mb-1 mt-2" style="color: #0d6efd !important;" data-i18n="set_modal_renew_title"><i class="fa-solid fa-crown text-warning me-2"></i> ต่ออายุแพ็กเกจ</h4>
-      <p class="text-muted small mb-3"><span data-i18n="set_renew_email">อีเมล: </span><span id="qr-email-show" class="fw-bold text-dark"></span></p>
 
-      <div class="text-start mb-2">
-        <label class="fw-bold small text-muted mb-2" data-i18n="set_renew_choose">เลือกแพ็กเกจที่ต้องการ</label>
-        <input type="hidden" id="qr-pkg-select" value="1M|150">
-        
-        <div class="row g-2 mb-3">
+      <!-- Hidden Input เก็บค่าแพ็กเกจที่เลือก -->
+      <input type="hidden" id="qr-pkg-select" value="1M|150">
+
+      <!-- ==================== STEP 1: เลือกแพ็กเกจ ==================== -->
+      <div id="renew-step-1">
+        <h4 class="fw-bold mb-1 mt-2 text-primary" data-i18n="set_modal_renew_title"><i class="fa-solid fa-crown text-warning me-2"></i> ต่ออายุแพ็กเกจ</h4>
+        <p class="text-muted small mb-3"><span data-i18n="set_renew_email">อีเมล: </span><span id="qr-email-show" class="fw-bold text-dark"></span></p>
+
+        <label class="fw-bold small text-muted mb-3 d-block text-start" data-i18n="set_renew_choose">เลือกแพ็กเกจที่ต้องการ</label>
+
+        <div class="row g-2 mb-2">
+           <!-- 1 เดือน -->
            <div class="col-6">
-              <div class="card h-100 pkg-card selected" onclick="selectQuickRenewPkg('1M|150', this)" style="cursor: pointer; border-radius: 12px; border: 2px solid #3b82f6; position: relative;">
-                 <div class="card-body text-center p-3">
-                    <div class="position-absolute top-0 end-0 m-2 text-primary check-icon"><i class="fa-solid fa-circle-check"></i></div>
-                    <div class="text-muted small fw-bold mb-1" data-i18n="set_renew_1m">1 เดือน</div>
-                    <h3 class="fw-bold text-dark mb-2">฿150</h3>
-                    <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-1 mb-2" data-i18n="renew_per_day_5">ตกวันละ 5.00 บ.</span>
-                    <hr class="my-2">
-                    <ul class="text-start small text-muted mb-0 ps-3" style="font-size: 11px; line-height: 1.6;">
-                       <li><i class="fa-solid fa-circle-check text-success"></i> <span data-i18n="set_renew_feat1">ใช้งาน POS ได้เต็มรูปแบบ</span></li>
-                       <li><i class="fa-solid fa-circle-check text-success"></i> <span data-i18n="set_renew_feat2">ไม่จำกัดจำนวนบิล/สินค้า</span></li>
-                       <li><i class="fa-solid fa-circle-check text-success"></i> <span data-i18n="set_renew_feat3">มีสรุปยอดขาย Dashboard</span></li>
-                    </ul>
+              <div class="card h-100 pkg-card shadow-sm" onclick="choosePackageAndNext('1M|150')" style="cursor: pointer; border-radius: 14px; border: 2px solid #e2e8f0; transition: all 0.2s;">
+                 <div class="card-body text-center p-3 d-flex flex-column justify-content-between">
+                    <div>
+                      <div class="text-muted small fw-bold mb-1" data-i18n="set_renew_1m">1 เดือน</div>
+                      <h3 class="fw-bold text-dark mb-2">฿150</h3>
+                      <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-2 py-1 mb-2 small" data-i18n="renew_per_day_5">ตกวันละ 5.00 บ.</span>
+                      <hr class="my-2">
+                      <ul class="text-start small text-muted mb-0 ps-3" style="font-size: 11px; line-height: 1.6;">
+                         <li><i class="fa-solid fa-circle-check text-success"></i> <span data-i18n="set_renew_feat1">ใช้งาน POS ได้เต็มรูปแบบ</span></li>
+                         <li><i class="fa-solid fa-circle-check text-success"></i> <span data-i18n="set_renew_feat2">ไม่จำกัดจำนวนบิล/สินค้า</span></li>
+                         <li><i class="fa-solid fa-circle-check text-success"></i> <span data-i18n="set_renew_feat3">มีสรุปยอดขาย Dashboard</span></li>
+                      </ul>
+                    </div>
+                    <button class="btn btn-primary btn-sm fw-bold rounded-pill w-100 mt-3 shadow-sm">
+                      <i class="fa-solid fa-bolt me-1"></i> เลือกแพ็กเกจนี้
+                    </button>
                  </div>
               </div>
            </div>
+
+           <!-- 3 เดือน -->
            <div class="col-6">
-              <div class="card h-100 pkg-card" onclick="selectQuickRenewPkg('3M|400', this)" style="cursor: pointer; border-radius: 12px; border: 2px solid #e2e8f0; position: relative;">
-                 <div class="card-body text-center p-3">
-                    <div class="position-absolute top-0 end-0 m-2 text-primary check-icon d-none"><i class="fa-solid fa-circle-check"></i></div>
-                    <div class="text-muted small fw-bold mb-1" data-i18n="set_renew_3m">3 เดือน</div>
-                    <h3 class="fw-bold text-dark mb-2">฿400</h3>
-                    <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-1 mb-2" data-i18n="renew_per_day_4_44">ตกวันละ 4.44 บ.</span>
-                    <hr class="my-2">
-                    <ul class="text-start small text-muted mb-0 ps-3" style="font-size: 11px; line-height: 1.6;">
-                       <li><i class="fa-solid fa-circle-check text-success"></i> <span data-i18n="set_renew_feat1">ใช้งาน POS ได้เต็มรูปแบบ</span></li>
-                       <li><i class="fa-solid fa-circle-check text-success"></i> <span data-i18n="set_renew_feat2">ไม่จำกัดจำนวนบิล/สินค้า</span></li>
-                       <li><i class="fa-solid fa-circle-check text-success"></i> <span data-i18n="set_renew_feat3">มีสรุปยอดขาย Dashboard</span></li>
-                    </ul>
+              <div class="card h-100 pkg-card shadow-sm" onclick="choosePackageAndNext('3M|400')" style="cursor: pointer; border-radius: 14px; border: 2px solid #e2e8f0; transition: all 0.2s;">
+                 <div class="card-body text-center p-3 d-flex flex-column justify-content-between">
+                    <div>
+                      <div class="text-muted small fw-bold mb-1" data-i18n="set_renew_3m">3 เดือน</div>
+                      <h3 class="fw-bold text-dark mb-2">฿400</h3>
+                      <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-2 py-1 mb-2 small" data-i18n="renew_per_day_4_44">ตกวันละ 4.44 บ.</span>
+                      <hr class="my-2">
+                      <ul class="text-start small text-muted mb-0 ps-3" style="font-size: 11px; line-height: 1.6;">
+                         <li><i class="fa-solid fa-circle-check text-success"></i> <span data-i18n="set_renew_feat1">ใช้งาน POS ได้เต็มรูปแบบ</span></li>
+                         <li><i class="fa-solid fa-circle-check text-success"></i> <span data-i18n="set_renew_feat2">ไม่จำกัดจำนวนบิล/สินค้า</span></li>
+                         <li><i class="fa-solid fa-circle-check text-success"></i> <span data-i18n="set_renew_feat3">มีสรุปยอดขาย Dashboard</span></li>
+                      </ul>
+                    </div>
+                    <button class="btn btn-primary btn-sm fw-bold rounded-pill w-100 mt-3 shadow-sm">
+                      <i class="fa-solid fa-bolt me-1"></i> เลือกแพ็กเกจนี้
+                    </button>
                  </div>
               </div>
            </div>
+
+           <!-- 6 เดือน -->
            <div class="col-6">
-              <div class="card h-100 pkg-card" onclick="selectQuickRenewPkg('6M|750', this)" style="cursor: pointer; border-radius: 12px; border: 2px solid #e2e8f0; position: relative;">
-                 <div class="card-body text-center p-3">
-                    <div class="position-absolute top-0 end-0 m-2 text-primary check-icon d-none"><i class="fa-solid fa-circle-check"></i></div>
-                    <div class="text-muted small fw-bold mb-1" data-i18n="set_renew_6m">6 เดือน</div>
-                    <h3 class="fw-bold text-dark mb-2">฿750</h3>
-                    <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-1 mb-2" data-i18n="renew_per_day_4_16">ตกวันละ 4.16 บ.</span>
-                    <hr class="my-2">
-                    <ul class="text-start small text-muted mb-0 ps-3" style="font-size: 11px; line-height: 1.6;">
-                       <li><i class="fa-solid fa-circle-check text-success"></i> <span data-i18n="set_renew_feat1">ใช้งาน POS ได้เต็มรูปแบบ</span></li>
-                       <li><i class="fa-solid fa-circle-check text-success"></i> <span data-i18n="set_renew_feat2">ไม่จำกัดจำนวนบิล/สินค้า</span></li>
-                       <li><i class="fa-solid fa-circle-check text-success"></i> <span data-i18n="set_renew_feat3">มีสรุปยอดขาย Dashboard</span></li>
-                    </ul>
+              <div class="card h-100 pkg-card shadow-sm" onclick="choosePackageAndNext('6M|750')" style="cursor: pointer; border-radius: 14px; border: 2px solid #e2e8f0; transition: all 0.2s;">
+                 <div class="card-body text-center p-3 d-flex flex-column justify-content-between">
+                    <div>
+                      <div class="text-muted small fw-bold mb-1" data-i18n="set_renew_6m">6 เดือน</div>
+                      <h3 class="fw-bold text-dark mb-2">฿750</h3>
+                      <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-2 py-1 mb-2 small" data-i18n="renew_per_day_4_16">ตกวันละ 4.16 บ.</span>
+                      <hr class="my-2">
+                      <ul class="text-start small text-muted mb-0 ps-3" style="font-size: 11px; line-height: 1.6;">
+                         <li><i class="fa-solid fa-circle-check text-success"></i> <span data-i18n="set_renew_feat1">ใช้งาน POS ได้เต็มรูปแบบ</span></li>
+                         <li><i class="fa-solid fa-circle-check text-success"></i> <span data-i18n="set_renew_feat2">ไม่จำกัดจำนวนบิล/สินค้า</span></li>
+                         <li><i class="fa-solid fa-circle-check text-success"></i> <span data-i18n="set_renew_feat3">มีสรุปยอดขาย Dashboard</span></li>
+                      </ul>
+                    </div>
+                    <button class="btn btn-primary btn-sm fw-bold rounded-pill w-100 mt-3 shadow-sm">
+                      <i class="fa-solid fa-bolt me-1"></i> เลือกแพ็กเกจนี้
+                    </button>
                  </div>
               </div>
            </div>
+
+           <!-- 12 เดือน (1 ปี) -->
            <div class="col-6">
-              <div class="card h-100 pkg-card" onclick="selectQuickRenewPkg('12M|1200', this)" style="cursor: pointer; border-radius: 12px; border: 2px solid #e2e8f0; position: relative; overflow: hidden;">
+              <div class="card h-100 pkg-card shadow-sm" onclick="choosePackageAndNext('12M|1200')" style="cursor: pointer; border-radius: 14px; border: 2px solid #e2e8f0; transition: all 0.2s; overflow: hidden; position: relative;">
                  <div style="position: absolute; top: 12px; left: -28px; background: #ef4444; color: white; font-size: 10px; font-weight: bold; padding: 2px 30px; transform: rotate(-45deg); box-shadow: 0 2px 4px rgba(0,0,0,0.2); z-index: 2;" data-i18n="set_renew_best">คุ้มสุด!</div>
-                 <div class="card-body text-center p-3">
-                    <div class="position-absolute top-0 end-0 m-2 text-primary check-icon d-none"><i class="fa-solid fa-circle-check"></i></div>
-                    <div class="text-muted small fw-bold mb-1" data-i18n="set_renew_1y">1 ปีเต็ม</div>
-                    <h3 class="fw-bold text-dark mb-2">฿1,200</h3>
-                    <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-1 mb-2" data-i18n="renew_per_day_3_28">ตกวันละ 3.28 บ.</span>
-                    <hr class="my-2">
-                    <ul class="text-start small text-muted mb-0 ps-3" style="font-size: 11px; line-height: 1.6;">
-                       <li><i class="fa-solid fa-circle-check text-success"></i> <span data-i18n="set_renew_feat1">ใช้งาน POS ได้เต็มรูปแบบ</span></li>
-                       <li><i class="fa-solid fa-circle-check text-success"></i> <span data-i18n="set_renew_feat2">ไม่จำกัดจำนวนบิล/สินค้า</span></li>
-                       <li><i class="fa-solid fa-circle-check text-success"></i> <span data-i18n="set_renew_feat3">มีสรุปยอดขาย Dashboard</span></li>
-                    </ul>
+                 <div class="card-body text-center p-3 d-flex flex-column justify-content-between">
+                    <div>
+                      <div class="text-muted small fw-bold mb-1" data-i18n="set_renew_1y">1 ปีเต็ม</div>
+                      <h3 class="fw-bold text-dark mb-2">฿1,200</h3>
+                      <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-2 py-1 mb-2 small" data-i18n="renew_per_day_3_28">ตกวันละ 3.28 บ.</span>
+                      <hr class="my-2">
+                      <ul class="text-start small text-muted mb-0 ps-3" style="font-size: 11px; line-height: 1.6;">
+                         <li><i class="fa-solid fa-circle-check text-success"></i> <span data-i18n="set_renew_feat1">ใช้งาน POS ได้เต็มรูปแบบ</span></li>
+                         <li><i class="fa-solid fa-circle-check text-success"></i> <span data-i18n="set_renew_feat2">ไม่จำกัดจำนวนบิล/สินค้า</span></li>
+                         <li><i class="fa-solid fa-circle-check text-success"></i> <span data-i18n="set_renew_feat3">มีสรุปยอดขาย Dashboard</span></li>
+                      </ul>
+                    </div>
+                    <button class="btn btn-danger btn-sm fw-bold rounded-pill w-100 mt-3 shadow-sm">
+                      <i class="fa-solid fa-crown me-1"></i> เลือกแพ็กเกจนี้
+                    </button>
                  </div>
               </div>
            </div>
         </div>
       </div>
 
-      <div class="border rounded-3 p-3 mb-3 text-center bg-light">
-         <div class="text-muted small mb-1" data-i18n="set_renew_scan">สแกน QR Code เพื่อชำระเงิน</div>
-         <h4 class="text-danger fw-bold mb-2"><span id="qr-price-show">150</span><span data-i18n="set_renew_baht"> บาท</span></h4>
-         <img id="qr-promptpay-img" src="" alt="QR" style="width: 150px; height: 150px; background: white; padding: 5px; border-radius: 8px; margin: 0 auto;">
+      <!-- ==================== STEP 2: สแกน QR & ชำระเงิน ==================== -->
+      <div id="renew-step-2" style="display: none;">
+        <div class="d-flex align-items-center mb-3">
+          <button type="button" class="btn btn-sm btn-outline-secondary rounded-circle me-2" onclick="showRenewStep(1)" style="width: 32px; height: 32px; padding: 0;">
+            <i class="fa-solid fa-arrow-left"></i>
+          </button>
+          <h5 class="fw-bold m-0 text-dark" id="qr-selected-pkg-title">ชำระเงินค่าต่ออายุ</h5>
+        </div>
+
+        <div class="border rounded-4 p-3 mb-3 text-center bg-light shadow-sm">
+           <div class="text-muted small mb-1" data-i18n="set_renew_scan">สแกน QR Code เพื่อชำระเงิน</div>
+           <h3 class="text-danger fw-bold mb-2"><span id="qr-price-show">150</span><span data-i18n="set_renew_baht"> บาท</span></h3>
+           <img id="qr-promptpay-img" src="" alt="QR" style="width: 170px; height: 170px; background: white; padding: 8px; border-radius: 12px; margin: 0 auto;" class="border shadow-sm">
+        </div>
+
+        <div class="text-start mb-3">
+           <label class="fw-bold small text-muted mb-1" data-i18n="set_renew_attach">แนบสลิปโอนเงิน</label>
+           <input type="file" id="qr-slip-file" class="form-control form-control-lg fs-6" accept="image/*">
+        </div>
+
+        <div class="d-flex gap-2">
+          <button class="btn btn-light fw-bold py-2 px-3 rounded-pill" onclick="showRenewStep(1)">
+            ย้อนกลับ
+          </button>
+          <button class="btn btn-success flex-fill fw-bold py-2 shadow-sm rounded-pill" id="btn-submit-quick-renew" onclick="submitQuickRenewSlip()">
+            <i class="fa-solid fa-paper-plane me-2"></i> <span data-i18n="set_btn_notify">แจ้งชำระเงิน</span>
+          </button>
+        </div>
       </div>
 
-      <div class="text-start mb-3">
-         <label class="fw-bold small text-muted mb-1" data-i18n="set_renew_attach">แนบสลิปโอนเงิน</label>
-         <input type="file" id="qr-slip-file" class="form-control" accept="image/*">
-      </div>
-      <button class="btn btn-success w-100 fw-bold py-2 shadow-sm rounded-pill" id="btn-submit-quick-renew" onclick="submitQuickRenewSlip()">
-        <i class="fa-solid fa-paper-plane me-2"></i> <span data-i18n="set_btn_notify">แจ้งชำระเงิน</span>
-      </button>
     </div>
   </div>
 
@@ -967,25 +1010,53 @@
       }
     }
 
-    function selectQuickRenewPkg(val, element) {
+    
+
+   // สลับหน้าระหว่าง Step 1 (เลือกการ์ด) และ Step 2 (QR + สลิป)
+    function showRenewStep(step) {
+      if (step === 1) {
+        document.getElementById('renew-step-1').style.display = 'block';
+        document.getElementById('renew-step-2').style.display = 'none';
+      } else {
+        document.getElementById('renew-step-1').style.display = 'none';
+        document.getElementById('renew-step-2').style.display = 'block';
+      }
+    }
+
+    // กดเลือกการ์ดแพ็กเกจ แล้วเปลี่ยนไปหน้า QR
+    function choosePackageAndNext(val) {
       document.getElementById('qr-pkg-select').value = val;
-      document.querySelectorAll('#quick-renew-modal .pkg-card').forEach(card => {
-         card.style.borderColor = '#e2e8f0'; card.classList.remove('selected');
-         card.querySelector('.check-icon').classList.add('d-none');
-      });
-      element.style.borderColor = '#3b82f6'; element.classList.add('selected');
-      element.querySelector('.check-icon').classList.remove('d-none');
+      
+      let pkgSplit = val.split('|');
+      let pkgName = pkgSplit[0];
+      let price = pkgSplit[1];
+
+      let pkgTitleMap = {
+        '1M': 'แพ็กเกจ 1 เดือน',
+        '3M': 'แพ็กเกจ 3 เดือน',
+        '6M': 'แพ็กเกจ 6 เดือน',
+        '12M': 'แพ็กเกจ 1 ปีเต็ม'
+      };
+
+      let titleEl = document.getElementById('qr-selected-pkg-title');
+      if (titleEl) {
+        titleEl.innerText = `ชำระเงิน (${pkgTitleMap[pkgName] || pkgName} - ฿${price})`;
+      }
+
       updateQuickRenewQR();
+      showRenewStep(2);
     }
 
     function openQuickRenewModal() {
       document.getElementById('quick-renew-modal').style.display = 'flex';
-      document.getElementById('qr-slip-file').value = ""; document.getElementById('qr-pkg-select').value = "1M|150"; 
-      let firstCard = document.querySelector('#quick-renew-modal .pkg-card');
-      selectQuickRenewPkg('1M|150', firstCard);
+      document.getElementById('qr-slip-file').value = ""; 
+      document.getElementById('qr-pkg-select').value = "1M|150"; 
+      showRenewStep(1); // เปิดมาให้เข้า Step 1 เสมอ
     }
     
-    function closeQuickRenewModal() { document.getElementById('quick-renew-modal').style.display = 'none'; }
+    function closeQuickRenewModal() { 
+      document.getElementById('quick-renew-modal').style.display = 'none'; 
+    }
 
     function updateQuickRenewQR() {
       let pkgVal = document.getElementById('qr-pkg-select').value;
@@ -993,6 +1064,7 @@
       document.getElementById('qr-price-show').innerText = price;
       document.getElementById('qr-promptpay-img').src = "https://promptpay.io/" + ADMIN_PROMPTPAY + "/" + price + ".png";
     }
+    
 
     function submitQuickRenewSlip() {
       let fileInput = document.getElementById('qr-slip-file');
