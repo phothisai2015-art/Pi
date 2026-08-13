@@ -503,18 +503,17 @@ function updateOnlineBadges() {
 setInterval(pollOnlineStatus, 3000);
 
 // ==========================================
-// 🌟 [แก้ไขใหม่] ฟังก์ชันเปิดดูข้อมูลเชิงลึก พร้อมแบ่งหน้า (Pagination) 15 รายการ/หน้า
+// 🌟 [แก้ไขใหม่] ฟังก์ชันเปิดดูข้อมูลเชิงลึก พร้อมแบ่งหน้า 10 รายการ/หน้า (Fix กล่องไม่ให้เด้ง)
 // ==========================================
-let sdData = {}; // เก็บข้อมูลทั้งหมดไว้ในหน่วยความจำชั่วคราว
-const ITEMS_PER_PAGE = 15; // กำหนดให้แสดงหน้าละ 15 รายการ
+let sdData = {}; 
+const ITEMS_PER_PAGE = 10; // ลดเหลือ 10 รายการ
 
 function openShopDetails(sheetId, shopName) {
   document.getElementById('sd-shop-name').innerText = shopName;
   const detailsModal = new bootstrap.Modal(document.getElementById('shopDetailsModal'));
   detailsModal.show();
 
-  // ขึ้นสถานะกำลังโหลดทั้ง 5 แท็บ
-  const loadingHtml = `<tr><td colspan="6" class="text-center py-4 text-muted"><i class="fa-solid fa-spinner fa-spin me-2"></i>กำลังโหลดข้อมูล...</td></tr>`;
+  const loadingHtml = `<tr><td colspan="6" class="text-center py-5 text-muted"><i class="fa-solid fa-spinner fa-spin me-2"></i>กำลังโหลดข้อมูล...</td></tr>`;
   ['sales', 'products', 'users', 'settings', 'logs'].forEach(type => {
     document.getElementById(`sd-tbody-${type}`).innerHTML = loadingHtml;
   });
@@ -525,15 +524,12 @@ function openShopDetails(sheetId, shopName) {
   })
   .then(res => {
     if (res.data.status === 'success') {
-      sdData = res.data; // เก็บข้อมูลทั้งหมดลงตัวแปร
-      
-      // สั่งให้วาดตารางหน้าที่ 1 ของทุกแท็บ
+      sdData = res.data;
       renderSdSales(1);
       renderSdProducts(1);
       renderSdUsers(1);
       renderSdSettings(1);
       renderSdLogs(1);
-
     } else {
       Swal.fire('ข้อผิดพลาด', res.data.message, 'error');
     }
@@ -544,27 +540,38 @@ function openShopDetails(sheetId, shopName) {
   });
 }
 
-// 🌟 ฟังก์ชันสร้างปุ่มแบ่งหน้า (Pagination)
-function buildSdPagination(funcName, page, totalPages, colSpan) {
+// 🌟 ฟังก์ชันสร้างปุ่มแบ่งหน้า พร้อมแทรก "แถวเปล่า" ค้ำกล่องไม่ให้เด้ง
+function buildSdPagination(funcName, page, totalPages, colSpan, currentDataLength) {
+  let emptyHtml = '';
+  // คำนวณว่าขาดอีกกี่แถวถึงจะครบ 10 แล้วสร้างแถวเปล่า (สูง 55px) ไปค้ำไว้
+  const emptyCount = ITEMS_PER_PAGE - currentDataLength;
+  for(let i = 0; i < emptyCount; i++) {
+     emptyHtml += `<tr><td colspan="${colSpan}" style="height: 55px; border-bottom: 1px solid transparent;"></td></tr>`;
+  }
+
   let prevAttr = page <= 1 ? 'disabled' : `onclick="${funcName}(${page - 1})"`;
   let nextAttr = page >= totalPages ? 'disabled' : `onclick="${funcName}(${page + 1})"`;
-  return `
-    <tr>
-      <td colspan="${colSpan}" class="text-center bg-transparent border-0 pt-4 pb-2">
+  
+  let paginationHtml = `
+    <tr style="background-color: #f8fafc;">
+      <td colspan="${colSpan}" class="text-center border-0 pt-3 pb-3">
         <div class="d-flex justify-content-center align-items-center gap-3">
-          <button class="btn btn-sm btn-outline-primary fw-bold px-3 rounded-pill shadow-sm" ${prevAttr}>
+          <button class="btn btn-sm btn-outline-primary fw-bold px-3 rounded-pill shadow-sm bg-white" ${prevAttr}>
              <i class="fa-solid fa-angle-left me-1"></i> ก่อนหน้า
           </button>
           <span class="small text-primary fw-bold bg-white px-4 py-1 rounded-pill border shadow-sm">
              หน้า ${page} / ${totalPages}
           </span>
-          <button class="btn btn-sm btn-outline-primary fw-bold px-3 rounded-pill shadow-sm" ${nextAttr}>
+          <button class="btn btn-sm btn-outline-primary fw-bold px-3 rounded-pill shadow-sm bg-white" ${nextAttr}>
              ถัดไป <i class="fa-solid fa-angle-right ms-1"></i>
           </button>
         </div>
       </td>
     </tr>
   `;
+  
+  // คืนค่า แถวเปล่า (ถ้ามี) + แถวปุ่มกด เพื่อให้ต่อท้ายตาราง
+  return emptyHtml + paginationHtml;
 }
 
 // ------------------------------------
@@ -573,7 +580,7 @@ function buildSdPagination(funcName, page, totalPages, colSpan) {
 function renderSdSales(page) {
   const data = sdData.sales || [];
   const tbody = document.getElementById('sd-tbody-sales');
-  if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted">ไม่มีข้อมูล</td></tr>`; return; }
+  if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-5">ไม่มีข้อมูล</td></tr>`; return; }
   
   const totalPages = Math.ceil(data.length / ITEMS_PER_PAGE);
   const paginatedData = data.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
@@ -581,16 +588,19 @@ function renderSdSales(page) {
   let html = '';
   paginatedData.forEach(s => {
     let isVoid = s.receipt_id.includes('(ยกเลิก)') ? 'text-danger text-decoration-line-through' : '';
-    html += `<tr class="${isVoid}">
+    // ล็อกความสูงทุกแถวไว้ที่ 55px เพื่อให้เท่ากัน
+    html += `<tr class="${isVoid}" style="height: 55px;">
       <td>${s.timestamp}</td>
       <td>${s.receipt_id}</td>
       <td class="text-primary fw-bold">฿${parseFloat(s.total).toLocaleString()}</td>
       <td>${s.payment_method}</td>
       <td>${s.seller}</td>
-      <td class="small" style="max-width: 250px; overflow-x: auto; white-space: nowrap;">${s.items_str}</td>
+      <td class="small" style="max-width: 250px; overflow-x: auto; white-space: nowrap;" title="${s.items_str}">${s.items_str}</td>
     </tr>`;
   });
-  if (totalPages > 1) html += buildSdPagination('renderSdSales', page, totalPages, 6);
+  
+  // เรียกใช้ Pagination
+  html += buildSdPagination('renderSdSales', page, totalPages, 6, paginatedData.length);
   tbody.innerHTML = html;
 }
 
@@ -600,14 +610,14 @@ function renderSdSales(page) {
 function renderSdProducts(page) {
   const data = sdData.products || [];
   const tbody = document.getElementById('sd-tbody-products');
-  if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted">ไม่มีข้อมูล</td></tr>`; return; }
+  if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-5">ไม่มีข้อมูล</td></tr>`; return; }
   
   const totalPages = Math.ceil(data.length / ITEMS_PER_PAGE);
   const paginatedData = data.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
   
   let html = '';
   paginatedData.forEach(p => {
-    html += `<tr>
+    html += `<tr style="height: 55px;">
       <td class="fw-bold">${p.id}</td>
       <td>${p.name}</td>
       <td><span class="badge bg-secondary">${p.category || '-'}</span></td>
@@ -615,7 +625,7 @@ function renderSdProducts(page) {
       <td>${p.stock} ${p.unit || ''}</td>
     </tr>`;
   });
-  if (totalPages > 1) html += buildSdPagination('renderSdProducts', page, totalPages, 5);
+  html += buildSdPagination('renderSdProducts', page, totalPages, 5, paginatedData.length);
   tbody.innerHTML = html;
 }
 
@@ -625,20 +635,20 @@ function renderSdProducts(page) {
 function renderSdUsers(page) {
   const data = sdData.users || [];
   const tbody = document.getElementById('sd-tbody-users');
-  if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="3" class="text-center text-muted">ไม่มีข้อมูล</td></tr>`; return; }
+  if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="3" class="text-center text-muted py-5">ไม่มีข้อมูล</td></tr>`; return; }
   
   const totalPages = Math.ceil(data.length / ITEMS_PER_PAGE);
   const paginatedData = data.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
   
   let html = '';
   paginatedData.forEach(u => {
-    html += `<tr>
+    html += `<tr style="height: 55px;">
       <td><span class="badge bg-dark">${u.pin}</span></td>
       <td class="fw-bold">${u.name}</td>
       <td class="small text-muted">${u.permissions}</td>
     </tr>`;
   });
-  if (totalPages > 1) html += buildSdPagination('renderSdUsers', page, totalPages, 3);
+  html += buildSdPagination('renderSdUsers', page, totalPages, 3, paginatedData.length);
   tbody.innerHTML = html;
 }
 
@@ -648,7 +658,7 @@ function renderSdUsers(page) {
 function renderSdSettings(page) {
   const data = sdData.settings || [];
   const tbody = document.getElementById('sd-tbody-settings');
-  if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="2" class="text-center text-muted">ไม่มีข้อมูล</td></tr>`; return; }
+  if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="2" class="text-center text-muted py-5">ไม่มีข้อมูล</td></tr>`; return; }
   
   const totalPages = Math.ceil(data.length / ITEMS_PER_PAGE);
   const paginatedData = data.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
@@ -657,9 +667,9 @@ function renderSdSettings(page) {
   paginatedData.forEach(s => {
     let displayVal = s.value;
     if(s.value && s.value.startsWith('data:image')) displayVal = '[รูปภาพ Base64]';
-    html += `<tr><td class="fw-bold text-secondary">${s.key}</td><td style="max-width:300px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title='${displayVal}'>${displayVal}</td></tr>`;
+    html += `<tr style="height: 55px;"><td class="fw-bold text-secondary">${s.key}</td><td style="max-width:300px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title='${displayVal}'>${displayVal}</td></tr>`;
   });
-  if (totalPages > 1) html += buildSdPagination('renderSdSettings', page, totalPages, 2);
+  html += buildSdPagination('renderSdSettings', page, totalPages, 2, paginatedData.length);
   tbody.innerHTML = html;
 }
 
@@ -669,21 +679,21 @@ function renderSdSettings(page) {
 function renderSdLogs(page) {
   const data = sdData.logs || [];
   const tbody = document.getElementById('sd-tbody-logs');
-  if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted">ไม่มีข้อมูล</td></tr>`; return; }
+  if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted py-5">ไม่มีข้อมูล</td></tr>`; return; }
   
   const totalPages = Math.ceil(data.length / ITEMS_PER_PAGE);
   const paginatedData = data.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
   
   let html = '';
   paginatedData.forEach(l => {
-    html += `<tr>
+    html += `<tr style="height: 55px;">
       <td class="small text-muted">${l.timestamp}</td>
       <td class="fw-bold text-primary">${l.staff_name}</td>
       <td><span class="badge bg-info text-dark">${l.action}</span></td>
       <td class="small">${l.detail}</td>
     </tr>`;
   });
-  if (totalPages > 1) html += buildSdPagination('renderSdLogs', page, totalPages, 4);
+  html += buildSdPagination('renderSdLogs', page, totalPages, 4, paginatedData.length);
   tbody.innerHTML = html;
 }
 
