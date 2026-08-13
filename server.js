@@ -182,13 +182,7 @@ app.post('/api/products/update', (req, res) => {
   db.get(`SELECT image FROM products WHERE tenant_id = ? AND id = ?`, [tenantId, product.oldId], (err, row) => {
     if (row && row.image && row.image !== product.image) deleteLocalImage(row.image);
     db.run(`UPDATE products SET id=?, name=?, price=?, image=?, category=?, stock=?, min_stock=?, unit=? WHERE tenant_id=? AND id=?`,
-      [product.id, product.name, product.price, product.image, product.category, product.stock, product.minStock, product.unit, tenantId, product.oldId], function() { 
-        
-        // 🌟 ส่งสัญญาณให้ทุกเครื่องอัปเดตหน้าจอทันที
-        io.to(tenantId).emit('force_refresh_stock');
-        
-        res.json(this.changes > 0 ? "success" : "not_found"); 
-      });
+      [product.id, product.name, product.price, product.image, product.category, product.stock, product.minStock, product.unit, tenantId, product.oldId], function() { res.json(this.changes > 0 ? "success" : "not_found"); });
   });
 });
 app.post('/api/products/delete', (req, res) => { 
@@ -199,20 +193,14 @@ app.post('/api/products/delete', (req, res) => {
   });
 });
 app.post('/api/update-bulk-stock', (req, res) => {
-  const { tenantId, payload } = req.body; 
-  JSON.parse(payload).forEach(item => {
+  const { tenantId, payload } = req.body; JSON.parse(payload).forEach(item => {
     db.get(`SELECT stock FROM products WHERE tenant_id = ? AND id = ?`, [tenantId, item.id], (err, row) => {
       if (row && row.stock !== "ไม่จำกัด") {
         const newStock = (parseInt(row.stock) || 0) + parseInt(item.addQty);
         db.run(`UPDATE products SET stock = ? WHERE tenant_id = ? AND id = ?`, [String(newStock), tenantId, item.id]);
       }
     });
-  }); 
-
-  // 🌟 หน่วงเวลา 0.5 วิ ให้เซิร์ฟเวอร์บันทึกเสร็จก่อน ค่อยสั่งหน้าจอให้อัปเดต
-  setTimeout(() => { io.to(tenantId).emit('force_refresh_stock'); }, 500);
-
-  res.json("success");
+  }); res.json("success");
 });
 
 app.post('/api/upload-image', (req, res) => {
@@ -328,16 +316,6 @@ app.post('/api/void-order', (req, res) => {
       if (str.startsWith('[หักส่วนลด') || str.startsWith('[คืนแล้ว]')) return;
       const match = str.match(/^(.*?)\s*\(x(\d+)/); if (match) itemsToRestore.push({ name: match[1].trim(), qty: parseInt(match[2], 10) });
     });
-    app.post('/api/void-order', (req, res) => {
-  const { tenantId, receiptId } = req.body;
-  db.get(`SELECT items_str, receipt_id FROM sales_log WHERE tenant_id = ? AND receipt_id = ?`, [tenantId, receiptId], (err, row) => {
-    if (!row) return res.json("not_found");
-    if (row.receipt_id.includes("(ยกเลิก)")) return res.json("already_voided");
-    const itemsArr = row.items_str.split(' | '); const itemsToRestore = [];
-    itemsArr.forEach(str => {
-      if (str.startsWith('[หักส่วนลด') || str.startsWith('[คืนแล้ว]')) return;
-      const match = str.match(/^(.*?)\s*\(x(\d+)/); if (match) itemsToRestore.push({ name: match[1].trim(), qty: parseInt(match[2], 10) });
-    });
     db.run(`UPDATE sales_log SET receipt_id = '(ยกเลิก) ' || receipt_id WHERE tenant_id = ? AND receipt_id = ?`, [tenantId, receiptId], function(err) {
       if (err) return res.json("error");
       itemsToRestore.forEach(item => {
@@ -384,10 +362,6 @@ app.post('/api/void-partial-item', (req, res) => {
           db.run(`UPDATE products SET stock = ? WHERE tenant_id = ? AND id = ?`, [String(newStock), tenantId, prod.id]);
         }
       });
-
-      // 🌟 ส่งสัญญาณอัปเดตชิ้นส่วนที่คืนกลับสต็อก
-      setTimeout(() => { io.to(tenantId).emit('force_refresh_stock'); }, 500);
-
       res.json("success");
     });
   });
