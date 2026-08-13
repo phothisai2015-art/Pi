@@ -145,10 +145,13 @@ app.post('/api/login-shop', (req, res) => {
       if (row.status !== "ACTIVE") return res.json({ status: "error", message: "⚠️ สถานะร้านค้าไม่พร้อมใช้งาน" });
       const today = new Date(); today.setHours(0,0,0,0);
       const exp = new Date(row.expire_date); exp.setHours(0,0,0,0);
-      if (exp < today) return res.json({ status: "error", message: "❌ ระบบของคุณหมดอายุการใช้งานแล้ว" });
+      
+      const isExpired = exp < today; // 🌟 เช็คว่าหมดอายุหรือไม่
       const daysRemaining = Math.ceil((exp - today) / (1000 * 3600 * 24));
-      res.json({ status: "success", sheetId: row.sheet_id, shopName: row.shop_name, daysRemaining });
-    }); 
+      
+      // ส่ง isExpired กลับไปที่หน้าเว็บเพื่อนำไปใช้ล็อกเมนู
+      res.json({ status: "success", sheetId: row.sheet_id, shopName: row.shop_name, daysRemaining, isExpired });
+    });
   }); 
 }); 
 
@@ -418,11 +421,13 @@ app.get('/api/tenant-info/:sheetId', (req, res) => {
     if (!row) return res.json(null);
     const today = new Date(); today.setHours(0,0,0,0); const exp = new Date(row.expire_date); exp.setHours(0,0,0,0);
     const daysRemaining = Math.ceil((exp - today) / (1000 * 3600 * 24));
+    const isExpired = exp < today; // 🌟 เช็คสถานะหมดอายุ
     res.json({ 
       email: row.email, 
       shopName: row.shopName, 
       expireDate: `${padStr(exp.getDate())}/${padStr(exp.getMonth()+1)}/${exp.getFullYear()}`, 
       daysRemaining,
+      isExpired, // 🌟 ส่งค่าไปฝั่งหน้าร้านค้า
       renewStatus: row.renew_status || 'NONE',
       renewNotified: row.renew_notified !== undefined ? row.renew_notified : 1
     });
