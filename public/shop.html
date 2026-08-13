@@ -294,6 +294,54 @@ document.addEventListener("DOMContentLoaded", () => {
   // โหลดหน้าจอต่างๆ ตามหลัง (คนจะไม่เห็นจอขาวแล้ว)
   loadShopComponents();
 });
+
+// 🌟 ฟังก์ชันล็อกเมนูหน้าร้านค้าเมื่อระบบหมดอายุ
+function disableMenusForExpiredShop(isExpired) {
+  // ดึงปุ่มเมนูหลักทั้งหมดในหน้าร้าน
+  const menuBtns = document.querySelectorAll('.menu-card-btn, .menu-btn');
+  
+  menuBtns.forEach(btn => {
+    // ปล่อยปุ่ม "ตั้งค่าระบบ" (Settings) ไว้ปุ่มเดียว เพื่อให้เข้าไปเติมแพ็กเกจได้
+    const isSettingsBtn = btn.classList.contains('btn-settings') || 
+                          (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes('openSettingsPage'));
+                          
+    if (!isSettingsBtn) {
+      btn.disabled = isExpired; // ใส่/ถอด attribute disabled
+      
+      if (isExpired) {
+        btn.setAttribute('data-expired-lock', 'true');
+      } else {
+        btn.removeAttribute('data-expired-lock');
+      }
+    }
+  });
+
+  // ถ้าหมดอายุ ดักจับอีเวนต์เมื่อกดปุ่มที่ถูกล็อก
+  if (isExpired) {
+    document.querySelectorAll('[data-expired-lock="true"]').forEach(btn => {
+      btn.onclick = function(e) {
+        e.stopImmediatePropagation();
+        e.preventDefault();
+        
+        Swal.fire({
+          icon: 'warning',
+          title: '👑 ระบบหมดอายุการใช้งาน',
+          text: 'แพ็กเกจของคุณหมดอายุแล้ว กรุณาชำระเงินต่ออายุเพื่อปลดล็อกการใช้งานครับ',
+          showCancelButton: true,
+          confirmButtonText: '<i class="fa-solid fa-bolt me-1"></i> ต่ออายุทันที',
+          cancelButtonText: 'ปิดหน้าต่าง',
+          confirmButtonColor: '#f59e0b'
+        }).then((res) => {
+          if (res.isConfirmed && typeof openSettingsPage === 'function') {
+            openSettingsPage();
+            if (typeof switchSettingsTab === 'function') switchSettingsTab('tab-package');
+          }
+        });
+      };
+    });
+  }
+}
+
 </script>
 
 </body>
