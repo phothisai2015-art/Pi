@@ -1347,7 +1347,16 @@
       Swal.fire({ title: i18n[currentLang]['pos_alert_saving_bill'] || 'กำลังบันทึกบิล...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); }});
 
       google.script.run.withSuccessHandler(function(res) {
-        isProcessingOrder = false; if(res.status === "error") { Swal.fire(i18n[currentLang]['swal_error_occurred'] || 'เกิดข้อผิดพลาด', res.message, 'error'); syncCFD('UPDATE_CART'); return; }
+        isProcessingOrder = false; 
+        if (res.status === "error") { 
+            Swal.fire(i18n[currentLang]['swal_error_occurred'] || 'เกิดข้อผิดพลาด', res.message, 'error'); 
+            syncCFD('UPDATE_CART'); 
+            
+            // 🌟 เพิ่มโค้ดบรรทัดนี้: สั่งให้รีเฟรชสต็อกหน้าจอทันทีเมื่อเกิด Error
+            if (typeof refreshProductsData === 'function') refreshProductsData();
+            
+            return; 
+        }
         
         playPaymentSuccessSound();
 
