@@ -323,7 +323,15 @@
   }
 
   function loadProductsTable() {
-    document.getElementById('product-table-body').innerHTML = `<tr><td colspan="7" class="text-center py-4">${i18n[currentLang]['prod_loading_data']}</td></tr>`;
+    // 🌟 ดึงข้อมูลที่เราแอบโหลดตุนไว้ตั้งแต่ตอนเข้าเว็บ มาระบายใส่ตารางแบบทันทีทันใด! (เร็ว 0 วิ)
+    if (globalProducts && globalProducts.length > 0) {
+      populateCategoryDropdowns(); 
+      renderProductsTable();
+    } else {
+      document.getElementById('product-table-body').innerHTML = `<tr><td colspan="7" class="text-center py-4">${i18n[currentLang]['prod_loading_data']}</td></tr>`;
+    }
+    
+    // หลังบ้านก็ยังไปแอบดึงข้อมูลใหม่มาเช็คกันเหนียว เผื่อมีเพื่อนอัปเดตสต็อกตอนเราไม่ได้มอง
     google.script.run.withSuccessHandler(function(data) {
       globalProducts = data; populateCategoryDropdowns(); renderProductsTable();
     }).getProducts(currentTenantSheetId);

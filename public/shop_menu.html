@@ -621,25 +621,27 @@ function initShopMenuScripts() {
 
 function loadShopData(tenantId) {
   if(!tenantId) return;
-  google.script.run.withSuccessHandler(function(settings) {
-    cachedShopSettings = settings || {}; 
-    if (typeof applyUISettings === 'function') applyUISettings(); 
-    
-    if(settings && settings.shop_logo) { document.getElementById('display-shop-logo').src = settings.shop_logo; document.getElementById('display-shop-logo').style.display = 'inline-block'; }
-  }).getShopSettings(tenantId);
+  
+  // 🌟 สร้างตัวนับจำนวนคิวโหลดข้อมูล
+  let loadedCount = 0;
+  const targetCount = 5; // เราจะดึงข้อมูล 5 อย่างพร้อมกัน: ตั้งค่า, พนักงาน, สินค้า, บิลขาย, ประวัติการใช้งาน
 
-  google.script.run.withSuccessHandler(function(users) { 
-    globalUsers = users || []; 
+  // ฟังก์ชันเช็คว่าดึงข้อมูลครบหรือยัง
+  function checkAllLoaded() {
+    loadedCount++;
     
-    // ========================================================
-    // 🌟 2. ข้อมูลมาครบแล้ว ดันหลอดไปที่ 100% แล้วปลดล็อกหน้าจอ
-    // ========================================================
-    if (window.sysLoadInterval) clearInterval(window.sysLoadInterval);
+    // ดันหลอดโหลดให้วิ่งขึ้นตามข้อมูลที่ดึงเสร็จ (จาก 90% ดันไปเรื่อยๆ)
     let el = document.getElementById('sys-load-percent');
-    if (el) el.innerText = '100%';
+    if (el && loadedCount < targetCount) {
+        el.innerText = (85 + Math.floor((loadedCount/targetCount)*10)) + '%';
+    }
 
-    setTimeout(() => {
-        // ปิดหน้าจอโหลด (ถ้าเปิดอยู่)
+    // ถ้าดึงครบทั้ง 5 อย่างแล้ว -> ดันหลอดไป 100% แล้วโชว์หน้าจอ!
+    if (loadedCount >= targetCount) {
+      if (window.sysLoadInterval) clearInterval(window.sysLoadInterval);
+      if (el) el.innerText = '100%';
+
+      setTimeout(() => {
         if (Swal.isVisible() && Swal.getTitle() && Swal.getTitle().textContent.includes('ระบบ')) {
            Swal.close();
         }
@@ -671,9 +673,45 @@ function loadShopData(tenantId) {
             } catch(e) { sessionStorage.removeItem('pos_active_staff'); }
           }
         }
-    }, 400); // หน่วง 0.4 วินาทีให้ผู้ใช้เห็นว่าโหลดเสร็จ 100% แล้วจริงๆ
+      }, 300);
+    }
+  }
 
+  // 📥 1. โหลดการตั้งค่าร้าน
+  google.script.run.withSuccessHandler(function(settings) {
+    cachedShopSettings = settings || {}; 
+    if (typeof applyUISettings === 'function') applyUISettings(); 
+    if(settings && settings.shop_logo) { 
+        document.getElementById('display-shop-logo').src = settings.shop_logo; 
+        document.getElementById('display-shop-logo').style.display = 'inline-block'; 
+    }
+    checkAllLoaded();
+  }).getShopSettings(tenantId);
+
+  // 📥 2. โหลดพนักงาน
+  google.script.run.withSuccessHandler(function(users) { 
+    globalUsers = users || []; 
+    checkAllLoaded();
   }).getUsers(tenantId);
+
+  // 📥 3. โหลดคลังสินค้าทั้งหมด (Preload เตรียมไว้ให้หน้า POS และ Products)
+  google.script.run.withSuccessHandler(function(products) {
+    globalProducts = products || [];
+    window.globalProducts = globalProducts;
+    checkAllLoaded();
+  }).getProducts(tenantId);
+
+  // 📥 4. โหลดประวัติบิล (Preload เตรียมไว้ให้ Dashboard)
+  google.script.run.withSuccessHandler(function(data) {
+    posRawSalesData = data || [];
+    checkAllLoaded();
+  }).getDashboardData(tenantId);
+
+  // 📥 5. โหลดประวัติการใช้งาน (Preload เตรียมไว้ให้หน้า Settings)
+  google.script.run.withSuccessHandler(function(logs) {
+    globalActivityLogs = logs || [];
+    checkAllLoaded();
+  }).getActivityLogs(tenantId);
 }
 
 function saveFirstAdmin() {
