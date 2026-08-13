@@ -26,7 +26,7 @@
 // ==========================================
 (function() {
   function callServerApi(prop, args, successCb, failureCb) {
-    let url = ''; let options = { method: 'GET', headers: { 'Content-Type': 'application/json' } };
+    let url = ''; let options = { method: 'GET', headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' }, cache: 'no-store' };
     switch(prop) {
       case 'getAppInfo': url = '/api/app-info'; break;
       case 'getShopSettings': url = '/api/settings/' + args[0]; break;
@@ -34,7 +34,7 @@
       case 'getUsers': url = '/api/users/' + args[0]; break;
       case 'saveUser': url = '/api/users/save'; options.method = 'POST'; options.body = JSON.stringify({ tenantId: args[0], user: args[1] }); break;
       case 'deleteUser': url = '/api/users/delete'; options.method = 'POST'; options.body = JSON.stringify({ tenantId: args[0], pin: args[1] }); break;
-      case 'getProducts': url = '/api/products/' + args[0]; break;
+      case 'getProducts': url = '/api/products/' + args[0] + '?t=' + Date.now(); break;
       case 'addProduct': url = '/api/products/add'; options.method = 'POST'; options.body = JSON.stringify({ tenantId: args[0], product: args[1] }); break;
       case 'updateProduct': url = '/api/products/update'; options.method = 'POST'; options.body = JSON.stringify({ tenantId: args[0], product: args[1] }); break;
       case 'deleteProduct': url = '/api/products/delete'; options.method = 'POST'; options.body = JSON.stringify({ tenantId: args[0], id: args[1] }); break;
@@ -42,7 +42,7 @@
       case 'saveOrder': url = '/api/save-order'; options.method = 'POST'; options.body = JSON.stringify({ tenantId: args[0], payload: args[1] }); break;
       case 'voidOrder': url = '/api/void-order'; options.method = 'POST'; options.body = JSON.stringify({ tenantId: args[0], receiptId: args[1] }); break;
       case 'voidPartialItem': url = '/api/void-partial-item'; options.method = 'POST'; options.body = JSON.stringify({ tenantId: args[0], receiptId: args[1], itemIndex: args[2], returnQty: args[3] }); break;
-      case 'getDashboardData': url = '/api/dashboard/' + args[0]; break;
+      case 'getDashboardData': url = '/api/dashboard/' + args[0] + '?t=' + Date.now(); break;
       case 'updateBulkStock': url = '/api/update-bulk-stock'; options.method = 'POST'; options.body = JSON.stringify({ tenantId: args[0], payload: args[1] }); break;
       case 'deleteTestBills': url = '/api/delete-test-bills'; options.method = 'POST'; options.body = JSON.stringify({ tenantId: args[0], receiptIdsArray: args[1] }); break;
       case 'logAction': url = '/api/log-action'; options.method = 'POST'; options.body = JSON.stringify({ tenantId: args[0], staffName: args[1], action: args[2], detail: args[3] }); break;
