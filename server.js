@@ -734,35 +734,64 @@ async function pollTelegram() {
           // 🛡️ ป้องกันคนอื่นใช้คำสั่ง: จะยอมรับคำสั่งเฉพาะ Chat ID ของแอดมินเท่านั้น
           if (chatId === String(TELEGRAM_CHAT_ID)) {
 
-            // 🌟 คำสั่ง: /pull git
-            if (text === '/git pull' || text === '/pull') {
+            // 🌟 คำสั่ง: /git pull (รองรับทั้ง /git pull และ /pull git)
+            if (text === '/git pull' || text === '/pull git') {
               axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, { 
                 chat_id: chatId, 
-                text: "⏳ <b>กำลังดึงโค้ดล่าสุดจาก Git (Git Pull)...</b>", 
+                text: "⏳ <b>กำลังดึงโค้ดล่าสุดจาก Git...</b>", 
                 parse_mode: "HTML" 
               }, { timeout: 4000 }).catch(()=>{});
 
               exec('git pull', (err, stdout, stderr) => {
-                let replyText = "";
-                if (err) {
-                  replyText = `❌ <b>Git Pull ล้มเหลว:</b>\n<code>${escapeHtml(err.message)}</code>`;
-                } else {
-                  replyText = `✅ <b>Git Pull สำเร็จ!</b>\n<code>${escapeHtml(stdout || 'Already up to date.')}</code>\n\n🔄 กำลังสั่ง Restart ระบบ POS...`;
-                }
+                let replyText = err 
+                  ? `❌ <b>Git Pull ล้มเหลว:</b>\n<code>${escapeHtml(err.message)}</code>`
+                  : `✅ <b>Git Pull สำเร็จ!</b>\n<code>${escapeHtml(stdout || 'Already up to date.')}</code>\n\n🔄 กำลังสั่ง Restart ระบบ POS...`;
 
                 axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, { 
                   chat_id: chatId, 
                   text: replyText, 
                   parse_mode: "HTML" 
                 }, { timeout: 4000 }).then(() => {
-                  if (!err) exec('pm2 restart my-pos'); // รีสตาร์ทระบบหลังยิงแจ้งเตือนเสร็จ
+                  if (!err) exec('pm2 restart my-pos');
                 }).catch(() => {
                   if (!err) exec('pm2 restart my-pos');
                 });
               });
             }
 
-            // 🌟 คำสั่ง: /-c slip
+            // 🌟 คำสั่ง: /restart shop
+            else if (text === '/restart shop') {
+              axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, { 
+                chat_id: chatId, 
+                text: "🔄 <b>กำลังสั่งรีสตาร์ทระบบ (pm2 restart my-pos)...</b>", 
+                parse_mode: "HTML" 
+              }, { timeout: 4000 }).catch(()=>{});
+
+              exec('pm2 restart my-pos', (err) => {
+                if (err) {
+                  axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, { 
+                    chat_id: chatId, 
+                    text: `❌ <b>Restart ล้มเหลว:</b>\n<code>${escapeHtml(err.message)}</code>`, 
+                    parse_mode: "HTML" 
+                  }, { timeout: 4000 }).catch(()=>{});
+                }
+              });
+            }
+
+            // 🌟 คำสั่ง: /stop shop
+            else if (text === '/stop shop') {
+              axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, { 
+                chat_id: chatId, 
+                text: "🛑 <b>กำลังปิดระบบ (pm2 stop my-pos)...</b>\nหลังจากนี้บอทจะออฟไลน์ ไม่สามารถสั่งงานได้จนกว่าจะเปิดใหม่ครับ", 
+                parse_mode: "HTML" 
+              }, { timeout: 4000 }).then(() => {
+                exec('pm2 stop my-pos');
+              }).catch(() => {
+                exec('pm2 stop my-pos');
+              });
+            }
+
+            // 🌟 คำสั่ง: /-c slip หรือ /clearslip
             else if (text === '/-c slip' || text === '/clearslip') {
               db.serialize(() => {
                 db.run('DELETE FROM slip_logs');
@@ -785,12 +814,13 @@ async function pollTelegram() {
         // ==========================================
         // 🔘 2. ดักจับการกดปุ่มบน Telegram (Inline Keyboard)
         // ==========================================
-        if (update.callback_query) {
+        else if (update.callback_query) {
           const callbackData = update.callback_query.data;
           const callbackQueryId = update.callback_query.id;
           const chatId = update.callback_query.message.chat.id;
           const messageId = update.callback_query.message.message_id;
           
+          // ลบนาฬิกาทรายที่ปุ่มทันที
           axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/answerCallbackQuery`, { 
             callback_query_id: callbackQueryId 
           }, { timeout: 3000 }).catch(()=>{});
