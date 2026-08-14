@@ -1,5 +1,6 @@
 const dns = require('dns');
 dns.setDefaultResultOrder('ipv4first'); // 🌟 บังคับใช้ IPv4 แก้ปัญหา Telegram Timeout บน Pi
+const { exec } = require('child_process'); // 🌟 สำหรับใช้รันคำสั่ง Terminal ผ่าน Node.js
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
@@ -712,6 +713,67 @@ async function pollTelegram() {
       for (const update of response.data.result) {
         lastUpdateId = update.update_id;
         
+        // ==========================================
+        // 💬 1. ดักจับคำสั่งพิมพ์ข้อความเข้ามา (Text Message)
+        // ==========================================
+        if (update.message && update.message.text) {
+          const chatId = String(update.message.chat.id);
+          const text = update.message.text.trim();
+
+          // 🛡️ ป้องกันคนอื่นใช้คำสั่ง: จะยอมรับคำสั่งเฉพาะ Chat ID ของแอดมินเท่านั้น
+          if (chatId === String(TELEGRAM_CHAT_ID)) {
+
+            // 🌟 คำสั่ง: /pull git
+            if (text === '/pull git' || text === '/pull') {
+              axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, { 
+                chat_id: chatId, 
+                text: "⏳ <b>กำลังดึงโค้ดล่าสุดจาก Git (Git Pull)...</b>", 
+                parse_mode: "HTML" 
+              }, { timeout: 4000 }).catch(()=>{});
+
+              exec('git pull', (err, stdout, stderr) => {
+                let replyText = "";
+                if (err) {
+                  replyText = `❌ <b>Git Pull ล้มเหลว:</b>\n<code>${escapeHtml(err.message)}</code>`;
+                } else {
+                  replyText = `✅ <b>Git Pull สำเร็จ!</b>\n<code>${escapeHtml(stdout || 'Already up to date.')}</code>\n\n🔄 กำลังสั่ง Restart ระบบ POS...`;
+                }
+
+                axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, { 
+                  chat_id: chatId, 
+                  text: replyText, 
+                  parse_mode: "HTML" 
+                }, { timeout: 4000 }).then(() => {
+                  if (!err) exec('pm2 restart my-pos'); // รีสตาร์ทระบบหลังยิงแจ้งเตือนเสร็จ
+                }).catch(() => {
+                  if (!err) exec('pm2 restart my-pos');
+                });
+              });
+            }
+
+            // 🌟 คำสั่ง: /-c slip
+            else if (text === '/-c slip' || text === '/clearslip') {
+              db.serialize(() => {
+                db.run('DELETE FROM slip_logs');
+                db.run("UPDATE tenants SET renew_status = 'NONE'", (err) => {
+                  const replyText = err 
+                    ? `❌ <b>เกิดข้อผิดพลาดในการเคลียร์สลิป:</b> ${err.message}`
+                    : "🧹 <b>เคลียร์ประวัติสลิป และปลดล็อกระบบเรียบร้อยแล้วครับ!</b>\nพร้อมใช้อัปโหลดสลิปเดิมทดสอบได้ทันที";
+
+                  axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, { 
+                    chat_id: chatId, 
+                    text: replyText, 
+                    parse_mode: "HTML" 
+                  }, { timeout: 4000 }).catch(()=>{});
+                });
+              });
+            }
+          }
+        }
+
+        // ==========================================
+        // 🔘 2. ดักจับการกดปุ่มบน Telegram (Inline Keyboard)
+        // ==========================================
         if (update.callback_query) {
           const callbackData = update.callback_query.data;
           const callbackQueryId = update.callback_query.id;
@@ -726,7 +788,6 @@ async function pollTelegram() {
           let pkg = "1M";
           let email = "";
 
-          // 🌟 แยกคำสั่งจากสัญลักษณ์ | ป้องกันบั๊กอีเมลที่มีเครื่องหมาย _
           if (callbackData.startsWith("APP_") || callbackData.startsWith("APPROVE_")) {
             action = "APPROVE";
             const payload = callbackData.replace(/^APPROVE_|^APP_/, '');
@@ -770,16 +831,15 @@ async function pollTelegram() {
                 db.run(`UPDATE tenants SET expire_date = ?, renew_status = 'NONE', renew_notified = 0 WHERE LOWER(email) = LOWER(?)`, [newExpStr, email], async () => {
                   db.run(`UPDATE slip_logs SET status = 'USED' WHERE LOWER(email) = LOWER(?) AND status = 'PENDING'`, [email]);
 
-                  // 🟢 ตรวจสอบ 3 ชั้น: ต้องมีตัวแปร + ไม่เป็นค่าว่าง + ต้องมีเครื่องหมาย @
-if (email && email.trim() !== '' && email.includes('@')) {
-  const mailOptions = {
-    from: transporter.options.auth.user,
-    to: email.trim(),
-    subject: `🎉 ยืนยันการต่ออายุระบบ POS สำเร็จ - ร้าน ${row.shop_name}`,
-    text: `สวัสดีครับ คุณลูกค้า (ร้าน ${row.shop_name})\n\nระบบได้รับการยืนยันการชำระเงิน เรียบร้อยแล้วครับ\n\n⏰ วันหมดอายุใหม่คือ: ${padStr(baseDate.getDate())}/${padStr(baseDate.getMonth()+1)}/${baseDate.getFullYear()}\n\nขอบคุณครับ!`
-  };
-  transporter.sendMail(mailOptions).catch(err => console.error("Send Confirm Mail Error:", err.message));
-}
+                  if (email && email.trim() !== '' && email.includes('@')) {
+                    const mailOptions = {
+                      from: transporter.options.auth.user,
+                      to: email.trim(),
+                      subject: `🎉 ยืนยันการต่ออายุระบบ POS สำเร็จ - ร้าน ${row.shop_name}`,
+                      text: `สวัสดีครับ คุณลูกค้า (ร้าน ${row.shop_name})\n\nระบบได้รับการยืนยันการชำระเงิน เรียบร้อยแล้วครับ\n\n⏰ วันหมดอายุใหม่คือ: ${padStr(baseDate.getDate())}/${padStr(baseDate.getMonth()+1)}/${baseDate.getFullYear()}\n\nขอบคุณครับ!`
+                    };
+                    transporter.sendMail(mailOptions).catch(err => console.error("Send Confirm Mail Error:", err.message));
+                  }
 
                   const newText = `✅ <b>อนุมัติการต่ออายุเรียบร้อยแล้ว</b>\nร้าน: ${row.shop_name}\nวันหมดอายุใหม่: ${padStr(baseDate.getDate())}/${padStr(baseDate.getMonth()+1)}/${baseDate.getFullYear()}`;
                   axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/editMessageText`, { 
