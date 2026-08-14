@@ -627,17 +627,6 @@ app.post(['/api/upload-slip-notify', '/api/upload-quick-renew-slip'], async (req
         const priceRegex = new RegExp(`${cleanPrice}(\\.00)?`);
         const condition2 = priceRegex.test(slipText);
 
-        const timeRegex = /([0-2]?[0-9])[:.]([0-5][0-9])/; 
-        const timeMatch = slipText.match(timeRegex);
-        let condition3 = false;
-        if (timeMatch) {
-          const slipHours = parseInt(timeMatch[1]);
-          const slipMinutes = parseInt(timeMatch[2]);
-          const now = new Date();
-          const slipTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), slipHours, slipMinutes, 0);
-          const diffMinutes = Math.abs(now.getTime() - slipTime.getTime()) / (1000 * 60);
-          condition3 = (diffMinutes <= 10);
-        }
 
         const condition4 = slipText.includes("7930") || slipText.includes("1697930") || slipText.includes("0981697930");
 
