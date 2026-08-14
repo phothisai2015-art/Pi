@@ -560,9 +560,13 @@ function initShopMenuScripts() {
           }
 
           if (info.daysRemaining < 0) {
-            localStorage.removeItem('saas_tenant_id'); localStorage.removeItem('saas_shop_name');
-            sessionStorage.removeItem('pos_active_staff');
-            Swal.fire({ icon: 'error', title: i18n[currentLang]['swal_expired_title'], text: i18n[currentLang]['swal_expired_desc'] }).then(() => { window.location.href = '/'; });
+            // แจ้งเตือนแต่ไม่เตะออก ให้โหลดร้านค้าตามปกติ
+            Swal.fire({ icon: 'warning', title: 'ระบบหมดอายุ', text: 'คุณสามารถเข้าใช้งานได้เฉพาะหน้า "ตั้งค่าระบบ" เพื่อต่ออายุแพ็กเกจเท่านั้น', confirmButtonText: 'รับทราบ' });
+            
+            currentTenantSheetId = savedTenantId;
+            let themeBtn = document.getElementById('main-theme-btn');
+            if(themeBtn) themeBtn.style.display = 'flex';
+            loadShopData(currentTenantSheetId);
           } else {
             currentTenantSheetId = savedTenantId;
             let themeBtn = document.getElementById('main-theme-btn');
@@ -664,6 +668,12 @@ function loadShopData(tenantId) {
 
                 setTimeout(() => {
                     let lastPage = sessionStorage.getItem('pos_current_page');
+                    
+                    // ถ้าระบบหมดอายุ ห้ามเด้งเปิดหน้าอื่นอัตโนมัติ ยกเว้นหน้าตั้งค่า
+                    if (globalDaysRemaining < 0 && lastPage !== 'page-settings') {
+                        lastPage = 'main-menu';
+                    }
+
                     if(lastPage === 'page-pos' && validUser.permissions.includes('POS') && typeof openPOSPage === 'function') openPOSPage();
                     else if(lastPage === 'page-products' && validUser.permissions.includes('STOCK') && typeof openProductsPage === 'function') openProductsPage();
                     else if(lastPage === 'page-dashboard' && validUser.permissions.includes('DASH') && typeof openDashboardPage === 'function') openDashboardPage();
@@ -824,8 +834,19 @@ function checkPinCode(pin) {
 
 function applyPermissions(perms) {
   let p = perms.toUpperCase();
-  document.getElementById('btn-menu-pos').disabled = !p.includes('POS'); document.getElementById('btn-menu-stock').disabled = !p.includes('STOCK');
-  document.getElementById('btn-menu-dash').disabled = !p.includes('DASH'); document.getElementById('btn-menu-admin').disabled = !p.includes('ADMIN');
+  
+  // ถ้าระบบหมดอายุ บังคับล็อก 3 เมนูแรกทันที (เข้าได้แค่ตั้งค่าระบบ)
+  if (globalDaysRemaining < 0) {
+    document.getElementById('btn-menu-pos').disabled = true; 
+    document.getElementById('btn-menu-stock').disabled = true;
+    document.getElementById('btn-menu-dash').disabled = true; 
+    document.getElementById('btn-menu-admin').disabled = !p.includes('ADMIN');
+  } else {
+    document.getElementById('btn-menu-pos').disabled = !p.includes('POS'); 
+    document.getElementById('btn-menu-stock').disabled = !p.includes('STOCK');
+    document.getElementById('btn-menu-dash').disabled = !p.includes('DASH'); 
+    document.getElementById('btn-menu-admin').disabled = !p.includes('ADMIN');
+  }
 }
 
 function lockScreenManual(isAuto = false) {
