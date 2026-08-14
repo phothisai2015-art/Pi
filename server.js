@@ -568,30 +568,51 @@ app.post(['/api/upload-slip-notify', '/api/upload-quick-renew-slip'], async (req
 
     const refNoToSave = qrPayload || `NO_QR_${Date.now()}`;
 
-    // ========================================================
+// ========================================================
     // 🛡️ 2. ตรวจสอบสลิปซ้ำ (Duplicate Slip Check)
     // ========================================================
-    const isDuplicate = await new Promise((resolve) => {
-        if (!qrPayload) return resolve(false); // ถ้าไม่มี QR ปล่อยให้ตกไปให้แอดมินดู
+    const existingSlip = await new Promise((resolve) => {
+        if (!qrPayload) return resolve(null);
         db.get(`SELECT status FROM slip_logs WHERE ref_no = ?`, [qrPayload], (err, row) => {
-            if (row && (row.status === 'USED' || row.status === 'PENDING')) resolve(true);
-            else resolve(false);
+            resolve(row);
         });
     });
 
-    if (isDuplicate) {
+    if (existingSlip && (existingSlip.status === 'USED' || existingSlip.status === 'PENDING')) {
         console.log("🚨 บล็อค! สลิปนี้ถูกใช้งานไปแล้ว");
         const dupMsg = `🚨 <b>แจ้งเตือน: พบการใช้สลิปซ้ำ!</b>\n\n🏢 ร้าน: ${escapeHtml(shopName)}\n📧 อีเมล: ${escapeHtml(email)}\n⚠️ บอทตรวจพบว่า QR Code บนสลิปนี้ <b>เคยถูกใช้ต่ออายุในระบบไปแล้ว</b>\n\n📄 <a href="${safeUrl}">ดูรูปสลิปที่มีปัญหา</a>`;
         axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, { chat_id: TELEGRAM_CHAT_ID, text: dupMsg, parse_mode: "HTML" }).catch(()=>{});
         
-        db.run(`UPDATE tenants SET renew_status = 'NONE' WHERE LOWER(email) = LOWER(?)`, [cleanEmail]);
-        return res.json({ status: "success", note: "duplicate_slip" }); // ลูกค้าหน้าเว็บจะเห็นว่าส่งสำเร็จ แต่จริงๆ ระบบเตะทิ้ง
+        db.run(`UPDATE tenants SET renew_status = 'NONE' WHERE LOWER(email) = LOWER(?)`, [cleanEmail], ()=>{});
+        return res.json({ status: "success", note: "duplicate_slip" }); 
     }
 
-    // เอา Ref No. ยัดเข้าฐานข้อมูล จองคิวไว้ก่อน (สถานะ PENDING) เพื่อกันคนกดยิง API รัวๆ
-    db.run(`INSERT INTO slip_logs (ref_no, email, amount, package, timestamp, status) VALUES (?, ?, ?, ?, ?, 'PENDING')`,
-           [refNoToSave, cleanEmail, cleanPrice, cleanPkg, new Date().toISOString()]);
-
+   // เอา Ref No. ยัดเข้าฐานข้อมูล จองคิวไว้ก่อน (สถานะ PENDING) 
+   // 🌟 ป้องกัน Server เด้งด้วย Try-Catch & Callback และจัดการปัญหากดเบิ้ลรัวๆ (Race Condition)
+    try {
+        await new Promise((resolve, reject) => {
+            if (existingSlip) {
+                db.run(`UPDATE slip_logs SET status = 'PENDING', timestamp = ?, amount = ?, package = ? WHERE ref_no = ?`,
+                       [new Date().toISOString(), cleanPrice, cleanPkg, refNoToSave], (err) => {
+                           if (err) reject(err); else resolve();
+                       });
+            } else {
+                db.run(`INSERT INTO slip_logs (ref_no, email, amount, package, timestamp, status) VALUES (?, ?, ?, ?, ?, 'PENDING')`,
+                       [refNoToSave, cleanEmail, cleanPrice, cleanPkg, new Date().toISOString()], (err) => {
+                           if (err) reject(err); else resolve();
+                       });
+            }
+        });
+    } catch (dbErr) {
+        console.error("🚨 ดักจับ Error ป้องกันเซิร์ฟเวอร์ดับ:", dbErr.message);
+        
+        // แจ้งเตือน Telegram หากเกิดการกดปุ่มซ้ำรัวๆ
+        const dupMsg = `🚨 <b>แจ้งเตือน: พบการใช้สลิปซ้ำ (กดรัว)!</b>\n\n🏢 ร้าน: ${escapeHtml(shopName)}\n📧 อีเมล: ${escapeHtml(email)}\n⚠️ บอทตรวจพบข้อมูลซ้ำซ้อน เนื่องจากลูกค้ากดปุ่มแจ้งชำระเงินรัวๆ\n\n📄 <a href="${safeUrl}">ดูรูปสลิป</a>`;
+        axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, { chat_id: TELEGRAM_CHAT_ID, text: dupMsg, parse_mode: "HTML" }).catch(()=>{});
+        
+        db.run(`UPDATE tenants SET renew_status = 'NONE' WHERE LOWER(email) = LOWER(?)`, [cleanEmail], ()=>{});
+        return res.json({ status: "success", note: "duplicate_slip" });
+    }
     // ========================================================
     // 🤖 3. บอทอ่านข้อความด้วย OCR (เพื่อเช็คยอดเงินและข้อมูล)
     // ========================================================
