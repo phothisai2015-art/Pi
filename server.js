@@ -724,7 +724,7 @@ async function pollTelegram() {
           if (chatId === String(TELEGRAM_CHAT_ID)) {
 
             // 🌟 คำสั่ง: /pull git
-            if (text === '/pull git' || text === '/pull') {
+            if (text === '/git pull' || text === '/pull') {
               axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, { 
                 chat_id: chatId, 
                 text: "⏳ <b>กำลังดึงโค้ดล่าสุดจาก Git (Git Pull)...</b>", 
