@@ -908,25 +908,6 @@
       google.script.run.withSuccessHandler(function(info) {
         if(info && !info.error) {
           
-          // 🌟 1. สั่งล็อก/ปลดล็อก เมนูหลักหน้าร้าน
-          if (typeof disableMenusForExpiredShop === 'function') {
-            disableMenusForExpiredShop(info.isExpired);
-          }
-
-          // 🌟 2. ถ้าหมดอายุ บังคับล็อกแท็บอื่นในหน้าตั้งค่า เหลือเฉพาะแท็บแพ็กเกจ
-          if (info.isExpired) {
-            switchSettingsTab('tab-package'); // สลับไปแท็บแพ็กเกจอัตโนมัติ
-            document.querySelectorAll('.settings-tab:not(#tab-btn-package)').forEach(tab => {
-              tab.style.opacity = '0.4';
-              tab.style.pointerEvents = 'none'; // ห้ามกดแท็บอื่น
-            });
-          } else {
-            document.querySelectorAll('.settings-tab').forEach(tab => {
-              tab.style.opacity = '1';
-              tab.style.pointerEvents = 'auto'; // คืนค่าปกติ
-            });
-          }
-
           let expDateEl = document.getElementById('setting-exp-date');
           if (expDateEl) {
             expDateEl.innerText = info.expireDate;
