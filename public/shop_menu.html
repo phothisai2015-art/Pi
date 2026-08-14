@@ -568,7 +568,8 @@ function initShopMenuScripts() {
                 confirmButtonText: '<i class="fa-solid fa-bolt"></i> ต่ออายุแพ็กเกจ',
                 confirmButtonColor: '#3b82f6',
                 showCancelButton: true,
-                cancelButtonText: 'ไว้ทีหลัง'
+                cancelButtonText: 'ไว้ทีหลัง',
+                allowOutsideClick: false  // 👈 เพิ่มบรรทัดนี้ บังคับไม่ให้คลิกขอบจอแล้วหาย
             }).then((result) => {
                 if (result.isConfirmed) {
                     if (typeof openSettingsPage === 'function') openSettingsPage();
@@ -576,6 +577,7 @@ function initShopMenuScripts() {
                     if (typeof openQuickRenewModal === 'function') openQuickRenewModal();
                 }
             });
+          }
             
             currentTenantSheetId = savedTenantId;
             let themeBtn = document.getElementById('main-theme-btn');
@@ -662,7 +664,8 @@ function initShopMenuScripts() {
                               confirmButtonText: '<i class="fa-solid fa-bolt"></i> ต่ออายุแพ็กเกจ',
                               confirmButtonColor: '#3b82f6',
                               showCancelButton: true,
-                              cancelButtonText: 'ปิด'
+                              cancelButtonText: 'ปิด',
+                              allowOutsideClick: false  // 👈 เพิ่มบรรทัดนี้เช่นกันครับ
                           }).then((result) => {
                               if (result.isConfirmed) {
                                   if (typeof openSettingsPage === 'function') openSettingsPage();
