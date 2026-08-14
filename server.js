@@ -619,21 +619,21 @@ app.post(['/api/upload-slip-notify', '/api/upload-quick-renew-slip'], async (req
         ocrImage.resize(600, Jimp.AUTO).grayscale();
         const ocrBuffer = await ocrImage.getBufferAsync(Jimp.MIME_JPEG);
 
+        // 🌟 แก้ไข: ลบทั้งช่องว่าง(space) และลูกน้ำ(comma) ออกจากข้อความ เพื่อให้เช็คยอดหลักพันได้แม่นยำ
         const { data: { text } } = await Tesseract.recognize(ocrBuffer, 'tha+eng');
-        const slipText = text.toLowerCase().replace(/\s+/g, ''); 
+        const slipText = text.toLowerCase().replace(/[\s,]+/g, ''); 
 
         // 1. เช็คชื่อผู้รับ
         const validNames = ["กนกพล", "โพธิสัย", "kanokphon", "phothisai"];
         const condition1 = validNames.some(name => slipText.includes(name));
 
-        // 2. เช็คยอดเงินตรงกับแพ็กเกจ
-        const priceRegex = new RegExp(`${cleanPrice}(\\.00)?`);
-        const condition2 = priceRegex.test(slipText);
+        // 2. เช็คยอดเงินตรงกับแพ็กเกจ (✅ แก้ไขให้รัดกุม: บังคับว่าต้องมีคำว่า "บาท" ต่อท้ายยอดเงินเสมอ)
+        const condition2 = slipText.includes(`${cleanPrice}.00บาท`) || slipText.includes(`${cleanPrice}บาท`);
 
         // 3. เช็คเบอร์พร้อมเพย์/บัญชี
         const condition4 = slipText.includes("7930") || slipText.includes("1697930") || slipText.includes("0981697930");
 
-        // 🌟 เช็คผ่าน 3 ข้อ + มี QR Code ก็อนุมัติทันที (ไม่เช็คเวลาแล้ว)
+        // 🌟 เช็คผ่าน 3 ข้อ + มี QR Code ก็อนุมัติทันที
         if (condition1 && condition2 && condition4 && qrPayload) {
           isAutoApproved = true;
         } else {
@@ -654,17 +654,28 @@ app.post(['/api/upload-slip-notify', '/api/upload-quick-renew-slip'], async (req
 
         db.get(`SELECT expire_date, shop_name FROM tenants WHERE LOWER(email) = LOWER(?)`, [cleanEmail], (err, row) => {
           if(row) {
-            const currentExp = new Date(row.expire_date); const today = new Date();
+            const currentExp = new Date(row.expire_date); 
+            const today = new Date();
             let baseDate = (currentExp < today) ? today : currentExp;
             baseDate.setMonth(baseDate.getMonth() + addMonths);
             const newExpStr = baseDate.toISOString().split('T')[0];
 
-            db.run(`UPDATE tenants SET expire_date = ?, renew_status = 'NONE', renew_notified = 0 WHERE LOWER(email) = LOWER(?)`, [newExpStr, cleanEmail], async () => {
+            db.run(`UPDATE tenants SET expire_date = ?, renew_status = 'NONE', renew_notified = 0 WHERE LOWER(email) = LOWER(?)`, [newExpStr, cleanEmail], () => {
               db.run(`UPDATE slip_logs SET status = 'USED' WHERE ref_no = ?`, [refNoToSave]);
 
               const padStr = (n) => String(n).padStart(2, '0');
-              const autoMsg = `🤖✅ <b>BOT อนุมัติการต่ออายุอัตโนมัติ!</b>\n\n🏢 ร้าน: ${escapeHtml(shopName)}\n📧 อีเมล: ${escapeHtml(email)}\n📦 แพ็กเกจ: ${escapeHtml(pkgName)}\n💰 ยอดเงิน: ${cleanPrice} บาท\n📅 หมดอายุใหม่: ${padStr(baseDate.getDate())}/${padStr(baseDate.getMonth()+1)}/${baseDate.getFullYear()}\n\n📄 <a href="${safeUrl}">คลิกดูสลิปโอนเงิน</a>`;
-              axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, { chat_id: TELEGRAM_CHAT_ID, text: autoMsg, parse_mode: "HTML" }, { timeout: 5000 }).catch(()=>{});
+              const autoMsg = `🤖✅ <b>BOT อนุมัติการต่ออายุอัตโนมัติ!</b>\n\n🏢 ร้าน: ${escapeHtml(row.shop_name)}\n📧 อีเมล: ${escapeHtml(cleanEmail)}\n📦 แพ็กเกจ: ${escapeHtml(cleanPkg)}\n💰 ยอดเงิน: ${cleanPrice} บาท\n📅 หมดอายุใหม่: ${padStr(baseDate.getDate())}/${padStr(baseDate.getMonth()+1)}/${baseDate.getFullYear()}\n\n📄 <a href="${safeUrl}">คลิกดูสลิปโอนเงิน</a>`;
+              
+              // 🌟 แก้ไข: จัดการโครงสร้างการยิง API Telegram ให้เสถียร ไม่ดับกลางทาง
+              axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, { 
+                  chat_id: TELEGRAM_CHAT_ID, 
+                  text: autoMsg, 
+                  parse_mode: "HTML" 
+              }).then(() => {
+                  console.log("📨 ส่งแจ้งเตือน Auto-Approve เข้า Telegram สำเร็จ!");
+              }).catch((err) => {
+                  console.error("❌ ส่งแจ้งเตือน Auto-Approve พลาด:", err.message);
+              });
             });
           }
         });
