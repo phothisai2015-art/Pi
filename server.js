@@ -517,182 +517,187 @@ app.post('/api/check-renew-email', (req, res) => {
   });
 });
 
-app.post(['/api/upload-slip-notify', '/api/upload-quick-renew-slip'], async (req, res) => {
+app.post(['/api/upload-slip-notify', '/api/upload-quick-renew-slip'], (req, res) => {
   console.log("📥 [API แจ้งสลิป] ได้รับข้อมูลจากอีเมล:", req.body.email);
-  try {
-    const { email, shopName, pkgName, price, base64Data } = req.body; 
-    const cleanEmail = String(email || '-').trim();
-    const cleanPkg = String(pkgName || '1M').split('|')[0].trim(); 
-    const cleanPrice = String(price || '0').split('|')[0].trim();
+  
+  // 🚀 1. ตอบกลับลูกค้าทันที! หน้าเว็บจะได้ไม่ต้องหมุนรอนาน
+  res.json({ status: "success", note: "processing_in_background" });
 
-    db.run(`UPDATE tenants SET renew_status = 'PENDING' WHERE LOWER(email) = LOWER(?)`, [cleanEmail]);
-
-    let fileUrl = "";
-    let filePath = "";
-    const slipDir = path.join(__dirname, 'public', 'uploads', 'slip');
-    if (!fs.existsSync(slipDir)) fs.mkdirSync(slipDir, { recursive: true });
-
-    if (base64Data && base64Data.includes(',')) {
-      const matches = base64Data.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/); 
-      const ext = matches ? (matches[1].split('/')[1] || 'jpg') : 'jpg';
-      const buffer = Buffer.from(matches ? matches[2] : base64Data, 'base64'); 
-      const safeName = `slip_${Date.now()}_${Math.floor(Math.random()*1000)}.${ext}`;
-      filePath = path.join(slipDir, safeName);
-      fs.writeFileSync(filePath, buffer); 
-      fileUrl = `/uploads/slip/${safeName}`;
-    }
-
-    const fullSlipUrl = `http://${req.get('host')}${fileUrl}`;
-    const safeUrl = encodeURI(fullSlipUrl);
-
-    // ========================================================
-    // 🔎 1. สแกนหา QR Code จากสลิป (สกัดลายนิ้วมือดิจิทัล)
-    // ========================================================
-    let qrPayload = null;
+  // 🤖 2. โยนงานให้ Bot ไปแอบทำอยู่หลังบ้าน (Background Task)
+  (async () => {
     try {
-        console.log("🔍 กำลังสแกนหา QR Code บนสลิป...");
-        const image = await Jimp.read(filePath);
-        // ปรับขนาดภาพลงนิดหน่อยเพื่อให้ jsQR ทำงานเร็วขึ้น
-        image.resize(800, Jimp.AUTO);
-        const qr = jsQR(image.bitmap.data, image.bitmap.width, image.bitmap.height);
-        
-        if (qr) {
-            qrPayload = qr.data;
-            console.log("✅ พบ QR Code (Fingerprint): ", qrPayload.substring(0, 30) + "...");
-        } else {
-            console.log("⚠️ ไม่พบ QR Code บนสลิปใบนี้");
-        }
-    } catch (qrErr) {
-        console.error("❌ ระบบสแกน QR ล้มเหลว:", qrErr.message);
-    }
+      const { email, shopName, pkgName, price, base64Data } = req.body; 
+      const cleanEmail = String(email || '-').trim();
+      const cleanPkg = String(pkgName || '1M').split('|')[0].trim(); 
+      const cleanPrice = String(price || '0').split('|')[0].trim();
 
-    const refNoToSave = qrPayload || `NO_QR_${Date.now()}`;
+      // สแตมป์สถานะเป็น PENDING ไว้ก่อน
+      db.run(`UPDATE tenants SET renew_status = 'PENDING' WHERE LOWER(email) = LOWER(?)`, [cleanEmail]);
 
-    // ========================================================
-    // 🛡️ 2. ตรวจสอบสลิปซ้ำ (Duplicate Slip Check)
-    // ========================================================
-    const isDuplicate = await new Promise((resolve) => {
-        if (!qrPayload) return resolve(false); // ถ้าไม่มี QR ปล่อยให้ตกไปให้แอดมินดู
-        db.get(`SELECT status FROM slip_logs WHERE ref_no = ?`, [qrPayload], (err, row) => {
-            if (row && (row.status === 'USED' || row.status === 'PENDING')) resolve(true);
-            else resolve(false);
-        });
-    });
+      let fileUrl = "";
+      let filePath = "";
+      const slipDir = path.join(__dirname, 'public', 'uploads', 'slip');
+      if (!fs.existsSync(slipDir)) fs.mkdirSync(slipDir, { recursive: true });
 
-    if (isDuplicate) {
-        console.log("🚨 บล็อค! สลิปนี้ถูกใช้งานไปแล้ว");
-        const dupMsg = `🚨 <b>แจ้งเตือน: พบการใช้สลิปซ้ำ!</b>\n\n🏢 ร้าน: ${escapeHtml(shopName)}\n📧 อีเมล: ${escapeHtml(email)}\n⚠️ บอทตรวจพบว่า QR Code บนสลิปนี้ <b>เคยถูกใช้ต่ออายุในระบบไปแล้ว</b>\n\n📄 <a href="${safeUrl}">ดูรูปสลิปที่มีปัญหา</a>`;
-        axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, { chat_id: TELEGRAM_CHAT_ID, text: dupMsg, parse_mode: "HTML" }).catch(()=>{});
-        
-        db.run(`UPDATE tenants SET renew_status = 'NONE' WHERE LOWER(email) = LOWER(?)`, [cleanEmail]);
-        return res.json({ status: "success", note: "duplicate_slip" }); // ลูกค้าหน้าเว็บจะเห็นว่าส่งสำเร็จ แต่จริงๆ ระบบเตะทิ้ง
-    }
-
-    // เอา Ref No. ยัดเข้าฐานข้อมูล จองคิวไว้ก่อน (สถานะ PENDING) เพื่อกันคนกดยิง API รัวๆ
-    db.run(`INSERT INTO slip_logs (ref_no, email, amount, package, timestamp, status) VALUES (?, ?, ?, ?, ?, 'PENDING')`,
-           [refNoToSave, cleanEmail, cleanPrice, cleanPkg, new Date().toISOString()]);
-
-    // ========================================================
-    // 🤖 3. บอทอ่านข้อความด้วย OCR (เพื่อเช็คยอดเงินและข้อมูล)
-    // ========================================================
-    let isAutoApproved = false;
-    let botRejectReason = "";
-
-    try {
-      console.log("🤖 บอทกำลังอ่านตัวหนังสือ (OCR) เพื่อตรวจสอบยอดเงิน...");
-      const { data: { text } } = await Tesseract.recognize(filePath, 'tha+eng');
-      const slipText = text.toLowerCase().replace(/\s+/g, ''); 
-
-      const validNames = ["กนกพล", "โพธิสัย", "kanokphon", "phothisai"];
-      const condition1 = validNames.some(name => slipText.includes(name));
-
-      const priceRegex = new RegExp(`${cleanPrice}(\\.00)?`);
-      const condition2 = priceRegex.test(slipText);
-
-      const timeRegex = /([0-2]?[0-9])[:.]([0-5][0-9])/; 
-      const timeMatch = slipText.match(timeRegex);
-      let condition3 = false;
-      if (timeMatch) {
-        const slipHours = parseInt(timeMatch[1]);
-        const slipMinutes = parseInt(timeMatch[2]);
-        const now = new Date();
-        const slipTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), slipHours, slipMinutes, 0);
-        const diffMinutes = Math.abs(now.getTime() - slipTime.getTime()) / (1000 * 60);
-        condition3 = (diffMinutes <= 10);
+      if (base64Data && base64Data.includes(',')) {
+        const matches = base64Data.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/); 
+        const ext = matches ? (matches[1].split('/')[1] || 'jpg') : 'jpg';
+        const buffer = Buffer.from(matches ? matches[2] : base64Data, 'base64'); 
+        const safeName = `slip_${Date.now()}_${Math.floor(Math.random()*1000)}.${ext}`;
+        filePath = path.join(slipDir, safeName);
+        fs.writeFileSync(filePath, buffer); 
+        fileUrl = `/uploads/slip/${safeName}`;
       }
 
-      const condition4 = slipText.includes("7930") || slipText.includes("1697930") || slipText.includes("0981697930");
+      // ถ้าไฟล์ไม่มา ให้หยุดการทำงานหลังบ้าน
+      if (!filePath) return;
 
-      // ต้องผ่านทุกเงื่อนไข + ต้องมี QR Code บนสลิป ถึงจะให้อนุมัติอัตโนมัติ
-      if (condition1 && condition2 && condition3 && condition4 && qrPayload) {
-        isAutoApproved = true;
-      } else {
-        if (!qrPayload) botRejectReason = "ไม่พบ QR Code บอทจึงไม่สามารถยืนยันความถูกต้องได้";
-        else botRejectReason = `ไม่ผ่านเงื่อนไข: ชื่อ=${condition1}, ยอด=${condition2}, เวลา=${condition3}, พร้อมเพย์=${condition4}`;
-        console.log("🤖", botRejectReason);
+      const fullSlipUrl = `http://${req.get('host')}${fileUrl}`;
+      const safeUrl = encodeURI(fullSlipUrl);
+
+      // ========================================================
+      // 🔎 สแกนหา QR Code จากสลิป (สกัดลายนิ้วมือดิจิทัล)
+      // ========================================================
+      let qrPayload = null;
+      try {
+          console.log("🔍 กำลังสแกนหา QR Code บนสลิป...");
+          const image = await Jimp.read(filePath);
+          image.resize(800, Jimp.AUTO);
+          const qr = jsQR(image.bitmap.data, image.bitmap.width, image.bitmap.height);
+          
+          if (qr) {
+              qrPayload = qr.data;
+              console.log("✅ พบ QR Code (Fingerprint): ", qrPayload.substring(0, 30) + "...");
+          } else {
+              console.log("⚠️ ไม่พบ QR Code บนสลิปใบนี้");
+          }
+      } catch (qrErr) {
+          console.error("❌ ระบบสแกน QR ล้มเหลว:", qrErr.message);
       }
 
-    } catch (ocrError) {
-      console.error("🤖 บอทอ่าน OCR พัง:", ocrError.message);
-      botRejectReason = "บอทไม่สามารถอ่านตัวหนังสือจากรูปภาพนี้ได้";
-    }
+      const refNoToSave = qrPayload || `NO_QR_${Date.now()}`;
 
-    // ========================================================
-    // 🌟 4. ตัดสินใจและดำเนินการ (Decision)
-    // ========================================================
-    if (isAutoApproved) {
-      console.log("✅ บอทอนุมัติสลิปอัตโนมัติ!");
-      let addMonths = 0;
-      if (cleanPkg === "1M") addMonths = 1; else if (cleanPkg === "3M") addMonths = 3; else if (cleanPkg === "6M") addMonths = 6; else if (cleanPkg === "12M") addMonths = 12;
-
-      db.get(`SELECT expire_date, shop_name FROM tenants WHERE LOWER(email) = LOWER(?)`, [cleanEmail], (err, row) => {
-        if(row) {
-          const currentExp = new Date(row.expire_date); const today = new Date();
-          let baseDate = (currentExp < today) ? today : currentExp;
-          baseDate.setMonth(baseDate.getMonth() + addMonths);
-          const newExpStr = baseDate.toISOString().split('T')[0];
-
-          db.run(`UPDATE tenants SET expire_date = ?, renew_status = 'NONE', renew_notified = 0 WHERE LOWER(email) = LOWER(?)`, [newExpStr, cleanEmail], async () => {
-            
-            // สแตมป์ตราว่าสลิปนี้ถูกใช้ไปแล้วอย่างสมบูรณ์!
-            db.run(`UPDATE slip_logs SET status = 'USED' WHERE ref_no = ?`, [refNoToSave]);
-
-            const padStr = (n) => String(n).padStart(2, '0');
-            const autoMsg = `🤖✅ <b>BOT อนุมัติการต่ออายุอัตโนมัติ!</b>\n\n🏢 ร้าน: ${escapeHtml(shopName)}\n📧 อีเมล: ${escapeHtml(email)}\n📦 แพ็กเกจ: ${escapeHtml(pkgName)}\n💰 ยอดเงิน: ${cleanPrice} บาท\n📅 หมดอายุใหม่: ${padStr(baseDate.getDate())}/${padStr(baseDate.getMonth()+1)}/${baseDate.getFullYear()}\n\n📄 <a href="${safeUrl}">คลิกดูสลิปโอนเงิน</a>`;
-            axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, { chat_id: TELEGRAM_CHAT_ID, text: autoMsg, parse_mode: "HTML" }).catch(()=>{});
+      // ========================================================
+      // 🛡️ ตรวจสอบสลิปซ้ำ (Duplicate Slip Check)
+      // ========================================================
+      const isDuplicate = await new Promise((resolve) => {
+          if (!qrPayload) return resolve(false); 
+          db.get(`SELECT status FROM slip_logs WHERE ref_no = ?`, [qrPayload], (err, row) => {
+              if (row && (row.status === 'USED' || row.status === 'PENDING')) resolve(true);
+              else resolve(false);
           });
-        }
       });
-      res.json({ status: "success", note: "auto_approved" });
 
-    } else {
-      console.log("📤 สลิปน่าสงสัย... ส่ง Telegram ให้แอดมินพิจารณา");
-      const message = `💳 <b>แจ้งโอนเงินต่ออายุ</b>\n⚠️ <i>BOT แนะนำให้ตรวจสอบ: ${botRejectReason}</i>\n\n🏢 ร้าน: ${escapeHtml(shopName)}\n📧 อีเมล: ${escapeHtml(email)}\n📦 แพ็กเกจ: ${escapeHtml(pkgName)}\n💰 ยอดเงิน: ${escapeHtml(price)} บาท\n\n📄 <a href="${safeUrl}">คลิกดูสลิปโอนเงิน</a>`;
-      
-      const approveData = `APPROVE_${cleanPkg}_${cleanEmail}`.substring(0, 64);
-      const rejectData = `REJECT_${cleanEmail}`.substring(0, 64);
+      if (isDuplicate) {
+          console.log("🚨 บล็อค! สลิปนี้ถูกใช้งานไปแล้ว");
+          const dupMsg = `🚨 <b>แจ้งเตือน: พบการใช้สลิปซ้ำ!</b>\n\n🏢 ร้าน: ${escapeHtml(shopName)}\n📧 อีเมล: ${escapeHtml(email)}\n⚠️ บอทตรวจพบว่า QR Code บนสลิปนี้ <b>เคยถูกใช้ต่ออายุในระบบไปแล้ว</b>\n\n📄 <a href="${safeUrl}">ดูรูปสลิปที่มีปัญหา</a>`;
+          axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, { chat_id: TELEGRAM_CHAT_ID, text: dupMsg, parse_mode: "HTML" }).catch(()=>{});
+          
+          db.run(`UPDATE tenants SET renew_status = 'NONE' WHERE LOWER(email) = LOWER(?)`, [cleanEmail]);
+          return; // จบการทำงานหลังบ้านทันที
+      }
 
-      const keyboard = {
-        inline_keyboard: [
-          [ { text: `✅ อนุมัติ ${cleanPkg}`, callback_data: approveData } ],
-          [ { text: "❌ ไม่อนุมัติ", callback_data: rejectData } ]
-        ]
-      };
+      // เอา Ref No. ยัดเข้าฐานข้อมูล จองคิวไว้ก่อน (สถานะ PENDING) 
+      db.run(`INSERT INTO slip_logs (ref_no, email, amount, package, timestamp, status) VALUES (?, ?, ?, ?, ?, 'PENDING')`,
+             [refNoToSave, cleanEmail, cleanPrice, cleanPkg, new Date().toISOString()]);
 
-      await axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, { 
-        chat_id: TELEGRAM_CHAT_ID, 
-        text: message, 
-        parse_mode: "HTML", 
-        reply_markup: keyboard 
-      }, { timeout: 30000 });
+      // ========================================================
+      // 🤖 บอทอ่านข้อความด้วย OCR (เพื่อเช็คยอดเงินและข้อมูล)
+      // ========================================================
+      let isAutoApproved = false;
+      let botRejectReason = "";
 
-      res.json({ status: "success" });
+      try {
+        console.log("🤖 บอทกำลังอ่านตัวหนังสือ (OCR) เพื่อตรวจสอบยอดเงิน...");
+        const { data: { text } } = await Tesseract.recognize(filePath, 'tha+eng');
+        const slipText = text.toLowerCase().replace(/\s+/g, ''); 
+
+        const validNames = ["กนกพล", "โพธิสัย", "kanokphon", "phothisai"];
+        const condition1 = validNames.some(name => slipText.includes(name));
+
+        const priceRegex = new RegExp(`${cleanPrice}(\\.00)?`);
+        const condition2 = priceRegex.test(slipText);
+
+        const timeRegex = /([0-2]?[0-9])[:.]([0-5][0-9])/; 
+        const timeMatch = slipText.match(timeRegex);
+        let condition3 = false;
+        if (timeMatch) {
+          const slipHours = parseInt(timeMatch[1]);
+          const slipMinutes = parseInt(timeMatch[2]);
+          const now = new Date();
+          const slipTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), slipHours, slipMinutes, 0);
+          const diffMinutes = Math.abs(now.getTime() - slipTime.getTime()) / (1000 * 60);
+          condition3 = (diffMinutes <= 10);
+        }
+
+        const condition4 = slipText.includes("7930") || slipText.includes("1697930") || slipText.includes("0981697930");
+
+        if (condition1 && condition2 && condition3 && condition4 && qrPayload) {
+          isAutoApproved = true;
+        } else {
+          if (!qrPayload) botRejectReason = "ไม่พบ QR Code บอทจึงไม่สามารถยืนยันความถูกต้องได้";
+          else botRejectReason = `ไม่ผ่านเงื่อนไข: ชื่อ=${condition1}, ยอด=${condition2}, เวลา=${condition3}, พร้อมเพย์=${condition4}`;
+          console.log("🤖", botRejectReason);
+        }
+
+      } catch (ocrError) {
+        console.error("🤖 บอทอ่าน OCR พัง:", ocrError.message);
+        botRejectReason = "บอทไม่สามารถอ่านตัวหนังสือจากรูปภาพนี้ได้";
+      }
+
+      // ========================================================
+      // 🌟 ตัดสินใจและดำเนินการ (Decision)
+      // ========================================================
+      if (isAutoApproved) {
+        console.log("✅ บอทอนุมัติสลิปอัตโนมัติ!");
+        let addMonths = 0;
+        if (cleanPkg === "1M") addMonths = 1; else if (cleanPkg === "3M") addMonths = 3; else if (cleanPkg === "6M") addMonths = 6; else if (cleanPkg === "12M") addMonths = 12;
+
+        db.get(`SELECT expire_date, shop_name FROM tenants WHERE LOWER(email) = LOWER(?)`, [cleanEmail], (err, row) => {
+          if(row) {
+            const currentExp = new Date(row.expire_date); const today = new Date();
+            let baseDate = (currentExp < today) ? today : currentExp;
+            baseDate.setMonth(baseDate.getMonth() + addMonths);
+            const newExpStr = baseDate.toISOString().split('T')[0];
+
+            db.run(`UPDATE tenants SET expire_date = ?, renew_status = 'NONE', renew_notified = 0 WHERE LOWER(email) = LOWER(?)`, [newExpStr, cleanEmail], async () => {
+              
+              db.run(`UPDATE slip_logs SET status = 'USED' WHERE ref_no = ?`, [refNoToSave]);
+
+              const padStr = (n) => String(n).padStart(2, '0');
+              const autoMsg = `🤖✅ <b>BOT อนุมัติการต่ออายุอัตโนมัติ!</b>\n\n🏢 ร้าน: ${escapeHtml(shopName)}\n📧 อีเมล: ${escapeHtml(email)}\n📦 แพ็กเกจ: ${escapeHtml(pkgName)}\n💰 ยอดเงิน: ${cleanPrice} บาท\n📅 หมดอายุใหม่: ${padStr(baseDate.getDate())}/${padStr(baseDate.getMonth()+1)}/${baseDate.getFullYear()}\n\n📄 <a href="${safeUrl}">คลิกดูสลิปโอนเงิน</a>`;
+              axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, { chat_id: TELEGRAM_CHAT_ID, text: autoMsg, parse_mode: "HTML" }).catch(()=>{});
+            });
+          }
+        });
+
+      } else {
+        console.log("📤 สลิปน่าสงสัย... ส่ง Telegram ให้แอดมินพิจารณา");
+        const message = `💳 <b>แจ้งโอนเงินต่ออายุ</b>\n⚠️ <i>BOT แนะนำให้ตรวจสอบ: ${botRejectReason}</i>\n\n🏢 ร้าน: ${escapeHtml(shopName)}\n📧 อีเมล: ${escapeHtml(email)}\n📦 แพ็กเกจ: ${escapeHtml(pkgName)}\n💰 ยอดเงิน: ${escapeHtml(price)} บาท\n\n📄 <a href="${safeUrl}">คลิกดูสลิปโอนเงิน</a>`;
+        
+        const approveData = `APPROVE_${cleanPkg}_${cleanEmail}`.substring(0, 64);
+        const rejectData = `REJECT_${cleanEmail}`.substring(0, 64);
+
+        const keyboard = {
+          inline_keyboard: [
+            [ { text: `✅ อนุมัติ ${cleanPkg}`, callback_data: approveData } ],
+            [ { text: "❌ ไม่อนุมัติ", callback_data: rejectData } ]
+          ]
+        };
+
+        await axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, { 
+          chat_id: TELEGRAM_CHAT_ID, 
+          text: message, 
+          parse_mode: "HTML", 
+          reply_markup: keyboard 
+        }, { timeout: 30000 }).catch(()=>{});
+      }
+
+    } catch(bgError) { 
+      console.error("❌ Error การทำงานเบื้องหลัง:", bgError.message);
     }
-
-  } catch(e) { 
-    console.error("❌ Error API แจ้งสลิป:", e.message);
-    res.json({ status: "success", note: "fallback_error" }); 
-  }
+  })(); 
+  // 👆 จบการทำงานเบื้องหลัง (Background Task)
 });
 
 let lastUpdateId = 0;
