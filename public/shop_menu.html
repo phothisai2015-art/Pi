@@ -560,8 +560,14 @@ function initShopMenuScripts() {
           }
 
           if (info.daysRemaining < 0) {
-            // แจ้งเตือนแต่ไม่เตะออก ให้โหลดร้านค้าตามปกติ
-            Swal.fire({ icon: 'warning', title: 'ระบบหมดอายุ', text: 'คุณสามารถเข้าใช้งานได้เฉพาะหน้า "ตั้งค่าระบบ" เพื่อต่ออายุแพ็กเกจเท่านั้น', confirmButtonText: 'รับทราบ' });
+            // แจ้งเตือนโดยใช้คำว่า 'แพ็กเกจ' แทน เพื่อหลบโค้ดปิดโหลดดิ้งอัตโนมัติ
+            Swal.fire({ 
+                icon: 'warning', 
+                title: 'แพ็กเกจหมดอายุ', 
+                text: 'คุณสามารถล็อกอินเข้าได้เฉพาะหน้า "ตั้งค่า" เพื่อทำรายการต่ออายุเท่านั้นครับ', 
+                confirmButtonText: 'รับทราบ',
+                confirmButtonColor: '#f59e0b'
+            });
             
             currentTenantSheetId = savedTenantId;
             let themeBtn = document.getElementById('main-theme-btn');
