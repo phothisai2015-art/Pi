@@ -525,36 +525,39 @@ app.post(['/api/upload-slip-notify', '/api/upload-quick-renew-slip'], async (req
     const cleanPkg = String(pkgName || '1M').split('|')[0].trim(); 
     const cleanPrice = String(price || '0').split('|')[0].trim();
 
-    db.run(`UPDATE tenants SET renew_status = 'PENDING' WHERE LOWER(email) = LOWER(?)`, [cleanEmail]);
-
     let fileUrl = "";
     let filePath = "";
+    let buffer = null;
     const slipDir = path.join(__dirname, 'public', 'uploads', 'slip');
     if (!fs.existsSync(slipDir)) fs.mkdirSync(slipDir, { recursive: true });
 
     if (base64Data && base64Data.includes(',')) {
       const matches = base64Data.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/); 
       const ext = matches ? (matches[1].split('/')[1] || 'jpg') : 'jpg';
-      const buffer = Buffer.from(matches ? matches[2] : base64Data, 'base64'); 
+      buffer = Buffer.from(matches ? matches[2] : base64Data, 'base64'); 
       const safeName = `slip_${Date.now()}_${Math.floor(Math.random()*1000)}.${ext}`;
       filePath = path.join(slipDir, safeName);
       fs.writeFileSync(filePath, buffer); 
       fileUrl = `/uploads/slip/${safeName}`;
     }
 
+    if (!filePath || !buffer) {
+      return res.json({ status: "error", message: "ไม่พบไฟล์รูปภาพสลิป" });
+    }
+
     const fullSlipUrl = `http://${req.get('host')}${fileUrl}`;
     const safeUrl = encodeURI(fullSlipUrl);
 
     // ========================================================
-    // 🔎 1. สแกนหา QR Code จากสลิป (สกัดลายนิ้วมือดิจิทัล)
+    // 🔎 1. สแกนหา QR Code (ประมวลผลด่วนใน Memory)
     // ========================================================
     let qrPayload = null;
     try {
         console.log("🔍 กำลังสแกนหา QR Code บนสลิป...");
-        const image = await Jimp.read(filePath);
-        // ปรับขนาดภาพลงนิดหน่อยเพื่อให้ jsQR ทำงานเร็วขึ้น
+        const image = await Jimp.read(buffer);
         image.resize(800, Jimp.AUTO);
-        const qr = jsQR(image.bitmap.data, image.bitmap.width, image.bitmap.height);
+        const imageData = new Uint8ClampedArray(image.bitmap.data);
+        const qr = jsQR(imageData, image.bitmap.width, image.bitmap.height);
         
         if (qr) {
             qrPayload = qr.data;
@@ -568,8 +571,8 @@ app.post(['/api/upload-slip-notify', '/api/upload-quick-renew-slip'], async (req
 
     const refNoToSave = qrPayload || `NO_QR_${Date.now()}`;
 
-// ========================================================
-    // 🛡️ 2. ตรวจสอบสลิปซ้ำ (Duplicate Slip Check)
+    // ========================================================
+    // 🛡️ 2. ตรวจสอบสลิปซ้ำ (ด่านหน้า - ตอบกลับทันที)
     // ========================================================
     const existingSlip = await new Promise((resolve) => {
         if (!qrPayload) return resolve(null);
@@ -581,263 +584,275 @@ app.post(['/api/upload-slip-notify', '/api/upload-quick-renew-slip'], async (req
     if (existingSlip && (existingSlip.status === 'USED' || existingSlip.status === 'PENDING')) {
         console.log("🚨 บล็อค! สลิปนี้ถูกใช้งานไปแล้ว");
         const dupMsg = `🚨 <b>แจ้งเตือน: พบการใช้สลิปซ้ำ!</b>\n\n🏢 ร้าน: ${escapeHtml(shopName)}\n📧 อีเมล: ${escapeHtml(email)}\n⚠️ บอทตรวจพบว่า QR Code บนสลิปนี้ <b>เคยถูกใช้ต่ออายุในระบบไปแล้ว</b>\n\n📄 <a href="${safeUrl}">ดูรูปสลิปที่มีปัญหา</a>`;
-        axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, { chat_id: TELEGRAM_CHAT_ID, text: dupMsg, parse_mode: "HTML" }).catch(()=>{});
+        axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, { chat_id: TELEGRAM_CHAT_ID, text: dupMsg, parse_mode: "HTML" }, { timeout: 5000 }).catch(()=>{});
         
-        db.run(`UPDATE tenants SET renew_status = 'NONE' WHERE LOWER(email) = LOWER(?)`, [cleanEmail], ()=>{});
-        return res.json({ status: "success", note: "duplicate_slip" }); 
+        return res.json({ status: "error", message: "ขออภัยครับ สลิปใบนี้เคยถูกใช้งานในระบบไปแล้ว" }); 
     }
 
-   // เอา Ref No. ยัดเข้าฐานข้อมูล จองคิวไว้ก่อน (สถานะ PENDING) 
-   // 🌟 ป้องกัน Server เด้งด้วย Try-Catch & Callback และจัดการปัญหากดเบิ้ลรัวๆ (Race Condition)
-    try {
-        await new Promise((resolve, reject) => {
-            if (existingSlip) {
-                db.run(`UPDATE slip_logs SET status = 'PENDING', timestamp = ?, amount = ?, package = ? WHERE ref_no = ?`,
-                       [new Date().toISOString(), cleanPrice, cleanPkg, refNoToSave], (err) => {
-                           if (err) reject(err); else resolve();
-                       });
-            } else {
-                db.run(`INSERT INTO slip_logs (ref_no, email, amount, package, timestamp, status) VALUES (?, ?, ?, ?, ?, 'PENDING')`,
-                       [refNoToSave, cleanEmail, cleanPrice, cleanPkg, new Date().toISOString()], (err) => {
-                           if (err) reject(err); else resolve();
-                       });
-            }
-        });
-    } catch (dbErr) {
-        console.error("🚨 ดักจับ Error ป้องกันเซิร์ฟเวอร์ดับ:", dbErr.message);
-        
-        // แจ้งเตือน Telegram หากเกิดการกดปุ่มซ้ำรัวๆ
-        const dupMsg = `🚨 <b>แจ้งเตือน: พบการใช้สลิปซ้ำ (กดรัว)!</b>\n\n🏢 ร้าน: ${escapeHtml(shopName)}\n📧 อีเมล: ${escapeHtml(email)}\n⚠️ บอทตรวจพบข้อมูลซ้ำซ้อน เนื่องจากลูกค้ากดปุ่มแจ้งชำระเงินรัวๆ\n\n📄 <a href="${safeUrl}">ดูรูปสลิป</a>`;
-        axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, { chat_id: TELEGRAM_CHAT_ID, text: dupMsg, parse_mode: "HTML" }).catch(()=>{});
-        
-        db.run(`UPDATE tenants SET renew_status = 'NONE' WHERE LOWER(email) = LOWER(?)`, [cleanEmail], ()=>{});
-        return res.json({ status: "success", note: "duplicate_slip" });
-    }
-    // ========================================================
-    // 🤖 3. บอทอ่านข้อความด้วย OCR (เพื่อเช็คยอดเงินและข้อมูล)
-    // ========================================================
-    let isAutoApproved = false;
-    let botRejectReason = "";
+    // สแตมป์สถานะ PENDING ในฐานข้อมูล
+    db.run(`UPDATE tenants SET renew_status = 'PENDING' WHERE LOWER(email) = LOWER(?)`, [cleanEmail]);
 
-    try {
-      console.log("🤖 บอทกำลังอ่านตัวหนังสือ (OCR) เพื่อตรวจสอบยอดเงิน...");
-      const { data: { text } } = await Tesseract.recognize(filePath, 'tha+eng');
-      const slipText = text.toLowerCase().replace(/\s+/g, ''); 
-
-      const validNames = ["กนกพล", "โพธิสัย", "kanokphon", "phothisai"];
-      const condition1 = validNames.some(name => slipText.includes(name));
-
-      const priceRegex = new RegExp(`${cleanPrice}(\\.00)?`);
-      const condition2 = priceRegex.test(slipText);
-
-      const timeRegex = /([0-2]?[0-9])[:.]([0-5][0-9])/; 
-      const timeMatch = slipText.match(timeRegex);
-      let condition3 = false;
-      if (timeMatch) {
-        const slipHours = parseInt(timeMatch[1]);
-        const slipMinutes = parseInt(timeMatch[2]);
-        const now = new Date();
-        const slipTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), slipHours, slipMinutes, 0);
-        const diffMinutes = Math.abs(now.getTime() - slipTime.getTime()) / (1000 * 60);
-        condition3 = (diffMinutes <= 10);
-      }
-
-      const condition4 = slipText.includes("7930") || slipText.includes("1697930") || slipText.includes("0981697930");
-
-      // ต้องผ่านทุกเงื่อนไข + ต้องมี QR Code บนสลิป ถึงจะให้อนุมัติอัตโนมัติ
-      if (condition1 && condition2 && condition3 && condition4 && qrPayload) {
-        isAutoApproved = true;
+    // บันทึก/อัปเดต slip_logs
+    await new Promise((resolve) => {
+      if (existingSlip) {
+        db.run(`UPDATE slip_logs SET status = 'PENDING', timestamp = ?, amount = ?, package = ?, email = ? WHERE ref_no = ?`,
+               [new Date().toISOString(), cleanPrice, cleanPkg, cleanEmail, refNoToSave], () => resolve());
       } else {
-        if (!qrPayload) botRejectReason = "ไม่พบ QR Code บอทจึงไม่สามารถยืนยันความถูกต้องได้";
-        else botRejectReason = `ไม่ผ่านเงื่อนไข: ชื่อ=${condition1}, ยอด=${condition2}, เวลา=${condition3}, พร้อมเพย์=${condition4}`;
-        console.log("🤖", botRejectReason);
+        db.run(`INSERT INTO slip_logs (ref_no, email, amount, package, timestamp, status) VALUES (?, ?, ?, ?, ?, 'PENDING')`,
+               [refNoToSave, cleanEmail, cleanPrice, cleanPkg, new Date().toISOString()], () => resolve());
+      }
+    });
+
+    // 🚀 ตอบกลับลูกค้าทันทีภายใน 0.2 วินาที! (หน้าเว็บไม่ค้างหมุนรอ)
+    res.json({ status: "success", note: "processing_in_background" });
+
+    // ========================================================
+    // 🤖 3. ทำงานเบื้องหลัง (Background Task: OCR + Telegram)
+    // ========================================================
+    (async () => {
+      let isAutoApproved = false;
+      let botRejectReason = "";
+
+      try {
+        console.log("🤖 บอทกำลังอ่านตัวหนังสือ (OCR) เพื่อตรวจสอบยอดเงิน...");
+        
+        // 🌟 ย่อขนาดรูปและเปลี่ยนเป็นสีเทาใน Memory ก่อนส่งให้ OCR อ่าน (เพิ่มความเร็ว 3 เท่า ป้องกัน Pi ค้าง)
+        const ocrImage = await Jimp.read(buffer);
+        ocrImage.resize(600, Jimp.AUTO).grayscale();
+        const ocrBuffer = await ocrImage.getBufferAsync(Jimp.MIME_JPEG);
+
+        const { data: { text } } = await Tesseract.recognize(ocrBuffer, 'tha+eng');
+        const slipText = text.toLowerCase().replace(/\s+/g, ''); 
+
+        const validNames = ["กนกพล", "โพธิสัย", "kanokphon", "phothisai"];
+        const condition1 = validNames.some(name => slipText.includes(name));
+
+        const priceRegex = new RegExp(`${cleanPrice}(\\.00)?`);
+        const condition2 = priceRegex.test(slipText);
+
+        const timeRegex = /([0-2]?[0-9])[:.]([0-5][0-9])/; 
+        const timeMatch = slipText.match(timeRegex);
+        let condition3 = false;
+        if (timeMatch) {
+          const slipHours = parseInt(timeMatch[1]);
+          const slipMinutes = parseInt(timeMatch[2]);
+          const now = new Date();
+          const slipTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), slipHours, slipMinutes, 0);
+          const diffMinutes = Math.abs(now.getTime() - slipTime.getTime()) / (1000 * 60);
+          condition3 = (diffMinutes <= 10);
+        }
+
+        const condition4 = slipText.includes("7930") || slipText.includes("1697930") || slipText.includes("0981697930");
+
+        if (condition1 && condition2 && condition3 && condition4 && qrPayload) {
+          isAutoApproved = true;
+        } else {
+          if (!qrPayload) botRejectReason = "ไม่พบ QR Code บอทจึงไม่สามารถยืนยันความถูกต้องได้";
+          else botRejectReason = `ไม่ผ่านเงื่อนไข: ชื่อ=${condition1}, ยอด=${condition2}, เวลา=${condition3}, พร้อมเพย์=${condition4}`;
+          console.log("🤖", botRejectReason);
+        }
+
+      } catch (ocrError) {
+        console.error("🤖 บอทอ่าน OCR พัง:", ocrError.message);
+        botRejectReason = "บอทไม่สามารถอ่านตัวหนังสือจากรูปภาพนี้ได้";
       }
 
-    } catch (ocrError) {
-      console.error("🤖 บอทอ่าน OCR พัง:", ocrError.message);
-      botRejectReason = "บอทไม่สามารถอ่านตัวหนังสือจากรูปภาพนี้ได้";
-    }
+      if (isAutoApproved) {
+        console.log("✅ บอทอนุมัติสลิปอัตโนมัติ!");
+        let addMonths = 0;
+        if (cleanPkg === "1M") addMonths = 1; else if (cleanPkg === "3M") addMonths = 3; else if (cleanPkg === "6M") addMonths = 6; else if (cleanPkg === "12M") addMonths = 12;
 
-    // ========================================================
-    // 🌟 4. ตัดสินใจและดำเนินการ (Decision)
-    // ========================================================
-    if (isAutoApproved) {
-      console.log("✅ บอทอนุมัติสลิปอัตโนมัติ!");
-      let addMonths = 0;
-      if (cleanPkg === "1M") addMonths = 1; else if (cleanPkg === "3M") addMonths = 3; else if (cleanPkg === "6M") addMonths = 6; else if (cleanPkg === "12M") addMonths = 12;
+        db.get(`SELECT expire_date, shop_name FROM tenants WHERE LOWER(email) = LOWER(?)`, [cleanEmail], (err, row) => {
+          if(row) {
+            const currentExp = new Date(row.expire_date); const today = new Date();
+            let baseDate = (currentExp < today) ? today : currentExp;
+            baseDate.setMonth(baseDate.getMonth() + addMonths);
+            const newExpStr = baseDate.toISOString().split('T')[0];
 
-      db.get(`SELECT expire_date, shop_name FROM tenants WHERE LOWER(email) = LOWER(?)`, [cleanEmail], (err, row) => {
-        if(row) {
-          const currentExp = new Date(row.expire_date); const today = new Date();
-          let baseDate = (currentExp < today) ? today : currentExp;
-          baseDate.setMonth(baseDate.getMonth() + addMonths);
-          const newExpStr = baseDate.toISOString().split('T')[0];
+            db.run(`UPDATE tenants SET expire_date = ?, renew_status = 'NONE', renew_notified = 0 WHERE LOWER(email) = LOWER(?)`, [newExpStr, cleanEmail], async () => {
+              db.run(`UPDATE slip_logs SET status = 'USED' WHERE ref_no = ?`, [refNoToSave]);
 
-          db.run(`UPDATE tenants SET expire_date = ?, renew_status = 'NONE', renew_notified = 0 WHERE LOWER(email) = LOWER(?)`, [newExpStr, cleanEmail], async () => {
-            
-            // สแตมป์ตราว่าสลิปนี้ถูกใช้ไปแล้วอย่างสมบูรณ์!
-            db.run(`UPDATE slip_logs SET status = 'USED' WHERE ref_no = ?`, [refNoToSave]);
+              const padStr = (n) => String(n).padStart(2, '0');
+              const autoMsg = `🤖✅ <b>BOT อนุมัติการต่ออายุอัตโนมัติ!</b>\n\n🏢 ร้าน: ${escapeHtml(shopName)}\n📧 อีเมล: ${escapeHtml(email)}\n📦 แพ็กเกจ: ${escapeHtml(pkgName)}\n💰 ยอดเงิน: ${cleanPrice} บาท\n📅 หมดอายุใหม่: ${padStr(baseDate.getDate())}/${padStr(baseDate.getMonth()+1)}/${baseDate.getFullYear()}\n\n📄 <a href="${safeUrl}">คลิกดูสลิปโอนเงิน</a>`;
+              axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, { chat_id: TELEGRAM_CHAT_ID, text: autoMsg, parse_mode: "HTML" }, { timeout: 5000 }).catch(()=>{});
+            });
+          }
+        });
 
-            const padStr = (n) => String(n).padStart(2, '0');
-            const autoMsg = `🤖✅ <b>BOT อนุมัติการต่ออายุอัตโนมัติ!</b>\n\n🏢 ร้าน: ${escapeHtml(shopName)}\n📧 อีเมล: ${escapeHtml(email)}\n📦 แพ็กเกจ: ${escapeHtml(pkgName)}\n💰 ยอดเงิน: ${cleanPrice} บาท\n📅 หมดอายุใหม่: ${padStr(baseDate.getDate())}/${padStr(baseDate.getMonth()+1)}/${baseDate.getFullYear()}\n\n📄 <a href="${safeUrl}">คลิกดูสลิปโอนเงิน</a>`;
-            axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, { chat_id: TELEGRAM_CHAT_ID, text: autoMsg, parse_mode: "HTML" }).catch(()=>{});
-          });
-        }
-      });
-      res.json({ status: "success", note: "auto_approved" });
+      } else {
+        console.log("📤 สลิปน่าสงสัย... ส่ง Telegram ให้แอดมินพิจารณา");
+        const message = `💳 <b>แจ้งโอนเงินต่ออายุ</b>\n⚠️ <i>BOT แนะนำให้ตรวจสอบ: ${botRejectReason}</i>\n\n🏢 ร้าน: ${escapeHtml(shopName)}\n📧 อีเมล: ${escapeHtml(email)}\n📦 แพ็กเกจ: ${escapeHtml(pkgName)}\n💰 ยอดเงิน: ${escapeHtml(price)} บาท\n\n📄 <a href="${safeUrl}">คลิกดูสลิปโอนเงิน</a>`;
+        
+        // 🌟 ป้องกันข้อความเกิน 64 ตัวอักษร โดยส่งรูปแบบ APP_PKG|EMAIL
+        const approveData = `APP_${cleanPkg}|${cleanEmail}`.substring(0, 64);
+        const rejectData = `REJ_${cleanEmail}`.substring(0, 64);
 
-    } else {
-      console.log("📤 สลิปน่าสงสัย... ส่ง Telegram ให้แอดมินพิจารณา");
-      const message = `💳 <b>แจ้งโอนเงินต่ออายุ</b>\n⚠️ <i>BOT แนะนำให้ตรวจสอบ: ${botRejectReason}</i>\n\n🏢 ร้าน: ${escapeHtml(shopName)}\n📧 อีเมล: ${escapeHtml(email)}\n📦 แพ็กเกจ: ${escapeHtml(pkgName)}\n💰 ยอดเงิน: ${escapeHtml(price)} บาท\n\n📄 <a href="${safeUrl}">คลิกดูสลิปโอนเงิน</a>`;
-      
-      const approveData = `APPROVE_${cleanPkg}_${cleanEmail}`.substring(0, 64);
-      const rejectData = `REJECT_${cleanEmail}`.substring(0, 64);
+        const keyboard = {
+          inline_keyboard: [
+            [ { text: `✅ อนุมัติ ${cleanPkg}`, callback_data: approveData } ],
+            [ { text: "❌ ไม่อนุมัติ", callback_data: rejectData } ]
+          ]
+        };
 
-      const keyboard = {
-        inline_keyboard: [
-          [ { text: `✅ อนุมัติ ${cleanPkg}`, callback_data: approveData } ],
-          [ { text: "❌ ไม่อนุมัติ", callback_data: rejectData } ]
-        ]
-      };
-
-      await axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, { 
-        chat_id: TELEGRAM_CHAT_ID, 
-        text: message, 
-        parse_mode: "HTML", 
-        reply_markup: keyboard 
-      }, { timeout: 30000 });
-
-      res.json({ status: "success" });
-    }
+        axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, { 
+          chat_id: TELEGRAM_CHAT_ID, 
+          text: message, 
+          parse_mode: "HTML", 
+          reply_markup: keyboard 
+        }, { timeout: 8000 }).catch(e => console.error("❌ Telegram Send Error:", e.message));
+      }
+    })();
 
   } catch(e) { 
     console.error("❌ Error API แจ้งสลิป:", e.message);
-    res.json({ status: "success", note: "fallback_error" }); 
+    res.json({ status: "error", message: "เกิดข้อผิดพลาดภายในเซิร์ฟเวอร์" }); 
   }
 });
 
 let lastUpdateId = 0;
+let isPollingTelegram = false;
+
 async function pollTelegram() {
+  if (isPollingTelegram) return;
+  isPollingTelegram = true;
+
   try {
-    const response = await axios.get(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getUpdates?offset=${lastUpdateId + 1}&timeout=30`);
-    if (response.data.ok && response.data.result.length > 0) {
+    const response = await axios.get(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getUpdates?offset=${lastUpdateId + 1}&timeout=5`, { timeout: 10000 });
+    
+    if (response.data && response.data.ok && response.data.result.length > 0) {
       for (const update of response.data.result) {
         lastUpdateId = update.update_id;
+        
         if (update.callback_query) {
           const callbackData = update.callback_query.data;
-          const callbackQueryId = update.callback_query.id; // ดึง ID ของ Callback มาใช้
+          const callbackQueryId = update.callback_query.id;
           const chatId = update.callback_query.message.chat.id;
           const messageId = update.callback_query.message.message_id;
-          const parts = callbackData.split('_');
           
-          // 1. ตอบกลับ Telegram ทันทีเพื่อลบนาฬิกาทรายและแจ้งว่าได้รับคำสั่งแล้ว
           axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/answerCallbackQuery`, { 
             callback_query_id: callbackQueryId 
-          }).catch(()=>{});
+          }, { timeout: 3000 }).catch(()=>{});
 
-          if (parts[0] === "APPROVE") {
-            const pkg = parts[1]; const email = parts[2];
-			db.run(`UPDATE slip_logs SET status = 'USED' WHERE email = ? AND status = 'PENDING'`, [email]);
+          let action = "";
+          let pkg = "1M";
+          let email = "";
 
-            // 2. เปลี่ยนข้อความเป็น "กำลังดำเนินการ" ทันที เพื่อลบปุ่มและกันการกดซ้ำ
-            await axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/editMessageText`, { 
+          // 🌟 แยกคำสั่งจากสัญลักษณ์ | ป้องกันบั๊กอีเมลที่มีเครื่องหมาย _
+          if (callbackData.startsWith("APP_") || callbackData.startsWith("APPROVE_")) {
+            action = "APPROVE";
+            const payload = callbackData.replace(/^APPROVE_|^APP_/, '');
+            const parts = payload.split('|');
+            pkg = parts[0] || "1M";
+            email = parts[1] || "";
+          } else if (callbackData.startsWith("REJ_") || callbackData.startsWith("REJECT_")) {
+            action = "REJECT";
+            email = callbackData.replace(/^REJECT_|^REJ_/, '');
+          }
+
+          if (action === "APPROVE") {
+            axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/editMessageText`, { 
               chat_id: chatId, 
               message_id: messageId, 
               text: "⏳ <b>กำลังดำเนินการอนุมัติ... โปรดรอสักครู่</b>", 
               parse_mode: "HTML" 
-            }).catch(()=>{});
+            }, { timeout: 4000 }).catch(()=>{});
 
-            let addMonths = 0;
-            if (pkg === "1M") addMonths = 1; else if (pkg === "3M") addMonths = 3; else if (pkg === "6M") addMonths = 6; else if (pkg === "12M") addMonths = 12;
+            let addMonths = 1;
+            if (pkg === "3M") addMonths = 3; else if (pkg === "6M") addMonths = 6; else if (pkg === "12M") addMonths = 12;
 
-            // 3. ดึงค่าสถานะปัจจุบัน (เพิ่มการดึง renew_status มาเช็ค)
             db.get(`SELECT expire_date, shop_name, renew_status FROM tenants WHERE LOWER(email) = LOWER(?)`, [email], (err, row) => {
               if (row) {
-                
-                // ล็อคป้องกันการทำงานซ้ำ! เช็คว่ายังเป็น PENDING หรือไม่
                 if (row.renew_status !== 'PENDING') {
                    axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/editMessageText`, { 
                      chat_id: chatId, 
                      message_id: messageId, 
-                     text: "⚠️ <b>รายการนี้ถูกดำเนินการอนุมัติไปแล้ว</b>", 
+                     text: "⚠️ <b>รายการนี้ถูกดำเนินการไปแล้ว</b>", 
                      parse_mode: "HTML" 
-                   }).catch(()=>{});
-                   return; // จบการทำงานทันที ไม่ต้องบวกเดือนเพิ่ม
+                   }, { timeout: 4000 }).catch(()=>{});
+                   return;
                 }
 
-                const currentExp = new Date(row.expire_date); const today = new Date();
+                const currentExp = new Date(row.expire_date); 
+                const today = new Date();
                 let baseDate = (currentExp < today) ? today : currentExp;
                 baseDate.setMonth(baseDate.getMonth() + addMonths);
                 const newExpStr = baseDate.toISOString().split('T')[0];
 
-                // อัปเดตข้อมูลและเปลี่ยนสถานะเป็น 'NONE'
                 db.run(`UPDATE tenants SET expire_date = ?, renew_status = 'NONE', renew_notified = 0 WHERE LOWER(email) = LOWER(?)`, [newExpStr, email], async () => {
-                  const mailOptions = {
-                    from: transporter.options.auth.user,
-                    to: email,
-                    subject: `🎉 ยืนยันการต่ออายุระบบ POS สำเร็จ - ร้าน ${row.shop_name}`,
-                    text: `สวัสดีครับ คุณลูกค้า (ร้าน ${row.shop_name})\n\nระบบได้รับการยืนยันการชำระเงิน และดำเนินการต่ออายุการใช้งานระบบ POS ของคุณเรียบร้อยแล้วครับ\n\n⏰ วันหมดอายุใหม่ของคุณคือ: ${padStr(baseDate.getDate())}/${padStr(baseDate.getMonth()+1)}/${baseDate.getFullYear()}\n\nขอบคุณที่ใช้บริการครับ!`
-                  };
-                  transporter.sendMail(mailOptions).catch(err => console.error("Send Confirm Mail Error:", err));
+                  db.run(`UPDATE slip_logs SET status = 'USED' WHERE LOWER(email) = LOWER(?) AND status = 'PENDING'`, [email]);
 
-                  // แจ้งผลกลับไปที่ Telegram
-                  const newText = `✅ <b>อนุมัติการต่ออายุเรียบร้อยแล้ว</b>\nร้าน: ${row.shop_name}\nอัปเดตวันหมดอายุใหม่เป็น: ${padStr(baseDate.getDate())}/${padStr(baseDate.getMonth()+1)}/${baseDate.getFullYear()}`;
-                  await axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/editMessageText`, { 
+                  if (email && email.includes('@')) {
+                    const mailOptions = {
+                      from: transporter.options.auth.user,
+                      to: email,
+                      subject: `🎉 ยืนยันการต่ออายุระบบ POS สำเร็จ - ร้าน ${row.shop_name}`,
+                      text: `สวัสดีครับ คุณลูกค้า (ร้าน ${row.shop_name})\n\nระบบได้รับการยืนยันการชำระเงิน เรียบร้อยแล้วครับ\n\n⏰ วันหมดอายุใหม่คือ: ${padStr(baseDate.getDate())}/${padStr(baseDate.getMonth()+1)}/${baseDate.getFullYear()}\n\nขอบคุณครับ!`
+                    };
+                    transporter.sendMail(mailOptions).catch(err => console.error("Send Confirm Mail Error:", err));
+                  }
+
+                  const newText = `✅ <b>อนุมัติการต่ออายุเรียบร้อยแล้ว</b>\nร้าน: ${row.shop_name}\nวันหมดอายุใหม่: ${padStr(baseDate.getDate())}/${padStr(baseDate.getMonth()+1)}/${baseDate.getFullYear()}`;
+                  axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/editMessageText`, { 
                     chat_id: chatId, 
                     message_id: messageId, 
                     text: newText, 
                     parse_mode: "HTML" 
-                  });
-                });
-              }
-            });
-          } else if (parts[0] === "REJECT") {
-            const email = parts[1]; // ดึงอีเมลจาก Callback Data
-			
-			db.run(`UPDATE slip_logs SET status = 'REJECTED' WHERE email = ? AND status = 'PENDING'`, [email]);
-
-            // 1. ค้นหาชื่อร้านจากอีเมล
-            db.get(`SELECT shop_name FROM tenants WHERE LOWER(email) = LOWER(?)`, [email], (err, row) => {
-              if (row) {
-                // 2. ปลดล็อกสถานะในฐานข้อมูล ให้ปุ่มที่หน้าเว็บหยุดหมุน
-                db.run(`UPDATE tenants SET renew_status = 'NONE' WHERE LOWER(email) = LOWER(?)`, [email], (err) => {
-                  
-                  // 3. ส่งอีเมลแจ้งลูกค้าว่าสลิปไม่ผ่าน
-                  const mailOptions = {
-                    from: transporter.options.auth.user,
-                    to: email,
-                    subject: `❌ การแจ้งต่ออายุไม่สำเร็จ - ร้าน ${row.shop_name}`,
-                    text: `สวัสดีครับ\n\nสลิปแจ้งชำระเงินต่ออายุระบบ POS ของร้าน ${row.shop_name} ไม่ได้รับการอนุมัติ\n(ข้อมูลสลิปไม่ถูกต้อง หรือยอดเงินไม่ตรงกับแพ็กเกจ)\n\nกรุณาตรวจสอบและแนบสลิปทำรายการใหม่อีกครั้งผ่านหน้าเว็บครับ`
-                  };
-                  transporter.sendMail(mailOptions).catch(() => {});
-
-                  // 4. อัปเดตข้อความใน Telegram ทันที
-                  axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/editMessageText`, { 
-                    chat_id: chatId, 
-                    message_id: messageId, 
-                    text: "❌ <b>ปฏิเสธการต่ออายุ</b> (ข้อมูลสลิปไม่ถูกต้อง)", 
-                    parse_mode: "HTML" 
-                  }).catch(() => {});
-
+                  }, { timeout: 4000 }).catch(()=>{});
                 });
               } else {
-                // หากหาอีเมลไม่เจอในระบบ ให้เปลี่ยนข้อความใน Telegram แจ้งเตือนแอดมิน
                 axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/editMessageText`, { 
                   chat_id: chatId, 
                   message_id: messageId, 
-                  text: "❌ <b>ปฏิเสธการต่ออายุ</b> (ไม่พบข้อมูลอีเมลร้านค้านี้ในระบบ)", 
+                  text: "❌ <b>เกิดข้อผิดพลาด:</b> ไม่พบข้อมูลร้านค้านี้ในระบบ", 
                   parse_mode: "HTML" 
-                }).catch(() => {});
+                }, { timeout: 4000 }).catch(()=>{});
+              }
+            });
+
+          } else if (action === "REJECT") {
+            db.run(`UPDATE slip_logs SET status = 'REJECTED' WHERE LOWER(email) = LOWER(?) AND status = 'PENDING'`, [email]);
+
+            db.get(`SELECT shop_name FROM tenants WHERE LOWER(email) = LOWER(?)`, [email], (err, row) => {
+              if (row) {
+                db.run(`UPDATE tenants SET renew_status = 'NONE' WHERE LOWER(email) = LOWER(?)`, [email], () => {
+                  if (email && email.includes('@')) {
+                    const mailOptions = {
+                      from: transporter.options.auth.user,
+                      to: email,
+                      subject: `❌ การแจ้งต่ออายุไม่สำเร็จ - ร้าน ${row.shop_name}`,
+                      text: `สวัสดีครับ\n\nสลิปแจ้งชำระเงินต่ออายุของร้าน ${row.shop_name} ไม่ได้รับการอนุมัติ\nกรุณาตรวจสอบและทำรายการใหม่อีกครั้งครับ`
+                    };
+                    transporter.sendMail(mailOptions).catch(() => {});
+                  }
+
+                  axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/editMessageText`, { 
+                    chat_id: chatId, 
+                    message_id: messageId, 
+                    text: "❌ <b>ปฏิเสธการต่ออายุเรียบร้อยแล้ว</b>", 
+                    parse_mode: "HTML" 
+                  }, { timeout: 4000 }).catch(() => {});
+                });
+              } else {
+                axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/editMessageText`, { 
+                  chat_id: chatId, 
+                  message_id: messageId, 
+                  text: "❌ <b>ปฏิเสธการต่ออายุ</b> (ไม่พบข้อมูลร้านค้า)", 
+                  parse_mode: "HTML" 
+                }, { timeout: 4000 }).catch(() => {});
               }
             });
           }
-          }
         }
       }
-    
-  } catch (e) { /* Ignore timeout errors */ }
-  setTimeout(pollTelegram, 2000);
+    }
+  } catch (e) { 
+    // Ignore long-poll timeout error
+  } finally {
+    isPollingTelegram = false;
+    setTimeout(pollTelegram, 2000);
+  }
 }
+
 pollTelegram();
 
 app.post('/api/import-excel', (req, res) => {
