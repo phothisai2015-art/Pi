@@ -564,9 +564,17 @@ function initShopMenuScripts() {
             Swal.fire({ 
                 icon: 'warning', 
                 title: 'แพ็กเกจหมดอายุ', 
-                text: 'คุณสามารถล็อกอินเข้าได้เฉพาะหน้า "ตั้งค่า" เพื่อทำรายการต่ออายุเท่านั้นครับ', 
-                confirmButtonText: 'รับทราบ',
-                confirmButtonColor: '#f59e0b'
+                text: 'กรุณาต่ออายุแพ็กเกจเพื่อกลับมาเปิดใช้งานระบบได้ตามปกติครับ', 
+                confirmButtonText: '<i class="fa-solid fa-bolt"></i> ต่ออายุแพ็กเกจ',
+                confirmButtonColor: '#3b82f6',
+                showCancelButton: true,
+                cancelButtonText: 'ไว้ทีหลัง'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    if (typeof openSettingsPage === 'function') openSettingsPage();
+                    if (typeof switchSettingsTab === 'function') switchSettingsTab('tab-package');
+                    if (typeof openQuickRenewModal === 'function') openQuickRenewModal();
+                }
             });
             
             currentTenantSheetId = savedTenantId;
@@ -651,8 +659,16 @@ function initShopMenuScripts() {
                               icon: 'warning', 
                               title: 'แพ็กเกจหมดอายุ', 
                               text: 'ขณะนี้แพ็กเกจหมดเวลาใช้งานแล้ว ระบบได้ล็อกเมนูการทำงานอัตโนมัติครับ', 
-                              confirmButtonText: 'รับทราบ',
-                              confirmButtonColor: '#f59e0b'
+                              confirmButtonText: '<i class="fa-solid fa-bolt"></i> ต่ออายุแพ็กเกจ',
+                              confirmButtonColor: '#3b82f6',
+                              showCancelButton: true,
+                              cancelButtonText: 'ปิด'
+                          }).then((result) => {
+                              if (result.isConfirmed) {
+                                  if (typeof openSettingsPage === 'function') openSettingsPage();
+                                  if (typeof switchSettingsTab === 'function') switchSettingsTab('tab-package');
+                                  if (typeof openQuickRenewModal === 'function') openQuickRenewModal();
+                              }
                           });
                       }
                   }
