@@ -253,6 +253,8 @@ async function loadShopComponents() {
     if (typeof initShopMenuScripts === 'function') {
       initShopMenuScripts();
     }
+    // 🌟 เช็คสถานะหมดอายุทันทีที่โหลดหน้าจอเสร็จ
+    checkTenantExpiryOnLoad();
   }, 300);
 }
 
@@ -340,6 +342,45 @@ function disableMenusForExpiredShop(isExpired) {
       };
     });
   }
+}
+
+// 🌟 สั่งเช็คสถานะการหมดอายุทันทีที่เปิดหน้าร้านค้า
+// 🌟 สั่งเช็คสถานะการหมดอายุทันทีที่เปิดหน้าร้านค้า
+function checkTenantExpiryOnLoad() {
+  const tenantId = localStorage.getItem('saas_tenant_id');
+  if (!tenantId) return;
+
+  google.script.run.withSuccessHandler(function(info) {
+    if (info && !info.error) {
+      if (info.isExpired || info.daysRemaining < 0) {
+        // 1. ล็อกปุ่มเมนูหน้าร้านทั้งหมดทันที
+        if (typeof disableMenusForExpiredShop === 'function') {
+          disableMenusForExpiredShop(true);
+        }
+        
+        // 2. แสดงป๊อปอัพเตือน
+        Swal.fire({
+          icon: 'warning',
+          title: '👑 ระบบหมดอายุการใช้งาน',
+          text: 'แพ็กเกจของคุณหมดอายุแล้ว กรุณาชำระเงินต่ออายุเพื่อปลดล็อกการใช้งานครับ',
+          confirmButtonText: '<i class="fa-solid fa-bolt me-1"></i> ชำระเงินต่ออายุ',
+          confirmButtonColor: '#f59e0b',
+          allowOutsideClick: false
+        }).then(() => {
+          // 3. เมื่อกดตกลง ให้ปิดหน้าจอล็อก PIN แล้วเปิดหน้าตั้งค่าแท็บแพ็กเกจทันที
+          let lockScr = document.getElementById('lock-screen');
+          if (lockScr) lockScr.style.display = 'none';
+          
+          if (typeof openSettingsPage === 'function') {
+            openSettingsPage();
+            if (typeof switchSettingsTab === 'function') {
+              switchSettingsTab('tab-package');
+            }
+          }
+        });
+      }
+    }
+  }).getTenantInfoBySheetId(tenantId);
 }
 
 </script>

@@ -530,6 +530,118 @@ function hookPageNavigation() {
 function initShopMenuScripts() {
   hookPageNavigation(); 
 
+  if (typeof changeLanguage === 'function') {
+    changeLanguage(currentLang);
+  }
+
+  const savedTheme = localStorage.getItem('pos-theme-preference'); 
+  const icon = document.getElementById('theme-icon');
+  if (savedTheme === 'dark') { 
+    document.body.classList.add('dark-theme'); 
+    if (icon) icon.className = 'fa-solid fa-sun'; 
+  }
+
+  google.script.run.withSuccessHandler(function(info) { 
+    document.getElementById('app-version-text').innerText = info.version; 
+  }).getAppInfo();
+
+  const savedTenantId = localStorage.getItem('saas_tenant_id'); 
+  if (!savedTenantId) {
+    window.location.href = '/';
+    return;
+  }
+
+  google.script.run.withSuccessHandler(function(info) {
+    if (info && !info.error) {
+      globalDaysRemaining = info.daysRemaining; 
+
+      // 1. ถ้าระบบรออนุมัติ ให้เริ่ม Polling ตรวจสอบสถานะ
+      if (info.renewStatus === 'PENDING' || info.renewNotified === 0) {
+        startRenewPolling();
+      }
+
+      currentTenantSheetId = savedTenantId;
+      let themeBtn = document.getElementById('main-theme-btn');
+      if (themeBtn) themeBtn.style.display = 'flex';
+      
+      loadShopData(currentTenantSheetId);
+
+      // 2. เช็คกรณีหมดอายุ: ล็อกเมนู + ซ่อนหน้า PIN + วาร์ปเข้าหน้าต่ออายุ
+      if (info.isExpired || info.daysRemaining < 0) {
+        if (typeof disableMenusForExpiredShop === 'function') {
+          disableMenusForExpiredShop(true);
+        }
+
+        let lockScr = document.getElementById('lock-screen');
+        if (lockScr) lockScr.style.display = 'none';
+
+        if (typeof openSettingsPage === 'function') {
+          openSettingsPage();
+          if (typeof switchSettingsTab === 'function') {
+            switchSettingsTab('tab-package');
+          }
+        }
+
+        Swal.fire({
+          icon: 'warning',
+          title: '👑 ระบบหมดอายุการใช้งาน',
+          text: 'แพ็กเกจของคุณหมดอายุแล้ว กรุณาชำระเงินต่ออายุเพื่อปลดล็อกการใช้งานครับ',
+          confirmButtonText: '<i class="fa-solid fa-bolt me-1"></i> ชำระเงินต่ออายุ',
+          confirmButtonColor: '#f59e0b',
+          allowOutsideClick: false
+        });
+      } 
+      // 3. เตือนเฉพาะร้านที่ใกล้หมดอายุ (เหลือ <= 7 วัน และยังไม่หมดอายุ)
+      else {
+        const hasOwnerWarned = sessionStorage.getItem('shop_owner_warned');
+        if (info.daysRemaining <= 7 && !hasOwnerWarned && info.renewStatus !== 'PENDING') {
+          sessionStorage.setItem('shop_owner_warned', 'true');
+          
+          let warnText = info.daysRemaining === 0 
+            ? i18n[currentLang]['swal_warn_expire_today'] 
+            : (i18n[currentLang]['swal_warn_expire_days1'] || 'เหลือเวลา ') + info.daysRemaining + (i18n[currentLang]['swal_warn_expire_days2'] || ' วัน');
+            
+          Swal.fire({
+            icon: info.daysRemaining === 0 ? 'error' : 'warning',
+            title: i18n[currentLang]['swal_warn_expire_title'],
+            text: warnText,
+            confirmButtonText: i18n[currentLang]['swal_btn_ack'],
+            confirmButtonColor: '#f59e0b',
+            allowOutsideClick: false
+          });
+        }
+      }
+
+      // 4. เชื่อมต่อ Socket สำหรับรับคำสั่งเตะจาก Super Admin
+      try {
+        const adminSocket = io();
+        adminSocket.emit('join_shop_room', currentTenantSheetId);
+        adminSocket.on('force_logout_event', () => {
+          Swal.fire({
+            icon: 'warning',
+            title: 'ถูกตัดการเชื่อมต่อ',
+            text: 'เซสชันของคุณถูกบังคับให้ออกจากระบบโดยผู้ดูแลระบบ (Super Admin)',
+            confirmButtonText: 'รับทราบ',
+            allowOutsideClick: false
+          }).then(() => {
+            forceShopLogout();
+          });
+        });
+      } catch (e) { 
+        console.warn("Socket for admin kick failed:", e); 
+      }
+
+    } else { 
+      localStorage.removeItem('saas_tenant_id'); 
+      localStorage.removeItem('saas_shop_name'); 
+      sessionStorage.removeItem('pos_active_staff');
+      window.location.href = '/'; 
+    }
+  }).getTenantInfoBySheetId(savedTenantId);
+  
+  initCats();
+}
+
   
   if (typeof changeLanguage === 'function') {
     changeLanguage(currentLang);
@@ -558,18 +670,42 @@ function initShopMenuScripts() {
           } else if (info.renewNotified === 0) {
               startRenewPolling();
           }
+		  // 🌟 ยอมให้โหลดข้อมูลร้านแม้จะหมดอายุแล้ว (ไม่สั่งลบ localStorage และไม่เด้งออก)
+          currentTenantSheetId = savedTenantId;
+          let themeBtn = document.getElementById('main-theme-btn');
+          if(themeBtn) themeBtn.style.display = 'flex';
+          
+          loadShopData(currentTenantSheetId);
 
-          if (info.daysRemaining < 0) {
-            localStorage.removeItem('saas_tenant_id'); localStorage.removeItem('saas_shop_name');
-            sessionStorage.removeItem('pos_active_staff');
-            Swal.fire({ icon: 'error', title: i18n[currentLang]['swal_expired_title'], text: i18n[currentLang]['swal_expired_desc'] }).then(() => { window.location.href = '/'; });
-          } else {
-            currentTenantSheetId = savedTenantId;
-            let themeBtn = document.getElementById('main-theme-btn');
-            if(themeBtn) themeBtn.style.display = 'flex';
-            
-            loadShopData(currentTenantSheetId);
-			
+          // 🌟 เช็คหมดอายุ: ถ้าหมดอายุ ให้ล็อกเมนู + ซ่อนหน้า PIN + วาร์ปไปหน้าต่ออายุทันที
+          if (info.isExpired || info.daysRemaining < 0) {
+            // 1. สั่งล็อกปุ่มเมนูหลัก
+            if (typeof disableMenusForExpiredShop === 'function') {
+              disableMenusForExpiredShop(true);
+            }
+
+            // 2. ซ่อนหน้าจอล็อก PIN พนักงาน เพื่อไม่ให้บังหน้าจอ
+            let lockScr = document.getElementById('lock-screen');
+            if (lockScr) lockScr.style.display = 'none';
+
+            // 3. วาร์ปเข้าหน้าตั้งค่า -> แท็บต่ออายุอัตโนมัติ
+            if (typeof openSettingsPage === 'function') {
+              openSettingsPage();
+              if (typeof switchSettingsTab === 'function') {
+                switchSettingsTab('tab-package');
+              }
+            }
+
+            // 4. แสดงป๊อปอัพเตือนชำระเงิน
+            Swal.fire({
+              icon: 'warning',
+              title: '👑 ระบบหมดอายุการใช้งาน',
+              text: 'แพ็กเกจของคุณหมดอายุแล้ว กรุณาชำระเงินต่ออายุเพื่อปลดล็อกการใช้งานครับ',
+              confirmButtonText: '<i class="fa-solid fa-bolt me-1"></i> ชำระเงินต่ออายุ',
+              confirmButtonColor: '#f59e0b',
+              allowOutsideClick: false
+            });
+          }
 			// 👇 🌟 เพิ่มโค้ด Socket รับคำสั่งเตะจาก Super Admin ตรงนี้ 👇
             try {
                const adminSocket = io();
@@ -824,8 +960,18 @@ function checkPinCode(pin) {
 
 function applyPermissions(perms) {
   let p = perms.toUpperCase();
-  document.getElementById('btn-menu-pos').disabled = !p.includes('POS'); document.getElementById('btn-menu-stock').disabled = !p.includes('STOCK');
-  document.getElementById('btn-menu-dash').disabled = !p.includes('DASH'); document.getElementById('btn-menu-admin').disabled = !p.includes('ADMIN');
+  // 🌟 เช็คสถานะวันหมดอายุ (ถ้าติดลบแปลว่าหมดอายุ)
+  let isExpired = (globalDaysRemaining !== null && globalDaysRemaining < 0);
+
+  // สั่งล็อกปุ่มขาย/คลัง/สถิติ ทันทีถ้าหมดอายุ
+  document.getElementById('btn-menu-pos').disabled = isExpired || !p.includes('POS'); 
+  document.getElementById('btn-menu-stock').disabled = isExpired || !p.includes('STOCK');
+  document.getElementById('btn-menu-dash').disabled = isExpired || !p.includes('DASH'); 
+  document.getElementById('btn-menu-admin').disabled = !p.includes('ADMIN'); // ปุ่มตั้งค่าเปิดไว้ให้ Admin เติมเงินเสมอ
+
+  if (isExpired && typeof disableMenusForExpiredShop === 'function') {
+    disableMenusForExpiredShop(true);
+  }
 }
 
 function lockScreenManual(isAuto = false) {
