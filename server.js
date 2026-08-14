@@ -7,6 +7,10 @@ const nodemailer = require('nodemailer');
 const jwt = require('jsonwebtoken'); // 🌟 เรียกใช้ JWT
 const db = require('./database');
 
+// 👇 🌟 เติม 2 บรรทัดนี้ลงไปตรงนี้ครับ 👇
+const Jimp = require('jimp');
+const jsQR = require('jsqr');
+// 👆 ============================= 👆
 
 const http = require('http');
 const { Server } = require('socket.io');
@@ -517,15 +521,17 @@ app.post(['/api/upload-slip-notify', '/api/upload-quick-renew-slip'], async (req
   console.log("📥 [API แจ้งสลิป] ได้รับข้อมูลจากอีเมล:", req.body.email);
   try {
     const { email, shopName, pkgName, price, base64Data } = req.body; 
-    db.run(`UPDATE tenants SET renew_status = 'PENDING' WHERE LOWER(email) = LOWER(?)`, [email]);
+    const cleanEmail = String(email || '-').trim();
+    const cleanPkg = String(pkgName || '1M').split('|')[0].trim(); 
+    const cleanPrice = String(price || '0').split('|')[0].trim();
+
+    db.run(`UPDATE tenants SET renew_status = 'PENDING' WHERE LOWER(email) = LOWER(?)`, [cleanEmail]);
+
     let fileUrl = "";
-
-    const slipDir = path.join(__dirname, 'public', 'uploads', 'slip');
-    if (!fs.existsSync(slipDir)) {
-      fs.mkdirSync(slipDir, { recursive: true });
-    }
-
     let filePath = "";
+    const slipDir = path.join(__dirname, 'public', 'uploads', 'slip');
+    if (!fs.existsSync(slipDir)) fs.mkdirSync(slipDir, { recursive: true });
+
     if (base64Data && base64Data.includes(',')) {
       const matches = base64Data.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/); 
       const ext = matches ? (matches[1].split('/')[1] || 'jpg') : 'jpg';
@@ -536,25 +542,66 @@ app.post(['/api/upload-slip-notify', '/api/upload-quick-renew-slip'], async (req
       fileUrl = `/uploads/slip/${safeName}`;
     }
 
-    const cleanShop = String(shopName || '-').replace(/[&<>]/g, '');
-    const cleanEmail = String(email || '-').trim();
-    const cleanPkg = String(pkgName || '1M').split('|')[0].trim(); 
-    const cleanPrice = String(price || '0').split('|')[0].trim();
-
     const fullSlipUrl = `http://${req.get('host')}${fileUrl}`;
     const safeUrl = encodeURI(fullSlipUrl);
 
     // ========================================================
-    // 🤖 บอททำมือ: ใช้ Tesseract.js อ่านข้อความจากรูปสลิป
+    // 🔎 1. สแกนหา QR Code จากสลิป (สกัดลายนิ้วมือดิจิทัล)
+    // ========================================================
+    let qrPayload = null;
+    try {
+        console.log("🔍 กำลังสแกนหา QR Code บนสลิป...");
+        const image = await Jimp.read(filePath);
+        // ปรับขนาดภาพลงนิดหน่อยเพื่อให้ jsQR ทำงานเร็วขึ้น
+        image.resize(800, Jimp.AUTO);
+        const qr = jsQR(image.bitmap.data, image.bitmap.width, image.bitmap.height);
+        
+        if (qr) {
+            qrPayload = qr.data;
+            console.log("✅ พบ QR Code (Fingerprint): ", qrPayload.substring(0, 30) + "...");
+        } else {
+            console.log("⚠️ ไม่พบ QR Code บนสลิปใบนี้");
+        }
+    } catch (qrErr) {
+        console.error("❌ ระบบสแกน QR ล้มเหลว:", qrErr.message);
+    }
+
+    const refNoToSave = qrPayload || `NO_QR_${Date.now()}`;
+
+    // ========================================================
+    // 🛡️ 2. ตรวจสอบสลิปซ้ำ (Duplicate Slip Check)
+    // ========================================================
+    const isDuplicate = await new Promise((resolve) => {
+        if (!qrPayload) return resolve(false); // ถ้าไม่มี QR ปล่อยให้ตกไปให้แอดมินดู
+        db.get(`SELECT status FROM slip_logs WHERE ref_no = ?`, [qrPayload], (err, row) => {
+            if (row && (row.status === 'USED' || row.status === 'PENDING')) resolve(true);
+            else resolve(false);
+        });
+    });
+
+    if (isDuplicate) {
+        console.log("🚨 บล็อค! สลิปนี้ถูกใช้งานไปแล้ว");
+        const dupMsg = `🚨 <b>แจ้งเตือน: พบการใช้สลิปซ้ำ!</b>\n\n🏢 ร้าน: ${escapeHtml(shopName)}\n📧 อีเมล: ${escapeHtml(email)}\n⚠️ บอทตรวจพบว่า QR Code บนสลิปนี้ <b>เคยถูกใช้ต่ออายุในระบบไปแล้ว</b>\n\n📄 <a href="${safeUrl}">ดูรูปสลิปที่มีปัญหา</a>`;
+        axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, { chat_id: TELEGRAM_CHAT_ID, text: dupMsg, parse_mode: "HTML" }).catch(()=>{});
+        
+        db.run(`UPDATE tenants SET renew_status = 'NONE' WHERE LOWER(email) = LOWER(?)`, [cleanEmail]);
+        return res.json({ status: "success", note: "duplicate_slip" }); // ลูกค้าหน้าเว็บจะเห็นว่าส่งสำเร็จ แต่จริงๆ ระบบเตะทิ้ง
+    }
+
+    // เอา Ref No. ยัดเข้าฐานข้อมูล จองคิวไว้ก่อน (สถานะ PENDING) เพื่อกันคนกดยิง API รัวๆ
+    db.run(`INSERT INTO slip_logs (ref_no, email, amount, package, timestamp, status) VALUES (?, ?, ?, ?, ?, 'PENDING')`,
+           [refNoToSave, cleanEmail, cleanPrice, cleanPkg, new Date().toISOString()]);
+
+    // ========================================================
+    // 🤖 3. บอทอ่านข้อความด้วย OCR (เพื่อเช็คยอดเงินและข้อมูล)
     // ========================================================
     let isAutoApproved = false;
     let botRejectReason = "";
 
     try {
-      console.log("🤖 บอทกำลังสแกนอ่านตัวหนังสือในสลิป...");
+      console.log("🤖 บอทกำลังอ่านตัวหนังสือ (OCR) เพื่อตรวจสอบยอดเงิน...");
       const { data: { text } } = await Tesseract.recognize(filePath, 'tha+eng');
       const slipText = text.toLowerCase().replace(/\s+/g, ''); 
-      console.log("📝 ข้อความที่อ่านได้:\n", slipText);
 
       const validNames = ["กนกพล", "โพธิสัย", "kanokphon", "phothisai"];
       const condition1 = validNames.some(name => slipText.includes(name));
@@ -576,20 +623,22 @@ app.post(['/api/upload-slip-notify', '/api/upload-quick-renew-slip'], async (req
 
       const condition4 = slipText.includes("7930") || slipText.includes("1697930") || slipText.includes("0981697930");
 
-      if (condition1 && condition2 && condition3 && condition4) {
+      // ต้องผ่านทุกเงื่อนไข + ต้องมี QR Code บนสลิป ถึงจะให้อนุมัติอัตโนมัติ
+      if (condition1 && condition2 && condition3 && condition4 && qrPayload) {
         isAutoApproved = true;
       } else {
-        botRejectReason = `ไม่ผ่านเงื่อนไข: ชื่อ=${condition1}, ยอด=${condition2}, เวลา=${condition3}, พร้อมเพย์=${condition4}`;
+        if (!qrPayload) botRejectReason = "ไม่พบ QR Code บอทจึงไม่สามารถยืนยันความถูกต้องได้";
+        else botRejectReason = `ไม่ผ่านเงื่อนไข: ชื่อ=${condition1}, ยอด=${condition2}, เวลา=${condition3}, พร้อมเพย์=${condition4}`;
         console.log("🤖", botRejectReason);
       }
 
     } catch (ocrError) {
-      console.error("🤖 บอทอ่านสลิปพัง:", ocrError);
-      botRejectReason = "บอทไม่สามารถอ่านรูปภาพนี้ได้";
+      console.error("🤖 บอทอ่าน OCR พัง:", ocrError.message);
+      botRejectReason = "บอทไม่สามารถอ่านตัวหนังสือจากรูปภาพนี้ได้";
     }
 
     // ========================================================
-    // 🌟 ดำเนินการหลังการตรวจสอบ
+    // 🌟 4. ตัดสินใจและดำเนินการ (Decision)
     // ========================================================
     if (isAutoApproved) {
       console.log("✅ บอทอนุมัติสลิปอัตโนมัติ!");
@@ -604,6 +653,10 @@ app.post(['/api/upload-slip-notify', '/api/upload-quick-renew-slip'], async (req
           const newExpStr = baseDate.toISOString().split('T')[0];
 
           db.run(`UPDATE tenants SET expire_date = ?, renew_status = 'NONE', renew_notified = 0 WHERE LOWER(email) = LOWER(?)`, [newExpStr, cleanEmail], async () => {
+            
+            // สแตมป์ตราว่าสลิปนี้ถูกใช้ไปแล้วอย่างสมบูรณ์!
+            db.run(`UPDATE slip_logs SET status = 'USED' WHERE ref_no = ?`, [refNoToSave]);
+
             const padStr = (n) => String(n).padStart(2, '0');
             const autoMsg = `🤖✅ <b>BOT อนุมัติการต่ออายุอัตโนมัติ!</b>\n\n🏢 ร้าน: ${escapeHtml(shopName)}\n📧 อีเมล: ${escapeHtml(email)}\n📦 แพ็กเกจ: ${escapeHtml(pkgName)}\n💰 ยอดเงิน: ${cleanPrice} บาท\n📅 หมดอายุใหม่: ${padStr(baseDate.getDate())}/${padStr(baseDate.getMonth()+1)}/${baseDate.getFullYear()}\n\n📄 <a href="${safeUrl}">คลิกดูสลิปโอนเงิน</a>`;
             axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, { chat_id: TELEGRAM_CHAT_ID, text: autoMsg, parse_mode: "HTML" }).catch(()=>{});
@@ -611,9 +664,10 @@ app.post(['/api/upload-slip-notify', '/api/upload-quick-renew-slip'], async (req
         }
       });
       res.json({ status: "success", note: "auto_approved" });
+
     } else {
-      console.log("📤 ส่ง Telegram ให้แอดมินพิจารณา...");
-      const message = `💳 <b>แจ้งโอนเงินต่ออายุ</b>\n⚠️ <i>BOT แนะนำให้ตรวจมือ: ${botRejectReason}</i>\n\n🏢 ร้าน: ${escapeHtml(shopName)}\n📧 อีเมล: ${escapeHtml(email)}\n📦 แพ็กเกจ: ${escapeHtml(pkgName)}\n💰 ยอดเงิน: ${escapeHtml(price)} บาท\n\n📄 <a href="${safeUrl}">คลิกดูสลิปโอนเงิน</a>`;
+      console.log("📤 สลิปน่าสงสัย... ส่ง Telegram ให้แอดมินพิจารณา");
+      const message = `💳 <b>แจ้งโอนเงินต่ออายุ</b>\n⚠️ <i>BOT แนะนำให้ตรวจสอบ: ${botRejectReason}</i>\n\n🏢 ร้าน: ${escapeHtml(shopName)}\n📧 อีเมล: ${escapeHtml(email)}\n📦 แพ็กเกจ: ${escapeHtml(pkgName)}\n💰 ยอดเงิน: ${escapeHtml(price)} บาท\n\n📄 <a href="${safeUrl}">คลิกดูสลิปโอนเงิน</a>`;
       
       const approveData = `APPROVE_${cleanPkg}_${cleanEmail}`.substring(0, 64);
       const rejectData = `REJECT_${cleanEmail}`.substring(0, 64);
@@ -662,6 +716,7 @@ async function pollTelegram() {
 
           if (parts[0] === "APPROVE") {
             const pkg = parts[1]; const email = parts[2];
+			db.run(`UPDATE slip_logs SET status = 'USED' WHERE email = ? AND status = 'PENDING'`, [email]);
 
             // 2. เปลี่ยนข้อความเป็น "กำลังดำเนินการ" ทันที เพื่อลบปุ่มและกันการกดซ้ำ
             await axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/editMessageText`, { 
@@ -717,6 +772,8 @@ async function pollTelegram() {
             });
           } else if (parts[0] === "REJECT") {
             const email = parts[1]; // ดึงอีเมลจาก Callback Data
+			
+			db.run(`UPDATE slip_logs SET status = 'REJECTED' WHERE email = ? AND status = 'PENDING'`, [email]);
 
             // 1. ค้นหาชื่อร้านจากอีเมล
             db.get(`SELECT shop_name FROM tenants WHERE LOWER(email) = LOWER(?)`, [email], (err, row) => {

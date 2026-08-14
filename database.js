@@ -72,6 +72,16 @@ db.serialize(() => {
     action TEXT,
     detail TEXT
   )`);
+  // 7. ตารางประวัติสลิป (Slip Logs) - สร้างใหม่เพื่อป้องกันสลิปซ้ำ
+  db.run(`CREATE TABLE IF NOT EXISTS slip_logs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    ref_no TEXT UNIQUE,        -- เลขอ้างอิงสลิป (ตั้งเป็น UNIQUE เพื่อป้องกันการบันทึกเลขซ้ำเด็ดขาด)
+    email TEXT,                -- อีเมลของร้านค้าที่อัปโหลดสลิป
+    amount REAL,               -- ยอดเงินที่โอน
+    package TEXT,              -- แพ็กเกจที่เลือกต่ออายุ
+    timestamp TEXT,            -- วันเวลาที่อัปโหลด
+    status TEXT DEFAULT 'USED' -- สถานะสลิป (ถูกใช้ไปแล้ว)
+  )`);
 });
 
 module.exports = db;
