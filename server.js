@@ -1,3 +1,5 @@
+const dns = require('dns');
+dns.setDefaultResultOrder('ipv4first'); // 🌟 บังคับใช้ IPv4 แก้ปัญหา Telegram Timeout บน Pi
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
@@ -592,16 +594,11 @@ app.post(['/api/upload-slip-notify', '/api/upload-quick-renew-slip'], async (req
     // สแตมป์สถานะ PENDING ในฐานข้อมูล
     db.run(`UPDATE tenants SET renew_status = 'PENDING' WHERE LOWER(email) = LOWER(?)`, [cleanEmail]);
 
-    // บันทึก/อัปเดต slip_logs
     await new Promise((resolve) => {
-      if (existingSlip) {
-        db.run(`UPDATE slip_logs SET status = 'PENDING', timestamp = ?, amount = ?, package = ?, email = ? WHERE ref_no = ?`,
-               [new Date().toISOString(), cleanPrice, cleanPkg, cleanEmail, refNoToSave], () => resolve());
-      } else {
-        db.run(`INSERT INTO slip_logs (ref_no, email, amount, package, timestamp, status) VALUES (?, ?, ?, ?, ?, 'PENDING')`,
-               [refNoToSave, cleanEmail, cleanPrice, cleanPkg, new Date().toISOString()], () => resolve());
-      }
-    });
+  // 🟢 เปลี่ยนมาใช้ INSERT OR REPLACE บรรทัดเดียว จบปัญหาซ้ำแล้วพังทันที
+  db.run(`INSERT OR REPLACE INTO slip_logs (ref_no, email, amount, package, timestamp, status) VALUES (?, ?, ?, ?, ?, 'PENDING')`,
+         [refNoToSave, cleanEmail, cleanPrice, cleanPkg, new Date().toISOString()], () => resolve());
+});
 
     // 🚀 ตอบกลับลูกค้าทันทีภายใน 0.2 วินาที! (หน้าเว็บไม่ค้างหมุนรอ)
     res.json({ status: "success", note: "processing_in_background" });
@@ -781,15 +778,16 @@ async function pollTelegram() {
                 db.run(`UPDATE tenants SET expire_date = ?, renew_status = 'NONE', renew_notified = 0 WHERE LOWER(email) = LOWER(?)`, [newExpStr, email], async () => {
                   db.run(`UPDATE slip_logs SET status = 'USED' WHERE LOWER(email) = LOWER(?) AND status = 'PENDING'`, [email]);
 
-                  if (email && email.includes('@')) {
-                    const mailOptions = {
-                      from: transporter.options.auth.user,
-                      to: email,
-                      subject: `🎉 ยืนยันการต่ออายุระบบ POS สำเร็จ - ร้าน ${row.shop_name}`,
-                      text: `สวัสดีครับ คุณลูกค้า (ร้าน ${row.shop_name})\n\nระบบได้รับการยืนยันการชำระเงิน เรียบร้อยแล้วครับ\n\n⏰ วันหมดอายุใหม่คือ: ${padStr(baseDate.getDate())}/${padStr(baseDate.getMonth()+1)}/${baseDate.getFullYear()}\n\nขอบคุณครับ!`
-                    };
-                    transporter.sendMail(mailOptions).catch(err => console.error("Send Confirm Mail Error:", err));
-                  }
+                  // 🟢 ตรวจสอบ 3 ชั้น: ต้องมีตัวแปร + ไม่เป็นค่าว่าง + ต้องมีเครื่องหมาย @
+if (email && email.trim() !== '' && email.includes('@')) {
+  const mailOptions = {
+    from: transporter.options.auth.user,
+    to: email.trim(),
+    subject: `🎉 ยืนยันการต่ออายุระบบ POS สำเร็จ - ร้าน ${row.shop_name}`,
+    text: `สวัสดีครับ คุณลูกค้า (ร้าน ${row.shop_name})\n\nระบบได้รับการยืนยันการชำระเงิน เรียบร้อยแล้วครับ\n\n⏰ วันหมดอายุใหม่คือ: ${padStr(baseDate.getDate())}/${padStr(baseDate.getMonth()+1)}/${baseDate.getFullYear()}\n\nขอบคุณครับ!`
+  };
+  transporter.sendMail(mailOptions).catch(err => console.error("Send Confirm Mail Error:", err.message));
+}
 
                   const newText = `✅ <b>อนุมัติการต่ออายุเรียบร้อยแล้ว</b>\nร้าน: ${row.shop_name}\nวันหมดอายุใหม่: ${padStr(baseDate.getDate())}/${padStr(baseDate.getMonth()+1)}/${baseDate.getFullYear()}`;
                   axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/editMessageText`, { 
