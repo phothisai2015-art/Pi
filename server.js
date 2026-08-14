@@ -145,7 +145,7 @@ app.post('/api/login-shop', (req, res) => {
       if (row.status !== "ACTIVE") return res.json({ status: "error", message: "⚠️ สถานะร้านค้าไม่พร้อมใช้งาน" });
       const today = new Date(); today.setHours(0,0,0,0);
       const exp = new Date(row.expire_date); exp.setHours(0,0,0,0);
-      if (exp < today) return res.json({ status: "error", message: "❌ ระบบของคุณหมดอายุการใช้งานแล้ว" });
+      // if (exp < today) return res.json({ status: "error", message: "❌ ระบบของคุณหมดอายุการใช้งานแล้ว" });
       const daysRemaining = Math.ceil((exp - today) / (1000 * 3600 * 24));
       res.json({ status: "success", sheetId: row.sheet_id, shopName: row.shop_name, daysRemaining });
     }); 
