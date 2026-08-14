@@ -569,7 +569,7 @@ function initShopMenuScripts() {
                 confirmButtonColor: '#3b82f6',
                 showCancelButton: true,
                 cancelButtonText: 'ไว้ทีหลัง',
-                allowOutsideClick: false  // 👈 เพิ่มบรรทัดนี้ บังคับไม่ให้คลิกขอบจอแล้วหาย
+                allowOutsideClick: false
             }).then((result) => {
                 if (result.isConfirmed) {
                     if (typeof openSettingsPage === 'function') openSettingsPage();
@@ -577,13 +577,14 @@ function initShopMenuScripts() {
                     if (typeof openQuickRenewModal === 'function') openQuickRenewModal();
                 }
             });
-          }
-            
+
+            // เอาโค้ดโหลดหน้าเว็บมาไว้ในบล็อกเดียวกันเลย (ไม่มีปีกกาคั่น)
             currentTenantSheetId = savedTenantId;
             let themeBtn = document.getElementById('main-theme-btn');
             if(themeBtn) themeBtn.style.display = 'flex';
+            
             loadShopData(currentTenantSheetId);
-			
+
           } else {
             currentTenantSheetId = savedTenantId;
             let themeBtn = document.getElementById('main-theme-btn');
