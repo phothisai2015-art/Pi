@@ -628,7 +628,8 @@ app.post(['/api/upload-slip-notify', '/api/upload-quick-renew-slip'], async (req
         const condition1 = validNames.some(name => slipText.includes(name));
 
         // 2. เช็คยอดเงินตรงกับแพ็กเกจ (✅ แก้ไขให้รัดกุม: บังคับว่าต้องมีคำว่า "บาท" ต่อท้ายยอดเงินเสมอ)
-        const condition2 = slipText.includes(`${cleanPrice}.00บาท`) || slipText.includes(`${cleanPrice}บาท`);
+        // 2. เช็คยอดเงินตรงกับแพ็กเกจ (✅ ปรับให้ยืดหยุ่น: รองรับสลิป SCB ที่อาจไม่มีคำว่าบาท หรือมี .00)
+const condition2 = slipText.includes(`${cleanPrice}.00`) || slipText.includes(`${cleanPrice}บาท`) || slipText.includes(`จำนวนเงิน${cleanPrice}`);
 
         // 3. เช็คเบอร์พร้อมเพย์/บัญชี
         const condition4 = slipText.includes("7930") || slipText.includes("1697930") || slipText.includes("0981697930");
