@@ -758,10 +758,9 @@ async function pollTelegram() {
               }
             });
           }
-          }
         }
       }
-    
+    }
   } catch (e) { /* Ignore timeout errors */ }
   setTimeout(pollTelegram, 2000);
 }
