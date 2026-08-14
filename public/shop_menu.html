@@ -573,6 +573,7 @@ function initShopMenuScripts() {
             let themeBtn = document.getElementById('main-theme-btn');
             if(themeBtn) themeBtn.style.display = 'flex';
             loadShopData(currentTenantSheetId);
+			
           } else {
             currentTenantSheetId = savedTenantId;
             let themeBtn = document.getElementById('main-theme-btn');
@@ -619,6 +620,45 @@ function initShopMenuScripts() {
               Swal.close(); 
             }
           }
+		  // 👇 โค้ดใหม่: ระบบลาดตระเวน เช็ควันหมดอายุทุก 1 นาที 👇
+          setInterval(() => {
+              if (!currentTenantSheetId) return;
+              google.script.run.withSuccessHandler(function(liveInfo) {
+                  if (liveInfo && !liveInfo.error) {
+                      globalDaysRemaining = liveInfo.daysRemaining;
+                      
+                      let btnPos = document.getElementById('btn-menu-pos');
+                      // ถ้าตรวจพบว่าหมดอายุ (ติดลบ) และปุ่มเมนู POS ยังกดได้อยู่ (แสดงว่าเพิ่งข้ามคืนหมดอายุ)
+                      if (globalDaysRemaining < 0 && btnPos && !btnPos.disabled) {
+                          
+                          // 1. บังคับล็อกปุ่มเมนู 3 อันแรกทันที
+                          if (currentStaff && currentStaff.permissions) {
+                              applyPermissions(currentStaff.permissions);
+                          }
+                          
+                          // 2. ถ้ากำลังเปิดหน้าขายของ หรือหน้าอื่นๆ ค้างไว้ ให้บังคับปิดออกไปหน้าเมนู
+                          let currentPage = sessionStorage.getItem('pos_current_page');
+                          if (currentPage !== 'main-menu' && currentPage !== 'page-settings') {
+                              if (typeof closePOSPage === 'function') closePOSPage();
+                              if (typeof closeProductsPage === 'function') closeProductsPage();
+                              if (typeof closeDashboardPage === 'function') closeDashboardPage();
+                              
+                              sessionStorage.setItem('pos_current_page', 'main-menu');
+                          }
+                          
+                          // 3. เด้งป๊อปอัพแจ้งเตือนตัดจบ
+                          Swal.fire({ 
+                              icon: 'warning', 
+                              title: 'แพ็กเกจหมดอายุ', 
+                              text: 'ขณะนี้แพ็กเกจหมดเวลาใช้งานแล้ว ระบบได้ล็อกเมนูการทำงานอัตโนมัติครับ', 
+                              confirmButtonText: 'รับทราบ',
+                              confirmButtonColor: '#f59e0b'
+                          });
+                      }
+                  }
+              }).getTenantInfoBySheetId(currentTenantSheetId);
+          }, 60000); // ทำงานเบื้องหลังทุกๆ 60 วินาที
+          // 👆 ========================================= 👆
         } else { 
             localStorage.removeItem('saas_tenant_id'); localStorage.removeItem('saas_shop_name'); 
             sessionStorage.removeItem('pos_active_staff');
