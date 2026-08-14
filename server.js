@@ -613,7 +613,7 @@ app.post(['/api/upload-slip-notify', '/api/upload-quick-renew-slip'], async (req
       try {
         console.log("🤖 บอทกำลังอ่านตัวหนังสือ (OCR) เพื่อตรวจสอบยอดเงิน...");
         
-        // 🌟 ย่อขนาดรูปและเปลี่ยนเป็นสีเทาใน Memory ก่อนส่งให้ OCR อ่าน (เพิ่มความเร็ว 3 เท่า ป้องกัน Pi ค้าง)
+        // 🌟 ย่อขนาดรูปและเปลี่ยนเป็นสีเทาใน Memory ก่อนส่งให้ OCR อ่าน
         const ocrImage = await Jimp.read(buffer);
         ocrImage.resize(600, Jimp.AUTO).grayscale();
         const ocrBuffer = await ocrImage.getBufferAsync(Jimp.MIME_JPEG);
@@ -621,20 +621,23 @@ app.post(['/api/upload-slip-notify', '/api/upload-quick-renew-slip'], async (req
         const { data: { text } } = await Tesseract.recognize(ocrBuffer, 'tha+eng');
         const slipText = text.toLowerCase().replace(/\s+/g, ''); 
 
+        // 1. เช็คชื่อผู้รับ
         const validNames = ["กนกพล", "โพธิสัย", "kanokphon", "phothisai"];
         const condition1 = validNames.some(name => slipText.includes(name));
 
+        // 2. เช็คยอดเงินตรงกับแพ็กเกจ
         const priceRegex = new RegExp(`${cleanPrice}(\\.00)?`);
         const condition2 = priceRegex.test(slipText);
 
-
+        // 3. เช็คเบอร์พร้อมเพย์/บัญชี
         const condition4 = slipText.includes("7930") || slipText.includes("1697930") || slipText.includes("0981697930");
 
-        if (condition1 && condition2 && condition3 && condition4 && qrPayload) {
+        // 🌟 เช็คผ่าน 3 ข้อ + มี QR Code ก็อนุมัติทันที (ไม่เช็คเวลาแล้ว)
+        if (condition1 && condition2 && condition4 && qrPayload) {
           isAutoApproved = true;
         } else {
           if (!qrPayload) botRejectReason = "ไม่พบ QR Code บอทจึงไม่สามารถยืนยันความถูกต้องได้";
-          else botRejectReason = `ไม่ผ่านเงื่อนไข: ชื่อ=${condition1}, ยอด=${condition2}, เวลา=${condition3}, พร้อมเพย์=${condition4}`;
+          else botRejectReason = `ไม่ผ่านเงื่อนไข: ชื่อ=${condition1}, ยอด=${condition2}, พร้อมเพย์=${condition4}`;
           console.log("🤖", botRejectReason);
         }
 
