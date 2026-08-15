@@ -45,6 +45,10 @@ app.get('/superadmin', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'superadmin.html'));
 });
 
+app.get('/download', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'download.html'));
+});
+
 
 
 // ==========================================
