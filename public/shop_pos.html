@@ -775,11 +775,49 @@
       });
     }
 
-    // 🌟 2. ตัวแปรและฟังก์ชันสำหรับพิมพ์ผ่าน Bluetooth (ESC/POS)
+// 🌟 2. ตัวแปรและฟังก์ชันสำหรับพิมพ์ผ่าน Bluetooth (ESC/POS)
     window.bluetoothDevice = null;
     window.printerCharacteristic = null;
 
+    // 🌟 [ใหม่] ฟังก์ชันสำหรับให้ Android APK เรียกใช้เพื่ออัปเดตสถานะหน้าจอ
+    window.updateAndroidPrinterStatus = function(status, message) {
+      let statusEl = document.getElementById('bt-printer-status');
+      
+      if (status === "SUCCESS") {
+        if(statusEl) {
+           statusEl.innerText = i18n[currentLang]['set_printer_connected'] || 'เชื่อมต่อแล้ว';
+           statusEl.className = 'text-success fw-bold';
+           statusEl.removeAttribute('data-i18n'); 
+        }
+        Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2000 })
+            .fire({ icon: 'success', title: i18n[currentLang]['swal_bt_connect_success'] || 'เชื่อมต่อปริ้นเตอร์ Bluetooth สำเร็จ!' });
+        
+        // 🌟 บันทึกสถานะจำไว้ว่า Android ต่อปริ้นเตอร์แล้ว
+        window.isAndroidPrinterReady = true;
+
+      } else if (status === "ERROR") {
+        if(statusEl) {
+           statusEl.innerText = i18n[currentLang]['set_printer_not_connected'] || 'ยังไม่เชื่อมต่อ';
+           statusEl.className = 'text-danger fw-bold';
+        }
+        Swal.fire(
+            i18n[currentLang]['swal_bt_connect_fail_title'] || 'การเชื่อมต่อล้มเหลว', 
+            (i18n[currentLang]['swal_bt_connect_fail_desc'] || 'ไม่สามารถเชื่อมต่อปริ้นเตอร์ได้:') + ' ' + message, 
+            'error'
+        );
+        window.isAndroidPrinterReady = false;
+      }
+    };
+
     window.connectBluetoothPrinter = async function() {
+      // 🌟 เช็คว่าเปิดผ่าน Android APK หรือไม่
+      if (window.AndroidPrinter) {
+         // ส่งคำสั่งให้ฝั่งแอนดรอยด์ไปเปิดหน้าต่างค้นหา Bluetooth และเชื่อมต่อเอง
+         window.AndroidPrinter.connectPrinter();
+         return; // จบการทำงานฝั่งเว็บ ให้ Android จัดการต่อ
+      }
+
+      // โค้ดเดิมสำหรับเปิดผ่าน Browser ปกติ (Chrome/Edge)
       try {
         window.bluetoothDevice = await navigator.bluetooth.requestDevice({
           filters: [{ services: ['00001101-0000-1000-8000-00805f9b34fb'] }],
@@ -800,7 +838,6 @@
         if(statusEl) {
            statusEl.innerText = i18n[currentLang]['set_printer_connected'] || 'เชื่อมต่อแล้ว';
            statusEl.className = 'text-success fw-bold';
-           // อย่าลืมลบ data-i18n ออกเพื่อไม่ให้ตอนสลับภาษามันเด้งกลับไปเป็นคำว่า "ยังไม่เชื่อมต่อ"
            statusEl.removeAttribute('data-i18n'); 
         }
         
@@ -817,6 +854,13 @@
     }
 
     async function printReceiptDirect(receiptData) {
+      // 🌟 เช็คว่าเปิดผ่าน Android APK และต่อปริ้นเตอร์ไว้หรือไม่
+      if (window.AndroidPrinter && window.isAndroidPrinterReady) {
+         window.AndroidPrinter.printReceipt(JSON.stringify(receiptData));
+         return true;
+      }
+
+      // โค้ดเดิมสำหรับพิมพ์ผ่าน Browser ปกติ
       if (!window.printerCharacteristic) return false;
       try {
         let encoder = new TextEncoder(); 
