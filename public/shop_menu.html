@@ -459,11 +459,6 @@ function startRenewPolling() {
                 if (typeof closeSettingsPage === 'function') {
                     closeSettingsPage();
                 }
-
-                // 3. รีเฟรชระบบใหม่ทั้งหมด 1 รอบ เพื่อโหลดข้อมูลอัปเดต 100%
-                setTimeout(() => {
-                    window.location.reload();
-                }, 400);
                 // 👆 ======================================== 👆
              });
           }
