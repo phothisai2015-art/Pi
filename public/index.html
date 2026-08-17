@@ -353,6 +353,18 @@ body.dark-theme .ad-close-btn:hover {
     padding-bottom: 8px !important;
   }
 }
+
+/* 🌟 ปรับขนาดปุ่มบนแบนเนอร์ให้พอดีกับจอมือถือ */
+.banner-btn {
+  padding: 10px 30px;
+  font-size: 1.1rem;
+}
+@media (max-width: 576px) {
+  .banner-btn {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+  }
+}
 	
 </style>
 </head>
@@ -510,31 +522,35 @@ body.dark-theme .ad-close-btn:hover {
 </div>
 
 <!-- ============================================== -->
-<!-- 🌟 Popup รูปภาพโฆษณา (Image Banner) -->
+<!-- 🌟 Popup รูปภาพโฆษณา (Image Banner) รองรับมือถือ -->
 <!-- ============================================== -->
 <div class="modal fade" id="advertModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered ad-modal-dialog modal-lg">
-    <div class="modal-content ad-glass-content border-0 position-relative" style="background: transparent; box-shadow: none;">
+  <div class="modal-dialog modal-dialog-centered modal-lg" style="max-width: 900px;">
+    <div class="modal-content border-0 bg-transparent shadow-none">
       
-      <!-- ปุ่มปิด (Close) มุมขวาบน -->
-      <button type="button" class="btn-close ad-close-btn" data-bs-dismiss="modal" aria-label="Close" style="background-color: white; z-index: 1060;"></button>
-      
-      <!-- ส่วนแสดงรูปภาพ -->
-      <div class="modal-body p-0 text-center position-relative d-flex flex-column align-items-center justify-content-center">
-        <!-- อ้างอิงรูปภาพตามพาร์ทของคุณ -->
-        <img src="/advert/1.jpg" alt="POS Banner" class="img-fluid w-100" style="border-radius: 28px; object-fit: contain; max-height: 70vh; box-shadow: 0 15px 35px rgba(0,0,0,0.3);">
-        
-        <!-- ส่วนปุ่มกดที่ลอยอยู่ด้านล่างรูปภาพ -->
-        <div class="position-absolute w-100 d-flex justify-content-center gap-3" style="bottom: 12%;">
-            <!-- ปุ่มโหลด App (ไปหน้าดาวน์โหลด) -->
-            <a href="/download" class="btn fw-bold rounded-pill px-4 py-2 shadow-lg" style="background: linear-gradient(135deg, #10b981, #059669); color: white; font-size: 1.1rem; border: 2px solid rgba(255,255,255,0.3);">
-               <i class="fa-brands fa-android me-2"></i> โหลด app
-            </a>
-            
-            <!-- ปุ่มเข้าสู่ระบบ (ปิดป๊อปอัพและโฟกัสช่องกรอกอีเมล) -->
-            <button type="button" class="btn fw-bold rounded-pill px-4 py-2 shadow-lg" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; font-size: 1.1rem; border: 2px solid rgba(255,255,255,0.3);" data-bs-dismiss="modal" onclick="document.getElementById('input-login-contact').focus();">
-               <i class="fa-solid fa-arrow-right-to-bracket me-2"></i> เข้าสู่ระบบ
-            </button>
+      <div class="modal-body p-0 text-center d-flex justify-content-center align-items-center">
+        <!-- 🌟 Wrapper ล็อกขนาดให้อิงตามกรอบรูปภาพ 100% -->
+        <div class="position-relative d-inline-block text-center" style="max-width: 100%;">
+          
+          <!-- รูปภาพ -->
+          <img src="/advert/1.jpg" alt="POS Banner" class="img-fluid" style="border-radius: 20px; max-height: 85vh; object-fit: contain; box-shadow: 0 15px 35px rgba(0,0,0,0.4);">
+          
+          <!-- ปุ่มปิด (Close) เกาะมุมขวาบนของรูป -->
+          <button type="button" class="btn-close position-absolute shadow" data-bs-dismiss="modal" aria-label="Close" style="top: 15px; right: 15px; background-color: white; opacity: 0.9; width: 30px; height: 30px; border-radius: 50%; z-index: 1060;"></button>
+          
+          <!-- ส่วนปุ่มกด เกาะด้านล่างของรูป -->
+          <div class="position-absolute w-100 d-flex justify-content-center gap-2 gap-md-3 px-3" style="bottom: 10%; left: 0;">
+              <!-- ปุ่มโหลด App -->
+              <a href="/download" class="btn fw-bold rounded-pill shadow-lg banner-btn" style="background: linear-gradient(135deg, #10b981, #059669); color: white; border: 2px solid rgba(255,255,255,0.3);">
+                 <i class="fa-brands fa-android me-1 d-none d-sm-inline"></i> โหลด app
+              </a>
+              
+              <!-- ปุ่มเข้าสู่ระบบ -->
+              <button type="button" class="btn fw-bold rounded-pill shadow-lg banner-btn" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; border: 2px solid rgba(255,255,255,0.3);" data-bs-dismiss="modal" onclick="document.getElementById('input-login-contact').focus();">
+                 <i class="fa-solid fa-arrow-right-to-bracket me-1 d-none d-sm-inline"></i> เข้าสู่ระบบ
+              </button>
+          </div>
+
         </div>
       </div>
 
