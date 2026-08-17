@@ -447,6 +447,24 @@ function startRenewPolling() {
                 allowOutsideClick: false
              }).then(() => {
                 google.script.run.clearRenewNotify(currentTenantSheetId); // เคลียร์สถานะการแจ้งเตือน
+				// 👇 🌟 เติมโค้ดส่วนนี้เข้าไป เพื่อปลดล็อกปุ่มและรีเฟรชหน้าต่าง 👇
+                globalDaysRemaining = info.daysRemaining; 
+                
+                // 1. ปลดล็อกปุ่มเมนูให้กลับมากดได้ตามสิทธิ์ของพนักงาน
+                if (currentStaff && currentStaff.permissions) {
+                    applyPermissions(currentStaff.permissions);
+                }
+                
+                // 2. ปิดหน้าต่างการตั้งค่า (ถ้าเปิดอยู่) แล้วกลับหน้าหลัก
+                if (typeof closeSettingsPage === 'function') {
+                    closeSettingsPage();
+                }
+
+                // 3. รีเฟรชระบบใหม่ทั้งหมด 1 รอบ เพื่อโหลดข้อมูลอัปเดต 100%
+                setTimeout(() => {
+                    window.location.reload();
+                }, 400);
+                // 👆 ======================================== 👆
              });
           }
         }
