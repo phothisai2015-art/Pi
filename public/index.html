@@ -44,24 +44,18 @@ document.addEventListener("DOMContentLoaded", () => {
   // 🌟 สั่งให้ Popup วิดีโอเด้งขึ้นมา
   const advertModalElement = document.getElementById('advertModal');
   if (advertModalElement) {
-    // เอาคำสั่ง loadDynamicAds() ออกไป
+    // 🌟 สั่งให้ Popup รูปภาพเด้งขึ้นมา
+  const advertModalElement = document.getElementById('advertModal');
+  if (advertModalElement) {
     const adModal = new bootstrap.Modal(advertModalElement, {
       backdrop: true, // ให้คลิกพื้นที่ว่างรอบๆ เพื่อปิดได้
-      keyboard: true  // ให้กดปุ่ม ESC ที่คีย์บอร์ดเพื่อปิดได้
+      keyboard: true  // ให้กดปุ่ม ESC เพื่อปิดได้
     });
     
-    // หน่วงเวลาให้หน้าเว็บโหลดเสร็จก่อนค่อยเด้ง
+    // หน่วงเวลาให้หน้าเว็บโหลดเสร็จก่อน 1 วินาที ค่อยเด้ง
     setTimeout(() => {
       adModal.show();
-      const vid = document.getElementById('adVideoPlayer');
-      if(vid) vid.play().catch(e => console.log(e)); // บังคับเล่น
     }, 1000);
-
-    // หยุดเล่นวิดีโอเมื่อผู้ใช้กดปิดป๊อปอัพ จะได้ไม่กินทรัพยากรเครื่อง
-    advertModalElement.addEventListener('hidden.bs.modal', function () {
-      const vid = document.getElementById('adVideoPlayer');
-      if(vid) vid.pause();
-    });
   }
 });
 
@@ -266,13 +260,12 @@ body.dark-theme .swal2-icon.swal2-error {
   /* ลบคำสั่งความสูงและ margin ออก ให้ Bootstrap จัดกลางจอให้เอง */
 }
 .ad-glass-content {
-  height: 65vh; /* 📌 ย้ายความสูง (3 ใน 4 ของจอ) มาไว้ตรงนี้แทน */
-  background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(25px);
-  -webkit-backdrop-filter: blur(25px);
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  border-radius: 28px;
-  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2);
+  height: auto; 
+  background: transparent; /* ทำให้โปร่งใสเพื่อโชว์รูปเต็มๆ */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: none;
+  box-shadow: none;
   overflow: hidden;
   width: 100%;
 }
@@ -520,22 +513,32 @@ body.dark-theme .ad-close-btn:hover {
 </div>
 
 <!-- ============================================== -->
-<!-- 🌟 Popup วิดีโอโฆษณา (VOD) -->
+<!-- 🌟 Popup รูปภาพโฆษณา (Image Banner) -->
 <!-- ============================================== -->
 <div class="modal fade" id="advertModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered ad-modal-dialog">
-    <div class="modal-content ad-glass-content border-0 position-relative">
+  <div class="modal-dialog modal-dialog-centered ad-modal-dialog modal-lg">
+    <div class="modal-content ad-glass-content border-0 position-relative" style="background: transparent; box-shadow: none;">
       
-      <!-- ปุ่มปิด (Close) -->
-      <button type="button" class="btn-close ad-close-btn" data-bs-dismiss="modal" aria-label="Close"></button>
+      <!-- ปุ่มปิด (Close) มุมขวาบน -->
+      <button type="button" class="btn-close ad-close-btn" data-bs-dismiss="modal" aria-label="Close" style="background-color: white; z-index: 1060;"></button>
       
-      <!-- ส่วนเล่นวิดีโอ -->
-      <div class="modal-body p-0 h-100">
-        <video id="adVideoPlayer" class="w-100 h-100" style="object-fit: cover; border-radius: 28px;" autoplay muted playsinline>
-          <!-- อ้างอิงพาธวิดีโอตามรูปภาพของคุณ -->
-          <source src="/VDO/welcome.mp4" type="video/mp4">
-          เบราว์เซอร์ของคุณไม่รองรับการแสดงผลวิดีโอ
-        </video>
+      <!-- ส่วนแสดงรูปภาพ -->
+      <div class="modal-body p-0 text-center position-relative d-flex flex-column align-items-center justify-content-center">
+        <!-- อ้างอิงรูปภาพตามพาร์ทของคุณ -->
+        <img src="/advert/1.jpg" alt="POS Banner" class="img-fluid w-100" style="border-radius: 28px; object-fit: contain; max-height: 70vh; box-shadow: 0 15px 35px rgba(0,0,0,0.3);">
+        
+        <!-- ส่วนปุ่มกดที่ลอยอยู่ด้านล่างรูปภาพ -->
+        <div class="position-absolute w-100 d-flex justify-content-center gap-3" style="bottom: 5%;">
+            <!-- ปุ่มโหลด App (ไปหน้าดาวน์โหลด) -->
+            <a href="/download" class="btn fw-bold rounded-pill px-4 py-2 shadow-lg" style="background: linear-gradient(135deg, #10b981, #059669); color: white; font-size: 1.1rem; border: 2px solid rgba(255,255,255,0.3);">
+               <i class="fa-brands fa-android me-2"></i> โหลด app
+            </a>
+            
+            <!-- ปุ่มเข้าสู่ระบบ (ปิดป๊อปอัพและโฟกัสช่องกรอกอีเมล) -->
+            <button type="button" class="btn fw-bold rounded-pill px-4 py-2 shadow-lg" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; font-size: 1.1rem; border: 2px solid rgba(255,255,255,0.3);" data-bs-dismiss="modal" onclick="document.getElementById('input-login-contact').focus();">
+               <i class="fa-solid fa-arrow-right-to-bracket me-2"></i> เข้าสู่ระบบ
+            </button>
+        </div>
       </div>
 
     </div>
