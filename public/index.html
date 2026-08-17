@@ -354,15 +354,49 @@ body.dark-theme .ad-close-btn:hover {
   }
 }
 
-/* 🌟 ปรับขนาดปุ่มบนแบนเนอร์ให้พอดีกับจอมือถือ */
-.banner-btn {
-  padding: 10px 30px;
-  font-size: 1.1rem;
+/* 🌟 ปรับขนาดปุ่มบนแบนเนอร์และสไตล์กระจก (Glassmorphism) */
+.banner-btn-glass {
+  padding: 8px 24px; /* ปรับให้ปุ่มเล็กลง กระชับขึ้น */
+  font-size: 1rem;
+  backdrop-filter: blur(12px); /* เอฟเฟกต์เบลอหลังกระจก */
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.4) !important; /* ขอบกระจกใสแบบบางๆ */
+  color: #fff !important;
+  transition: all 0.3s ease;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.4); /* เงาตัวหนังสือให้ชัดเจนขึ้นเมื่ออยู่บนกระจก */
 }
+
+/* เอฟเฟกต์ตอนเอาเมาส์ชี้ปุ่ม */
+.banner-btn-glass:hover {
+  transform: translateY(-3px);
+  border-color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* กระจกโทนเขียว (โหลด app) */
+.glass-green {
+  background: rgba(16, 185, 129, 0.25) !important; /* สีเขียวโปร่งแสง */
+  box-shadow: 0 8px 32px rgba(16, 185, 129, 0.3);
+}
+.glass-green:hover {
+  background: rgba(16, 185, 129, 0.45) !important;
+  box-shadow: 0 8px 32px rgba(16, 185, 129, 0.5);
+}
+
+/* กระจกโทนฟ้า (เข้าสู่ระบบ) */
+.glass-blue {
+  background: rgba(59, 130, 246, 0.25) !important; /* สีฟ้าโปร่งแสง */
+  box-shadow: 0 8px 32px rgba(59, 130, 246, 0.3);
+}
+.glass-blue:hover {
+  background: rgba(59, 130, 246, 0.45) !important;
+  box-shadow: 0 8px 32px rgba(59, 130, 246, 0.5);
+}
+
+/* บีบขนาดปุ่มลงอีกเมื่ออยู่บนหน้าจอมือถือ */
 @media (max-width: 576px) {
-  .banner-btn {
-    padding: 8px 16px;
-    font-size: 0.9rem;
+  .banner-btn-glass {
+    padding: 6px 16px;
+    font-size: 0.85rem;
   }
 }
 	
@@ -540,15 +574,17 @@ body.dark-theme .ad-close-btn:hover {
           
           <!-- ส่วนปุ่มกด เกาะด้านล่างของรูป -->
           <div class="position-absolute w-100 d-flex justify-content-center gap-2 gap-md-3 px-3" style="bottom: 10%; left: 0;">
-              <!-- ปุ่มโหลด App -->
-              <a href="/download" class="btn fw-bold rounded-pill shadow-lg banner-btn" style="background: linear-gradient(135deg, #10b981, #059669); color: white; border: 2px solid rgba(255,255,255,0.3);">
+              
+              <!-- ปุ่มโหลด App (กระจกเขียว) -->
+              <a href="/download" class="btn fw-bold rounded-pill banner-btn-glass glass-green">
                  <i class="fa-brands fa-android me-1 d-none d-sm-inline"></i> โหลด app
               </a>
               
-              <!-- ปุ่มเข้าสู่ระบบ -->
-              <button type="button" class="btn fw-bold rounded-pill shadow-lg banner-btn" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; border: 2px solid rgba(255,255,255,0.3);" data-bs-dismiss="modal" onclick="document.getElementById('input-login-contact').focus();">
+              <!-- ปุ่มเข้าสู่ระบบ (กระจกฟ้า) -->
+              <button type="button" class="btn fw-bold rounded-pill banner-btn-glass glass-blue" data-bs-dismiss="modal" onclick="document.getElementById('input-login-contact').focus();">
                  <i class="fa-solid fa-arrow-right-to-bracket me-1 d-none d-sm-inline"></i> เข้าสู่ระบบ
               </button>
+              
           </div>
 
         </div>
